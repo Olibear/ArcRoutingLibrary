@@ -12,14 +12,14 @@ import arl.core.problem.impl.ObjectiveFunction;
 public abstract class Problem {
 	
 	//local fields
-	protected Graph mGraph;
+	protected Graph<Vertex, Edge> mGraph;
 	protected ObjectiveFunction mObj;
 	
 	/**
 	 * Basic constructor
 	 * @param g
 	 */
-	public Problem(Graph g, ObjectiveFunction o){ 
+	public Problem(Graph<Vertex, Edge> g, ObjectiveFunction o){ 
 		mGraph = g;
 		mObj = o;
 	};
@@ -29,9 +29,9 @@ public abstract class Problem {
 	 */
 	public abstract double evaluateObjective(Collection<Route> routes);
 	/**
-	 * Says whether the current state of the Problem is solvable
+	 * Says whether the provided set of routes is a feasible solution
 	 * @return true if problem instance is solvable; false oth.
 	 */
-	public abstract boolean isFeasible();
+	public abstract boolean isFeasible(Collection<Route> routes);
 
 }

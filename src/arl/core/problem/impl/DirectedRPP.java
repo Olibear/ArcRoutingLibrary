@@ -25,7 +25,7 @@ public class DirectedRPP extends Problem {
 	}
 
 	@Override
-	public boolean isFeasible() {
+	public boolean isFeasible(Collection<Route> routes) {
 		// TODO Auto-generated method stub
 		return false;
 	}

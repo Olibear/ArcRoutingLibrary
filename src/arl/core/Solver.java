@@ -24,15 +24,15 @@ public abstract class Solver {
 	}
 	/**
 	 * Attempts to solve the instance assigned to this problem.  
-	 * @return null if instance is not feasible, or no instance is assigned.
+	 * @return null if problem instance is not assigned.
 	 */
 	public Collection<Route> trySolve(){
-		if (mInstance == null || !mInstance.isFeasible())
+		if (mInstance == null)
 			return null;
 		return solve();
 	}
 	/**
-	 * Actually solves the instance, returning a Collection of routes.
+	 * Actually solves the instance, (first checking for feasibility), returning a Collection of routes.
 	 * @return The set of routes the solver has concluded is best.
 	 */
 	protected abstract Collection<Route> solve();
