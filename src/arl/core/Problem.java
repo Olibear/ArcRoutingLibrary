@@ -2,7 +2,7 @@ package arl.core;
 
 import java.util.Collection;
 
-import arl.core.problem.impl.ObjectiveFunction;
+import arl.problem.impl.ObjectiveFunction;
 
 /**
  * Problem abstraction.  Most general contract that Problem objects must fulfill.

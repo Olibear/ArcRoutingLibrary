@@ -1,20 +1,20 @@
 package arl.core;
 
-import arl.graph.util.Pair;
-
 /**
  * Vertex abstraction. Most general contract that Vertex must fulfill.
  * @author oliverlum
  *
  */
 public abstract class Vertex {
+	private static int counter = 1; //for assigning vertex ids
 	private String mLabel;
 	private int mId;
 	
-	public Vertex(String label, int id)
+	public Vertex(String label)
 	{
 		setLabel(label);
-		setId(id);
+		setId(counter);
+		counter++;
 	}
 	
 	//==================================

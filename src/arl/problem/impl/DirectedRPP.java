@@ -1,18 +1,19 @@
-package arl.core.problem.impl;
+package arl.problem.impl;
 
 import java.util.Collection;
 
 import arl.core.Graph;
 import arl.core.Problem;
 import arl.core.Route;
+
 /**
- * The Directed Chinese Postman Problem.
+ * The Directed Rural Postman Problem.
  * @author oliverlum
  *
  */
-public class DirectedCPP extends Problem{
+public class DirectedRPP extends Problem {
 
-	public DirectedCPP(Graph g, ObjectiveFunction o) {
+	public DirectedRPP(Graph g, ObjectiveFunction o) {
 		super(g, o);
 		// TODO Auto-generated constructor stub
 	}

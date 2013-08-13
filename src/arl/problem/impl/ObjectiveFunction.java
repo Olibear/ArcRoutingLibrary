@@ -1,4 +1,4 @@
-package arl.core.problem.impl;
+package arl.problem.impl;
 
 /**
  * General form of an objective function.

@@ -7,19 +7,21 @@ import arl.graph.util.Pair;
  * @author oliverlum
  *
  */
-public abstract class Edge {
+public class Edge {
 	
+	private static int counter = 1; //for assigning edge ids
 	private String mLabel;
 	private int mId;
 	private Pair<Vertex> mEndpoints;
 	private double mCost;
 	
-	public Edge(String label, int id, Pair<Vertex> endpoints, double cost)
+	public Edge(String label, Pair<Vertex> endpoints, double cost)
 	{
 		setLabel(label);
-		setId(id);
+		setId(counter);
 		setEndpoints(endpoints);
 		setCost(cost);
+		counter++;
 	}
 
 	//==================================
