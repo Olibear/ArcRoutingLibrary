@@ -10,7 +10,6 @@ import java.util.LinkedHashSet;
  *
  */
 public abstract class Graph<V extends Vertex,E extends Edge> {
-	private LinkedHashMap<Vertex, LinkedHashSet<Vertex>> neighbors;
 	/**
 	 * Getter for the vertices.
 	 * @return a Collection of vertices belonging to this graph

@@ -7,15 +7,15 @@ import arl.graph.util.Pair;
  * @author oliverlum
  *
  */
-public class Edge {
+public class Edge<V extends Vertex> {
 	
 	private static int counter = 1; //for assigning edge ids
 	private String mLabel;
 	private int mId;
-	private Pair<Vertex> mEndpoints;
+	private Pair<V> mEndpoints;
 	private double mCost;
 	
-	public Edge(String label, Pair<Vertex> endpoints, double cost)
+	public Edge(String label, Pair<V> endpoints, double cost)
 	{
 		setLabel(label);
 		setId(counter);
@@ -44,11 +44,11 @@ public class Edge {
 		this.mId = mId;
 	}
 
-	public Pair<Vertex> getEndpoints() {
+	public Pair<V> getEndpoints() {
 		return mEndpoints;
 	}
 
-	public void setEndpoints(Pair<Vertex> mEndpoints) {
+	public void setEndpoints(Pair<V> mEndpoints) {
 		this.mEndpoints = mEndpoints;
 	}
 

@@ -7,7 +7,7 @@ import arl.graph.util.Pair;
  * @author Oliver
  *
  */
-public abstract class Arc extends Edge{
+public abstract class Arc<V extends Vertex> extends Edge<V>{
 
 	/**
 	 * Constructor for an arc.  The order of the endpoints matters; the first in the pair should be the tail.  
@@ -16,14 +16,14 @@ public abstract class Arc extends Edge{
 	 * @param endpoints
 	 * @param cost
 	 */
-	public Arc(String label, Pair<Vertex> endpoints, double cost) {
+	public Arc(String label, Pair<V> endpoints, double cost) {
 		super(label, endpoints, cost);
 	}
-	public Vertex getHead()
+	public V getHead()
 	{
 		return getEndpoints().getSecond();
 	}
-	public Vertex getTail()
+	public V getTail()
 	{
 		return getEndpoints().getFirst();
 	}

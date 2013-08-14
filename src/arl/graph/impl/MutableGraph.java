@@ -2,6 +2,8 @@ package arl.graph.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import arl.core.Edge;
 import arl.core.Graph;
@@ -12,10 +14,16 @@ import arl.core.Vertex;
  * @author Oliver
  *
  */
-public abstract class MutableGraph<V extends Vertex, E extends Edge> extends Graph<V,E>{
+public abstract class MutableGraph<V extends Vertex, E extends Edge<V>> extends Graph<V,E>{
 
 	private ArrayList<V> mVertices;
 	private ArrayList<E> mEdges;
+	protected LinkedHashMap<V, LinkedHashSet<V>> neighbors;
+	
+	//==============================
+	//Graph overrides
+	//==============================
+	
 	@Override
 	public Collection<V> getVertices() {
 		return mVertices;
@@ -31,6 +39,8 @@ public abstract class MutableGraph<V extends Vertex, E extends Edge> extends Gra
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	protected abstract void addToNeighbors(E e) throws IllegalArgumentException;
 
 
 }
