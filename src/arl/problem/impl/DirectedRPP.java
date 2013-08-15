@@ -19,12 +19,6 @@ public class DirectedRPP extends Problem {
 	}
 
 	@Override
-	public double evaluateObjective(Collection<Route> routes) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public boolean isFeasible(Collection<Route> routes) {
 		// TODO Auto-generated method stub
 		return false;

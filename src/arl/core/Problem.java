@@ -24,11 +24,6 @@ public abstract class Problem {
 		mObj = o;
 	};
 	/**
-	 * Evaluates the objective function associated with this problem.
-	 * @return the objective function's value given a candidate set of routes.
-	 */
-	public abstract double evaluateObjective(Collection<Route> routes);
-	/**
 	 * Says whether the provided set of routes is a feasible solution
 	 * @return true if problem instance is solvable; false oth.
 	 */
