@@ -1,7 +1,7 @@
 package arl.graph.util;
 
 import arl.core.Arc;
-import arl.core.Edge;
+import arl.core.Link;
 import arl.core.Graph;
 import arl.core.Route;
 import arl.core.Vertex;
@@ -24,15 +24,50 @@ public class CommonAlgorithms {
 		//TODO: Fleury's
 		return fleury(eulerianGraph);
 	}
-	public static Route tryFleury(UndirectedGraph<UndirectedVertex, Edge<UndirectedVertex>> eulerianGraph) throws IllegalArgumentException{
+	public static Route tryFleury(UndirectedGraph<UndirectedVertex, Link<UndirectedVertex>> eulerianGraph) throws IllegalArgumentException{
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
 		return fleury(eulerianGraph);
 	}
-	public static Route fleury()
+	/**
+	 * business logic for Fleury's algorithm
+	 * @return the Eulerian cycle
+	 */
+	private static Route fleury()
 	{
-		//TODO: Fleury's
 		return null;
+	}
+	/**
+	 * FindRoute algorithm (alternative to Fleury's given in Dussault et al. Plowing with Precedence
+	 * @return the Eulerian cycle
+	 */
+	public static Route findRoute()
+	{
+		return null;
+	}
+	/**
+	 * Checks to see if the directed graph is weakly connected
+	 * @return true if the graph is  weakly connected, false oth.
+	 */
+	public static boolean isWeaklyConnected() 
+	{
+		return false;
+	}
+	/**
+	 * Checks to see if the directed graph is strongly connected
+	 * @return true if the graph is strongly  connected, false oth.
+	 */
+	public static boolean isStronglyConnected()
+	{
+		return false;
+	}
+	/**
+	 * Checks to see if the undirected graph is connected
+	 * @return true if the graph is connected, false oth.
+	 */
+	public static boolean isConnected()
+	{
+		return false;
 	}
 	public static boolean isEulerian (DirectedGraph<DirectedVertex, Arc<DirectedVertex>> graph)
 	{
@@ -43,7 +78,7 @@ public class CommonAlgorithms {
 		}
 		return true;
 	}
-	public static boolean isEulerian(UndirectedGraph<UndirectedVertex, Edge<UndirectedVertex>> graph) 
+	public static boolean isEulerian(UndirectedGraph<UndirectedVertex, Link<UndirectedVertex>> graph) 
 	{
 		for (UndirectedVertex v:graph.getVertices()) 
 		{

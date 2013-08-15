@@ -3,6 +3,7 @@ package arl.graph.impl;
 import java.util.LinkedHashSet;
 
 import arl.core.Edge;
+import arl.core.Link;
 import arl.vertex.impl.UndirectedVertex;
 /**
  * First attempts at an Undirected Graph.
@@ -11,7 +12,7 @@ import arl.vertex.impl.UndirectedVertex;
  * @param <V> - Vertex Class
  * @param <E> - Edge Class
  */
-public class UndirectedGraph<V extends UndirectedVertex, E extends Edge<V>> extends MutableGraph<V,E>{
+public class UndirectedGraph<E extends Edge> extends MutableGraph<UndirectedVertex,E>{
 	/**
 	 * When adding an edge, add references to the neighbor set
 	 * @param e
@@ -19,7 +20,7 @@ public class UndirectedGraph<V extends UndirectedVertex, E extends Edge<V>> exte
 	@Override
 	protected void addToNeighbors (E e) throws IllegalArgumentException
 	{
-		LinkedHashSet<V> temp = neighbors.get(e.getEndpoints().getFirst());
+		LinkedHashSet<UndirectedVertex> temp = neighbors.get(e.getEndpoints().getFirst());
 		if (temp == null)
 			throw new IllegalArgumentException();
 		temp.add(e.getEndpoints().getSecond());
@@ -28,14 +29,14 @@ public class UndirectedGraph<V extends UndirectedVertex, E extends Edge<V>> exte
 		
 	}
 	@Override
-	public void addVertex(V v) {
+	public void addVertex(UndirectedVertex v) {
 		getVertices().add(v);
 	}
 
 	@Override
 	public void addEdge(E e) {
 		addToNeighbors(e);
-		V toUpdate = e.getEndpoints().getFirst();
+		UndirectedVertex toUpdate = e.getEndpoints().getFirst();
 		toUpdate.setDegree(toUpdate.getDegree()+1);
 		toUpdate = e.getEndpoints().getSecond();
 		toUpdate.setDegree(toUpdate.getDegree()+1);

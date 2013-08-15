@@ -5,17 +5,17 @@ import java.util.LinkedHashSet;
 import arl.core.Arc;
 import arl.vertex.impl.DirectedVertex;
 
-public class DirectedGraph<V extends DirectedVertex, A extends Arc<V>> extends MutableGraph<V,A> {
+public class DirectedGraph<A extends Arc> extends MutableGraph<DirectedVertex,A> {
 
 	@Override
-	public void addVertex(V v) {
+	public void addVertex(DirectedVertex v) {
 		getVertices().add(v);
 	}
 
 	@Override
 	public void addEdge(A e) {
 		addToNeighbors(e);
-		V toUpdate = e.getTail();
+		DirectedVertex toUpdate = e.getTail();
 		toUpdate.setOutDegree(toUpdate.getOutDegree() + 1);
 		toUpdate = e.getHead();
 		toUpdate.setInDegree(toUpdate.getInDegree()+1);
@@ -23,7 +23,7 @@ public class DirectedGraph<V extends DirectedVertex, A extends Arc<V>> extends M
 
 	@Override
 	protected void addToNeighbors(A e) throws IllegalArgumentException{
-		LinkedHashSet<V> temp = neighbors.get(e.getTail());
+		LinkedHashSet<DirectedVertex> temp = neighbors.get(e.getTail());
 		if (temp == null)
 			throw new IllegalArgumentException();
 		temp.add(e.getHead());

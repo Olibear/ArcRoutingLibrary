@@ -1,63 +1,12 @@
 package arl.core;
 
 import arl.graph.util.Pair;
+import arl.vertex.impl.UndirectedVertex;
 
-/**
- * Edge abstraction.  Provides most general contract for all Edge objects.
- * @author oliverlum
- *
- */
-public class Edge<V extends Vertex> {
-	
-	private static int counter = 1; //for assigning edge ids
-	private String mLabel;
-	private int mId;
-	private Pair<V> mEndpoints;
-	private double mCost;
-	
-	public Edge(String label, Pair<V> endpoints, double cost)
-	{
-		setLabel(label);
-		setId(counter);
-		setEndpoints(endpoints);
-		setCost(cost);
-		counter++;
-	}
+public class Edge extends Link<UndirectedVertex>{
 
-	//==================================
-	// Getters and Setters
-	//==================================
-	
-	public String getLabel() {
-		return mLabel;
-	}
-
-	public void setLabel(String mLabel) {
-		this.mLabel = mLabel;
-	}
-
-	public int getId() {
-		return mId;
-	}
-
-	public void setId(int mId) {
-		this.mId = mId;
-	}
-
-	public Pair<V> getEndpoints() {
-		return mEndpoints;
-	}
-
-	public void setEndpoints(Pair<V> mEndpoints) {
-		this.mEndpoints = mEndpoints;
-	}
-
-	public double getCost() {
-		return mCost;
-	}
-
-	public void setCost(double mCost) {
-		this.mCost = mCost;
+	public Edge(String label, Pair<UndirectedVertex> endpoints, double cost) {
+		super(label, endpoints, cost);
 	}
 
 }

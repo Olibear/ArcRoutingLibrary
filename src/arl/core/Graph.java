@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
  * @author oliverlum
  *
  */
-public abstract class Graph<V extends Vertex,E extends Edge> {
+public abstract class Graph<V extends Vertex,E extends Link> {
 	/**
 	 * Getter for the vertices.
 	 * @return a Collection of vertices belonging to this graph

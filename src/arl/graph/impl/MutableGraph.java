@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
-import arl.core.Edge;
+import arl.core.Link;
 import arl.core.Graph;
 import arl.core.Vertex;
 
@@ -14,7 +14,7 @@ import arl.core.Vertex;
  * @author Oliver
  *
  */
-public abstract class MutableGraph<V extends Vertex, E extends Edge<V>> extends Graph<V,E>{
+public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends Graph<V,E>{
 
 	private ArrayList<V> mVertices;
 	private ArrayList<E> mEdges;
