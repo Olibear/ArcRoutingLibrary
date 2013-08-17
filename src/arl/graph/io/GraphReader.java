@@ -1,13 +1,10 @@
 package arl.graph.io;
 
+/**
+ * Reader to accept various file formats, and store them as a graph object
+ * @author Oliver
+ *
+ */
 public class GraphReader {
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 
 }

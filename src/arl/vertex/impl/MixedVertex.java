@@ -1,20 +1,23 @@
 package arl.vertex.impl;
 
 import arl.core.Vertex;
+
 /**
- * Vertex representation for Directed Graphs.  
+ * Vertex representatio for use with Mixed Graphs.  This vertex stores undirected degree separately from in-degree and out-degree.
  * @author Oliver
  *
  */
-public class DirectedVertex extends Vertex{
+public class MixedVertex extends Vertex {
 
 	private int inDegree;
 	private int outDegree;
+	private int degree;
 	
-	public DirectedVertex(String label) {
+	public MixedVertex(String label) {
 		super(label);
 		setInDegree(0);
 		setOutDegree(0);
+		setDegree(0);
 	}
 
 	public int getInDegree() {
@@ -31,6 +34,14 @@ public class DirectedVertex extends Vertex{
 
 	public void setOutDegree(int outDegree) {
 		this.outDegree = outDegree;
+	}
+
+	public int getDegree() {
+		return degree;
+	}
+
+	public void setDegree(int degree) {
+		this.degree = degree;
 	}
 
 

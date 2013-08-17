@@ -1,7 +1,8 @@
 package arl.problem.impl;
 
 import java.util.Collection;
-
+import arl.core.Vertex;
+import arl.core.Link;
 import arl.core.Graph;
 import arl.core.Problem;
 import arl.core.Route;
@@ -12,7 +13,7 @@ import arl.core.Route;
  */
 public class DirectedCPP extends Problem{
 
-	public DirectedCPP(Graph g, ObjectiveFunction o) {
+	public DirectedCPP(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o) {
 		super(g, o);
 		// TODO Auto-generated constructor stub
 	}

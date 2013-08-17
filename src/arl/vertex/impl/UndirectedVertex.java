@@ -1,7 +1,11 @@
 package arl.vertex.impl;
 
 import arl.core.Vertex;
-
+/**
+ * Vertex representation for Undirected Graphs.
+ * @author Oliver
+ *
+ */
 public class UndirectedVertex extends Vertex{
 
 	private int degree;

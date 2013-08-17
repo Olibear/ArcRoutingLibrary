@@ -3,7 +3,6 @@ package arl.graph.impl;
 import java.util.LinkedHashSet;
 
 import arl.core.Edge;
-import arl.core.Link;
 import arl.vertex.impl.UndirectedVertex;
 /**
  * First attempts at an Undirected Graph.
@@ -30,7 +29,7 @@ public class UndirectedGraph<E extends Edge> extends MutableGraph<UndirectedVert
 	}
 	@Override
 	public void addVertex(UndirectedVertex v) {
-		getVertices().add(v);
+		super.addVertex(v);
 	}
 
 	@Override
@@ -40,6 +39,7 @@ public class UndirectedGraph<E extends Edge> extends MutableGraph<UndirectedVert
 		toUpdate.setDegree(toUpdate.getDegree()+1);
 		toUpdate = e.getEndpoints().getSecond();
 		toUpdate.setDegree(toUpdate.getDegree()+1);
+		super.addEdge(e);
 	}
 
 }

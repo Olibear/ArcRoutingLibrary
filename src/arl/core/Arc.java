@@ -2,14 +2,13 @@ package arl.core;
 
 import arl.graph.util.Pair;
 import arl.vertex.impl.DirectedVertex;
-import arl.vertex.impl.UndirectedVertex;
 
 /**
  * Arc abstraction.  The most general contract that all arcs must satisfy.
  * @author Oliver
  *
  */
-public abstract class Arc extends Link<DirectedVertex>{
+public class Arc extends Link<DirectedVertex>{
 
 	/**
 	 * Constructor for an arc.  The order of the endpoints matters; the first in the pair should be the tail.  
@@ -21,10 +20,18 @@ public abstract class Arc extends Link<DirectedVertex>{
 	public Arc(String label, Pair<DirectedVertex> endpoints, double cost) {
 		super(label, endpoints, cost);
 	}
+	/**
+	 * Getter for the vertex that is at the head of this arc; (if the arc is from v1 to v2, this will return v2)
+	 * @return - the head vertex
+	 */
 	public DirectedVertex getHead()
 	{
 		return getEndpoints().getSecond();
 	}
+	/**
+	 * Getter for the vertex that is at the tail of this arc; (if the arc is from v1 to v2, this will return v1)
+	 * @return - the tail vertex
+	 */
 	public DirectedVertex getTail()
 	{
 		return getEndpoints().getFirst();

@@ -1,9 +1,5 @@
 package arl.problem.impl;
 
-import java.util.Collection;
-
-import arl.core.Route;
-
 /**
  * General form of an objective function.
  * @author oliverlum

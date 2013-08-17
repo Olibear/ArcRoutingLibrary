@@ -3,11 +3,11 @@ package arl.core;
 import arl.graph.util.Pair;
 
 /**
- * Edge abstraction.  Provides most general contract for all Edge objects.
+ * Link abstraction.  Provides most general contract for all Link objects.
  * @author oliverlum
  *
  */
-public class Link<V extends Vertex> {
+public abstract class Link<V extends Vertex> {
 	
 	private static int counter = 1; //for assigning edge ids
 	private String mLabel;

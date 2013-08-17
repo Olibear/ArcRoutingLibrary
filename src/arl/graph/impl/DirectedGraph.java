@@ -4,12 +4,17 @@ import java.util.LinkedHashSet;
 
 import arl.core.Arc;
 import arl.vertex.impl.DirectedVertex;
-
+/**
+ * Reperesentation of a Directed Graph; that is, it can only contain arcs, and directed vertices
+ * @author Oliver
+ *
+ * @param <A> Arc that this graph will use
+ */
 public class DirectedGraph<A extends Arc> extends MutableGraph<DirectedVertex,A> {
 
 	@Override
 	public void addVertex(DirectedVertex v) {
-		getVertices().add(v);
+		super.addVertex(v);
 	}
 
 	@Override
@@ -19,6 +24,7 @@ public class DirectedGraph<A extends Arc> extends MutableGraph<DirectedVertex,A>
 		toUpdate.setOutDegree(toUpdate.getOutDegree() + 1);
 		toUpdate = e.getHead();
 		toUpdate.setInDegree(toUpdate.getInDegree()+1);
+		super.addEdge(e);
 	}
 
 	@Override

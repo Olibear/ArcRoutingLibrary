@@ -1,13 +1,10 @@
 package arl.graph.io;
 
+/**
+ * Contains supported formats and format information for conversion / export / import
+ * @author Oliver
+ *
+ */
 public class Format {
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 
 }

@@ -1,10 +1,6 @@
 package arl.graph.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-
+import java.util.HashSet;
 import arl.core.Link;
 import arl.core.Graph;
 import arl.core.Vertex;
@@ -16,21 +12,20 @@ import arl.core.Vertex;
  */
 public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends Graph<V,E>{
 
-	private ArrayList<V> mVertices;
-	private ArrayList<E> mEdges;
-	protected LinkedHashMap<V, LinkedHashSet<V>> neighbors;
+	private HashSet<V> mVertices;
+	private HashSet<E> mEdges;
 	
 	//==============================
 	//Graph overrides
 	//==============================
 	
 	@Override
-	public Collection<V> getVertices() {
+	public HashSet<V> getVertices() {
 		return mVertices;
 	}
 
 	@Override
-	public Collection<E> getEdges() {
+	public HashSet<E> getEdges() {
 		return mEdges;
 	}
 
@@ -40,6 +35,19 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		return null;
 	}
 	
+	@Override
+	public void addEdge(E e) {
+		mEdges.add(e);
+	}
+	@Override
+	public void addVertex(V v) {
+		mVertices.add(v);
+	}
+	/**
+	 * Intended to be called as a helper method to add edge to help update references to neighbors
+	 * @param e - edge containing reference info to be added
+	 * @throws IllegalArgumentException - if either of the endpoints of the  edge are null.
+	 */
 	protected abstract void addToNeighbors(E e) throws IllegalArgumentException;
 
 

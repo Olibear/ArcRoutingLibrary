@@ -12,14 +12,14 @@ import arl.problem.impl.ObjectiveFunction;
 public abstract class Problem {
 	
 	//local fields
-	protected Graph<Vertex, Link> mGraph;
+	protected Graph<Vertex, Link<Vertex>> mGraph;
 	protected ObjectiveFunction mObj;
 	
 	/**
 	 * Basic constructor
 	 * @param g
 	 */
-	public Problem(Graph<Vertex, Link> g, ObjectiveFunction o){ 
+	public Problem(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o){ 
 		mGraph = g;
 		mObj = o;
 	};

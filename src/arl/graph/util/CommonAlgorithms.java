@@ -1,5 +1,9 @@
 package arl.graph.util;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+
 import arl.core.Arc;
 import arl.core.Edge;
 import arl.core.Link;
@@ -7,6 +11,7 @@ import arl.core.Graph;
 import arl.core.Route;
 import arl.core.Vertex;
 import arl.graph.impl.DirectedGraph;
+import arl.graph.impl.MutableGraph;
 import arl.graph.impl.UndirectedGraph;
 import arl.vertex.impl.DirectedVertex;
 import arl.vertex.impl.UndirectedVertex;
@@ -34,7 +39,7 @@ public class CommonAlgorithms {
 	 * business logic for Fleury's algorithm
 	 * @return the Eulerian cycle
 	 */
-	private static Route fleury()
+	private static Route fleury(Graph<?,?> graph)
 	{
 		return null;
 	}
@@ -42,7 +47,7 @@ public class CommonAlgorithms {
 	 * FindRoute algorithm (alternative to Fleury's given in Dussault et al. Plowing with Precedence
 	 * @return the Eulerian cycle
 	 */
-	public static Route findRoute()
+	public static Route findRoute(Graph<?,?> graph)
 	{
 		return null;
 	}
@@ -50,7 +55,7 @@ public class CommonAlgorithms {
 	 * Checks to see if the directed graph is weakly connected
 	 * @return true if the graph is  weakly connected, false oth.
 	 */
-	public static boolean isWeaklyConnected() 
+	public static boolean isWeaklyConnected(DirectedGraph<?> graph) 
 	{
 		return false;
 	}
@@ -58,16 +63,23 @@ public class CommonAlgorithms {
 	 * Checks to see if the directed graph is strongly connected
 	 * @return true if the graph is strongly  connected, false oth.
 	 */
-	public static boolean isStronglyConnected()
+	public static boolean isStronglyConnected(DirectedGraph<?> graph)
 	{
 		return false;
 	}
 	/**
 	 * Checks to see if the undirected graph is connected
-	 * @return true if the graph is connected, false oth.
+	 * @return true if the graph is connected (or empty), false oth.
 	 */
-	public static boolean isConnected()
+	public static boolean isConnected(UndirectedGraph<?> graph)
 	{
+		//start at an arbitrary vertex
+		HashSet<UndirectedVertex> vertices = graph.getVertices();
+		//check for empty; trivially connected
+		if(vertices.isEmpty())
+			return true;
+		UndirectedVertex start =vertices.iterator().next(); 
+		
 		return false;
 	}
 	public static boolean isEulerian (DirectedGraph<Arc> graph)
