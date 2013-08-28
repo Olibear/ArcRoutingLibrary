@@ -1,8 +1,8 @@
 package arl.graph.util;
 
-import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import arl.core.Arc;
 import arl.core.Edge;
@@ -11,7 +11,6 @@ import arl.core.Graph;
 import arl.core.Route;
 import arl.core.Vertex;
 import arl.graph.impl.DirectedGraph;
-import arl.graph.impl.MutableGraph;
 import arl.graph.impl.UndirectedGraph;
 import arl.vertex.impl.DirectedVertex;
 import arl.vertex.impl.UndirectedVertex;
@@ -19,7 +18,7 @@ import arl.vertex.impl.UndirectedVertex;
 public class CommonAlgorithms {
 
 	/**
-	 * Fleury's algorithm for determining an Euler tour through an Eulerian graph.
+	 * Fleury's algorithm for determining an Euler tour through an directed Eulerian graph.
 	 * @param eulerianGraph - an eulerian graph on which to construct the tour 
 	 * @return a Route object containing the tour.
 	 * @throws IllegalArgumentException if the graph passed in is not Eulerian.
@@ -30,6 +29,12 @@ public class CommonAlgorithms {
 		//TODO: Fleury's
 		return fleury(eulerianGraph);
 	}
+	/**
+	 * Fleury's algorithm for determining an Euler tour through an undirected Eulerian graph.
+	 * @param eulerianGraph - an eulerian graph on which to construct the tour 
+	 * @return a Route object containing the tour.
+	 * @throws IllegalArgumentException if the graph passed in is not Eulerian.
+	 */
 	public static Route tryFleury(UndirectedGraph<Edge> eulerianGraph) throws IllegalArgumentException{
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
@@ -82,6 +87,11 @@ public class CommonAlgorithms {
 		
 		return false;
 	}
+	/**
+	 * Checks to see if the directed graph is eulerian.
+	 * @param graph
+	 * @return true if the graph is eulerian, false oth.
+	 */
 	public static boolean isEulerian (DirectedGraph<Arc> graph)
 	{
 		for(DirectedVertex v: graph.getVertices())  
@@ -91,6 +101,11 @@ public class CommonAlgorithms {
 		}
 		return true;
 	}
+	/**
+	 * Checks to see if the undirected graph is eulerian.
+	 * @param graph
+	 * @return true if the graph is eulerian, false oth.
+	 */
 	public static boolean isEulerian(UndirectedGraph<Edge> graph) 
 	{
 		for (UndirectedVertex v:graph.getVertices()) 
@@ -99,6 +114,24 @@ public class CommonAlgorithms {
 				return false;
 		}
 		return true;
+	}
+	/**
+	 * Fetches a map containing the shortest paths between all nodes in the graph.
+	 * @param graph
+	 * @return a map containing the shortest paths between all nodes in the graph
+	 */
+	public static Map<Pair<Vertex>, Route> allPairsShortestPaths(Graph<Vertex,  Link<Vertex>> graph)
+	{
+		return null;
+	}
+	/**
+	 * Performs a maximal weighted matching on the graph.
+	 * @param graph
+	 * @return a set containing pairs which are coupled in the maximal matching.
+	 */
+	public static Set<Pair<Vertex>> maxWeightedMatching(Graph<Vertex, Link<Vertex>> graph)
+	{
+		return null;
 	}
 
 }

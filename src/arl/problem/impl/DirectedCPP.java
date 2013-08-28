@@ -1,10 +1,11 @@
 package arl.problem.impl;
 
 import java.util.Collection;
+
+import arl.core.Problem;
 import arl.core.Vertex;
 import arl.core.Link;
 import arl.core.Graph;
-import arl.core.Problem;
 import arl.core.Route;
 /**
  * The Directed Chinese Postman Problem.

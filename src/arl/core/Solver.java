@@ -2,6 +2,7 @@ package arl.core;
 
 import java.util.Collection;
 
+
 /**
  * Solver abstraction. Most general contract that Solvers must fulfill.
  * @author oliverlum
