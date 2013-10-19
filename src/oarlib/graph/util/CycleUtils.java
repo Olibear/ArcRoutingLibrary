@@ -1,4 +1,4 @@
-package arl.graph.util;
+package oarlib.graph.util;
 /**
  * Utils for permuting cycles; mostly intended for Plowing with Precedence Solver.
  * @author oliverlum

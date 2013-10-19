@@ -1,4 +1,4 @@
-package arl.graph.util;
+package oarlib.graph.util;
 
 /**
  * Generic pair class.  For storing endpoints of an Edge, but could also be used for other things.

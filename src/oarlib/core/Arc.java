@@ -1,7 +1,7 @@
-package arl.core;
+package oarlib.core;
 
-import arl.graph.util.Pair;
-import arl.vertex.impl.DirectedVertex;
+import oarlib.graph.util.Pair;
+import oarlib.vertex.impl.DirectedVertex;
 
 /**
  * Arc abstraction.  The most general contract that all arcs must satisfy.

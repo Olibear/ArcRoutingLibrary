@@ -1,11 +1,11 @@
-package arl.route.impl;
+package oarlib.route.impl;
 
 import java.util.List;
 
-import arl.core.Graph;
-import arl.core.Link;
-import arl.core.Route;
-import arl.core.Vertex;
+import oarlib.core.Graph;
+import oarlib.core.Link;
+import oarlib.core.Route;
+import oarlib.core.Vertex;
 /**
  * A path is a simple route that keeps track of its cost during construction.
  * @author Oliver

@@ -1,6 +1,6 @@
-package arl.objective.impl;
+package oarlib.objective.impl;
 
-import arl.problem.impl.ObjectiveFunction;
+import oarlib.problem.impl.ObjectiveFunction;
 
 /**
  * Meant to encompass objective functions for integer program formulations.

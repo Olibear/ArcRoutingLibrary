@@ -1,12 +1,13 @@
-package arl.graph.impl;
+package oarlib.graph.impl;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
-import arl.core.Arc;
-import arl.graph.util.Pair;
-import arl.vertex.impl.DirectedVertex;
+import oarlib.core.Arc;
+import oarlib.graph.util.Pair;
+import oarlib.graph.util.UnmatchedPair;
+import oarlib.vertex.impl.DirectedVertex;
 /**
  * Reperesentation of a Directed Graph; that is, it can only contain arcs, and directed vertices
  * @author Oliver
@@ -32,10 +33,7 @@ public class DirectedGraph<A extends Arc> extends MutableGraph<DirectedVertex,A>
 
 	@Override
 	protected void addToNeighbors(A e) throws IllegalArgumentException{
-		LinkedHashSet<DirectedVertex> temp = neighbors.get(e.getTail());
-		if (temp == null)
-			throw new IllegalArgumentException();
-		temp.add(e.getHead());
+		neighbors.put(e.getTail(), new UnmatchedPair<DirectedVertex,A>(e.getHead(),e));
 	}
 
 	@Override

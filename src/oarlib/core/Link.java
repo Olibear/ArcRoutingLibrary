@@ -1,6 +1,6 @@
-package arl.core;
+package oarlib.core;
 
-import arl.graph.util.Pair;
+import oarlib.graph.util.Pair;
 
 /**
  * Link abstraction.  Provides most general contract for all Link objects.

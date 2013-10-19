@@ -1,8 +1,8 @@
-package arl.core;
+package oarlib.core;
 
 import java.util.Collection;
 
-import arl.problem.impl.ObjectiveFunction;
+import oarlib.problem.impl.ObjectiveFunction;
 
 /**
  * Problem abstraction.  Most general contract that Problem objects must fulfill.

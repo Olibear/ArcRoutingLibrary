@@ -1,12 +1,13 @@
-package arl.graph.impl;
+package oarlib.graph.impl;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
-import arl.core.Edge;
-import arl.graph.util.Pair;
-import arl.vertex.impl.UndirectedVertex;
+import oarlib.core.Edge;
+import oarlib.graph.util.Pair;
+import oarlib.graph.util.UnmatchedPair;
+import oarlib.vertex.impl.UndirectedVertex;
 /**
  * First attempts at an Undirected Graph.
  * @author Oliver
@@ -22,13 +23,11 @@ public class UndirectedGraph<E extends Edge> extends MutableGraph<UndirectedVert
 	@Override
 	protected void addToNeighbors (E e) throws IllegalArgumentException
 	{
-		LinkedHashSet<UndirectedVertex> temp = neighbors.get(e.getEndpoints().getFirst());
-		if (temp == null)
+		//if either of the vertices aren't in the vertex set yet, then throw an error.
+		if(!(this.getVertices().contains(e.getEndpoints().getFirst()) || this.getVertices().contains(e.getEndpoints().getSecond())))
 			throw new IllegalArgumentException();
-		temp.add(e.getEndpoints().getSecond());
-		temp = neighbors.get(e.getEndpoints().getSecond());
-		temp.add(e.getEndpoints().getFirst());
-		
+		neighbors.put(e.getEndpoints().getFirst(), new UnmatchedPair<UndirectedVertex, E>(e.getEndpoints().getSecond(), e));
+		neighbors.put(e.getEndpoints().getSecond(), new UnmatchedPair<UndirectedVertex, E>(e.getEndpoints().getFirst(), e));
 	}
 	@Override
 	public void addVertex(UndirectedVertex v) {

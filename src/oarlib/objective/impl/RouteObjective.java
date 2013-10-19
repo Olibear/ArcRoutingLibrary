@@ -1,6 +1,6 @@
-package arl.objective.impl;
+package oarlib.objective.impl;
 
-import arl.problem.impl.ObjectiveFunction;
+import oarlib.problem.impl.ObjectiveFunction;
 
 /**
  * Objective function that is easier to evaluate directly from a route.

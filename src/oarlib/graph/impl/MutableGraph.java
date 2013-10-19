@@ -1,9 +1,10 @@
-package arl.graph.impl;
+package oarlib.graph.impl;
 
 import java.util.HashSet;
-import arl.core.Link;
-import arl.core.Graph;
-import arl.core.Vertex;
+
+import oarlib.core.Graph;
+import oarlib.core.Link;
+import oarlib.core.Vertex;
 
 /**
  * A mutable graph.  Perf will be worse than a finalized one, but allows for experimentation.

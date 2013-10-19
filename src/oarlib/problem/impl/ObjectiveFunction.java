@@ -1,4 +1,4 @@
-package arl.problem.impl;
+package oarlib.problem.impl;
 
 /**
  * General form of an objective function.

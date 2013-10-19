@@ -1,4 +1,4 @@
-package arl.display;
+package oarlib.display;
 /**
  * Display class meant to plot distance from optimality.
  * @author oliverlum

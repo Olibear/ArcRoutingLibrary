@@ -1,11 +1,11 @@
-package arl.route.impl;
+package oarlib.route.impl;
 
 import java.util.List;
 
-import arl.core.Graph;
-import arl.core.Link;
-import arl.core.Route;
-import arl.core.Vertex;
+import oarlib.core.Graph;
+import oarlib.core.Link;
+import oarlib.core.Route;
+import oarlib.core.Vertex;
 
 /**
  * A tour must begin and end at the same node.  For convenience, this is always maintained, so there is no need to add the starting vertex at the end again.

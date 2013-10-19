@@ -1,10 +1,11 @@
-package arl.core;
+package oarlib.core;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
-import arl.graph.util.Pair;
+import oarlib.graph.util.Pair;
+import oarlib.graph.util.UnmatchedPair;
 
 /**
  * Graph abstraction.  Provides most general contract for all Graph objects.
@@ -13,7 +14,7 @@ import arl.graph.util.Pair;
  */
 public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	//The pair index is basically the ordered double that you would expect from a traditional cost matrix; the edge is the one connecting them
-	protected LinkedHashMap<Pair<V>, E> neighbors;
+	protected LinkedHashMap<V, UnmatchedPair<V,E>> neighbors;
 	/**
 	 * Getter for the vertices.
 	 * @return a Collection of vertices belonging to this graph

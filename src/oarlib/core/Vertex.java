@@ -1,4 +1,4 @@
-package arl.core;
+package oarlib.core;
 
 /**
  * Vertex abstraction. Most general contract that Vertex must fulfill.

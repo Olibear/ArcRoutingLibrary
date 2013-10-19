@@ -1,6 +1,6 @@
-package arl.vertex.impl;
+package oarlib.vertex.impl;
 
-import arl.core.Vertex;
+import oarlib.core.Vertex;
 
 /**
  * Vertex representatio for use with Mixed Graphs.  This vertex stores undirected degree separately from in-degree and out-degree.

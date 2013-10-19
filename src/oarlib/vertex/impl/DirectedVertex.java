@@ -1,6 +1,6 @@
-package arl.vertex.impl;
+package oarlib.vertex.impl;
 
-import arl.core.Vertex;
+import oarlib.core.Vertex;
 /**
  * Vertex representation for Directed Graphs.  
  * @author Oliver

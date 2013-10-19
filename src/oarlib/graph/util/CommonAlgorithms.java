@@ -1,19 +1,19 @@
-package arl.graph.util;
+package oarlib.graph.util;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import arl.core.Arc;
-import arl.core.Edge;
-import arl.core.Link;
-import arl.core.Graph;
-import arl.core.Route;
-import arl.core.Vertex;
-import arl.graph.impl.DirectedGraph;
-import arl.graph.impl.UndirectedGraph;
-import arl.vertex.impl.DirectedVertex;
-import arl.vertex.impl.UndirectedVertex;
+import oarlib.core.Arc;
+import oarlib.core.Edge;
+import oarlib.core.Link;
+import oarlib.core.Graph;
+import oarlib.core.Route;
+import oarlib.core.Vertex;
+import oarlib.graph.impl.DirectedGraph;
+import oarlib.graph.impl.UndirectedGraph;
+import oarlib.vertex.impl.DirectedVertex;
+import oarlib.vertex.impl.UndirectedVertex;
 
 public class CommonAlgorithms {
 

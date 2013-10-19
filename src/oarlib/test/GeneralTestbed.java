@@ -1,9 +1,9 @@
-package arl.test;
+package oarlib.test;
 
-import arl.core.Arc;
-import arl.core.Link;
-import arl.graph.util.Pair;
-import arl.vertex.impl.DirectedVertex;
+import oarlib.core.Arc;
+import oarlib.core.Link;
+import oarlib.graph.util.Pair;
+import oarlib.vertex.impl.DirectedVertex;
 
 public class GeneralTestbed {
 

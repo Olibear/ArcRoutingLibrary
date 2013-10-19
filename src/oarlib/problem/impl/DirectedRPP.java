@@ -1,12 +1,12 @@
-package arl.problem.impl;
+package oarlib.problem.impl;
 
 import java.util.Collection;
 
-import arl.core.Problem;
-import arl.core.Vertex;
-import arl.core.Link;
-import arl.core.Graph;
-import arl.core.Route;
+import oarlib.core.Graph;
+import oarlib.core.Link;
+import oarlib.core.Problem;
+import oarlib.core.Route;
+import oarlib.core.Vertex;
 
 /**
  * The Directed Rural Postman Problem.

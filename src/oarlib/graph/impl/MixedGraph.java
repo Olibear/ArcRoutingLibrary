@@ -1,14 +1,14 @@
-package arl.graph.impl;
+package oarlib.graph.impl;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
-import arl.core.Arc;
-import arl.core.Edge;
-import arl.core.Link;
-import arl.graph.util.Pair;
-import arl.vertex.impl.MixedVertex;
+import oarlib.core.Arc;
+import oarlib.core.Edge;
+import oarlib.core.Link;
+import oarlib.graph.util.Pair;
+import oarlib.vertex.impl.MixedVertex;
 
 /**
  * Representation of  Mixed Graph; that is, it can use both edges and arcs, in tandem with mixed vertices

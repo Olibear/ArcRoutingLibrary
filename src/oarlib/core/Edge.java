@@ -1,7 +1,7 @@
-package arl.core;
+package oarlib.core;
 
-import arl.graph.util.Pair;
-import arl.vertex.impl.UndirectedVertex;
+import oarlib.graph.util.Pair;
+import oarlib.vertex.impl.UndirectedVertex;
 /**
  * Edge class, basic class for an undirected link.
  * @author Oliver
