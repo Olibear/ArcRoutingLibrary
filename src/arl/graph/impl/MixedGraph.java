@@ -1,8 +1,13 @@
 package arl.graph.impl;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+
 import arl.core.Arc;
 import arl.core.Edge;
 import arl.core.Link;
+import arl.graph.util.Pair;
 import arl.vertex.impl.MixedVertex;
 
 /**
@@ -39,5 +44,17 @@ public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
 		{
 			
 		}
+	}
+
+	@Override
+	public Collection<Link<MixedVertex>> findEdges(Pair<MixedVertex> endpoints) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public LinkedHashMap<MixedVertex, LinkedHashSet<MixedVertex>> getNeighbors() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

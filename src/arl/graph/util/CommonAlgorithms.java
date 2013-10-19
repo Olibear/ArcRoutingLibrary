@@ -122,6 +122,32 @@ public class CommonAlgorithms {
 	 */
 	public static Map<Pair<Vertex>, Route> allPairsShortestPaths(Graph<Vertex,  Link<Vertex>> graph)
 	{
+		int n = graph.getVertices().size();
+		graph.
+		
+		//Implementation taken / modified from Lau.
+		int i,j,k,d,num,node;
+		int next[][] = new int[n+1][n+1];
+		int order[] = new int[n+1];
+		
+		//compute the shortest path distance matrix
+		for (i=1;i<=n;i++)
+		{
+			for(j=1;j<=n;j++)
+			{
+				next[i][j] = i;
+			}
+		}
+		
+		for (i=1;i<=n;i++)
+		{
+			for(j=1;j<=n;j++)
+			{
+				//if there's an edge here
+				if()
+			}
+		}
+						
 		return null;
 	}
 	/**

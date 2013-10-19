@@ -1,8 +1,11 @@
 package arl.graph.impl;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
 import arl.core.Edge;
+import arl.graph.util.Pair;
 import arl.vertex.impl.UndirectedVertex;
 /**
  * First attempts at an Undirected Graph.
@@ -40,6 +43,16 @@ public class UndirectedGraph<E extends Edge> extends MutableGraph<UndirectedVert
 		toUpdate = e.getEndpoints().getSecond();
 		toUpdate.setDegree(toUpdate.getDegree()+1);
 		super.addEdge(e);
+	}
+	@Override
+	public Collection<E> findEdges(Pair<UndirectedVertex> endpoints) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public LinkedHashMap<UndirectedVertex, LinkedHashSet<UndirectedVertex>> getNeighbors() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

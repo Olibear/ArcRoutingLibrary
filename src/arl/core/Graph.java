@@ -4,13 +4,16 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
+import arl.graph.util.Pair;
+
 /**
  * Graph abstraction.  Provides most general contract for all Graph objects.
  * @author oliverlum
  *
  */
 public abstract class Graph<V extends Vertex,E extends Link<V>> {
-	protected LinkedHashMap<V, LinkedHashSet<V>> neighbors;
+	//The pair index is basically the ordered double that you would expect from a traditional cost matrix; the edge is the one connecting them
+	protected LinkedHashMap<Pair<V>, E> neighbors;
 	/**
 	 * Getter for the vertices.
 	 * @return a Collection of vertices belonging to this graph
@@ -36,4 +39,14 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * @return a deep copy of the graph
 	 */
 	public abstract Graph<V, E> getDeepCopy();
+	/**
+	 * Looks for edges between the two provided endpoints, and returns them in a collection.
+	 * @return a collection of edges directly connecting the two vertices
+	 */
+	public abstract Collection<E> findEdges(Pair<V> endpoints);
+	/**
+	 * To retrieve the neighbor mapping
+	 * @return the map that maintains all the neighbor relationships.
+	 */
+	public abstract LinkedHashMap<V, LinkedHashSet<V>> getNeighbors();
 }
