@@ -16,6 +16,11 @@ import oarlib.vertex.impl.DirectedVertex;
  */
 public class DirectedGraph<A extends Arc> extends MutableGraph<DirectedVertex,A> {
 
+	//constructors
+	public DirectedGraph(){
+		super();
+	}
+	
 	@Override
 	public void addVertex(DirectedVertex v) {
 		super.addVertex(v);
@@ -43,9 +48,8 @@ public class DirectedGraph<A extends Arc> extends MutableGraph<DirectedVertex,A>
 	}
 
 	@Override
-	public LinkedHashMap<DirectedVertex, LinkedHashSet<DirectedVertex>> getNeighbors() {
-		// TODO Auto-generated method stub
-		return null;
+	public LinkedHashMap<DirectedVertex, UnmatchedPair<DirectedVertex,A>> getNeighbors() {
+		return neighbors;
 	}
 
 

@@ -8,6 +8,7 @@ import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Link;
 import oarlib.graph.util.Pair;
+import oarlib.graph.util.UnmatchedPair;
 import oarlib.vertex.impl.MixedVertex;
 
 /**
@@ -17,6 +18,12 @@ import oarlib.vertex.impl.MixedVertex;
  */
 public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
 
+	
+	//constructors
+	public MixedGraph(){
+		super();
+	}
+	
 	@Override
 	public void addVertex(MixedVertex v) {
 		getVertices().add(v);
@@ -53,8 +60,8 @@ public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
 	}
 
 	@Override
-	public LinkedHashMap<MixedVertex, LinkedHashSet<MixedVertex>> getNeighbors() {
+	public LinkedHashMap<MixedVertex, UnmatchedPair<MixedVertex, Link<MixedVertex>>> getNeighbors() {
 		// TODO Auto-generated method stub
-		return null;
+		return neighbors;
 	}
 }

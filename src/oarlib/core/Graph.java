@@ -49,5 +49,5 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * To retrieve the neighbor mapping
 	 * @return the map that maintains all the neighbor relationships.
 	 */
-	public abstract LinkedHashMap<V, LinkedHashSet<V>> getNeighbors();
+	public abstract LinkedHashMap<V, UnmatchedPair<V,E>> getNeighbors();
 }

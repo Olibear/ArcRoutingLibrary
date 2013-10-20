@@ -17,7 +17,7 @@ public abstract class Solver {
 	 */
 	public Solver(Problem instance) throws IllegalArgumentException{
 		//make sure I'm a valid problem instance
-		if(!(instance.getClass() == getProblemType()))
+		if(!(instance.getType() == getProblemType()))
 		{
 			throw new IllegalArgumentException();
 		}
@@ -41,6 +41,6 @@ public abstract class Solver {
 	 * Specifies what type of problem this is a solver for.
 	 * @return
 	 */
-	public abstract Class<Problem> getProblemType();
+	public abstract Problem.Type getProblemType();
 
 }

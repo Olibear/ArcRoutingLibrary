@@ -2,22 +2,20 @@ package oarlib.problem.impl;
 
 import java.util.Collection;
 
+import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+import oarlib.graph.impl.UndirectedGraph;
 
-/**
- * The Directed Rural Postman Problem.
- * @author oliverlum
- *
- */
-public class DirectedRPP extends Problem {
+public class UndirectedCPP extends Problem{
+	
+	private UndirectedGraph<Edge> mGraph;
 
-	public DirectedRPP(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o) {
-		super(g, o);
-		// TODO Auto-generated constructor stub
+	public UndirectedCPP(UndirectedGraph<Edge> g) {
+		mGraph = g;
 	}
 
 	@Override
@@ -28,7 +26,12 @@ public class DirectedRPP extends Problem {
 
 	@Override
 	public Type getType() {
-		return Problem.Type.DIRECTED_RURAL_POSTMAN;
+		return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
+	}
+
+	@Override
+	public UndirectedGraph<Edge> getGraph() {
+		return mGraph;
 	}
 
 }

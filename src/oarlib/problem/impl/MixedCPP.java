@@ -8,14 +8,9 @@ import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
 
-/**
- * The Directed Rural Postman Problem.
- * @author oliverlum
- *
- */
-public class DirectedRPP extends Problem {
+public class MixedCPP extends Problem{
 
-	public DirectedRPP(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o) {
+	public MixedCPP(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o) {
 		super(g, o);
 		// TODO Auto-generated constructor stub
 	}
@@ -28,7 +23,7 @@ public class DirectedRPP extends Problem {
 
 	@Override
 	public Type getType() {
-		return Problem.Type.DIRECTED_RURAL_POSTMAN;
+		return Problem.Type.MIXED_CHINESE_POSTMAN;
 	}
 
 }

@@ -16,6 +16,11 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	private HashSet<V> mVertices;
 	private HashSet<E> mEdges;
 	
+	protected MutableGraph(){
+		mVertices = new HashSet<V>();
+		mEdges = new HashSet<E>();
+	}
+	
 	//==============================
 	//Graph overrides
 	//==============================
