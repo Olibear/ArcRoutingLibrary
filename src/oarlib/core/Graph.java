@@ -1,6 +1,7 @@
 package oarlib.core;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
@@ -13,8 +14,6 @@ import oarlib.graph.util.UnmatchedPair;
  *
  */
 public abstract class Graph<V extends Vertex,E extends Link<V>> {
-	//The pair index is basically the ordered double that you would expect from a traditional cost matrix; the edge is the one connecting them
-	protected LinkedHashMap<V, UnmatchedPair<V,E>> neighbors;
 	/**
 	 * Getter for the vertices.
 	 * @return a Collection of vertices belonging to this graph
@@ -45,9 +44,4 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * @return a collection of edges directly connecting the two vertices
 	 */
 	public abstract Collection<E> findEdges(Pair<V> endpoints);
-	/**
-	 * To retrieve the neighbor mapping
-	 * @return the map that maintains all the neighbor relationships.
-	 */
-	public abstract LinkedHashMap<V, UnmatchedPair<V,E>> getNeighbors();
 }

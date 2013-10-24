@@ -49,12 +49,5 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	public void addVertex(V v) {
 		mVertices.add(v);
 	}
-	/**
-	 * Intended to be called as a helper method to add edge to help update references to neighbors
-	 * @param e - edge containing reference info to be added
-	 * @throws IllegalArgumentException - if either of the endpoints of the  edge are null.
-	 */
-	protected abstract void addToNeighbors(E e) throws IllegalArgumentException;
-
 
 }

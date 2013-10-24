@@ -1,5 +1,7 @@
 package oarlib.core;
 
+import java.util.HashMap;
+
 /**
  * Vertex abstraction. Most general contract that Vertex must fulfill.
  * @author oliverlum

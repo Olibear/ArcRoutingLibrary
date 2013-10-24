@@ -12,12 +12,10 @@ public class MixedCPP extends Problem{
 
 	public MixedCPP(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o) {
 		super(g, o);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public boolean isFeasible(Collection<Route> routes) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

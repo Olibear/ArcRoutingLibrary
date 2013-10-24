@@ -28,40 +28,15 @@ public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
 	public void addVertex(MixedVertex v) {
 		getVertices().add(v);
 	}
-
+	
 	@Override
-	protected void addToNeighbors(Link<MixedVertex> e) throws IllegalArgumentException {
-		if(e.getClass() == Edge.class)
-		{
-			
-		}
-		else if(e.getClass() == Arc.class)
-		{
-			
-		}
-	}
-
-	@Override
-	public void addEdge(Link<MixedVertex> e) {
-		if(e.getClass() == Edge.class)
-		{
-			
-		}
-		else if(e.getClass() == Arc.class)
-		{
-			
-		}
+	public void addEdge(E e) {
+		
 	}
 
 	@Override
 	public Collection<Link<MixedVertex>> findEdges(Pair<MixedVertex> endpoints) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public LinkedHashMap<MixedVertex, UnmatchedPair<MixedVertex, Link<MixedVertex>>> getNeighbors() {
-		// TODO Auto-generated method stub
-		return neighbors;
 	}
 }
