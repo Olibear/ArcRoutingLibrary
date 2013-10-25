@@ -83,7 +83,27 @@ public class CommonAlgorithms {
 		HashSet<UndirectedVertex> vertices = graph.getVertices();
 		HashSet<? extends Edge> edges = graph.getEdges();
 		HashSet<UndirectedVertex> nextUp = new HashSet<UndirectedVertex>();
+		if(vertices.size() <= 1)
+			return true; //trivially connected
+		nextUp.add(vertices.iterator().next());
 		
+		//DFS
+		Iterator<UndirectedVertex> iter;
+		while (vertices.size() > 0 && nextUp.size() > 0)
+		{
+			iter = nextUp.iterator();
+			while (iter.hasNext())
+			{
+				UndirectedVertex v = iter.next();
+				vertices.remove(v);
+				nextUp.addAll(v.getNeighbors().keySet());
+			}
+		}
+		if(vertices.size() == 0)
+		{
+			return true;
+		}
+		return false;
 	}
 	/**
 	 * Checks to see if the directed graph is eulerian.
@@ -125,52 +145,31 @@ public class CommonAlgorithms {
 	 * @return path will hold the requested path, if one is requested
 	 *  next will hold the matrix from which it is possible to reconstruct the shortest path between any two nodes
 	 *  
-	 * 
 	 */
-	public static void allPairsShortestPaths(int n, int dist[][], int big, int startnode, int endnode, int path[])
+	public static void allPairsShortestPaths(int n, int dist[][], int big,
+			int startnode, int endnode, int path[])
 	{
-		graph.
-		//TODO: setup the dist matrix to hold the naive distances between nodes
-
-		//Implementation taken / modified from Lau.
 		int i,j,k,d,num,node;
 		int next[][] = new int[n+1][n+1];
 		int order[] = new int[n+1];
 
-		//compute the shortest path distance matrix
-		for (i=1;i<=n;i++)
-		{
-			for(j=1;j<=n;j++)
-			{
+		// compute the shortest path distance matrix
+		for (i=1; i<=n; i++)
+			for (j=1; j<=n; j++)
 				next[i][j] = i;
-			}
-		}
-
-		for (i=1;i<=n;i++)
-		{
-			for(j=1;j<=n;j++)
-			{
-				//if there's an edge here
-				if(dist[j][i] < big)
-				{
-					for(k=1;k<=n;k++)
-					{
-						if(dist[i][k] < big) {
-							d = dist[j][k] + dist[i][k];
-							if(d<dist[j][k]) {
+		for (i=1; i<=n; i++)
+			for (j=1; j<=n; j++)
+				if (dist[j][i] < big)
+					for (k=1; k<=n; k++)
+						if (dist[i][k] < big) {
+							d = dist[j][i] + dist[i][k];
+							if (d < dist[j][k]) {
 								dist[j][k] = d;
 								next[j][k] = next[i][k];
 							}
 						}
-					}
-				}
-			}
-		}
-
-		// find the shortest path from startnode to end node
-		//TODO: here should just return the shortest path cost matrix
-		if (startnode == 0) 
-			return null;
+		// find the shortest path from startnode to endnode
+		if (startnode == 0) return;
 		j = endnode;
 		num = 1;
 		order[num] = endnode;
@@ -178,19 +177,14 @@ public class CommonAlgorithms {
 			node = next[startnode][j];
 			num++;
 			order[num] = node;
-			if (node == startnode)
-				break;
+			if (node == startnode) break;
 			j = node;
 		}
-		for (i=1;i<=num;i++)
-		{
+		for (i=1; i<=num; i++)
 			path[i] = order[num-i+1];
-			path[0] = num;
-		}
-
-		return;
+		path[0] = num;
 	}
-	
+
 	/**
 	 * Solves a min cost flow problem defined on the network.  Implementation is a modified version taken from Lau:
 	 * Return codes:
@@ -212,73 +206,17 @@ public class CommonAlgorithms {
 	 * arcsol[0][i] and arcsol[1][i].
 	 * @param flowsol - the amount of flow on the ith edge.
 	 */
-	public static int minCostNetworkFlow(int nodes, int edges, int numdemand, int nodedemand[][], int nodei[], int nodej[], int arccost[],
+	public static int minCostNetworkFlow(int nodes, int edges, int numdemand,
+			int nodedemand[][], int nodei[], int nodej[], int arccost[],
 			int upbound[], int lowbound[], int arcsol[][], int flowsol[])
 	{
-		int i;
-		int j;
-		int k;
-		int l;
-		int m;
-		int n;
-		int lastslackedge;
-		int solarc;
-		int temp;
-		int tmp;
-		int u;
-		int v;
-		int remain;
-		int rate;
-		int arcnam;
-		int tedges;
-		int tedges1;
-		int nodes1;
-		int nodes2;
-		int nzdemand;
-		int value;
-		int valuez;
-		int tail;
-		int ratez;
-		int tailz;
-		int trial;
-		int distdiff;
-		int olddist;
-		int treenodes;
-		int iterations;
-		int right;
-		int point;
-		int part;
-		int jpart;
-		int kpart;
-		int spare;
-		int sparez;
-		int lead;
-		int otherend;
-		int sedge;
-		int orig;
-		int load;
-		int curedge;
-		int p;
-		int q;
-		int r;
-		int vertex1;
-		int vertex2;
-		int track;
-		int spointer;
-		int focal;
-		int newpr;
-		int newlead;
-		int artedge;
-		int maxint;
-		int artedge1;
-		int ipart;
-		int distlen;
-		int after = 0;
-		int other = 0;
-		int left = 0;
-		int newarc = 0;
-		int newtail = 0;
-		
+		int i, j, k, l, m, n, lastslackedge, solarc, temp, tmp, u, v, remain, rate;
+		int arcnam, tedges, tedges1, nodes1, nodes2, nzdemand, value, valuez;
+		int tail, ratez, tailz, trial, distdiff, olddist, treenodes, iterations;
+		int right, point, part, jpart, kpart, spare, sparez, lead, otherend, sedge;
+		int orig, load, curedge, p, q, r, vertex1, vertex2, track, spointer, focal;
+		int newpr, newlead, artedge, maxint, artedge1, ipart, distlen;
+		int after=0, other=0, left=0, newarc=0, newtail=0;
 		int pred[] = new int[nodes + 2];
 		int succ[] = new int[nodes + 2];
 		int dist[] = new int[nodes + 2];
@@ -291,39 +229,27 @@ public class CommonAlgorithms {
 		int room[] = new int[edges * 2];
 		int least[] = new int[edges * 2];
 		int rim[] = new int[3];
-		int ptr[] = new int[3];
-		
+		int ptr[] = new int[3]; 
 		boolean infeasible;
-		boolean flowz = false;
-		boolean newprz = false;
-		boolean artarc = false;
-		boolean removelist = false;
-		boolean partz = false;
-		boolean ipartout = false;
-		boolean newprnb = false;
-		
-		for (p = 0; p <= nodes; p++)
-		{
+		boolean flowz=false, newprz=false, artarc=false, removelist=false;
+		boolean partz=false, ipartout=false, newprnb=false;
+
+		for (p=0; p<=nodes; p++)
 			arcnum[p] = 0;
-		}
 		maxint = 0;
-		for (p = 1;p<=edges; p++)
-		{
+		for (p=1; p<=edges; p++) {
 			arcnum[nodej[p]]++;
-			if(arccost[p] > 0) 
-				maxint += arccost[p];
-			if(upbound[p] > 0)
-				maxint+=upbound[p];
+			if (arccost[p] > 0) maxint += arccost[p];
+			if (upbound[p] > 0) maxint += upbound[p];
 		}
 		artedge = 1;
 		artedge1 = artedge + 1;
-		tedges = (edges * 2) - 2;
+		tedges =  (edges * 2) - 2;
 		tedges1 = tedges + 1;
 		nodes1 = nodes + 1;
 		nodes2 = nodes + 2;
 		dual[nodes1] = 0;
-		for (p = 1; p <= nodes1; p++)
-		{
+		for (p=1; p<=nodes1; p++) {
 			pred[p] = 0;
 			succ[p] = 0;
 			dist[p] = 0;
@@ -337,40 +263,30 @@ public class CommonAlgorithms {
 		remain = 0;
 		nzdemand = 0;
 		sedge = 0;
-		
-		//initialize supply and demand lists
+
+		// initialize supply and demand lists
 		succ[nodes1] = nodes1;
 		pred[nodes1] = nodes1;
-		for(p=1;p<=numdemand;p++)
-		{
+		for (p=1; p<=numdemand; p++) {
 			flow[nodedemand[p][0]] = nodedemand[p][1];
 			remain += nodedemand[p][1];
-			if (nodedemand[p][1] <= 0)
-			{
-				continue;
-			}
+			if (nodedemand[p][1] <= 0) continue;
 			nzdemand++;
 			dist[nodedemand[p][0]] = nodedemand[p][1];
 			succ[nodedemand[p][0]] = succ[nodes1];
 			succ[nodes1] = nodedemand[p][0];
 		}
-		if (remain < 0)
-			return 1;
-		for(p=1;p<=nodes;p++)
-		{
+		if (remain < 0)  return 1;
+		for (p=1; p<=nodes; p++)
 			dual[p] = arcnum[p];
-		}
 		i = 1;
 		j = artedge;
-		for (p=1;p<=nodes;p++)
-		{
+		for (p=1; p<=nodes; p++) {
 			i = -i;
 			tmp = Math.max(1, dual[p]);
-			if (j + tmp > tedges)
-				return 2;
-			dual[p] = (i >= 0 ? p: -p);
-			for(q=1;q<=tmp;q++)
-			{
+			if (j + tmp > tedges) return 2;
+			dual[p] = (i >= 0 ? j+1 : -(j+1));
+			for (q=1; q<=tmp; q++) {
 				j++;
 				head[j] = (i >= 0 ? p : -p);
 				cost[j] = 0;
@@ -378,47 +294,40 @@ public class CommonAlgorithms {
 				least[j] = 0;
 			}
 		}
-		
-		//check for valid input data
+
+		// check for valid input data
 		sedge = j + 1;
-		if (sedge > tedges)
-			return 2;
+		if (sedge > tedges)  return 2;
 		head[sedge] = (-i >= 0 ? nodes1 : -nodes1);
 		valuez = 0;
-		for ( p=1; p<=edges; p++)
-		{
+		for (p=1; p<=edges; p++) {
 			if ((nodei[p] > nodes) || (nodej[p] > nodes) || (upbound[p] >= maxint))
 				return 3;
-			if (upbound[p] == 0) 
-				upbound[p] = maxint;
-			if (upbound[p] < 0)
-				upbound[p] = 0;
-			if ((lowbound[p] >= maxint) || (lowbound[p] < 0) || (lowbound[p] > upbound[p]))
+			if (upbound[p] == 0) upbound[p] = maxint;
+			if (upbound[p] < 0) upbound[p] = 0;
+			if ((lowbound[p] >= maxint) || (lowbound[p] < 0) || 
+					(lowbound[p] > upbound[p]))
 				return 3;
 			u = dual[nodej[p]];
 			v = Math.abs(u);
-			temp = (u >= 0 ? nodes1: -nodes1);
-			if ((temp ^ head[v]) <= 0)
-			{
+			temp = (u >= 0 ? nodes1 : -nodes1);
+			if ((temp ^ head[v]) <= 0) {
 				sedge++;
 				tmp = sedge - v;
 				r = sedge;
-				for (q=1;q<=tmp;q++)
-				{
+				for (q=1; q<=tmp; q++) {
 					temp = r - 1;
-					head[r] = head[temp];
-					cost[r] = cost[temp];
+					head[r]  = head[temp];
+					cost[r]  = cost[temp];
 					room[r] = room[temp];
 					least[r] = least[temp];
 					r = temp;
 				}
-				for(q=nodej[p];q<=nodes;q++)
-				{
+				for (q=nodej[p]; q<=nodes; q++)
 					dual[q] += (dual[q] >= 0 ? 1 : -1);
-				}
 			}
-			
-			//insert new edge
+
+			// insert new edge
 			head[v] = (u >= 0 ? nodei[p] : -nodei[p]);
 			cost[v] = arccost[p];
 			valuez += arccost[p] * lowbound[p];
@@ -433,43 +342,37 @@ public class CommonAlgorithms {
 		k = artedge;
 		l = 0;
 		sedge--;
-		for (p = artedge1;p<=sedge; p++)
-		{
+		for (p=artedge1; p<=sedge; p++) {
 			j = head[p];
-			if ((i ^ j) <= 0)
-			{
+			if ((i ^ j) <= 0) {
 				i = -i;
 				l++;
 				dual[l] = k + 1;
 			}
-			else if (Math.abs(j) == 1)
-				continue;
+			else
+				if (Math.abs(j) == l) continue;
 			k++;
-			if (k!=p)
-			{
-				head[k] = head[p];
-				cost[k] = cost[p];
-				room[k] = room[p];
+			if (k != p) {
+				head[k]  = head[p];
+				cost[k]  = cost[p];
+				room[k]  = room[p];
 				least[k] = least[p];
 			}
 		}
 		sedge = k;
-		if (sedge + Math.max(1, nzdemand) + 1 > tedges)
-			return 2;
-		//add regular slacks
+		if (sedge + Math.max(1,nzdemand) + 1 > tedges) return 2;
+		// add regular slacks
 		i = -head[sedge];
 		focal = succ[nodes1];
 		succ[nodes1] = nodes1;
-		if(focal == nodes1)
-		{
+		if (focal == nodes1) {
 			sedge++;
-			head[sedge] = (i >= 0 ? nodes1 : -nodes1);
-			cost[sedge] = 0;
-			room[sedge] = -maxint;
+			head[sedge]  = (i >= 0 ? nodes1 : -nodes1);  
+			cost[sedge]  = 0;
+			room[sedge]  = -maxint;
 			least[sedge] = 0;
 		}
 		else
-		{
 			do {
 				sedge++;
 				head[sedge] = (i >= 0 ? focal : -focal);
@@ -481,39 +384,33 @@ public class CommonAlgorithms {
 				succ[focal] = 0;
 				focal = after;
 			} while (focal != nodes1);
-		}
 		lastslackedge = sedge;
 		sedge++;
 		head[sedge] = (-i >= 0 ? nodes2 : -nodes2);
 		cost[sedge] = maxint;
 		room[sedge] = 0;
 		least[sedge] = 0;
-		//locate sources and sinks
+		// locate sources and sinks
 		remain = 0;
 		treenodes = 0;
 		focal = nodes1;
-		for (p = 0 ; p <= nodes; p++)
-		{
+		for (p=1; p<=nodes; p++) {
 			j = flow[p];
 			remain += j;
-			if (j == 0)
-				continue;
-			if (j < 0)
-			{
+			if (j == 0) continue;
+			if (j < 0) {
 				flow[p] = -j;
 				right = nodes1;
 				do {
 					after = pred[right];
-					if (flow[after] + j <= 0)
-						break;
+					if (flow[after]+j <= 0) break;
 					right = after;
 				} while (true);
 				pred[right] = p;
 				pred[p] = after;
 				dist[p] = -1;
 			}
-			else
-			{
+			else {
 				treenodes++;
 				sptpt[p] = -sedge;
 				flow[p] = j;
@@ -525,170 +422,577 @@ public class CommonAlgorithms {
 				focal = p;
 			}
 		}
-		if (remain > 0)
-			return 4;
+		if (remain < 0) return 4;
 		do {
-			//select highest rank demand
+			// select highest rank demand
 			tail = pred[nodes1];
-			if (tail == nodes1)
-				break;
-			//set link to artificial
-			newarc = artedge;
-			newpr = maxint;
-			newprz = false;
-			flowz = false;
-			if (flow[tail] == 0)
-			{
-				flowz = true;
-				break;
-			}
-			//look for sources
-			trial = dual[tail];
-			lead = head[trial];
-			other = (lead >= 0 ? nodes1 : -nodes1);
+			if (tail == nodes1) break;
 			do {
-				if (room[trial] > 0)
-				{
-					orig = Math.abs(lead);
-					if (dist[orig] == 1)
-					{
-						if (sptpt[orig] != artedge)
-						{
-							rate = cost[trial];
-							if (rate < newpr)
-							{
-								if (room[trial] <= flow[tail])
-								{
-									if (flow[orig] >= room[trial])
-									{
-										newarc = -trial;
-										newpr = rate;
-										if (newpr ==0)
-										{
-											newprz = true;
-											break;
-										}
-									}
-								}
-								else
-								{
-									if (flow[orig] >= flow[tail])
-									{
-										newarc = trial;
-										newpr = rate;
-										if (newpr == 0)
-										{
-											newprz = true;
-											break;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				trial++;
-				lead = head[trial];
-			} while((lead ^ other) > 0);
-			if (!newprz)
-			{
-				artarc = false;
-				if (newarc == artedge)
-				{
-					artarc = true;
+				// set link to artificial
+				newarc = artedge;
+				newpr = maxint;
+				newprz = false;
+				flowz = false;
+				if (flow[tail] == 0) {
+					flowz = true;
 					break;
 				}
-			}
-			else
-				newprz = false;
-			if (newarc > 0)
-				break;
-			newarc = -newarc;
-			orig = Math.abs(head[newarc]);
-			load = room[newarc];
-			//mark unavailable
-			room[newarc] = -load;
-			//adjust flows
-			flow[orig] -= load;
-			flow[tail] -= load;
-		} while(true);
-		if (!flowz)
-		{
-			removelist = false;
-			if (!artarc)
-			{
-				room[newarc] -= room[newarc];
-				orig = Math.abs(head[newarc]);
-				flow[orig] -= flow[tail];
-				k = maxint;
-				removelist = true;
-			}
-			else
-			{
-				//search for transshipment nodes
-				artarc = false;
+				// look for sources
 				trial = dual[tail];
 				lead = head[trial];
-				newprz = false;
-				do
-				{
-					if (room[trial] > 0)
-					{
+				other = (lead >= 0 ? nodes1 : -nodes1);
+				do {
+					if (room[trial] > 0) {
 						orig = Math.abs(lead);
-						//is it linked
-						if (dist[orig] == 0)
-						{
-							rate = cost[trial];
-							if (rate < newpr)
-							{
-								newarc = trial;
-								newpr = rate;
-								if (newpr == 0)
-								{
-									newprz = true;
-									break;
+						if (dist[orig] == 1) {
+							if (sptpt[orig] != artedge) {
+								rate = cost[trial];
+								if (rate < newpr) {
+									if (room[trial] <= flow[tail]) {
+										if (flow[orig] >= room[trial]) {
+											newarc = -trial;
+											newpr = rate;
+											if (newpr == 0) {
+												newprz = true;
+												break;
+											}
+										}
+									}
+									else {
+										if (flow[orig] >= flow[tail]) {
+											newarc = trial;
+											newpr = rate;
+											if (newpr == 0) {
+												newprz = true;
+												break;
+											}
+										}
+									}
 								}
 							}
 						}
 					}
 					trial++;
 					lead = head[trial];
-				} while((lead^other) > 0);
-				artarc = false;
-				if (!newprz){
-					if (newarc == artedge)
+				} while ((lead ^ other) > 0);
+				if (!newprz) {
+					artarc = false;
+					if (newarc == artedge) {
 						artarc = true;
-				}
-				else
-					newprz = false;
-				if (!artarc) {
-					orig = Math.abs(head[newarc]);
-					if (room[newarc] <= flow[tail])
-					{
-						//get capacity
-						load = room[newarc];
-						//mark unavailable
-						room[newarc] = -load;
-						//adjust flows
-						flow[orig] = load;
-						flow[tail] -= load;
-						pred[orig] = tail;
-						
+						break;
 					}
+				} else
+					newprz = false;
+				if (newarc > 0) break;
+				newarc = -newarc;
+				orig = Math.abs(head[newarc]);
+				load = room[newarc];
+				// mark unavailable
+				room[newarc] = -load;
+				// adjust flows
+				flow[orig] -= load;
+				flow[tail] -= load;
+			} while (true);
+			if (!flowz) {
+				removelist = false;
+				if (!artarc) {
+					room[newarc] = -room[newarc];
+					orig = Math.abs(head[newarc]);
+					flow[orig] -= flow[tail];
+					k = maxint;
+					removelist = true;
+				}
+				else {
+					// search for transshipment nodes
+					artarc = false;
+					trial = dual[tail];
+					lead = head[trial];
+					newprz = false;
+					do {
+						if (room[trial] > 0) {
+							orig = Math.abs(lead);
+							// is it linked
+							if (dist[orig] == 0) {
+								rate = cost[trial];
+								if (rate < newpr) {
+									newarc = trial;
+									newpr = rate;
+									if (newpr == 0) {
+										newprz = true;
+										break;
+									}
+								}
+							}
+						}
+						trial++;
+						lead = head[trial];
+					} while ((lead ^ other) > 0);
+					artarc = false;
+					if (!newprz) {
+						if(newarc == artedge)
+							artarc = true;
+					}
+					else
+						newprz = false;
+					if (!artarc) {
+						orig = Math.abs(head[newarc]);
+						if (room[newarc] <= flow[tail]) {
+							// get capacity
+							load = room[newarc];
+							// mark unavailable
+							room[newarc] = -load;
+							// adjust flows
+							flow[orig] = load;                                             
+							flow[tail] -= load;
+							pred[orig] = tail;
+							pred[nodes1] = orig;
+							dist[orig] = -1;
+							continue;
+						}
+						// mark unavailable
+						room[newarc] = -room[newarc];
+						flow[orig] = flow[tail];
+						pred[orig] = pred[tail];
+						pred[tail] = orig;
+						pred[nodes1] = orig;
+						succ[orig] = tail;
+						sptpt[tail] = newarc;  
+						dist[orig] = dist[tail] - 1;
+						dual[tail] = newpr;
+						treenodes++;
+						continue;
+					}
+					else
+						artarc = false;
 				}
 			}
+			flowz = false;
+			if (!removelist)
+				k = 0;
+			else
+				removelist = false;
+			pred[nodes1] = pred[tail];
+			orig = Math.abs(head[newarc]);
+			sptpt[tail] = newarc;
+			dual[tail] = newpr;
+			pred[tail] = orig;                                                     
+			i = succ[orig];
+			succ[orig] = tail;
+			j = dist[orig] - dist[tail] + 1;
+			focal = orig;
+			do {
+				// adjust dual variables
+				focal = succ[focal];
+				l = dist[focal];
+				dist[focal] = l + j;
+				k -= dual[focal];
+				dual[focal] = k;
+			} while (l != -1);
+			succ[focal] = i;
+			treenodes++;
+		}  while (true);
+
+		// set up the expand tree
+		tail = 1;
+		trial = artedge1;
+		lead = head[trial];
+		do {
+			if (treenodes == nodes) break;
+			tailz = tail;
+			newpr = maxint;
+			do {
+				// search for least cost connectable edge
+				otherend = dist[tail];
+				other = (lead >= 0 ? nodes1 : -nodes1);
+				do {
+					if (room[trial] > 0) {
+						m = cost[trial];
+						if (newpr >= m) {
+							orig = Math.abs(lead);
+							if (dist[orig] != 0) {
+								if (otherend == 0) {
+									i = orig;
+									j = tail;
+									k = m;
+									l = trial;
+									newpr = m;
+								}
+							}
+							else {
+								if (otherend != 0) {
+									i = tail;
+									j = orig;
+									k = -m;
+									l = -trial;
+									newpr = m;
+								}
+							}
+						}
+					}
+					trial++;
+					lead = head[trial];
+				} while ((lead ^ other) > 0);
+				// prepare the next 'tail' group
+				tail++;
+				if (tail == nodes1) {
+					tail = 1;
+					trial = artedge1;
+					lead = head[trial];
+				}
+				newprnb = false;
+				if (newpr != maxint) {
+					newprnb = true;
+					break;
+				}
+			} while (tail != tailz);
+			if (!newprnb) {
+				for (p=1; p<=nodes; p++) {
+					if (dist[p] != 0) continue;
+					// add artificial
+					sptpt[p] = artedge;
+					flow[p] = 0;
+					succ[p] = succ[nodes1];
+					succ[nodes1] = p;
+					pred[p] = nodes1;
+					dist[p] = 1;
+					dual[p] = -maxint;
+				}
+				break;
+			}
+			newprnb = false;
+			sptpt[j] = l;
+			pred[j] = i;
+			succ[j] = succ[i];
+			succ[i] = j;
+			dist[j] = dist[i] + 1;
+			dual[j] = dual[i] - k;
+			newarc = Math.abs(l);
+			room[newarc] = -room[newarc];
+			treenodes++;
+		} while (true);
+		for (p=1; p<=nodes; p++) {
+			q = Math.abs(sptpt[p]);
+			room[q] = -room[q];
 		}
-		
-		
-		
-		return 0;
+		for (p=1; p<=sedge; p++)
+			if (room[p] + maxint == 0)  room[p] = 0;
+		room[artedge] = maxint;
+		room[sedge] = maxint;
+
+		// initialize price
+		tail = 1;
+		trial = artedge1;
+		lead = head[trial];
+		iterations = 0;
+
+		// new iteration
+		do {
+			iterations++;
+			// pricing basic edges
+			tailz = tail;
+			newpr = 0;
+			do {
+				ratez = -dual[tail];
+				other = (lead >= 0 ? nodes1 : -nodes1);
+				do {
+					orig = Math.abs(lead);
+					rate = dual[orig] + ratez - cost[trial];
+					if (room[trial] < 0) rate = -rate;
+					if (room[trial] != 0) {
+						if (rate > newpr) {
+							newarc = trial;
+							newpr = rate;
+							newtail = tail;
+						}
+					}
+					trial++;
+					lead = head[trial];
+				} while ((lead ^ other) > 0);
+				tail++;
+				if (tail == nodes2) {
+					tail = 1;
+					trial = artedge1;
+					lead = head[trial];
+				}
+				newprz = true;
+				if (newpr != 0) {
+					newprz = false;
+					break;
+				}
+			} while (tail != tailz);
+			if (newprz) {
+				for (p=1; p<=edges; p++)
+					flowsol[p] = 0;
+				// prepare summary
+				infeasible = false;
+				value = valuez;
+				for (p=1; p<=nodes; p++) {
+					i = Math.abs(sptpt[p]);
+					if ((flow[p] != 0) && (cost[i] == maxint)) infeasible = true;
+					value += cost[i] * flow[p];
+				}
+				for (p=1; p<=lastslackedge; p++)
+					if (room[p] < 0) {
+						q = -room[p];
+						value += cost[p] * q;
+					}
+				if (infeasible) return 4;
+				arccost[0] = value;
+				for (p=1; p<=nodes; p++) {
+					q = Math.abs(sptpt[p]);
+					room[q] = -flow[p];
+				}
+				solarc = 0;
+				tail = 1;
+				trial = artedge1;
+				lead = head[trial];
+				do {
+					other = (lead >= 0 ? nodes1 : -nodes1);
+					do {
+						load = Math.max(0, -room[trial]) + least[trial];
+						if (load != 0) {
+							orig = Math.abs(lead);
+							solarc++;
+							arcsol[0][solarc] = orig;
+							arcsol[1][solarc] = tail;
+							flowsol[solarc] = load;
+						}
+						trial++;
+						lead = head[trial];
+					} while ((lead ^ other) > 0);
+					tail++;
+				} while (tail != nodes1);
+				arcsol[0][0] = solarc;
+				return 0;
+			}
+
+			// ration test
+			newlead = Math.abs(head[newarc]);
+			part = Math.abs(room[newarc]);
+			jpart = 0;
+
+			// cycle search
+			ptr[2] = (room[newarc] >= 0 ? tedges1 : -tedges1);
+			ptr[1] = -ptr[2];
+			rim[1] = newlead;
+			rim[2] = newtail;
+			distdiff = dist[newlead] - dist[newtail];
+			kpart = 1;
+			if (distdiff < 0) kpart = 2;
+			if (distdiff != 0) {
+				right = rim[kpart];
+				point = ptr[kpart];
+				q = Math.abs(distdiff);
+				for (p=1; p<=q; p++) {
+					if ((point ^ sptpt[right]) <= 0) {
+						// increase flow
+						i = Math.abs(sptpt[right]);
+						spare = room[i] - flow[right];
+						sparez = -right;
+					}
+					else {
+						// decrease flow
+						spare = flow[right];
+						sparez = right;
+					}
+					if (part > spare) {
+						part = spare;
+						jpart = sparez;
+						partz = false;
+						if (part == 0) {
+							partz = true;
+							break;
+						}
+					}
+					right = pred[right];
+				}
+				if (!partz) rim[kpart] = right;
+			}
+			if (!partz) {
+				do {
+					if (rim[1] ==  rim[2]) break;
+					for (p=1; p<=2; p++) {
+						right = rim[p];
+						if ((ptr[p] ^ sptpt[right]) <= 0) {
+							// increase flow
+							i = Math.abs(sptpt[right]);
+							spare = room[i] - flow[right];
+							sparez = -right;
+						}
+						else {
+							// decrease flow
+							spare = flow[right];
+							sparez = right;
+						}
+						if (part > spare) {
+							part = spare;
+							jpart = sparez;
+							kpart = p;
+							partz = false;
+							if (part == 0) {
+								partz = true;
+								break;
+							}
+						}
+						rim[p] = pred[right];
+					}
+				} while (true);
+				if (!partz) left = rim[1];
+			}
+			partz = false;
+			if (part != 0) {
+				// update flows
+				rim[1] = newlead;
+				rim[2] = newtail;
+				if (jpart != 0)  rim[kpart] = Math.abs(jpart);
+				for (p=1; p<=2; p++) {
+					right = rim[p];
+					point = (ptr[p] >= 0 ? part : -part);
+					do {
+						if (right == left) break;
+						flow[right] -= point * (sptpt[right] >= 0 ? 1 : -1);
+						right = pred[right];
+					} while (true);
+				}
+			}
+			if (jpart == 0) {
+				room[newarc] = -room[newarc];
+				continue;
+			}
+			ipart = Math.abs(jpart);
+			if (jpart <= 0) {
+				j = Math.abs(sptpt[ipart]);
+				// set old edge to upper bound
+				room[j] = -room[j];
+			}
+			load = part;
+			if (room[newarc] <= 0) {
+				room[newarc] = -room[newarc];
+				load = room[newarc] - load;
+				newpr = -newpr;
+			}
+			if (kpart != 2) {
+				vertex1 = newlead;
+				vertex2 = newtail;
+				curedge = -newarc;
+				newpr = -newpr;
+			}
+			else {
+				vertex1 = newtail;
+				vertex2 = newlead;
+				curedge = newarc;
+			}
+
+			// update tree
+			i = vertex1;
+			j = pred[i];
+			distlen = dist[vertex2] + 1;
+			if (part != 0) {
+				point = (ptr[kpart]  >= 0 ? part: -part);
+				do {
+					// update dual variable
+					dual[i] += newpr;
+					n = flow[i];
+					flow[i] = load;
+					track = (sptpt[i] >= 0 ? 1 : -1);
+					spointer = Math.abs(sptpt[i]);
+					sptpt[i] = curedge;
+					olddist = dist[i];
+					distdiff = distlen - olddist;
+					dist[i] = distlen;
+					focal = i;
+					do {
+						after = succ[focal];
+						if (dist[after] <= olddist) break;
+						dist[after] += distdiff;
+						dual[after] += newpr;
+						focal = after;
+					} while (true);
+					k = j;
+					do {
+						l = succ[k];
+						if (l == i) break;
+						k = l;
+					} while (true);
+					ipartout = false;
+					if (i == ipart) {
+						ipartout = true;
+						break;
+					}
+					load = n - point * track;
+					curedge = -(track >= 0 ? spointer : -spointer);            
+					succ[k] = after;
+					succ[focal] = j;
+					k = i;
+					i = j;
+					j = pred[j];
+					pred[i] = k;
+					distlen++;
+				} while (true);
+			}
+			if (!ipartout) {
+				do {
+					dual[i] += newpr;
+					n = flow[i];
+					flow[i] = load;
+					track = (sptpt[i] >= 0 ? 1 : -1);
+					spointer = Math.abs(sptpt[i]);
+					sptpt[i] = curedge;
+					olddist = dist[i];
+					distdiff = distlen - olddist;
+					dist[i] = distlen;
+					focal = i;
+					do {
+						after = succ[focal];
+						if (dist[after] <= olddist) break;
+						dist[after] += distdiff;
+						// udpate dual variable
+						dual[after] += newpr;
+						focal = after;
+					} while (true);
+					k = j;
+					do {
+						l = succ[k];
+						if (l == i) break;
+						k = l;
+					} while (true);
+					// test for leaving edge
+					if (i == ipart) break;
+					load = n;
+					curedge = -(track >= 0 ? spointer : -spointer);
+					succ[k] = after;
+					succ[focal] = j;
+					k = i;
+					i = j;
+					j = pred[j];
+					pred[i] = k;
+					distlen++;
+				} while (true);
+			}
+			ipartout = false;
+			succ[k] = after;
+			succ[focal] = succ[vertex2];
+			succ[vertex2] = vertex1;
+			pred[vertex1] = vertex2;
+		} while (true);
 	}
+
 	/**
 	 * Performs a maximal weighted matching on the graph.
 	 * @param graph
 	 * @return a set containing pairs which are coupled in the maximal matching.
 	 */
 	public static Set<Pair<Vertex>> maxWeightedMatching(Graph<Vertex, Link<Vertex>> graph)
+	{
+		return null;
+	}
+
+	/**
+	 * Performs  min-cost perfect matching using Kolmogorov's publicly available Blossom V C code.
+	 * @param graph
+	 * @return
+	 */
+	public static Set<Pair<Vertex>> minCostMatching(Graph<Vertex,Link<Vertex>> graph)
 	{
 		return null;
 	}

@@ -2,8 +2,6 @@ package oarlib.core;
 
 import java.util.Collection;
 
-import oarlib.problem.impl.ObjectiveFunction;
-
 /**
  * Problem abstraction.  Most general contract that Problem objects must fulfill.
  * @author oliverlum
@@ -22,6 +20,10 @@ public abstract class Problem {
 	 * @return true if problem instance is solvable; false oth.
 	 */
 	public abstract boolean isFeasible(Collection<Route> routes);
+	/**
+	 * Retrieve the graph that has been associated with this Problem
+	 * @return the graph 
+	 */
 	public abstract Graph getGraph();
 	public abstract Type getType();
 
