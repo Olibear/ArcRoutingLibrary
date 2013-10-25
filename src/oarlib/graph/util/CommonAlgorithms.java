@@ -24,7 +24,7 @@ public class CommonAlgorithms {
 	 * @return a Route object containing the tour.
 	 * @throws IllegalArgumentException if the graph passed in is not Eulerian.
 	 */
-	public static Route tryFleury(DirectedGraph<Arc> eulerianGraph) throws IllegalArgumentException{
+	public static Route tryFleury(DirectedGraph<? extends Arc> eulerianGraph) throws IllegalArgumentException{
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
 		//TODO: Fleury's
@@ -36,7 +36,7 @@ public class CommonAlgorithms {
 	 * @return a Route object containing the tour.
 	 * @throws IllegalArgumentException if the graph passed in is not Eulerian.
 	 */
-	public static Route tryFleury(UndirectedGraph<Edge> eulerianGraph) throws IllegalArgumentException{
+	public static Route tryFleury(UndirectedGraph<? extends Edge> eulerianGraph) throws IllegalArgumentException{
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
 		return fleury(eulerianGraph);
@@ -45,7 +45,7 @@ public class CommonAlgorithms {
 	 * business logic for Fleury's algorithm
 	 * @return the Eulerian cycle
 	 */
-	private static Route fleury(Graph<?,?> graph)
+	private static Route fleury(Graph<? extends Vertex,? extends Link> graph)
 	{
 		return null;
 	}
@@ -53,7 +53,7 @@ public class CommonAlgorithms {
 	 * FindRoute algorithm (alternative to Fleury's given in Dussault et al. Plowing with Precedence
 	 * @return the Eulerian cycle
 	 */
-	public static Route findRoute(Graph<?,?> graph)
+	public static Route findRoute(Graph<? extends Vertex,? extends Link> graph)
 	{
 		return null;
 	}
@@ -61,7 +61,7 @@ public class CommonAlgorithms {
 	 * Checks to see if the directed graph is weakly connected
 	 * @return true if the graph is  weakly connected, false oth.
 	 */
-	public static boolean isWeaklyConnected(DirectedGraph<?> graph) 
+	public static boolean isWeaklyConnected(DirectedGraph<? extends Arc> graph) 
 	{
 		return false;
 	}
@@ -69,8 +69,25 @@ public class CommonAlgorithms {
 	 * Checks to see if the directed graph is strongly connected
 	 * @return true if the graph is strongly  connected, false oth.
 	 */
-	public static boolean isStronglyConnected(DirectedGraph<?> graph)
+	public static boolean isStronglyConnected(DirectedGraph<? extends Arc> graph)
 	{
+		int n = graph.getVertices().size();
+		int m = graph.getEdges().size();
+		int[] component = new int[n+1];
+		int[] nodei = new int[m+1];
+		int[] nodej = new int[m+1];
+		int index = 1;
+		Iterator<? extends Arc> iter = graph.getEdges().iterator();
+		while (iter.hasNext())
+		{
+			Arc a = iter.next();
+			nodei[index] = a.getTail().getId();
+			nodej[index] = a.getHead().getId();
+			index++;
+		}
+		stronglyConnectedComponents(n,m,nodei,nodej,component);
+		if(component[0] == 1)
+			return true;
 		return false;
 	}
 
@@ -406,7 +423,7 @@ public class CommonAlgorithms {
 	 * @param graph
 	 * @return true if the graph is eulerian, false oth.
 	 */
-	public static boolean isEulerian (DirectedGraph<Arc> graph)
+	public static boolean isEulerian (DirectedGraph<? extends Arc> graph)
 	{
 		for(DirectedVertex v: graph.getVertices())  
 		{
@@ -420,7 +437,7 @@ public class CommonAlgorithms {
 	 * @param graph
 	 * @return true if the graph is eulerian, false oth.
 	 */
-	public static boolean isEulerian(UndirectedGraph<Edge> graph) 
+	public static boolean isEulerian(UndirectedGraph<? extends Edge> graph) 
 	{
 		for (UndirectedVertex v:graph.getVertices()) 
 		{
