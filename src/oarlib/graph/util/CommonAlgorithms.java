@@ -73,6 +73,302 @@ public class CommonAlgorithms {
 	{
 		return false;
 	}
+
+	/**
+	 * Taken from Lau.  Returns the connected components of an undirected graph.  For the directed analog, see stronglyConnectedComponents
+	 * @param n - the number of nodes in the graph
+	 * @param m - the number of edges in the graph
+	 * @param nodei - the pth entry holds one end of the pth edge
+	 * @param nodej - the pth entry holds the other end of the pth edge
+	 * @param component - 0th entry holds the number of connected components, while the pth entry holds the component that node p belongs to.
+	 */
+	public static void connectedComponents(int n, int m, int nodei[], int nodej[],
+			int component[])
+	{
+		int edges,i,j,numcomp,p,q,r,typea,typeb,typec,tracka,trackb;
+		int compkey,key1,key2,key3,nodeu,nodev;
+		int numnodes[] = new int[n+1];
+		int aux[] = new int[n+1];
+		int index[] = new int[3];
+
+		typec=0;
+		index[1] = 1;
+		index[2] = 2;
+		q = 2;
+		for (i=1; i<=n; i++) {
+			component[i] = -i;
+			numnodes[i] = 1;
+			aux[i] = 0;   
+		}   
+		j = 1;
+		edges = m;
+		do {
+			nodeu = nodei[j];
+			nodev = nodej[j];
+			key1 = component[nodeu];
+			if (key1 < 0) key1 = nodeu;
+			key2 = component[nodev];
+			if (key2 < 0) key2 = nodev;
+			if (key1 == key2) {
+				if(j >= edges) {
+					edges--;
+					break;
+				}
+				nodei[j] = nodei[edges];
+				nodej[j] = nodej[edges];
+				nodei[edges] = nodeu;
+				nodej[edges] = nodev;
+				edges--;
+			}
+			else {
+				if (numnodes[key1] >= numnodes[key2]) {
+					key3 = key1;
+					key1 = key2;
+					key2 = key3;
+					typec = -component[key2];
+				}
+				else
+					typec = Math.abs(component[key2]);
+				aux[typec] = key1;
+				component[key2] = component[key1];
+				i = key1;
+				do {
+					component[i] = key2;
+					i = aux[i];
+				} while (i != 0);
+				numnodes[key2] += numnodes[key1];
+				numnodes[key1] = 0;
+				j++;
+				if (j > edges || j > n) break;
+			}
+		} while (true);
+		numcomp = 0;
+		for (i=1; i<=n; i++)
+			if (numnodes[i] != 0) {
+				numcomp++;
+				numnodes[numcomp] = numnodes[i];
+				aux[i] = numcomp;
+			}
+		for (i=1; i<=n; i++) {
+			key3 = component[i];
+			if (key3 < 0) key3 = i;
+			component[i] = aux[key3];
+		}      
+		if (numcomp == 1) {
+			component[0] = numcomp;
+			return;
+		}
+		typeb = numnodes[1];
+		numnodes[1] = 1;
+		for (i=2; i<=numcomp; i++) {
+			typea = numnodes[i];
+			numnodes[i] = numnodes[i-1] + typeb - 1;
+			typeb = typea;
+		}
+		for (i=1; i<=edges; i++) {
+			typec = nodei[i];
+			compkey = component[typec];
+			aux[i] = numnodes[compkey];
+			numnodes[compkey]++;
+		}
+		for (i=1; i<=q; i++) {
+			typea = index[i];
+			do {
+				if (typea <= i) break;
+				typeb = index[typea];
+				index[typea] = -typeb;
+				typea = typeb;
+			} while (true);
+			index[i] = -index[i];
+		}
+		if (aux[1] >= 0)
+			for (j=1; j<=edges; j++) {
+				tracka = aux[j];
+				do {
+					if (tracka <= j) break;
+					trackb = aux[tracka];
+					aux[tracka] = -trackb;
+					tracka = trackb;
+				} while (true);
+				aux[j] = -aux[j];
+			}
+		for (i=1; i<=q; i++) {
+			typea = -index[i];
+			if(typea >= 0) {
+				r = 0;
+				do {
+					typea = index[typea];
+					r++;
+				} while (typea > 0);
+				typea = i;
+				for (j=1; j<=edges; j++)
+					if (aux[j] <= 0) {
+						trackb = j;
+						p = r;
+						do {
+							tracka = trackb;
+							key1 = (typea == 1) ? nodei[tracka] : nodej[tracka];
+							do {
+								typea = Math.abs(index[typea]);
+								key1 = (typea == 1) ? nodei[tracka] : nodej[tracka];
+								tracka = Math.abs(aux[tracka]);
+								key2 = (typea == 1) ? nodei[tracka] : nodej[tracka];
+								if (typea == 1)
+									nodei[tracka] = key1;
+								else
+									nodej[tracka] = key1;
+								key1 = key2;
+								if (tracka == trackb) {
+									p--;
+									if (typea == i) break; 
+								}
+							} while (true);
+							trackb = Math.abs(aux[trackb]);
+						} while (p != 0);
+					}
+			}
+		}
+		for (i=1; i<=q; i++)
+			index[i] = Math.abs(index[i]);
+		if (aux[1] > 0) {
+			component[0] = numcomp;
+			return;
+		}
+		for (j=1; j<=edges; j++)
+			aux[j] = Math.abs(aux[j]);
+		typea=1;
+		for (i=1; i<=numcomp; i++) {
+			typeb = numnodes[i];
+			numnodes[i] = typeb - typea + 1;
+			typea = typeb;
+		}
+		component[0] = numcomp;
+	}
+
+
+	/**
+	 * Taken from Lau.  Gets the SCCs of a directed graph.  For the undirected analog, check connectedComponents.
+	 * @param n - number of nodes in the graph
+	 * @param m - number of edges in the graph
+	 * @param nodei - the pth entry holds the tail of the pth edge
+	 * @param nodej - the pth entry holds the head of the pth edge
+	 * @param component - 0th entry is the number of SCCs, and the pth entry is the component that node p belongs to
+	 */
+	public static void stronglyConnectedComponents(int n, int m, int nodei[],
+			int nodej[], int component[])
+	{
+		int i,j,k,series,stackpointer,numcompoents,p,q,r;
+		int backedge[] = new int[n+1];
+		int parent[] = new int[n+1];
+		int sequence[] = new int[n+1];
+		int stack[] = new int[n+1];
+		int firstedges[] = new int[n+2];
+		int endnode[] = new int[m+1];
+		boolean next[] = new boolean[n+1];
+		boolean trace[] = new boolean[n+1];
+		boolean fresh[] = new boolean[m+1];
+		boolean skip,found;
+
+		// set up the forward star representation of the graph
+		firstedges[1] = 0;
+		k = 0;
+		for (i=1; i<=n; i++) {
+			for (j=1; j<=m; j++)
+				if (nodei[j] == i) {
+					k++;
+					endnode[k] = nodej[j];
+				}
+			firstedges[i+1] = k;
+		}
+		for (j=1; j<=m; j++)
+			fresh[j] = true;
+		// initialize
+		for (i=1; i<=n; i++) {
+			component[i] = 0;
+			parent[i] = 0;
+			sequence[i] = 0;
+			backedge[i] = 0;
+			next[i] = false;
+			trace[i] = false;
+		}
+		series = 0;
+		stackpointer = 0;
+		numcompoents = 0;
+		// choose an unprocessed node not in the stack
+		while (true) {
+			p = 0;
+			while (true) {
+				p++;
+				if (n < p) {
+					component[0] = numcompoents;
+					return;
+				}
+				if (!trace[p]) break;
+			}
+			series++;
+			sequence[p] = series;
+			backedge[p] = series;
+			trace[p] = true;
+			stackpointer++;
+			stack[stackpointer] = p;
+			next[p] = true;
+			while (true) {
+				skip = false;
+				for (q=1; q<=n; q++) {
+					// find an unprocessed edge (p,q)
+					found = false;
+					for (i=firstedges[p]+1; i<=firstedges[p+1]; i++)
+						if ((endnode[i] == q) && fresh[i]) {
+							// mark the edge as processed
+							fresh[i] = false;
+							found = true;
+							break;
+						}
+					if (found) {
+						if (!trace[q]) {
+							series++;
+							sequence[q] = series;
+							backedge[q] = series;
+							parent[q] = p;
+							trace[q] = true;
+							stackpointer++;
+							stack[stackpointer] = q;
+							next[q] = true;
+							p = q;
+						}
+						else {
+							if (trace[q]) {
+								if (sequence[q] < sequence[p] && next[q]) {
+									backedge[p] = (backedge[p] < sequence[q]) ? 
+											backedge[p] : sequence[q];
+								}
+							}
+						}
+						skip = true;
+						break;
+					}  
+				}
+				if (skip) continue;
+				if (backedge[p] == sequence[p]) {
+					numcompoents++;
+					while (true) {
+						r = stack[stackpointer];
+						stackpointer--;
+						next[r] = false;
+						component[r] = numcompoents;
+						if (r == p) break;
+					}
+				}
+				if (parent[p] != 0) {
+					backedge[parent[p]] = (backedge[parent[p]] < backedge[p]) ? 
+							backedge[parent[p]] : backedge[p];
+							p = parent[p];
+				}
+				else
+					break;
+			}
+		}
+	}
 	/**
 	 * Checks to see if the undirected graph is connected
 	 * @return true if the graph is connected (or empty), false oth.
@@ -86,7 +382,7 @@ public class CommonAlgorithms {
 		if(vertices.size() <= 1)
 			return true; //trivially connected
 		nextUp.add(vertices.iterator().next());
-		
+
 		//DFS
 		Iterator<UndirectedVertex> iter;
 		while (vertices.size() > 0 && nextUp.size() > 0)
