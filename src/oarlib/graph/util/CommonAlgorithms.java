@@ -457,8 +457,227 @@ public class CommonAlgorithms {
 		if (sedge + Math.max(1, nzdemand) + 1 > tedges)
 			return 2;
 		//add regular slacks
-		
-		
+		i = -head[sedge];
+		focal = succ[nodes1];
+		succ[nodes1] = nodes1;
+		if(focal == nodes1)
+		{
+			sedge++;
+			head[sedge] = (i >= 0 ? nodes1 : -nodes1);
+			cost[sedge] = 0;
+			room[sedge] = -maxint;
+			least[sedge] = 0;
+		}
+		else
+		{
+			do {
+				sedge++;
+				head[sedge] = (i >= 0 ? focal : -focal);
+				cost[sedge] = 0;
+				room[sedge] = dist[focal];
+				dist[focal] = 0;
+				least[sedge] = 0;
+				after = succ[focal];
+				succ[focal] = 0;
+				focal = after;
+			} while (focal != nodes1);
+		}
+		lastslackedge = sedge;
+		sedge++;
+		head[sedge] = (-i >= 0 ? nodes2 : -nodes2);
+		cost[sedge] = maxint;
+		room[sedge] = 0;
+		least[sedge] = 0;
+		//locate sources and sinks
+		remain = 0;
+		treenodes = 0;
+		focal = nodes1;
+		for (p = 0 ; p <= nodes; p++)
+		{
+			j = flow[p];
+			remain += j;
+			if (j == 0)
+				continue;
+			if (j < 0)
+			{
+				flow[p] = -j;
+				right = nodes1;
+				do {
+					after = pred[right];
+					if (flow[after] + j <= 0)
+						break;
+					right = after;
+				} while (true);
+				pred[right] = p;
+				pred[p] = after;
+				dist[p] = -1;
+			}
+			else
+			{
+				treenodes++;
+				sptpt[p] = -sedge;
+				flow[p] = j;
+				succ[focal] = p;
+				pred[p] = nodes1;
+				succ[p] = nodes1;
+				dist[p] = 1;
+				dual[p] = maxint;
+				focal = p;
+			}
+		}
+		if (remain > 0)
+			return 4;
+		do {
+			//select highest rank demand
+			tail = pred[nodes1];
+			if (tail == nodes1)
+				break;
+			//set link to artificial
+			newarc = artedge;
+			newpr = maxint;
+			newprz = false;
+			flowz = false;
+			if (flow[tail] == 0)
+			{
+				flowz = true;
+				break;
+			}
+			//look for sources
+			trial = dual[tail];
+			lead = head[trial];
+			other = (lead >= 0 ? nodes1 : -nodes1);
+			do {
+				if (room[trial] > 0)
+				{
+					orig = Math.abs(lead);
+					if (dist[orig] == 1)
+					{
+						if (sptpt[orig] != artedge)
+						{
+							rate = cost[trial];
+							if (rate < newpr)
+							{
+								if (room[trial] <= flow[tail])
+								{
+									if (flow[orig] >= room[trial])
+									{
+										newarc = -trial;
+										newpr = rate;
+										if (newpr ==0)
+										{
+											newprz = true;
+											break;
+										}
+									}
+								}
+								else
+								{
+									if (flow[orig] >= flow[tail])
+									{
+										newarc = trial;
+										newpr = rate;
+										if (newpr == 0)
+										{
+											newprz = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				trial++;
+				lead = head[trial];
+			} while((lead ^ other) > 0);
+			if (!newprz)
+			{
+				artarc = false;
+				if (newarc == artedge)
+				{
+					artarc = true;
+					break;
+				}
+			}
+			else
+				newprz = false;
+			if (newarc > 0)
+				break;
+			newarc = -newarc;
+			orig = Math.abs(head[newarc]);
+			load = room[newarc];
+			//mark unavailable
+			room[newarc] = -load;
+			//adjust flows
+			flow[orig] -= load;
+			flow[tail] -= load;
+		} while(true);
+		if (!flowz)
+		{
+			removelist = false;
+			if (!artarc)
+			{
+				room[newarc] -= room[newarc];
+				orig = Math.abs(head[newarc]);
+				flow[orig] -= flow[tail];
+				k = maxint;
+				removelist = true;
+			}
+			else
+			{
+				//search for transshipment nodes
+				artarc = false;
+				trial = dual[tail];
+				lead = head[trial];
+				newprz = false;
+				do
+				{
+					if (room[trial] > 0)
+					{
+						orig = Math.abs(lead);
+						//is it linked
+						if (dist[orig] == 0)
+						{
+							rate = cost[trial];
+							if (rate < newpr)
+							{
+								newarc = trial;
+								newpr = rate;
+								if (newpr == 0)
+								{
+									newprz = true;
+									break;
+								}
+							}
+						}
+					}
+					trial++;
+					lead = head[trial];
+				} while((lead^other) > 0);
+				artarc = false;
+				if (!newprz){
+					if (newarc == artedge)
+						artarc = true;
+				}
+				else
+					newprz = false;
+				if (!artarc) {
+					orig = Math.abs(head[newarc]);
+					if (room[newarc] <= flow[tail])
+					{
+						//get capacity
+						load = room[newarc];
+						//mark unavailable
+						room[newarc] = -load;
+						//adjust flows
+						flow[orig] = load;
+						flow[tail] -= load;
+						pred[orig] = tail;
+						
+					}
+				}
+			}
+		}
 		
 		
 		
