@@ -2,7 +2,6 @@ package oarlib.graph.util;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import oarlib.core.Arc;
@@ -11,6 +10,7 @@ import oarlib.core.Link;
 import oarlib.core.Graph;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+import oarlib.exceptions.NoDemandSetException;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.vertex.impl.DirectedVertex;
@@ -45,7 +45,7 @@ public class CommonAlgorithms {
 	 * business logic for Fleury's algorithm
 	 * @return the Eulerian cycle
 	 */
-	private static Route fleury(Graph<? extends Vertex,? extends Link> graph)
+	private static Route fleury(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph)
 	{
 		return null;
 	}
@@ -53,7 +53,7 @@ public class CommonAlgorithms {
 	 * FindRoute algorithm (alternative to Fleury's given in Dussault et al. Plowing with Precedence
 	 * @return the Eulerian cycle
 	 */
-	public static Route findRoute(Graph<? extends Vertex,? extends Link> graph)
+	public static Route findRoute(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph)
 	{
 		return null;
 	}
@@ -394,7 +394,6 @@ public class CommonAlgorithms {
 	{
 		//start at an arbitrary vertex
 		HashSet<UndirectedVertex> vertices = graph.getVertices();
-		HashSet<? extends Edge> edges = graph.getEdges();
 		HashSet<UndirectedVertex> nextUp = new HashSet<UndirectedVertex>();
 		if(vertices.size() <= 1)
 			return true; //trivially connected
@@ -499,7 +498,67 @@ public class CommonAlgorithms {
 	}
 
 	/**
-	 * Solves a min cost flow problem defined on the network.  Implementation is a modified version taken from Lau:
+	 * Solves a min cost flow problem defined on this graph.  Demands must be set, or else we get an error here.
+	 * @param g
+	 * @return
+	 */
+	public static int[] minCostNetworkFlow(Graph<? extends Vertex,? extends Link<? extends Vertex>> g) throws NoDemandSetException
+	{
+		int nodes = g.getVertices().size();
+		int edges = g.getEdges().size();
+		int numdemand = 0;
+
+		//setup inputs to helper method
+		for (Vertex v: g.getVertices())
+		{
+			try {
+				v.getDemand();
+				numdemand++;
+			} catch(NoDemandSetException e) {
+				//do nothing
+			}
+		}
+		int nodedemand[][] = new int[numdemand + 1][2];
+		int i = 1;
+		for (Vertex v: g.getVertices())
+		{
+			try {
+				nodedemand[i][0] = v.getGuid();
+				nodedemand[i][1] = v.getDemand();
+				i++;
+			} catch(NoDemandSetException e) {
+				//do nothing
+			}
+		}
+
+
+		int nodei[] = new int[edges + 1];
+		int nodej[] = new int[edges + 1];
+		int arccost[] = new int[edges + 1];
+		int upbound[] = new int[edges + 1];
+		int lowbound[] = new int[edges + 1];
+		int arcsol[][]= new int[2][edges + 1];
+		int flowsol[] = new int[edges + 1]; 
+		
+		for (Link<? extends Vertex> l : g.getEdges())
+		{
+			nodei[l.getGuid()] = l.getEndpoints().getFirst().getGuid();
+			nodej[l.getGuid()] = l.getEndpoints().getSecond().getGuid();
+			arccost[l.getGuid()] = l.getCost();
+			lowbound[l.getGuid()] = 0;
+			upbound[l.getGuid()] = 0;
+			
+		}
+		
+		int success = minCostNetworkFlow(nodes,edges,numdemand,nodedemand,nodei,nodej,arccost,upbound,lowbound,arcsol,flowsol);
+		
+		//check for errors
+
+		return null;
+	}
+
+	/**
+	 * Solves a min cost flow problem defined on the network.  Implementation is taken from Lau:
 	 * Return codes:
 	 * 0 - optimal solution found
 	 * 1 - infeasible, net required flow is negative
@@ -510,8 +569,8 @@ public class CommonAlgorithms {
 	 * @param edges - the number of edges in the graph
 	 * @param numdemand - the number of nodes that have nonzero demands (number of supplies and sources)
 	 * @param nodedemand - entry i,1 is the demand for the node with label in entry i,0
-	 * @param nodei - the pth entry holds the first endpoint of the pth node
-	 * @param nodej - the pth entry holds the second endpoint of the pth node
+	 * @param nodei - the pth entry holds the first endpoint of the pth edge
+	 * @param nodej - the pth entry holds the second endpoint of the pth edge
 	 * @param arccost - entry i holds the cost of edge i, entry 0 holds the optimal cost at the end.
 	 * @param upbound - the ith entry holds the flow capacity of edge i
 	 * @param lowbound - the ith entry holds the min flow for edge i

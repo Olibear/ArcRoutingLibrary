@@ -24,7 +24,7 @@ public abstract class Problem {
 	 * Retrieve the graph that has been associated with this Problem
 	 * @return the graph 
 	 */
-	public abstract Graph getGraph();
+	public abstract Graph<?,?> getGraph();
 	public abstract Type getType();
 
 }

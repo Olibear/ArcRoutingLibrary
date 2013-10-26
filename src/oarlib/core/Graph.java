@@ -1,12 +1,8 @@
 package oarlib.core;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 
 import oarlib.graph.util.Pair;
-import oarlib.graph.util.UnmatchedPair;
 
 /**
  * Graph abstraction.  Provides most general contract for all Graph objects.

@@ -3,7 +3,6 @@ package oarlib.vertex.impl;
 import java.util.HashMap;
 
 import oarlib.core.Arc;
-import oarlib.core.Edge;
 import oarlib.core.Vertex;
 /**
  * Vertex representation for Directed Graphs.  
@@ -36,6 +35,11 @@ public class DirectedVertex extends Vertex{
 
 	public void setOutDegree(int outDegree) {
 		this.outDegree = outDegree;
+	}
+	
+	public int getDelta()
+	{
+		return outDegree - inDegree;
 	}
 	
 	public HashMap<DirectedVertex, Arc> getNeighbors()

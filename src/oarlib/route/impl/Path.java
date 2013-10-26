@@ -19,6 +19,10 @@ public class Path extends Route {
 	{
 		mCost = 0;
 	}
+	
+	public double getCost() {
+		return mCost;
+	}
 
 	@Override
 	public List<Vertex> getRoute() {

@@ -1,13 +1,9 @@
 package oarlib.graph.impl;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 
 import oarlib.core.Arc;
 import oarlib.graph.util.Pair;
-import oarlib.graph.util.UnmatchedPair;
 import oarlib.vertex.impl.DirectedVertex;
 /**
  * Reperesentation of a Directed Graph; that is, it can only contain arcs, and directed vertices
