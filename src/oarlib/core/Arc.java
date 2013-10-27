@@ -17,7 +17,7 @@ public class Arc extends Link<DirectedVertex>{
 	 * @param endpoints
 	 * @param cost
 	 */
-	public Arc(String label, Pair<DirectedVertex> endpoints, double cost) {
+	public Arc(String label, Pair<DirectedVertex> endpoints, int cost) {
 		super(label, endpoints, cost);
 	}
 	/**

@@ -10,7 +10,9 @@ import oarlib.core.Link;
 import oarlib.core.Graph;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+import oarlib.exceptions.GraphInfeasibleException;
 import oarlib.exceptions.NoDemandSetException;
+import oarlib.exceptions.SetupException;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.vertex.impl.DirectedVertex;
@@ -500,9 +502,10 @@ public class CommonAlgorithms {
 	/**
 	 * Solves a min cost flow problem defined on this graph.  Demands must be set, or else we get an error here.
 	 * @param g
-	 * @return
+	 * @return answer - entry [0][0] holds the final cost, and the edge from node 
+	 * [i][0] to [i][1] that has cost [i][2] has flow [i][3] in the optimal solution.
 	 */
-	public static int[] minCostNetworkFlow(Graph<? extends Vertex,? extends Link<? extends Vertex>> g) throws NoDemandSetException
+	public static int[][] minCostNetworkFlow(DirectedGraph<? extends Link<? extends DirectedVertex>> g) throws GraphInfeasibleException, SetupException
 	{
 		int nodes = g.getVertices().size();
 		int edges = g.getEdges().size();
@@ -539,7 +542,7 @@ public class CommonAlgorithms {
 		int lowbound[] = new int[edges + 1];
 		int arcsol[][]= new int[2][edges + 1];
 		int flowsol[] = new int[edges + 1]; 
-		
+
 		for (Link<? extends Vertex> l : g.getEdges())
 		{
 			nodei[l.getGuid()] = l.getEndpoints().getFirst().getGuid();
@@ -547,23 +550,44 @@ public class CommonAlgorithms {
 			arccost[l.getGuid()] = l.getCost();
 			lowbound[l.getGuid()] = 0;
 			upbound[l.getGuid()] = 0;
-			
-		}
-		
-		int success = minCostNetworkFlow(nodes,edges,numdemand,nodedemand,nodei,nodej,arccost,upbound,lowbound,arcsol,flowsol);
-		
-		//check for errors
 
-		return null;
+		}
+
+		int success = minCostNetworkFlow(nodes,edges,numdemand,nodedemand,nodei,nodej,arccost,upbound,lowbound,arcsol,flowsol);
+
+		//check for errors
+		if(success == 1 || success ==  4)
+		{
+			throw new GraphInfeasibleException("The graph was marked as infeasible during the solution to the flow problem.");
+		}
+		else if( success == 2 || success == 3)
+		{
+			throw new SetupException("There was a problem setting up the min cost flow problem.  This probably indicates an " +
+					"error in the minCostNetworkFlow method.");
+		}
+
+		//everything is probably okay
+		int answer[][] = new int[edges+1][4];
+		for(int j=1;j<edges+1;j++)
+		{
+			answer[j][0] = nodei[j];
+			answer[j][1] = nodej[j];
+			answer[j][2] =arccost[j];
+			answer[j][3]= flowsol[j];
+		}
+		//store the final cost in [0][0]
+		answer[0][0] = arccost[0];
+
+		return answer;
 	}
 
 	/**
-	 * Solves a min cost flow problem defined on the network.  Implementation is taken from Lau:
+	 * Solves a min cost flow problem defined on the network ( directed graph ).  Implementation is taken from Lau:
 	 * Return codes:
 	 * 0 - optimal solution found
 	 * 1 - infeasible, net required flow is negative
 	 * 2 - need to increase the size of internal edge-length arrays
-	 * 3 - error in the input of the arc list, arc cost, and arc flow
+	 * 3 - error in the input of the arc list, arc cost, and / or arc flow
 	 * 4 - infeasible, net required flow imposed by arc flow lower bounds is negative
 	 * @param nodes - the number of nodes in the graph
 	 * @param edges - the number of edges in the graph

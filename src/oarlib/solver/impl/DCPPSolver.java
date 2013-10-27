@@ -1,8 +1,11 @@
 package oarlib.solver.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
+import oarlib.graph.util.CommonAlgorithms;;
+import oarlib.graph.util.Pair;
 import oarlib.core.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
@@ -22,6 +25,8 @@ public class DCPPSolver extends Solver{
 	@Override
 	protected Collection<Route> solve() {
 		
+		DirectedGraph<Arc> copy = mGraph;
+		
 		LinkedHashSet<DirectedVertex> Dplus = new LinkedHashSet<DirectedVertex>();
 		LinkedHashSet<DirectedVertex> Dminus = new LinkedHashSet<DirectedVertex>();
 		LinkedHashSet<DirectedVertex> Dall = new LinkedHashSet<DirectedVertex>();
@@ -33,32 +38,37 @@ public class DCPPSolver extends Solver{
 			{
 				Dplus.add(v);
 				Dall.add(v);
+				v.setDemand(v.getDelta());
 			}
 			if(v.getDelta() < 0)
 			{
 				Dminus.add(v);
 				Dall.add(v);
+				v.setDemand(v.getDelta());
 			}
 		}
 		
-		int n = mGraph.getVertices().size();
-		int[][] dist = new int[n][n];
-		//construct the distance matrix
-		for(Arc a: mGraph.getEdges())
+		//min cost flow
+		int[][] flowanswer = CommonAlgorithms.minCostNetworkFlow(mGraph);
+		
+		//add the solution to the graph (augment)
+		for (int i=0; i<flowanswer.length;i++)
 		{
-			dist[a.getTail().getId()][a.getHead().getId()] = a.getCost();
-		}
-		for(int i = 0;i < n; i++)
-		{
-			for(int j = 0; j < n; j++)
+			if(flowanswer[i][3] == 0)
+				continue;
+			for (int j=0; j<flowanswer[i][3];j++)
 			{
-				//set the zero guys to big unless it's on the diagonal.
+				//TODO: need to be able to fetch vertex from guid
+				copy.addEdge(new Arc("duped arc",new Pair<DirectedVertex>(),flowanswer[i][2]));
 			}
 		}
 		
 		
-		// TODO Auto-generated method stub
-		return null;
+		// return the answer
+		Route ans = CommonAlgorithms.tryFleury(copy);
+		ArrayList<Route> ret = new ArrayList<Route>();
+		ret.add(ans);
+		return ret;
 	}
 
 	@Override
