@@ -1,6 +1,9 @@
 package oarlib.graph.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import oarlib.core.Arc;
 import oarlib.graph.util.Pair;
@@ -11,7 +14,7 @@ import oarlib.vertex.impl.DirectedVertex;
  *
  * @param <A> Arc that this graph will use
  */
-public class DirectedGraph<A extends Arc> extends MutableGraph<DirectedVertex,A> {
+public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 
 	//constructors
 	public DirectedGraph(){
@@ -24,7 +27,7 @@ public class DirectedGraph<A extends Arc> extends MutableGraph<DirectedVertex,A>
 	}
 
 	@Override
-	public void addEdge(A e) {
+	public void addEdge(Arc e) {
 		e.getTail().addToNeighbors(e.getHead(), e);
 		DirectedVertex toUpdate = e.getTail();
 		toUpdate.setOutDegree(toUpdate.getOutDegree() + 1);
@@ -34,9 +37,10 @@ public class DirectedGraph<A extends Arc> extends MutableGraph<DirectedVertex,A>
 	}
 
 	@Override
-	public Collection<A> findEdges(Pair<DirectedVertex> endpoints) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Arc> findEdges(Pair<DirectedVertex> endpoints) {
+		DirectedVertex first = endpoints.getFirst();
+		HashMap<DirectedVertex, ArrayList<Arc>> firstNeighbors = first.getNeighbors();
+		return firstNeighbors.get(endpoints.getSecond());
 	}
 
 }

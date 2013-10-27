@@ -1,5 +1,6 @@
 package oarlib.vertex.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import oarlib.core.Arc;
@@ -13,12 +14,13 @@ public class DirectedVertex extends Vertex{
 
 	private int inDegree;
 	private int outDegree;
-	private HashMap<DirectedVertex,Arc> neighbors;
+	private HashMap<DirectedVertex,ArrayList<Arc>> neighbors;
 	
 	public DirectedVertex(String label) {
 		super(label);
 		setInDegree(0);
 		setOutDegree(0);
+		neighbors = new HashMap<DirectedVertex,ArrayList<Arc>>();
 	}
 
 	public int getInDegree() {
@@ -39,17 +41,19 @@ public class DirectedVertex extends Vertex{
 	
 	public int getDelta()
 	{
-		return outDegree - inDegree;
+		return inDegree - outDegree;
 	}
 	
-	public HashMap<DirectedVertex, Arc> getNeighbors()
+	public HashMap<DirectedVertex, ArrayList<Arc>> getNeighbors()
 	{
 		return neighbors;
 	}
 	
 	public void addToNeighbors(DirectedVertex v, Arc a)
 	{
-		neighbors.put(v, a);
+		if(!neighbors.containsKey(v))
+			neighbors.put(v, new ArrayList<Arc>());
+		neighbors.get(v).add(a);
 		return;
 	}
 

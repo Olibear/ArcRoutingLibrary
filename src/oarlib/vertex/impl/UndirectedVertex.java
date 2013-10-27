@@ -1,9 +1,9 @@
 package oarlib.vertex.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import oarlib.core.Edge;
-import oarlib.core.Link;
 import oarlib.core.Vertex;
 /**
  * Vertex representation for Undirected Graphs.
@@ -13,11 +13,11 @@ import oarlib.core.Vertex;
 public class UndirectedVertex extends Vertex{
 
 	private int degree;
-	private HashMap<UndirectedVertex, Edge> neighbors;
+	private HashMap<UndirectedVertex, ArrayList<Edge>> neighbors;
 	
 	public UndirectedVertex(String label) {
 		super(label);
-		neighbors = new HashMap<UndirectedVertex, Edge>();
+		neighbors = new HashMap<UndirectedVertex, ArrayList<Edge>>();
 		setDegree(0);
 	}
 
@@ -29,13 +29,13 @@ public class UndirectedVertex extends Vertex{
 		this.degree = degree;
 	}
 	
-	public HashMap<UndirectedVertex, Edge> getNeighbors()
+	public HashMap<UndirectedVertex, ArrayList<Edge>> getNeighbors()
 	{
 		return neighbors;
 	}
 	public void addToNeighbors(UndirectedVertex v, Edge e)
 	{
-		neighbors.put(v, e);
+		neighbors.get(v).add(e);
 		return;
 	}
 

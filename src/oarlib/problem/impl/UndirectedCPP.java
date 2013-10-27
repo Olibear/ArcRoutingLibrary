@@ -9,9 +9,9 @@ import oarlib.graph.impl.UndirectedGraph;
 
 public class UndirectedCPP extends Problem{
 	
-	private UndirectedGraph<Edge> mGraph;
+	private UndirectedGraph mGraph;
 
-	public UndirectedCPP(UndirectedGraph<Edge> g) {
+	public UndirectedCPP(UndirectedGraph g) {
 		mGraph = g;
 	}
 
@@ -27,7 +27,7 @@ public class UndirectedCPP extends Problem{
 	}
 
 	@Override
-	public UndirectedGraph<Edge> getGraph() {
+	public UndirectedGraph getGraph() {
 		return mGraph;
 	}
 

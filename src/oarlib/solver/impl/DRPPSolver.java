@@ -24,4 +24,10 @@ public class DRPPSolver extends Solver{
 		return Problem.Type.DIRECTED_RURAL_POSTMAN;
 	}
 
+	@Override
+	protected Problem getInstance() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

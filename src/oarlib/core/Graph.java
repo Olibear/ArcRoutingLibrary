@@ -1,6 +1,8 @@
 package oarlib.core;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import oarlib.graph.util.Pair;
 
@@ -10,6 +12,19 @@ import oarlib.graph.util.Pair;
  *
  */
 public abstract class Graph<V extends Vertex,E extends Link<V>> {
+
+	private int vidCounter = 1; //for assigning internal ids of vertices
+	private int eidCounter = 1;
+	protected int assignVertexId() //returns the current vidCounter, and increments 
+	{
+		vidCounter++;
+		return vidCounter - 1;
+	}
+	protected int assignEdgeId() //returns the current eidCounter, and increments
+	{
+		eidCounter++;
+		return eidCounter - 1;
+	}
 	/**
 	 * Getter for the vertices.
 	 * @return a Collection of vertices belonging to this graph
@@ -39,5 +54,21 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * Looks for edges between the two provided endpoints, and returns them in a collection.
 	 * @return a collection of edges directly connecting the two vertices
 	 */
-	public abstract Collection<E> findEdges(Pair<V> endpoints);
+	public abstract List<E> findEdges(Pair<V> endpoints);
+	/**
+	 * @return - a hash map that has guids as keys to the vertices
+	 */
+	public abstract HashMap<Integer,V> getGlobalVertexMap();
+	/**
+	 * @return - a hash map that has ids as keys to the vertices
+	 */
+	public abstract HashMap<Integer,V> getInternalVertexMap();
+	/**
+	 * @return - a hash map that has guids as keys to the edges
+	 */
+	public abstract HashMap<Integer,E> getGlobalEdgeMap();
+	/**
+	 * @return - a hash map that has ids as keys to the edges
+	 */
+	public abstract HashMap<Integer,E> getInternalEdgeMap();
 }

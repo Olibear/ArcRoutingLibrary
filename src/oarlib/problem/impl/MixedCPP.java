@@ -9,6 +9,7 @@ import oarlib.core.Route;
 import oarlib.core.Vertex;
 
 public class MixedCPP extends Problem{
+	
 
 	public MixedCPP(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o) {
 		super(g, o);
@@ -22,6 +23,12 @@ public class MixedCPP extends Problem{
 	@Override
 	public Type getType() {
 		return Problem.Type.MIXED_CHINESE_POSTMAN;
+	}
+
+	@Override
+	public Graph<?, ?> getGraph() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

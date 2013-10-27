@@ -13,9 +13,9 @@ import oarlib.graph.impl.DirectedGraph;
  */
 public class DirectedCPP extends Problem{
 	
-	private DirectedGraph<Arc> mGraph;
+	private DirectedGraph mGraph;
 
-	public DirectedCPP(DirectedGraph<Arc> g) {
+	public DirectedCPP(DirectedGraph g) {
 		mGraph = g;
 	}
 
@@ -31,7 +31,7 @@ public class DirectedCPP extends Problem{
 	}
 
 	@Override
-	public DirectedGraph<Arc> getGraph() {
+	public DirectedGraph getGraph() {
 		return mGraph;
 	}
 

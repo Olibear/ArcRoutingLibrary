@@ -23,15 +23,6 @@ public abstract class Vertex {
 		counter++;
 		demandSet = false;
 	}
-	
-	public Vertex(String label, int id)
-	{
-		setId(id);
-		setLabel(label);
-		setGuid(counter);
-		counter++;
-		demandSet = false;
-	}
 
 	//==================================
 	// Getters and Setters

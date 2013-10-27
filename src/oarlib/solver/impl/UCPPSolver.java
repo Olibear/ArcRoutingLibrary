@@ -24,4 +24,10 @@ public class UCPPSolver extends Solver{
 		return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
 	}
 
+	@Override
+	protected Problem getInstance() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

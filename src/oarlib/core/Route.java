@@ -8,35 +8,48 @@ import java.util.List;
  *
  */
 public abstract class Route {
+	
+	protected int mCost;
+	
+	//constructor
+	protected Route(){
+		mCost = 0;
+	}
+	
+	/**
+	 * @return the cost of the route
+	 */
+	public int getCost()
+	{
+		return mCost;
+	}
+	
 	/**
 	 * Retrieve a copy of the current route.
-	 * @return List of vertices to be traversed from first to last
+	 * @return List of edges to be traversed from first to last
 	 */
-	public abstract List<Vertex> getRoute();
+	public abstract List<? extends Link<? extends Vertex>> getRoute();
 	/**
-	 * Add a vertex to the end of this route.
-	 * @param v
+	 * Add a edge to the end of this route.
+	 * @param l
 	 */
-	public abstract void appendVertex(Vertex v);
+	public abstract void appendEdge(Link<? extends Vertex> l);
 	/**
-	 * Add a vertex to the beginning of this route.
-	 * @param v
+	 * Add a edge to the beginning of this route.
+	 * @param l
 	 */
-	public abstract void prependVertex(Vertex v);
+	public abstract void prependVertex(Link<? extends Vertex> l);
 	/**
-	 * Insert a vertex at a specified position in the route (0 is first)
-	 * @param v
-	 * @param position - where to insert the vertex, (i.e. 0 will do the same as prependVertex)
+	 * Insert a edge at a specified position in the route (0 is first)
+	 * @param l
+	 * @param position - where to insert the edge, (i.e. 0 will do the same as prependEdge)
 	 */
-	public abstract void insertVertex(Vertex v, int position) throws IndexOutOfBoundsException;
+	public abstract void insertVertex(Link<? extends Vertex> l, int position) throws IndexOutOfBoundsException;
 	/**
 	 * check to make sure that the route is feasible.
 	 * @return true if route is feasible in the provided graph
 	 */
-	public abstract boolean checkRoutes(Graph<Vertex, Link<Vertex>> g);
-	/**
-	 * attempt to add a vertex to the route at the specified index
-	 */
-	public abstract void tryAddVertex(int position);
+	public abstract boolean checkRoutes(Graph<? extends Vertex, Link<? extends Vertex>> g);
+
 	
 }

@@ -1,5 +1,6 @@
 package oarlib.graph.impl;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import oarlib.core.Graph;
@@ -15,10 +16,18 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 
 	private HashSet<V> mVertices;
 	private HashSet<E> mEdges;
+	private HashMap<Integer, V> mGlobalVertexMap; //indexed by guids
+	private HashMap<Integer, V> mInternalVertexMap; //indexed by ids
+	private HashMap<Integer, E> mGlobalEdgeMap;
+	private HashMap<Integer, E> mInternalEdgeMap; 
 	
 	protected MutableGraph(){
 		mVertices = new HashSet<V>();
 		mEdges = new HashSet<E>();
+		mGlobalVertexMap = new HashMap<Integer, V>();
+		mInternalVertexMap = new HashMap<Integer, V>();
+		mGlobalEdgeMap = new HashMap<Integer, E>();
+		mInternalEdgeMap = new HashMap<Integer, E>();
 	}
 	
 	//==============================
@@ -29,25 +38,46 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	public HashSet<V> getVertices() {
 		return mVertices;
 	}
-
 	@Override
 	public HashSet<E> getEdges() {
 		return mEdges;
 	}
-
 	@Override
 	public Graph<V,E> getDeepCopy() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 	@Override
 	public void addEdge(E e) {
+		e.setId(this.assignEdgeId());
 		mEdges.add(e);
+		mGlobalEdgeMap.put(e.getGuid(), e);
+		mInternalEdgeMap.put(e.getId(), e);
 	}
 	@Override
 	public void addVertex(V v) {
+		v.setId(this.assignVertexId());
 		mVertices.add(v);
+		mGlobalVertexMap.put(v.getGuid(), v);
+		mInternalVertexMap.put(v.getId(), v);
 	}
-
+	@Override
+	public HashMap<Integer, V> getGlobalVertexMap()
+	{
+		return mGlobalVertexMap;
+	}
+	@Override 
+	public HashMap<Integer, V>getInternalVertexMap()
+	{
+		return mInternalVertexMap;
+	}
+	@Override
+	public HashMap<Integer, E> getGlobalEdgeMap()
+	{
+		return mGlobalEdgeMap;
+	}
+	public HashMap<Integer, E> getInternalEdgeMap()
+	{
+		return mInternalEdgeMap;
+	}
 }

@@ -2,17 +2,20 @@ package oarlib.problem.impl;
 
 import java.util.Collection;
 
+import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+import oarlib.graph.impl.UndirectedGraph;
 
 public class WindyCPP extends Problem{
+	
+	UndirectedGraph mGraph;
 
-	public WindyCPP(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o) {
-		super(g, o);
-		// TODO Auto-generated constructor stub
+	public WindyCPP(UndirectedGraph g) {
+		mGraph = g;
 	}
 
 	@Override
@@ -24,6 +27,11 @@ public class WindyCPP extends Problem{
 	@Override
 	public Type getType() {
 		return Problem.Type.WINDY_CHINESE_POSTMAN;
+	}
+
+	@Override
+	public Graph<?, ?> getGraph() {
+		return mGraph;
 	}
 
 }

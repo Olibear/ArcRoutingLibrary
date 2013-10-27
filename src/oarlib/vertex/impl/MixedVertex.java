@@ -1,5 +1,6 @@
 package oarlib.vertex.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import oarlib.core.Link;
@@ -15,13 +16,14 @@ public class MixedVertex extends Vertex {
 	private int inDegree;
 	private int outDegree;
 	private int degree;
-	private HashMap<MixedVertex, Link<MixedVertex>> neighbors;
+	private HashMap<MixedVertex, ArrayList<Link<MixedVertex>>> neighbors;
 	
 	public MixedVertex(String label) {
 		super(label);
 		setInDegree(0);
 		setOutDegree(0);
 		setDegree(0);
+		neighbors = new HashMap<MixedVertex, ArrayList<Link<MixedVertex>>>();
 		
 	}
 
@@ -49,13 +51,13 @@ public class MixedVertex extends Vertex {
 		this.degree = degree;
 	}
 	
-	public HashMap<MixedVertex, Link<MixedVertex>> getNeighbors()
+	public HashMap<MixedVertex, ArrayList<Link<MixedVertex>>> getNeighbors()
 	{
 		return neighbors;
 	}
 	public void addToNeighbors(MixedVertex v, Link<MixedVertex> e)
 	{
-		neighbors.put(v, e);
+		neighbors.get(v).add(e);
 	}
 
 }

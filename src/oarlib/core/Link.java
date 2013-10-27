@@ -18,19 +18,7 @@ public abstract class Link<V extends Vertex> {
 	
 	public Link(String label, Pair<V> endpoints, int cost)
 	{
-		//if mId gets set to a negative number, then we know it hasn't been set.
-		setmId(-1);
-		setLabel(label);
-		setGuid(counter);
-		setEndpoints(endpoints);
-		setCost(cost);
-		counter++;
-	}
-	public Link(String label, Pair<V> endpoints, int cost, int id) throws IllegalArgumentException
-	{
-		if( id < 0)
-			throw new IllegalArgumentException("negative ids are reserved for detecting when ids have not been set.");
-		setmId(id);
+		setId(-1);
 		setLabel(label);
 		setGuid(counter);
 		setEndpoints(endpoints);
@@ -73,10 +61,10 @@ public abstract class Link<V extends Vertex> {
 	public void setCost(int mCost) {
 		this.mCost = mCost;
 	}
-	public int getmId() {
+	public int getId() {
 		return mId;
 	}
-	public void setmId(int mId) {
+	public void setId(int mId) {
 		this.mId = mId;
 	}
 

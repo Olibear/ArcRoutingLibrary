@@ -24,4 +24,10 @@ public class MCPPSolver extends Solver{
 		return Problem.Type.MIXED_CHINESE_POSTMAN;
 	}
 
+	@Override
+	protected Problem getInstance() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

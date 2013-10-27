@@ -1,12 +1,10 @@
 package oarlib.graph.impl;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 
 import oarlib.core.Edge;
 import oarlib.graph.util.Pair;
-import oarlib.graph.util.UnmatchedPair;
 import oarlib.vertex.impl.UndirectedVertex;
 /**
  * First attempts at an Undirected Graph.
@@ -15,7 +13,7 @@ import oarlib.vertex.impl.UndirectedVertex;
  * @param <V> - Vertex Class
  * @param <E> - Edge Class
  */
-public class UndirectedGraph<E extends Edge> extends MutableGraph<UndirectedVertex,E>{
+public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 	//constructors
 	public UndirectedGraph(){
 		super();
@@ -28,7 +26,7 @@ public class UndirectedGraph<E extends Edge> extends MutableGraph<UndirectedVert
 	}
 
 	@Override
-	public void addEdge(E e) {
+	public void addEdge(Edge e) {
 		Pair<UndirectedVertex> endpoints = e.getEndpoints();
 		endpoints.getFirst().addToNeighbors(endpoints.getSecond(), e);
 		endpoints.getSecond().addToNeighbors(endpoints.getFirst(), e);
@@ -40,7 +38,7 @@ public class UndirectedGraph<E extends Edge> extends MutableGraph<UndirectedVert
 	}
 	
 	@Override
-	public Collection<E> findEdges(Pair<UndirectedVertex> endpoints) {
+	public List<Edge> findEdges(Pair<UndirectedVertex> endpoints) {
 		// TODO Auto-generated method stub
 		return null;
 	}

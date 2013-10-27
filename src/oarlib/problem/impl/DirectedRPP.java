@@ -2,11 +2,13 @@ package oarlib.problem.impl;
 
 import java.util.Collection;
 
+import oarlib.core.Arc;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+import oarlib.graph.impl.DirectedGraph;
 
 /**
  * The Directed Rural Postman Problem.
@@ -14,10 +16,11 @@ import oarlib.core.Vertex;
  *
  */
 public class DirectedRPP extends Problem {
+	
+	private DirectedGraph mGraph;
 
-	public DirectedRPP(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o) {
-		super(g, o);
-		// TODO Auto-generated constructor stub
+	public DirectedRPP(DirectedGraph g) {
+		mGraph = g;
 	}
 
 	@Override
@@ -29,6 +32,11 @@ public class DirectedRPP extends Problem {
 	@Override
 	public Type getType() {
 		return Problem.Type.DIRECTED_RURAL_POSTMAN;
+	}
+
+	@Override
+	public Graph<?, ?> getGraph() {
+		return mGraph;
 	}
 
 }

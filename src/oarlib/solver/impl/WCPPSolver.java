@@ -24,4 +24,10 @@ public class WCPPSolver  extends Solver{
 		return Problem.Type.WINDY_CHINESE_POSTMAN;
 	}
 
+	@Override
+	protected Problem getInstance() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

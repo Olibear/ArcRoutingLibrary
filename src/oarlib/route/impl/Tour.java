@@ -1,7 +1,9 @@
 package oarlib.route.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Route;
@@ -14,42 +16,42 @@ import oarlib.core.Vertex;
  */
 public class Tour extends Route {
 
-	@Override
-	public List<Vertex> getRoute() {
-		// TODO Auto-generated method stub
-		return null;
+	private ArrayList<Link<? extends Vertex>> mRoute;
+	
+	public Tour() {
+		super();
+		mRoute = new ArrayList<Link<? extends Vertex>>();
 	}
 
 	@Override
-	public void appendVertex(Vertex v) {
-		// TODO Auto-generated method stub
+	public List<Link<? extends Vertex>> getRoute() {
+		return mRoute;
+	}
+
+	@Override
+	public void appendEdge(Link<? extends Vertex> l) {
+		mRoute.add(l);
+		mCost += l.getCost();
+	}
+
+	@Override
+	public void prependVertex(Link<? extends Vertex> l) {
+		mRoute.add(0, l);
+		mCost+=l.getCost();
 		
 	}
 
 	@Override
-	public void prependVertex(Vertex v) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void insertVertex(Vertex v, int position)
+	public void insertVertex(Link<? extends Vertex> l, int position)
 			throws IndexOutOfBoundsException {
-		// TODO Auto-generated method stub
-		
+		mRoute.add(0, l);
+		mCost+=l.getCost();
 	}
 
 	@Override
-	public boolean checkRoutes(Graph<Vertex, Link<Vertex>> g) {
+	public boolean checkRoutes(Graph<? extends Vertex, Link<? extends Vertex>> g) {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	@Override
-	public void tryAddVertex(int position) {
-		// TODO Auto-generated method stub
-		
-	}
-
 
 }
