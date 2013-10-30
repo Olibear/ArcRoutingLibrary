@@ -1,11 +1,11 @@
 package oarlib.graph.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 import oarlib.core.Arc;
+import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.DirectedVertex;
 /**
@@ -27,7 +27,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	}
 
 	@Override
-	public void addEdge(Arc e) {
+	public void addEdge(Arc e) throws InvalidEndpointsException{ 
 		e.getTail().addToNeighbors(e.getHead(), e);
 		DirectedVertex toUpdate = e.getTail();
 		toUpdate.setOutDegree(toUpdate.getOutDegree() + 1);

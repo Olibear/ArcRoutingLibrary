@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import oarlib.core.Arc;
-import oarlib.core.Edge;
 import oarlib.core.Link;
 import oarlib.core.Graph;
 import oarlib.core.Route;
@@ -1796,7 +1795,8 @@ public class CommonAlgorithms {
 		return answer;
 	}
 	/**
-	 * Solves a min cost flow problem defined on the network ( directed graph ).  Implementation is taken from Lau:
+	 * Solves a min cost flow problem defined on the network ( directed graph ) using a primal dual method.
+	 * Implementation is taken from Lau:
 	 * Return codes:
 	 * 0 - optimal solution found
 	 * 1 - infeasible, net required flow is negative
@@ -2599,7 +2599,7 @@ public class CommonAlgorithms {
 	 * @param graph
 	 * @return
 	 */
-	public static Set<Pair<Vertex>> minCostMatching(Graph<Vertex,Link<Vertex>> graph)
+	public static Set<Pair<UndirectedVertex>> minCostMatching(UndirectedGraph graph) throws SetupException
 	{
 		return null;
 	}

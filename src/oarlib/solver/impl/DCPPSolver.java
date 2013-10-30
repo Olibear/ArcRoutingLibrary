@@ -95,7 +95,7 @@ public class DCPPSolver extends Solver{
 	}
 
 	@Override
-	protected Problem getInstance() {
+	protected DirectedCPP getInstance() {
 		return mInstance;
 	}
 

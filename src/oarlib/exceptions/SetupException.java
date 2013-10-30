@@ -1,8 +1,8 @@
 package oarlib.exceptions;
 
 /**
- * Exception that should be thrown when demands aren't set and some problem which requires demands 
- * hasn't been set.  
+ * Exception that should be thrown when the input to a function was messed up, and so the 
+ * ret value is either worthless, or indicative of this error.
  * 
  * @author oliverlum
  *

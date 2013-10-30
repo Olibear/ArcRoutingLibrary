@@ -6,6 +6,7 @@ import java.util.HashSet;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;
+import oarlib.exceptions.InvalidEndpointsException;
 
 /**
  * A mutable graph.  Perf will be worse than a finalized one, but allows for experimentation.
@@ -48,7 +49,10 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		return null;
 	}
 	@Override
-	public void addEdge(E e) {
+	public void addEdge(E e) throws InvalidEndpointsException{
+		// enforce endpoints being added first
+		if (!mVertices.contains(e.getEndpoints().getFirst()) || !mVertices.contains(e.getEndpoints().getSecond()))
+			throw new InvalidEndpointsException();
 		e.setId(this.assignEdgeId());
 		mEdges.add(e);
 		mGlobalEdgeMap.put(e.getGuid(), e);

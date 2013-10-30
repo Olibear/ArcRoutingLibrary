@@ -50,8 +50,10 @@ public class Tour extends Route {
 
 	@Override
 	public boolean checkRoutes(Graph<? extends Vertex, Link<? extends Vertex>> g) {
-		// TODO Auto-generated method stub
+		if(mRoute.get(0).getEndpoints().getFirst() == mRoute.get(mRoute.size()-1).getEndpoints().getSecond())
+			return true;
 		return false;
+		
 	}
 
 }

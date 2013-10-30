@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 
 /**
@@ -42,9 +43,10 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	public abstract void addVertex(V v);
 	/**
 	 * To add an edge to the graph.  This updates the degrees of the vertices, and throws to the specific implementation of the graph.
+	 * Throws an InvalidEndpointsException if the endpoints haven't yet been added to the graph.
 	 * @param e - edge to be added
 	 */
-	public abstract void addEdge(E e);
+	public abstract void addEdge(E e) throws InvalidEndpointsException;
 	/**
 	 * Provides a means of getting a by value copy of this graph
 	 * @return a deep copy of the graph
