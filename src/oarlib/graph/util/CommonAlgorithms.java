@@ -1,8 +1,12 @@
 package oarlib.graph.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import oarlib.core.Arc;
@@ -21,48 +25,105 @@ import oarlib.vertex.impl.UndirectedVertex;
 public class CommonAlgorithms {
 
 	/**
-	 * Fleury's algorithm for determining an Euler tour through an directed Eulerian graph.
+	 * Hierholzer's algorithm for determining an Euler tour through an directed Eulerian graph.
 	 * @param eulerianGraph - an eulerian graph on which to construct the tour 
-	 * @return a Route object containing the tour.
+	 * @return a ArrayList object containing the tour (values are edge ids).
 	 * @throws IllegalArgumentException if the graph passed in is not Eulerian.
 	 */
-	public static int[] tryFleury(DirectedGraph eulerianGraph) throws IllegalArgumentException{
+	public static ArrayList<Integer> tryHierholzer(DirectedGraph eulerianGraph) throws IllegalArgumentException{
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
 		//TODO: Fleury's
-		return fleury(eulerianGraph, true);
+		return hierholzer(eulerianGraph, true);
 	}
 	/**
-	 * Fleury's algorithm for determining an Euler tour through an undirected Eulerian graph.
+	 * Hierholzer's algorithm for determining an Euler tour through an undirected Eulerian graph.
 	 * @param eulerianGraph - an eulerian graph on which to construct the tour 
-	 * @return a Route object containing the tour.
+	 * @return a ArrayList object containing the tour (values are edge ids)
 	 * @throws IllegalArgumentException if the graph passed in is not Eulerian.
 	 */
-	public static int[] tryFleury(UndirectedGraph eulerianGraph) throws IllegalArgumentException{
+	public static ArrayList<Integer> tryHierholzer(UndirectedGraph eulerianGraph) throws IllegalArgumentException{
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
-		return fleury(eulerianGraph, false);
+		return hierholzer(eulerianGraph, false);
 	}
 	/**
-	 * business logic for Fleury's algorithm
+	 * business logic for Hierholzer's algorithm
 	 * @return the Eulerian cycle
 	 */
-	private static int[] fleury(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph, boolean directed)
+	private static ArrayList<Integer> hierholzer(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph, boolean directed)
 	{
-		int n = graph.getVertices().size();
-		Collection<? extends Link<? extends Vertex>> edges  = graph.getEdges();
-		int m = edges.size();
-		int[] nodei = new int[m+1];
-		int[] nodej = new int[m+1];
-		int[] trail = new int[m+1];
+		ArrayList<Integer> edgeTrail = new ArrayList<Integer>();
+		ArrayList<Integer> edgeCycle = new ArrayList<Integer>();
+		ArrayList<Vertex> visitedVertices = new ArrayList<Vertex>();
+		ArrayList<Vertex> simpleCycle = new ArrayList<Vertex>();
+		int m = graph.getEdges().size();
 
-		for (Link<? extends Vertex> l: edges)
+		//pick an arbitrary start vertex
+		Iterator<? extends Vertex> iter = graph.getVertices().iterator();
+		Vertex start = iter.next();
+		visitedVertices.add(start);
+		simpleCycle.add(start);
+		//initialize current position variables
+		Map<? extends Vertex,? extends List<? extends Link<? extends Vertex>>> currNeighbors;
+		Vertex currVertex = start;
+		Link<? extends Vertex> currEdge;
+		Iterator<Vertex> vertexIter;
+		boolean nextStart = true;
+
+
+		while(nextStart)
 		{
-			nodei[l.getId()] = l.getEndpoints().getFirst().getId();
-			nodej[l.getId()] = l.getEndpoints().getSecond().getId();
+			//greedily go until we've come back to start
+			do {
+				currNeighbors = currVertex.getNeighbors();
+				currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
+				edgeCycle.add(currEdge.getId()); //add it to the trail
+				//update the currVertex
+				currVertex = (currEdge.getEndpoints().getFirst().getId() == currVertex.getId())?currEdge.getEndpoints().getSecond():currEdge.getEndpoints().getFirst();
+				simpleCycle.add(currVertex);
+
+				//update the neighbors
+				currNeighbors.get(currVertex).remove(currEdge);
+				if(currNeighbors.get(currVertex).size() == 0)
+					currNeighbors.remove(currVertex);
+
+			} while (currVertex.getId() != start.getId());
+
+			//join the trails
+			int n = visitedVertices.size();
+			for(int j = 0; j < n; j++)
+			{
+				//insert here
+				if(visitedVertices.get(j) == start)
+				{
+					visitedVertices.remove(j);
+					visitedVertices.addAll(j, simpleCycle);
+					edgeTrail.addAll(j, edgeCycle);
+					break;
+				}
+			}
+
+			//reinitialize the simple cycle trackers for the next go
+			simpleCycle = new ArrayList<Vertex>();
+			edgeCycle = new ArrayList<Integer>();
+
+			//look for a new start point
+			nextStart = false;
+			vertexIter = visitedVertices.iterator();
+			while (vertexIter.hasNext())
+			{
+				start = vertexIter.next();
+				if(start.getNeighbors().size() != 0)
+				{
+					simpleCycle.add(start);
+					currVertex = start;
+					nextStart = true;
+					break;
+				}
+			}
 		}
-		EulerCircuit(n,m,directed,nodei,nodej,trail);
-		return trail;
+		return edgeTrail;
 	}
 	/**
 	 * FindRoute algorithm (alternative to Fleury's given in Dussault et al. Plowing with Precedence
@@ -105,1210 +166,7 @@ public class CommonAlgorithms {
 			return true;
 		return false;
 	}
-	/**
-	 * 
-	 * @param neighbor
-	 * @param next
-	 * @param idxb
-	 * @param idxc
-	 * @param tmparg
-	 */
-	static private void cpt_DuplicateEdges(int neighbor[], int next[], 
-			int idxb, int idxc, int tmparg[])
-	{
-		/* this method is used internally by ChinesePostmanTour */
-
-		// Duplicate matching edges
-
-		int p,q,r;
-
-		p = tmparg[0];
-		q = idxb;
-		r = idxc;
-		while (true) {
-			p = next[q];
-			while (true) {
-				if (neighbor[p] == r) break;
-				p++;
-			}
-			neighbor[p] = -r;
-			if (q == idxc) break;
-			q = idxc;
-			r = idxb;
-		}
-		tmparg[0] = p;
-	}
-	/**
-	 * 
-	 * @param core
-	 * @param aux1
-	 * @param aux3
-	 * @param wk1
-	 * @param wk2
-	 * @param tmparg
-	 * @param idxd
-	 */
-	static private void cpt_ExpandBlossom(int core[], int aux1[], int aux3[],
-			float wk1[], float wk2[], int tmparg[], int idxd)
-	{
-		/* this method is used internally by ChinesePostmanTour */
-
-		// Expanding a blossom
-
-		int p,q,r;
-		float work;
-
-		r = tmparg[0];
-		p = r;
-		do {
-			r = p;
-			q = aux3[r];
-			work = wk1[r];
-			while (true) {
-				core[p] = r;
-				wk2[p] -= work;
-				if (p == q) break;
-				p = aux1[p];
-			}
-			p = aux1[q];
-			aux1[q] = r;
-		} while (p != idxd);
-		tmparg[0] = r;
-	}
-	/**
-	 * 
-	 * @param neighbor
-	 * @param weight
-	 * @param next
-	 * @param core
-	 * @param aux1
-	 * @param aux2
-	 * @param aux3
-	 * @param aux4
-	 * @param wk1
-	 * @param wk2
-	 * @param wk3
-	 * @param wk4
-	 * @param locb
-	 */
-	static private void cpt_FirstScan(int neighbor[], int weight[], int next[],
-			int core[], int aux1[], int aux2[], int aux3[], int aux4[],
-			float wk1[], float wk2[], float wk3[], float wk4[], int locb)
-	{
-		/* this method is used internally by ChinesePostmanTour */
-
-		// Node scanning
-
-		int i,p,q,r,s,t,u,v;
-		float work1,work2,work3,work4,work5;
-
-		work3 = wk3[locb] - wk1[locb];
-		q = locb;
-		r = aux4[locb];
-		t = -1;
-		if (r > 0) t = core[r];
-		do {
-			i = next[q];
-			v = next[q+1] - 1;
-			work1 = wk2[q];
-			for (p=i; p<=v; p++) {
-				s = neighbor[p];
-				u = core[s];
-				if (locb != u) {
-					if (t != u) {
-						work4 = wk4[u];
-						work2 = wk1[u] + wk2[s];
-						work5 = (float)(weight[p]);
-						work5 += work3 - work1 - work2;
-						if (work4 > work5) {
-							wk4[u] = work5;
-							aux2[u] = q;
-							aux3[u] = s;
-						}
-					}
-				}
-			}
-			q = aux1[q];
-		} while (q != locb);
-	}  
-	/**
-	 * 
-	 * @param neighbor
-	 * @param weight
-	 * @param next
-	 * @param high
-	 * @param core
-	 * @param aux1
-	 * @param aux2
-	 * @param aux3
-	 * @param aux4
-	 * @param wk1
-	 * @param wk2
-	 * @param wk3
-	 * @param wk4
-	 * @param tmparg
-	 * @param v
-	 */
-	static private void cpt_SecondScan(int neighbor[], int weight[],
-			int next[], int high, int core[], int aux1[], int aux2[],
-			int aux3[], int aux4[], float wk1[], float wk2[],
-			float wk3[], float wk4[], int tmparg[], int v)
-	{
-		/* this method is used internally by ChinesePostmanTour */
-
-		// Node scanning
-
-		int i,p,q,r,s,t,u;
-		float work1,work2,work3,work4,work5;
-
-		u = tmparg[0];
-		do {
-			r = core[u];
-			if (r == u) {
-				work4 = high;
-				work2 = wk1[u];
-				do {
-					i = next[r];
-					s = next[r+1] - 1;
-					work1 = wk2[r];
-					for (p=i; p<=s; p++) {
-						q = neighbor[p];
-						t = core[q];
-						if (t != u) {
-							if (aux4[t] >= 0) {
-								work3 = wk3[t] - wk1[t] - wk2[q];
-								work5 = (float)(weight[p]);
-								work5 += work3 - work2 - work1;
-								if (work4 > work5) {
-									work4 = work5;
-									aux2[u] = q;
-									aux3[u] = r;
-								}
-							}
-						}
-					}
-					r = aux1[r];
-				} while (r != u);
-				wk4[u] = work4;
-			}
-			u++;
-		} while (u <= v);
-		tmparg[0] = u;
-	}
-	/**
-	 * 
-	 * @param core
-	 * @param aux1
-	 * @param wk1
-	 * @param wk2
-	 * @param locb
-	 * @param tmparg
-	 */
-	static private void cpt_ShrinkBlossom(int core[], int aux1[], 
-			float wk1[], float wk2[], int locb, int tmparg[])
-	{
-		/* this method is used internally by ChinesePostmanTour */
-
-		// Shrinking of a blossom
-
-		int p,q,r;
-		float work;
-
-		p = tmparg[0];
-		q = p;
-		work = wk1[p];
-		while (true) {
-			core[p] = locb;
-			wk2[p] += work;
-			r = aux1[p];
-			if (r == q) {
-				tmparg[0] = p;
-				return;
-			}
-			p = r;
-		}
-	}
-	/**
-	 * 
-	 * @param n
-	 * @param neighbor
-	 * @param weight
-	 * @param next
-	 * @param aux3
-	 * @param core
-	 * @param startnode
-	 */
-	static private void cpt_Trail(int n, int neighbor[], int weight[],
-			int next[], int aux3[], int core[], int startnode)
-	{
-		/* this method is used internally by ChinesePostmanTour */
-
-		// Determine an Eulerian trail
-
-		int i,nplus,p,q,r,t,u,v;
-		boolean finish;
-
-		nplus = n + 1;
-		u = next[nplus];
-		if (startnode <= 0 || startnode > n) startnode = 1;
-		for (p=1; p<=n; p++) {
-			i = next[p] - 1;
-			aux3[p] = i;
-			core[p] = i;
-		}
-		p = startnode;
-		iterate:
-			while (true) {
-				i = core[p];
-				while (true) {
-					v = next[p+1] - 1;
-					while (true) {
-						i++;
-						if (i > v) break;
-						q = neighbor[i];
-						if (q > n) continue;
-						if (q >= 0) {
-							t = core[q];
-							do {
-								t++;
-							} while (neighbor[t] != p);
-							neighbor[t] = nplus;
-							t = aux3[q] + 1;
-							aux3[q] = t;
-							weight[t] = p;
-							core[p] = i;
-							p = q;
-							continue iterate;
-						}
-						r = -p;
-						q= -q;
-						t = core[q];
-						do {
-							t++;
-						} while (neighbor[t] != r);
-						neighbor[t] = nplus;
-						t = aux3[q] + 1;
-						aux3[q] = t;
-						weight[t] = p;
-						t = aux3[p] + 1;
-						aux3[p] = t;
-						weight[t] = q;
-					}
-					core[p] = u;
-					finish = true;
-					for (p=1; p<=n; p++) {
-						i = core[p];
-						t = aux3[p];
-						if ((t >= next[p]) && (i < u)) {
-							finish = false;
-							break;
-						}
-					}
-					if (finish) return;
-				}
-			}
-	}
-	/**
-	 * 
-	 * @param n
-	 * @param m
-	 * @param directed
-	 * @param nodei
-	 * @param nodej
-	 * @param trail
-	 */
-	public static void EulerCircuit(int n, int m, boolean directed,
-			int nodei[], int nodej[], int trail[])
-	{
-		int i,j,k,p,index,len,traillength,stacklength;
-		int endnode[] = new int[m+1];
-		int stack[] = new int[m+m+1];
-		boolean candidate[] = new boolean[m+1];
-
-		// check for connectedness
-		if (!connected(n,m,nodei,nodej)) {
-			trail[0] = 1;
-			return;
-		}
-
-		for (i=1; i<=n; i++) {
-			trail[i] = 0;
-			endnode[i] = 0;
-		}
-		if (directed) {
-			// check if the directed graph is eulerian
-			for (i=1; i<=m; i++) {
-				j = nodei[i];
-				trail[j]++;
-				j = nodej[i];
-				endnode[j]++;
-			}
-			for (i=1; i<=n; i++)
-				if (trail[i] != endnode[i]) {
-					trail[0] = 1;
-					return;
-				}
-		}
-		else {
-			// check if the undirected graph is eulerian
-			for (i=1; i<=m; i++) {
-				j = nodei[i];
-				endnode[j]++;
-				j = nodej[i];
-				endnode[j]++;
-			}
-			for (i=1; i<=n; i++)
-				if ((endnode[i] - ((endnode[i] / 2) * 2)) != 0) {
-					trail[0] = 1;
-					return;
-				}
-		}
-		// the input graph is eulerian
-		trail[0] = 0;
-		traillength = 1;
-		stacklength = 0;
-		// find the next edge
-		while (true) {
-			if (traillength == 1) {
-				endnode[1] = nodej[1];
-				stack[1] = 1;
-				stack[2] = 1;
-				stacklength = 2;
-			}
-			else {
-				p = traillength - 1;
-				if (traillength != 2)
-					endnode[p] = nodei[trail[p]] + nodej[trail[p]] - endnode[p - 1];
-				k = endnode[p];
-				if (directed)
-					for (i=1; i<=m; i++) 
-						candidate[i] = k == nodei[i];
-				else
-					for (i=1; i<=m; i++)
-						candidate[i] = (k == nodei[i]) || (k == nodej[i]);
-				for (i=1; i<=p; i++) 
-					candidate[trail[i]] = false;
-				len = stacklength;
-				for (i=1; i<=m; i++)
-					if (candidate[i]) {
-						len++;
-						stack[len] = i;
-					}
-				stack[len + 1] = len - stacklength;
-				stacklength = len + 1;
-			}
-			//  search further
-			while (true) {
-				index = stack[stacklength];
-				stacklength--;
-				if (index == 0) {
-					traillength--;
-					if (traillength != 0) continue;
-					return;
-				}
-				else {
-					trail[traillength] = stack[stacklength];
-					stack[stacklength] = index - 1;
-					if (traillength == m) return;
-					traillength++;
-					break;
-				}
-			}
-		}
-	}
-	/**
-	 * 
-	 * @param n
-	 * @param m
-	 * @param nodei
-	 * @param nodej
-	 * @return
-	 */
-	public static boolean connected(int n, int m, int nodei[], int nodej[])
-	{
-		int i,j,k,r,connect;
-		int neighbor[] = new int[m + m + 1];
-		int degree[] = new int[n + 1];
-		int index[] = new int[n + 2];
-		int aux1[] = new int[n + 1];
-		int aux2[] = new int[n + 1];
-
-		for (i=1; i<=n; i++)
-			degree[i] = 0;
-		for (j=1; j<=m; j++) {
-			degree[nodei[j]]++;
-			degree[nodej[j]]++;
-		}
-		index[1] = 1;
-		for (i=1; i<=n; i++) {
-			index[i+1] = index[i] + degree[i];
-			degree[i] = 0;
-		}
-		for (j=1; j<=m; j++) {
-			neighbor[index[nodei[j]] + degree[nodei[j]]] = nodej[j];
-			degree[nodei[j]]++;
-			neighbor[index[nodej[j]] + degree[nodej[j]]] = nodei[j];
-			degree[nodej[j]]++;
-		}
-		for (i=2; i<=n; i++)
-			aux1[i] = 1;
-		aux1[1] = 0;
-		connect = 1;
-		aux2[1] = 1;
-		k = 1;
-		while (true) {
-			i = aux2[k];
-			k--;
-			for (j=index[i]; j<=index[i+1]-1; j++) {
-				r = neighbor[j];
-				if (aux1[r] != 0) {
-					connect++;
-					if (connect == n) {
-						connect /= n;
-						if (connect == 1) return true;
-						return false;
-					}
-					aux1[r] = 0;
-					k++;
-					aux2[k] = r;
-				}
-			}
-			if (k == 0) {
-				connect /= n;
-				if (connect == 1) return true;
-				return false;
-			}
-		}
-	}
-	/**
-	 * 
-	 * @param n
-	 * @param m
-	 * @param startnode
-	 * @param nodei
-	 * @param nodej
-	 * @param cost
-	 * @param sol
-	 * @param trail
-	 */
-	public static void ChinesePostmanTour(int n, int m, int startnode,
-			int nodei[], int nodej[], int cost[],
-			int sol[][], int trail[])
-	{
-		int i,iplus1,j,k,idxa,idxb,idxc,idxd,idxe,wt,high,duparcs,totsolcost;
-		int loch,loca,locb,locc,locd,loce,locf,locg,hub,tmpopty,tmpoptx=0;
-		int nplus,p,q,cur,curnext,position=0;
-		int neighbor[] = new int[m + m + 1];
-		int weight[] = new int[m + m + 1];
-		int degree[] = new int[n + 1];
-		int next[] = new int[n + 2];
-		int core[] = new int[n + 1];
-		int aux1[] = new int[n + 1];
-		int aux2[] = new int[n + 1];
-		int aux3[] = new int[n + 1];
-		int aux4[] = new int[n + 1];
-		int aux5[] = new int[n + 1];
-		int aux6[] = new int[n + 1];
-		int tmparg[] = new int[1];
-		float wk1[] = new float[n + 1];
-		float wk2[] = new float[n + 1];
-		float wk3[] = new float[n + 1];
-		float wk4[] = new float[n + 1];
-		float eps,work1,work2,work3,work4;
-		boolean skip,complete;
-
-		eps = 0.0001f;
-		// check for connectedness
-		if (!connected(n,m,nodei,nodej)) {
-			sol[0][0] = 1;
-			return;
-		}
-		sol[0][0] = 0;
-
-		// store up the neighbors of each node
-		for (i=1; i<=n; i++)
-			degree[i] = 0;
-		for (j=1; j<=m; j++) {
-			degree[nodei[j]]++;
-			degree[nodej[j]]++;
-		}
-		next[1] = 1;
-		for (i=1; i<=n; i++) {
-			iplus1 = i + 1;
-			next[iplus1] = next[i] + degree[i];
-			degree[i] = 0;
-		}
-		totsolcost = 0;
-		high = 0;
-		for (j=1; j<=m; j++) {
-			totsolcost += cost[j];
-			k = next[nodei[j]] + degree[nodei[j]];
-			neighbor[k] = nodej[j];
-			weight[k] = cost[j];
-			degree[nodei[j]]++;
-			k = next[nodej[j]] + degree[nodej[j]];
-			neighbor[k] = nodei[j];
-			weight[k] = cost[j];
-			degree[nodej[j]]++;
-			high += cost[j];
-		}
-		nplus = n + 1;
-		locg = -nplus;
-		for (i=1; i<=n; i++)
-			wk4[i] = high;
-		// initialization
-		for (p=1; p<=n; p++) {
-			core[p] = p;
-			aux1[p] = p;
-			aux4[p] = locg;
-			aux5[p] = 0;
-			aux3[p] = p;
-			wk1[p] = 0f;
-			wk2[p] = 0f;
-			i = next[p];
-			loch = next[p+1];
-			loca = loch - i;
-			locd = loca / 2;
-			locd *= 2;
-			if (loca != locd) {
-				loch--;
-				aux4[p] = 0;
-				wk3[p] = 0f;
-				for (q=i; q<=loch; q++) {
-					idxc = neighbor[q];
-					work2 = (float) (weight[q]);
-					if (wk4[idxc] > work2) {
-						aux2[idxc] = p;
-						wk4[idxc] = work2;
-					}
-				}
-			}
-		}
-		// examine the labeling
-		iterate:
-			while (true) {
-				work1 = high;
-				for (locd=1; locd<=n; locd++)
-					if (core[locd] == locd) {
-						work2 = wk4[locd];
-						if (aux4[locd] >= 0) {
-							work2 = 0.5f * (work2 + wk3[locd]);
-							if (work1 >= work2) {
-								work1 = work2;
-								tmpoptx = locd;
-							}
-						}
-						else {
-							if (aux5[locd] > 0) work2 += wk1[locd];
-							if (work1 > work2) {
-								work1 = work2;
-								tmpoptx = locd;
-							}
-						}
-					}
-				work4 = ((float)high) / 2f;
-				if (work1 >= work4) {
-					sol[0][0] = 2;
-					return;
-				}
-				if (aux4[tmpoptx] >= 0) {
-					idxb = aux2[tmpoptx];
-					idxc = aux3[tmpoptx];
-					loca = core[idxb];
-					locd = tmpoptx;
-					loce = loca;
-					while (true) {
-						aux5[locd] = loce;
-						idxa = aux4[locd];
-						if (idxa == 0) break;
-						loce = core[idxa];
-						idxa = aux5[loce];
-						locd = core[idxa];
-					}
-					hub = locd;
-					locd = loca;
-					loce = tmpoptx;
-					while (true) {
-						if (aux5[locd] > 0) break;
-						aux5[locd] = loce;
-						idxa = aux4[locd];
-						if (idxa == 0) {
-							// augmentation
-							loch = 0;
-							for (locb=1; locb<=n; locb++)
-								if (core[locb] == locb) {
-									idxd = aux4[locb];
-									if (idxd >= 0) {
-										if (idxd == 0) loch++;
-										work2 = work1 - wk3[locb];
-										wk3[locb] = 0f;
-										wk1[locb] += work2;
-										aux4[locb] = -idxd;
-									}
-									else {
-										idxd = aux5[locb];
-										if (idxd > 0) {
-											work2 = wk4[locb] - work1;
-											wk1[locb] += work2;
-											aux5[locb] = -idxd;
-										}
-									}
-								}
-							while (true) {
-								if (locd != loca) {
-									loce = aux5[locd];
-									aux5[locd] = 0;
-									idxd = -aux5[loce];
-									idxe = aux6[loce];
-									aux4[locd] = -idxe;
-									idxa = -aux4[loce];
-									aux4[loce] = -idxd;
-									locd = core[idxa];
-								}
-								else {
-									if (loca == tmpoptx) break;
-									aux5[loca] = 0;
-									aux4[loca] = -idxc;
-									aux4[tmpoptx] = -idxb;
-									loca = tmpoptx;
-									locd = hub;
-								}
-							}
-							aux5[tmpoptx] = 0;
-							idxa = 1;
-							if (loch <= 2) {
-								// generate the original graph by expanding all pseudonodes
-								wt = 0;
-								for (locb=1; locb<=n; locb++)
-									if (core[locb] == locb) {
-										idxb = -aux4[locb];
-										if (idxb != nplus) {
-											if (idxb >= 0) {
-												loca = core[idxb];
-												idxc = -aux4[loca];
-												tmparg[0] = position;
-												cpt_DuplicateEdges(neighbor,next,idxb,idxc,tmparg);
-												position = tmparg[0];
-												work1 = -(float) (weight[position]);
-												work1 += wk1[locb] + wk1[loca];
-												work1 += wk2[idxb] + wk2[idxc];
-												if (Math.abs(work1) > eps) {
-													sol[0][0] = 3;
-													return;
-												}
-												wt += weight[position];
-												aux4[loca] = idxb;
-												aux4[locb] = idxc;
-											}
-										}
-									}
-								for (locb=1; locb<=n; locb++) {
-									while (true) {
-										if (aux1[locb] == locb) break;
-										hub = core[locb];
-										loca = aux1[hub];
-										idxb = aux5[loca];
-										if (idxb > 0) {
-											idxd = aux2[loca];
-											locd = loca;
-											tmparg[0] = locd;
-											cpt_ExpandBlossom(core,aux1,aux3,wk1,wk2,tmparg,idxd);
-											locd = tmparg[0];
-											aux1[hub] = idxd;
-											work3 = wk3[loca];
-											wk1[hub] = work3;
-											while (true) {
-												wk2[idxd] -= work3;
-												if (idxd == hub) break;
-												idxd = aux1[idxd];
-											}
-											idxb = aux4[hub];
-											locd = core[idxb];
-											if (locd != hub) {
-												loca = aux5[locd];
-												loca = core[loca];
-												idxd = aux4[locd];
-												aux4[locd] = idxb;
-												do {
-													loce = core[idxd];
-													idxb = aux5[loce];
-													idxc = aux6[loce];
-													locd = core[idxb];
-													tmparg[0] = position;
-													cpt_DuplicateEdges(neighbor,next,idxb,idxc,tmparg);
-													position = tmparg[0];
-													work1 = -(float)(weight[position]);
-													wt += weight[position];
-													work1 += wk1[locd] + wk1[loce];
-													work1 += wk2[idxb] + wk2[idxc];
-													if (Math.abs(work1) > eps) {
-														sol[0][0] = 3;
-														return;
-													}
-													aux4[loce] = idxc;
-													idxd = aux4[locd];
-													aux4[locd] = idxb;
-												} while (locd != hub);
-												if (loca == hub) continue;
-											}
-											while (true) {
-												idxd = aux4[loca];
-												locd = core[idxd];
-												idxe = aux4[locd];
-												tmparg[0] = position;
-												cpt_DuplicateEdges(neighbor,next,idxd,idxe,tmparg);
-												position = tmparg[0];
-												wt += weight[position];
-												work1 = -(float)(weight[position]);
-												work1 += wk1[loca] + wk1[locd];
-												work1 += wk2[idxd] + wk2[idxe];
-												if (Math.abs(work1) > eps) {
-													sol[0][0] = 3;
-													return;
-												}
-												aux4[loca] = idxe;
-												aux4[locd] = idxd;
-												idxc = aux5[locd];
-												loca = core[idxc];
-												if (loca == hub) break;
-											}
-											break;
-										}
-										else {
-											idxc = aux4[hub];
-											aux1[hub] = hub;
-											work3 = wk2[hub];
-											wk1[hub] = 0f;
-											wk2[hub] = 0f;
-											do {
-												idxe = aux3[loca];
-												idxd = aux1[idxe];
-												tmparg[0] = loca;
-												cpt_ExpandBlossom(core,aux1,aux3,wk1,wk2,tmparg,idxd);
-												loca = tmparg[0];
-												loce = core[idxc];
-												if (loce != loca) {
-													idxb = aux4[loca];
-													tmparg[0] = position;
-													cpt_DuplicateEdges(neighbor,next,hub,idxb,tmparg);
-													position = tmparg[0];
-													work1 = -(float)(weight[position]);
-													wt += weight[position];
-													work1 += wk2[idxb] + wk1[loca] + work3;
-													if (Math.abs(work1) > eps) {
-														sol[0][0] = 3;
-														return;
-													}
-												}
-												else
-													aux4[loca] = idxc;
-												loca = idxd;
-											} while (loca != hub);
-										}
-									}
-								}
-								// store up the duplicate edges
-								duparcs = 0;
-								i = next[2];
-								for (p=2; p<=n; p++) {
-									loch = next[p+1] - 1;
-									for (q=i; q<=loch; q++) {
-										idxd = neighbor[q];
-										if (idxd <= 0) {
-											idxd = -idxd;
-											if (idxd <= p) {
-												duparcs++;
-												sol[duparcs][1] = p;
-												sol[duparcs][2] = idxd;
-											}
-										}
-									}
-									i = loch + 1;
-								}
-								cpt_Trail(n,neighbor,weight,next,aux3,core,startnode);
-								// store up the optimal trail
-								trail[1] = startnode;
-								cur = startnode;
-								curnext = 1;        
-								do {
-									p = next[cur];
-									q = aux3[cur];
-									complete = true;
-									for (i=q; i>=p; i--) {
-										if (weight[i] > 0) {
-											curnext++;
-											trail[curnext] = weight[i];
-											cur = weight[i];
-											weight[i] = -1;
-											complete = false;
-											break;
-										}
-									}
-								} while (!complete);
-								trail[0] = curnext;
-								sol[3][0] = duparcs;
-								sol[1][0] = totsolcost + wt;
-								return;
-							}
-							tmparg[0] = idxa;
-							cpt_SecondScan(neighbor,weight,next,high,core,aux1,aux2,
-									aux3,aux4,wk1,wk2,wk3,wk4,tmparg,n);
-							idxa = tmparg[0];
-							continue iterate;
-						}
-						loce = core[idxa];
-						idxa = aux5[loce];
-						locd = core[idxa];
-					}
-					while (true) {
-						if (locd == hub) {
-							// shrink a blossom
-							work3 = wk1[hub] + work1 - wk3[hub];
-							wk1[hub] = 0f;
-							idxe = hub;
-							do {
-								wk2[idxe] += work3;
-								idxe = aux1[idxe];
-							} while (idxe != hub);
-							idxd = aux1[hub];
-							skip = false;
-							if (hub != loca) skip = true;
-							do {
-								if (!skip) {
-									loca = tmpoptx;
-									loce = aux5[hub];
-								}
-								skip = false;
-								while (true) {
-									aux1[idxe] = loce;
-									idxa = -aux4[loce];
-									aux4[loce] = idxa;
-									wk1[loce] += wk4[loce] - work1;
-									idxe = loce;
-									tmparg[0] = idxe;
-									cpt_ShrinkBlossom(core,aux1,wk1,wk2,hub,tmparg);
-									idxe = tmparg[0];
-									aux3[loce] = idxe;
-									locd = core[idxa];
-									aux1[idxe] = locd;
-									wk1[locd] += work1 - wk3[locd];
-									idxe = locd;
-									tmparg[0] = idxe;
-									cpt_ShrinkBlossom(core,aux1,wk1,wk2,hub,tmparg);
-									idxe = tmparg[0];
-									aux3[locd] = idxe;
-									if (loca == locd) break;
-									loce = aux5[locd];
-									aux5[locd] = aux6[loce];
-									aux6[locd] = aux5[loce];
-								}
-								if (loca == tmpoptx) {
-									aux5[tmpoptx] = idxb;
-									aux6[tmpoptx] = idxc;
-									break;
-								}
-								aux5[loca] = idxc;
-								aux6[loca] = idxb;
-							} while (hub != tmpoptx);
-							aux1[idxe] = idxd;
-							loca = aux1[hub];
-							aux2[loca] = idxd;
-							wk3[loca] = work3;
-							aux5[hub] = 0;
-							wk4[hub] = high;
-							wk3[hub] = work1;
-							cpt_FirstScan(neighbor,weight,next,core,aux1,aux2,
-									aux3,aux4,wk1,wk2,wk3,wk4,hub);
-							continue iterate;
-						}
-						locf = aux5[hub];
-						aux5[hub] = 0;
-						idxd = -aux4[locf];
-						hub = core[idxd];
-					}
-				}
-				else {
-					if (aux5[tmpoptx] > 0) {
-						loca = aux1[tmpoptx];
-						if (loca != tmpoptx) {
-							idxa = aux5[loca];
-							if (idxa > 0) {
-								// expand a blossom
-								idxd = aux2[loca];
-								locd = loca;
-								tmparg[0] = locd;
-								cpt_ExpandBlossom(core,aux1,aux3,wk1,wk2,tmparg,idxd);
-								locd = tmparg[0];
-								work3 = wk3[loca];
-								wk1[tmpoptx] = work3;
-								aux1[tmpoptx] = idxd;
-								while (true) {
-									wk2[idxd] -= work3;
-									if (idxd == tmpoptx) break;
-									idxd = aux1[idxd];
-								}
-
-								idxb = -aux4[tmpoptx];
-								locd = core[idxb];
-								idxc = aux4[locd];
-								hub = core[idxc];
-								if (hub != tmpoptx) {
-									loce = hub;
-									while (true) {
-										idxa = aux5[loce];
-										locd = core[idxa];
-										if (locd == tmpoptx) break;
-										idxa = aux4[locd];
-										loce = core[idxa];
-									}
-									aux5[hub] = aux5[tmpoptx];
-									aux5[tmpoptx] = aux6[loce];
-									aux6[hub] = aux6[tmpoptx];
-									aux6[tmpoptx] = idxa;
-									idxd = aux4[hub];
-									loca = core[idxd];
-									idxe = aux4[loca];
-									aux4[hub] = -idxb;
-									locd = loca;
-									while (true) {
-										idxb = aux5[locd];
-										idxc = aux6[locd];
-										aux5[locd] = idxe;
-										aux6[locd] = idxd;
-										aux4[locd] = idxb;
-										loce = core[idxb];
-										idxd = aux4[loce];
-										aux4[loce] = idxc;
-										if (loce == tmpoptx) break;
-										locd = core[idxd];
-										idxe = aux4[locd];
-										aux5[loce] = idxd;
-										aux6[loce] = idxe;
-									}
-								}
-								idxc = aux6[hub];
-								locd = core[idxc];
-								wk4[locd] = work1;
-								if (locd != hub) {
-									idxb = aux5[locd];
-									loca = core[idxb];
-									aux5[locd] = aux5[hub];
-									aux6[locd] = idxc;
-									do {
-										idxa = aux4[locd];
-										aux4[locd] = -idxa;
-										loce = core[idxa];
-										idxa = aux5[loce];
-										aux5[loce] = -idxa;
-										wk4[loce] = high;
-										wk3[loce] = work1;
-										locd = core[idxa];
-										wk4[locd] = work1;
-										cpt_FirstScan(neighbor,weight,next,core,aux1,aux2,
-												aux3,aux4,wk1,wk2,wk3,wk4,loce);
-									} while (locd != hub);
-									aux5[hub] = aux6[loce];
-									aux6[hub] = idxa;
-									if (loca == hub) continue iterate;
-								}
-								loce = loca;
-								do {
-									idxa = aux4[loce];
-									aux4[loce] = -idxa;
-									locd = core[idxa];
-									aux5[loce] = -locd;
-									idxa = aux5[locd];
-									aux4[locd] = -aux4[locd];
-									loce = core[idxa];
-									aux5[locd] = -loce;
-								} while (loce != hub);
-								do {
-									locd = -aux5[loca];
-									tmparg[0] = loca;
-									cpt_SecondScan(neighbor,weight,next,high,core,aux1,aux2,
-											aux3,aux4,wk1,wk2,wk3,wk4,tmparg,loca);
-									loca = tmparg[0];
-									loca = -aux5[locd];
-									tmparg[0] = locd;
-									cpt_SecondScan(neighbor,weight,next,high,core,aux1,aux2,
-											aux3,aux4,wk1,wk2,wk3,wk4,tmparg,locd);
-									locd = tmparg[0];
-								} while (loca != hub);
-								continue iterate;
-							}
-						}
-						// modify a blossom
-						wk4[tmpoptx] = high;
-						wk3[tmpoptx] = work1;
-						i = 1;
-						wk1[tmpoptx] = 0f;
-						idxa = -aux4[tmpoptx];
-						loca = core[idxa];
-						idxb = aux4[loca];
-						if (idxb == tmpoptx) {
-							i = 2;
-							aux4[loca] = idxa;
-							idxd = aux1[tmpoptx];
-							aux1[tmpoptx] = loca;
-							wk1[loca] += work1 - wk3[loca];
-							idxe = loca;
-							tmparg[0] = idxe;
-							cpt_ShrinkBlossom(core,aux1,wk1,wk2,tmpoptx,tmparg);
-							idxe = tmparg[0];
-							aux3[loca] = idxe;
-							aux1[idxe] = idxd;
-							idxb = aux6[tmpoptx];
-							if (idxb == tmpoptx) {
-								idxa = aux5[tmpoptx];
-								loca = core[idxa];
-								aux4[tmpoptx] = aux4[loca];
-								aux4[loca] = idxa;
-								aux5[tmpoptx] = 0;
-								idxd = aux1[tmpoptx];
-								aux1[tmpoptx] = loca;
-								wk1[loca] += work1 - wk3[loca];
-								idxe = loca;
-								tmparg[0] = idxe;
-								cpt_ShrinkBlossom(core,aux1,wk1,wk2,tmpoptx,tmparg);
-								idxe = tmparg[0];
-								aux3[loca] = idxe;
-								aux1[idxe] = idxd;
-								cpt_FirstScan(neighbor,weight,next,core,aux1,aux2,
-										aux3,aux4,wk1,wk2,wk3,wk4,tmpoptx);
-								continue iterate;
-							}
-						}
-						do {
-							idxc = tmpoptx;
-							locd = aux1[tmpoptx];
-							while (true) {
-								idxd = locd;
-								idxe = aux3[locd];
-								skip = false;
-								while (true) {
-									if (idxd == idxb) {
-										skip = true;
-										break;
-									}
-									if (idxd == idxe) break;
-									idxd = aux1[idxd];
-								}
-								if (skip) break;
-								locd = aux1[idxe];
-								idxc = idxe;
-							}
-							idxd = aux1[idxe];
-							aux1[idxc] = idxd;
-							tmparg[0] = locd;
-							cpt_ExpandBlossom(core,aux1,aux3,wk1,wk2,tmparg,idxd);
-							locd = tmparg[0];
-							wk4[locd] = work1;
-							if (i == 2) {
-								aux5[locd] = aux5[tmpoptx];
-								aux6[locd] = idxb;
-								aux5[tmpoptx] = 0;
-								aux4[tmpoptx] = aux4[locd];
-								aux4[locd] = -tmpoptx;
-								cpt_FirstScan(neighbor,weight,next,core,aux1,aux2,
-										aux3,aux4,wk1,wk2,wk3,wk4,tmpoptx);
-								continue iterate;
-							}
-							i = 2;
-							aux5[locd] = tmpoptx;
-							aux6[locd] = aux4[locd];
-							aux4[locd] = -idxa;
-							idxb = aux6[tmpoptx];
-							if (idxb == tmpoptx) {
-								idxa = aux5[tmpoptx];
-								loca = core[idxa];
-								aux4[tmpoptx] = aux4[loca];
-								aux4[loca] = idxa;
-								aux5[tmpoptx] = 0;
-								idxd = aux1[tmpoptx];
-								aux1[tmpoptx] = loca;
-								wk1[loca] += work1 - wk3[loca];
-								idxe = loca;
-								tmparg[0] = idxe;
-								cpt_ShrinkBlossom(core,aux1,wk1,wk2,tmpoptx,tmparg);
-								idxe = tmparg[0];
-								aux3[loca] = idxe;
-								aux1[idxe] = idxd;
-								cpt_FirstScan(neighbor,weight,next,core,aux1,aux2,
-										aux3,aux4,wk1,wk2,wk3,wk4,tmpoptx);
-								continue iterate;
-							}
-						} while (core[idxb] == tmpoptx);
-						aux5[locd] = aux5[tmpoptx];
-						aux6[locd] = idxb;
-						aux5[tmpoptx] = 0;
-						locd = aux1[tmpoptx];
-						if (locd == tmpoptx) {
-							aux4[tmpoptx] = locg;
-							tmpopty = tmpoptx;
-							tmparg[0] = tmpopty;
-							cpt_SecondScan(neighbor,weight,next,high,core,aux1,aux2,
-									aux3,aux4,wk1,wk2,wk3,wk4,tmparg,tmpoptx);
-							tmpopty = tmparg[0];
-							continue iterate;
-						}
-						idxe = aux3[locd];
-						idxd = aux1[idxe];
-						aux1[tmpoptx] = idxd;
-						tmparg[0] = locd;
-						cpt_ExpandBlossom(core,aux1,aux3,wk1,wk2,tmparg,idxd);
-						locd = tmparg[0];
-						aux4[tmpoptx] = -aux4[locd];
-						aux4[locd] = -tmpoptx;
-						locc = locd;
-						tmparg[0] = locc;
-						cpt_SecondScan(neighbor,weight,next,high,core,aux1,aux2,
-								aux3,aux4,wk1,wk2,wk3,wk4,tmparg,locd);
-						locc = tmparg[0];
-						tmpopty = tmpoptx;
-						tmparg[0] = tmpopty;
-						cpt_SecondScan(neighbor,weight,next,high,core,aux1,aux2,
-								aux3,aux4,wk1,wk2,wk3,wk4,tmparg,tmpoptx);
-						tmpopty = tmparg[0];
-						continue iterate;
-					}
-					else {
-						// grow an alternating tree
-						idxa = -aux4[tmpoptx];
-						if (idxa <= n) {
-							aux5[tmpoptx] = aux2[tmpoptx];
-							aux6[tmpoptx] = aux3[tmpoptx];
-							loca = core[idxa];
-							aux4[loca] = -aux4[loca];
-							wk4[loca] = high;
-							wk3[loca] = work1;
-							cpt_FirstScan(neighbor,weight,next,core,aux1,aux2,aux3,
-									aux4,wk1,wk2,wk3,wk4,loca);
-							continue iterate;
-						}
-						else {
-							idxb = aux2[tmpoptx];
-							loca = core[idxb];
-							aux4[tmpoptx] = aux4[loca];
-							wk4[tmpoptx] = high;
-							wk3[tmpoptx] = work1;
-							aux4[loca] = idxb;
-							wk1[loca] += work1 - wk3[loca];
-							idxe = loca;
-							tmparg[0] = idxe;
-							cpt_ShrinkBlossom(core,aux1,wk1,wk2,tmpoptx,tmparg);
-							idxe = tmparg[0];
-							aux3[loca] = idxe;
-							aux1[tmpoptx] = loca;
-							aux1[idxe] = tmpoptx;
-							cpt_FirstScan(neighbor,weight,next,core,aux1,aux2,aux3,
-									aux4,wk1,wk2,wk3,wk4,tmpoptx);
-							continue iterate;
-						}
-					}
-				}
-			}
-	}
-	/**
+	/* 
 	 * Taken from Lau.  Returns the connected components of an undirected graph.  For the directed analog, see stronglyConnectedComponents
 	 * @param n - the number of nodes in the graph
 	 * @param m - the number of edges in the graph
@@ -1712,6 +570,253 @@ public class CommonAlgorithms {
 		path[0] = num;
 	}
 	/**
+	 * Implements the Floyd-Warshall shortest paths algorithm.
+	 * @param g - the graph in which the shortest paths should be calculated
+	 * @param dist - an [n+1][n+1] matrix that will be filled with shortest paths at the end: the 0th column and row 
+	 * will be filled with Integer.MAX, and dist[i][j] will hold the shortest path cost between node i and node j.
+	 * @param path - an [n+1][n+1] matrix that will tell us how to reconstruct the shortest path: the 0th column and row
+	 * will be filled with Integer.MAX, and path[i][j] holds the id of the node to go to next in the shortest path from node i t node j.
+	 */
+	public static void fwLeastCostPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int[][] dist, int[][] path) throws IllegalArgumentException
+	{
+		//initialize dist and path
+		int n = g.getVertices().size();
+		if(dist.length != n+1 || path.length != n+1)
+			throw new IllegalArgumentException();
+
+		//initialize dist and path
+		for(int i=0;i<=n;i++)
+		{
+			for(int j=0;j<=n;j++)
+			{
+				dist[i][j] = Integer.MAX_VALUE;
+			}
+			path[0][i] = Integer.MAX_VALUE;
+			path[i][0] = Integer.MAX_VALUE;
+		}
+
+		Vertex vi;
+		int min;
+		for(int i=1;i<=n;i++)
+		{
+			vi = g.getInternalVertexMap().get(i);
+			for(Vertex v :vi.getNeighbors().keySet())
+			{
+				List<? extends Link<?extends Vertex>> l = vi.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				for (Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+						min = link.getCost();
+				}
+				dist[vi.getId()][v.getId()] = min;
+				path[vi.getId()][v.getId()] = v.getId();
+			}
+		}
+
+		//business logic
+		for (int k = 1; k <= n; k++ )
+		{
+			for( int i = 1; i <= n; i ++)
+			{
+				//if there is an edge from i to k
+				if (dist[i][k] < Integer.MAX_VALUE)
+					for (int j = 1; j <= n; j++)
+					{
+						//if there is an edge from k to j
+						if(dist[k][j] < Integer.MAX_VALUE
+								&& (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j]) )
+						{
+							path[i][j] = path[i][k];
+							dist[i][j] = dist[i][k] + dist[k][j];
+							if (i==j && dist[i][j] < 0)
+								return; //negative cycle
+						}
+					}
+
+			}
+		}
+	}
+	/**
+	 * adds the shortest path from p1 to p2 to g.
+	 * @param g
+	 * @param dist
+	 * @param path
+	 * @param p
+	 */
+	public static void addShortestPath(DirectedGraph g, int[][] dist, int[][]path, Pair<Integer> p)
+	{
+		try {
+			int curr = p.getFirst();
+			int end = p.getSecond();
+			int next = 0;
+			int cost = 0;
+			DirectedVertex u,v;
+			do {
+				next = path[curr][end];
+				cost = dist[curr][next];
+				u = g.getInternalVertexMap().get(curr);
+				v = g.getInternalVertexMap().get(next);
+				g.addEdge(new Arc("from addShortestPath", new Pair<DirectedVertex>(u,v), cost));
+			} while ( (curr =next) != end);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * Implements the cycle cancelling algorithm to calculate a min cost flow through the graph g with distance matrix given by dist.
+	 * @param g
+	 */
+	public static HashMap<Pair<Integer>, Integer> cycleCancelingMinCostNetworkFlow(DirectedGraph g, int[][] dist) throws IllegalArgumentException
+	{
+		HashMap<Pair<Integer>, Integer> ans = new HashMap<Pair<Integer>, Integer>();
+		ArrayList<DirectedVertex> Dplus = new ArrayList<DirectedVertex>();
+		ArrayList<DirectedVertex> Dminus = new ArrayList<DirectedVertex>();
+		//vars to check for valid demand setting
+		int supply = 0;
+		int demand = 0;
+		//greedily establish an initial feasible flow
+		for (DirectedVertex v: g.getVertices())
+		{
+			//only nonzero demands are set
+			try {
+				if (v.getDemand() > 0)
+				{
+					Dplus.add(v);
+					supply += v.getDemand();
+				}
+				else
+				{
+					Dminus.add(v);
+					demand += v.getDemand();
+				}
+			} catch(NoDemandSetException e) {
+				//do nothing
+			}
+		}
+
+		if(demand > supply)
+			throw new IllegalArgumentException();
+
+		try {
+			DirectedVertex u = Dplus.get(0);
+			DirectedVertex v = Dminus.get(0); // holds the current Dplus and Dminus nodes respectively
+			int i = 0; //counter for Dplus
+			int j = 0; //counter for Dminus
+			int k = 0; //amount of flow to push from u to v
+			int leftover = u.getDemand();
+			int leftover2 = v.getDemand(); //counters for remaining supply/demand
+			while(j < Dminus.size())
+			{
+				k = (-leftover2 < leftover) ? -leftover2 : leftover;
+				ans.put(new Pair<Integer>(u.getId(),v.getId()), k);
+				leftover -= k;
+				leftover2 += k;
+
+				if (leftover == 0 && ++i != Dplus.size())
+				{
+					u = Dplus.get(i);
+					leftover = u.getDemand();
+				}
+				if (leftover2 == 0 && ++j != Dminus.size())
+				{
+					v = Dminus.get(j);
+					leftover2 = v.getDemand();
+				}
+			}
+
+			//setup the residual graph
+			boolean improvements = true;
+			DirectedGraph resid;
+			ArrayList<DirectedVertex> DplusResid = new ArrayList<DirectedVertex>();
+			ArrayList<DirectedVertex> DminusResid = new ArrayList<DirectedVertex>();
+			DirectedVertex temp;
+			while (improvements)
+			{
+				improvements = false;
+				//preliminaries
+				resid = new DirectedGraph();
+				for(DirectedVertex v1: Dplus)
+				{
+					temp = new DirectedVertex("resid plus");
+					resid.addVertex(temp, v1.getId());
+					DplusResid.add(temp);
+				}
+				for(DirectedVertex v1: Dminus)
+				{
+					temp = new DirectedVertex("resid minus");
+					resid.addVertex(temp, v1.getId());
+					DminusResid.add(temp);
+				}
+
+				//add all the edges
+				for (i = 0; i < DplusResid.size(); i++)
+				{
+					u = DplusResid.get(i);
+					for(j = 0; j < DminusResid.size(); j++)
+					{
+						v = DminusResid.get(j);
+						resid.addEdge(new Arc("duplicate", new Pair<DirectedVertex>(u,v), dist[u.getMatchId()][v.getMatchId()]));
+						if (ans.containsKey(new Pair<Integer>(u.getId(),v.getId())))
+							resid.addEdge(new Arc("artificial", new Pair<DirectedVertex>(v,u), -dist[u.getMatchId()][v.getMatchId()]));
+					}
+				}
+
+				//solve the all pairs shortest paths
+				int n = resid.getVertices().size();
+				int[][] residDist = new int[n+1][n+1];
+				int [][] residPath = new int[n+1][n+1];
+				fwLeastCostPaths(resid, residDist, residPath);
+				Pair<Integer> pair;
+				for (i = 0; i < n; i++)
+				{
+					if(residDist[i][i] < 0) //negative cycle detected
+					{
+						k = 0;
+						int b, c, fvu;
+						boolean kunset = true;
+						b = i;
+						do {
+							c = residPath[b][i];
+							u = resid.getInternalVertexMap().get(b);
+							v = resid.getInternalVertexMap().get(c);
+							fvu = ans.get(new Pair<Integer>(u.getMatchId(),v.getMatchId()));
+							if (residDist[b][c]  < 0 && (kunset || k > fvu))
+							{
+								k = fvu;
+								kunset = false;
+							}
+						} while ((b = c) != i);
+						//cancel k units of flow around the cycle
+						b = i;
+						do {
+							c = residPath[b][i];
+							u = resid.getInternalVertexMap().get(b);
+							v = resid.getInternalVertexMap().get(c);
+							fvu = ans.get(new Pair<Integer>(u.getMatchId(),v.getMatchId()));
+							if (residDist[b][c]  < 0)
+							{
+								pair = new Pair<Integer>(u.getMatchId(),v.getMatchId());
+								ans.put(pair, ans.get(pair) + k);
+							}
+							else 
+							{
+								pair = new Pair<Integer>(v.getMatchId(),u.getMatchId());
+								ans.put(pair, ans.get(pair) - k);
+							}
+
+
+						} while ((b = c) != i);
+						improvements = true;
+					}
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return ans;
+	}
+	/**
 	 * Solves a min cost flow problem defined on this graph.  Demands must be set, or else we get an error here.
 	 * @param g
 	 * @return answer - entry [0][0] holds the final cost, and the edge from node 
@@ -1784,8 +889,8 @@ public class CommonAlgorithms {
 		int answer[][] = new int[edges+1][4];
 		for(int j=1;j<edges+1;j++)
 		{
-			answer[j][0] = nodei[j];
-			answer[j][1] = nodej[j];
+			answer[j][0] = arcsol[0][j];
+			answer[j][1] = arcsol[1][j];
 			answer[j][2] =arccost[j];
 			answer[j][3]= flowsol[j];
 		}
