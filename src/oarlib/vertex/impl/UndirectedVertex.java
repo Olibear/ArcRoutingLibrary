@@ -29,6 +29,7 @@ public class UndirectedVertex extends Vertex{
 		this.degree = degree;
 	}
 	
+	@Override
 	public HashMap<UndirectedVertex, ArrayList<Edge>> getNeighbors()
 	{
 		return neighbors;

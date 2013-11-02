@@ -65,6 +65,11 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		mGlobalVertexMap.put(v.getGuid(), v);
 		mInternalVertexMap.put(v.getId(), v);
 	}
+	public void addVertex(V v, int matchId)
+	{
+		this.addVertex(v);
+		v.setMatchId(matchId);
+	}
 	@Override
 	public HashMap<Integer, V> getGlobalVertexMap()
 	{

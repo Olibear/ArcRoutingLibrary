@@ -44,6 +44,7 @@ public class DirectedVertex extends Vertex{
 		return inDegree - outDegree;
 	}
 	
+	@Override
 	public HashMap<DirectedVertex, ArrayList<Arc>> getNeighbors()
 	{
 		return neighbors;

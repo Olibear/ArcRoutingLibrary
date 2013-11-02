@@ -29,54 +29,38 @@ public class DCPPSolver extends Solver{
 	protected Collection<Route> solve() {
 
 		DirectedGraph copy = mInstance.getGraph();
-		HashMap<Integer, DirectedVertex> indexedVertices = copy.getInternalVertexMap();
 		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
-
-		LinkedHashSet<DirectedVertex> Dplus = new LinkedHashSet<DirectedVertex>();
-		LinkedHashSet<DirectedVertex> Dminus = new LinkedHashSet<DirectedVertex>();
-		LinkedHashSet<DirectedVertex> Dall = new LinkedHashSet<DirectedVertex>();
 
 		//prepare our unbalanced vertex sets
 		for(DirectedVertex v: copy.getVertices())
 		{
-			if(v.getDelta() > 0)
+			if(v.getDelta() != 0)
 			{
-				Dplus.add(v);
-				Dall.add(v);
-				v.setDemand(v.getDelta());
-			}
-			if(v.getDelta() < 0)
-			{
-				Dminus.add(v);
-				Dall.add(v);
 				v.setDemand(v.getDelta());
 			}
 		}
 
 		//min cost flow
 		try {
-			int[][] flowanswer = CommonAlgorithms.minCostNetworkFlow(copy);
+			int n = copy.getVertices().size();
+			int [][] dist = new int[n+1][n+1];
+			int[][] path = new int[n+1][n+1];
+			CommonAlgorithms.fwLeastCostPaths(copy,dist,path);
+			HashMap<Pair<Integer>, Integer> flowanswer = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(copy, dist);
 
 			//add the solution to the graph (augment)
-			for (int i=0; i<flowanswer.length;i++)
+			for (Pair<Integer> p: flowanswer.keySet())
 			{
-				if(flowanswer[i][3] == 0)
-					continue;
-				for (int j=0; j<flowanswer[i][3];j++)
-				{
-					copy.addEdge(new Arc("duped arc", 
-							new Pair<DirectedVertex>(indexedVertices.get(flowanswer[i][0]), indexedVertices.get(flowanswer[i][1])),
-							flowanswer[i][2]));
-				}
+				CommonAlgorithms.addShortestPath(copy, dist, path, p);
 			}
 
 
 			// return the answer
-			int[] ans = CommonAlgorithms.tryFleury(copy);
+			ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
 			Tour eulerTour = new Tour();
-			for(int i=1; i<ans.length;i++)
+			for(int i=0; i<ans.size();i++)
 			{
-				eulerTour.appendEdge(indexedArcs.get(ans[i]));
+				eulerTour.appendEdge(indexedArcs.get(ans.get(i)));
 			}
 			ArrayList<Route> ret = new ArrayList<Route>();
 			ret.add(eulerTour);
