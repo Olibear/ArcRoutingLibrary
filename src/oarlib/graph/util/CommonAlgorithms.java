@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import oarlib.core.Arc;
+import oarlib.core.Edge;
 import oarlib.core.Link;
 import oarlib.core.Graph;
 import oarlib.core.Route;
@@ -65,9 +66,10 @@ public class CommonAlgorithms {
 		visitedVertices.add(start);
 		simpleCycle.add(start);
 		//initialize current position variables
-		Map<? extends Vertex,? extends List<? extends Link<? extends Vertex>>> currNeighbors;
+		Map<? extends Vertex,? extends List<? extends Link<? extends Vertex>>> currNeighbors = start.getNeighbors();
 		Vertex currVertex = start;
-		Link<? extends Vertex> currEdge;
+		Vertex prevVertex = null;
+		Link<? extends Vertex> currEdge = new Arc("dummy",null,0);
 		Iterator<Vertex> vertexIter;
 		boolean nextStart = true;
 
@@ -76,10 +78,11 @@ public class CommonAlgorithms {
 		{
 			//greedily go until we've come back to start
 			do {
-				currNeighbors = currVertex.getNeighbors();
+				
 				currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
 				edgeCycle.add(currEdge.getId()); //add it to the trail
 				//update the currVertex
+				prevVertex = currVertex;
 				currVertex = (currEdge.getEndpoints().getFirst().getId() == currVertex.getId())?currEdge.getEndpoints().getSecond():currEdge.getEndpoints().getFirst();
 				simpleCycle.add(currVertex);
 
@@ -87,6 +90,14 @@ public class CommonAlgorithms {
 				currNeighbors.get(currVertex).remove(currEdge);
 				if(currNeighbors.get(currVertex).size() == 0)
 					currNeighbors.remove(currVertex);
+				
+				currNeighbors = currVertex.getNeighbors();
+				if(!currEdge.isDirected())
+				{
+					currNeighbors.get(prevVertex).remove(currEdge);
+					if(currNeighbors.get(prevVertex).size() == 0)
+						currNeighbors.remove(prevVertex);
+				}
 
 			} while (currVertex.getId() != start.getId());
 
@@ -118,6 +129,7 @@ public class CommonAlgorithms {
 				{
 					simpleCycle.add(start);
 					currVertex = start;
+					currNeighbors = currVertex.getNeighbors();
 					nextStart = true;
 					break;
 				}
@@ -639,10 +651,10 @@ public class CommonAlgorithms {
 	}
 	/**
 	 * adds the shortest path from p1 to p2 to g.
-	 * @param g
-	 * @param dist
-	 * @param path
-	 * @param p
+	 * @param g - the directed graph in which to add the paths
+	 * @param dist - the dist matrix (probably output from fwLeastCostPaths)
+	 * @param path - the path matrix (probably output from fwLeastCostPaths)
+	 * @param p - the ids (in g) of the vertices you want to add the shortest path from (to)
 	 */
 	public static void addShortestPath(DirectedGraph g, int[][] dist, int[][]path, Pair<Integer> p)
 	{
@@ -658,6 +670,32 @@ public class CommonAlgorithms {
 				u = g.getInternalVertexMap().get(curr);
 				v = g.getInternalVertexMap().get(next);
 				g.addEdge(new Arc("from addShortestPath", new Pair<DirectedVertex>(u,v), cost));
+			} while ( (curr =next) != end);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * adds the shortest path from p1 to p2 to g.
+	 * @param g - the undirected graph in which to add the paths
+	 * @param dist - the dist matrix (probably output from fwLeastCostPaths)
+	 * @param path - the path matrix (probably output from fwLeastCostPaths)
+	 * @param p - the ids (in g) of the vertices you want to add the shortest path from (to)
+	 */
+	public static void addShortestPath(UndirectedGraph g, int[][] dist, int[][]path, Pair<Integer> p)
+	{
+		try {
+			int curr = p.getFirst();
+			int end = p.getSecond();
+			int next = 0;
+			int cost = 0;
+			UndirectedVertex u,v;
+			do {
+				next = path[curr][end];
+				cost = dist[curr][next];
+				u = g.getInternalVertexMap().get(curr);
+				v = g.getInternalVertexMap().get(next);
+				g.addEdge(new Edge("from addShortestPath", new Pair<UndirectedVertex>(u,v), cost));
 			} while ( (curr =next) != end);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -1705,8 +1743,39 @@ public class CommonAlgorithms {
 	 * @return
 	 */
 	public static Set<Pair<UndirectedVertex>> minCostMatching(UndirectedGraph graph) throws SetupException
-	{
-		return null;
+	{	
+		HashSet<Pair<UndirectedVertex>> matching = new HashSet<Pair<UndirectedVertex>>();
+		HashMap<Integer, UndirectedVertex> indexedVertices = graph.getInternalVertexMap();
+		
+		//setup our input to Kolmogorov's Blossom V code
+		int n = graph.getVertices().size();
+		int m = graph.getEdges().size();
+		int[]edges = new int[2*m];
+		int[]weights = new int[m];
+		
+		//edges[2m] and edges[2m+1] hold the endpoints of each edge, weight[m] holds the weight between them.
+		for(Edge e: graph.getEdges())
+		{
+			//the c code indexes things by zero, so we need to be compliant
+			edges[2*e.getId()-2] = e.getEndpoints().getFirst().getId() - 1;
+			edges[2*e.getId()-1] = e.getEndpoints().getSecond().getId() - 1;
+			weights[e.getId()-1] = e.getCost();
+		}
+		int[] ans = CAlgorithms.blossomV(n, m, edges, weights);
+		
+		//to make sure we only report unique pairs, (and not, say 0-1 and 1-0).
+		ArrayList<Integer> matched = new ArrayList<Integer>();
+		
+		//now reinterpret the results
+		for (int i=0; i<ans.length;i++)
+		{
+			if(matched.contains(i))
+				continue;
+			matching.add(new Pair<UndirectedVertex>(indexedVertices.get(ans[i]+1), indexedVertices.get(i+1)));
+			matched.add(ans[i]);
+			
+		}
+		return matching;
 	}
 
 }

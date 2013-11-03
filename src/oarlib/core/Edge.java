@@ -11,6 +11,7 @@ public class Edge extends Link<UndirectedVertex>{
 
 	public Edge(String label, Pair<UndirectedVertex> endpoints, int cost) {
 		super(label, endpoints, cost);
+		setDirected(false);
 	}
 
 }

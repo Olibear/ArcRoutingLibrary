@@ -3,14 +3,20 @@ package oarlib.test;
 import java.util.Collection;
 
 import oarlib.core.Arc;
+import oarlib.core.Edge;
 import oarlib.core.Link;
 import oarlib.core.Route;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.graph.impl.UndirectedGraph;
+import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.problem.impl.DirectedCPP;
+import oarlib.problem.impl.UndirectedCPP;
 import oarlib.solver.impl.DCPPSolver;
+import oarlib.solver.impl.UCPPSolver;
 import oarlib.vertex.impl.DirectedVertex;
+import oarlib.vertex.impl.UndirectedVertex;
 
 public class GeneralTestbed {
 
@@ -19,8 +25,55 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		try 
+		testDCPPSolver();
+	}
+	private static void check (Link<?> a)
+	{
+		if (a.getClass() == Arc.class)
+			System.out.println("WEEEE");
+	}
+	private static void testUCPPSolver()
+	{
+		try{
+			long start = System.currentTimeMillis();
+			UndirectedGraph test = new UndirectedGraph();
+			
+			UndirectedVertex v1 = new UndirectedVertex("dummy");
+			UndirectedVertex v2 = new UndirectedVertex("dummy2");
+			UndirectedVertex v3 = new UndirectedVertex("dummy3");
+			
+			Pair<UndirectedVertex> ep = new Pair<UndirectedVertex>(v1, v2);
+			Pair<UndirectedVertex> ep2 = new Pair<UndirectedVertex>(v2, v1);
+			Pair<UndirectedVertex> ep3 = new Pair<UndirectedVertex>(v2, v3);
+			Pair<UndirectedVertex> ep4 = new Pair<UndirectedVertex>(v3,v1);
+			
+			Edge e = new Edge("stuff", ep, 10);
+			Edge e2 = new Edge("more stuff", ep2, 20);
+			Edge e3 = new Edge("third stuff", ep3, 5);
+			Edge e4 = new Edge("fourth stuff", ep4, 7);
+			
+			test.addVertex(v1);
+			test.addVertex(v2);
+			test.addVertex(v3);
+			test.addEdge(e);
+			test.addEdge(e2);
+			test.addEdge(e3);
+			test.addEdge(e4);
+			
+			UndirectedCPP testInstance = new UndirectedCPP(test);
+			UCPPSolver testSolver = new UCPPSolver(testInstance);
+			Collection<Route> testAns = testSolver.trySolve();
+			long end = System.currentTimeMillis();
+			System.out.println(end - start);
+		} catch(Exception e)
 		{
+			e.printStackTrace();
+		}
+	}
+	private static void testDCPPSolver()
+	{
+		try {
+			long start = System.currentTimeMillis();
 			DirectedGraph test = new DirectedGraph();
 
 			DirectedVertex v1 = new DirectedVertex("dummy");
@@ -35,7 +88,8 @@ public class GeneralTestbed {
 			Arc a = new Arc("stuff", ep, 10);
 			Arc a2 = new Arc("more stuff", ep2, 20);
 			Arc a3 = new Arc("third stuff", ep3, 5);
-			Arc a4 = new Arc("third stuff", ep4, 7);
+			Arc a4 = new Arc("fourth stuff", ep4, 7);
+			Arc a5 = new Arc("fifth stuff", ep3,  8);
 
 
 			test.addVertex(v1);
@@ -45,21 +99,15 @@ public class GeneralTestbed {
 			test.addEdge(a2);
 			test.addEdge(a3);
 			test.addEdge(a4);
+			test.addEdge(a5);
 
-			check(a);
 			DirectedCPP testInstance = new DirectedCPP(test);
 			DCPPSolver testSolver = new DCPPSolver(testInstance);
 			Collection<Route> testAns = testSolver.trySolve();
-			System.out.println("At least got to the end");
-		} catch (InvalidEndpointsException e)
-		{
+			long end = System.currentTimeMillis();
+			System.out.println(end - start);
+		} catch(Exception e) {
 			e.printStackTrace();
-			System.out.println("We tried to add an edge with endpoints that weren't in the graph yet.");
 		}
-	}
-	private static void check (Link<?> a)
-	{
-		if (a.getClass() == Arc.class)
-			System.out.println("WEEEE");
 	}
 }

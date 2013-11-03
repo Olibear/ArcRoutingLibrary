@@ -12,7 +12,7 @@ package oarlib.graph.util;
 public class CAlgorithms {
 	public native static int[] blossomV(int n, int m, int[] edges, int[] weights);
 	static {
-		System.loadLibrary("calgorithms");
+		System.loadLibrary("oarlib_graph_util_CAlgorithms");
 	}
 
 }

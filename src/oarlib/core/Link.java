@@ -15,6 +15,7 @@ public abstract class Link<V extends Vertex> {
 	private int mId; //while this will help us identify the 'same' link in different graphs (graph copies for instance)
 	private Pair<V> mEndpoints;
 	private int mCost;
+	private boolean isDirected;
 	
 	public Link(String label, Pair<V> endpoints, int cost)
 	{
@@ -66,6 +67,14 @@ public abstract class Link<V extends Vertex> {
 	}
 	public void setId(int mId) {
 		this.mId = mId;
+	}
+
+	public boolean isDirected() {
+		return isDirected;
+	}
+
+	public void setDirected(boolean isDirected) {
+		this.isDirected = isDirected;
 	}
 
 }

@@ -3,6 +3,7 @@ package oarlib.vertex.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Vertex;
 /**
@@ -36,6 +37,8 @@ public class UndirectedVertex extends Vertex{
 	}
 	public void addToNeighbors(UndirectedVertex v, Edge e)
 	{
+		if(!neighbors.containsKey(v))
+			neighbors.put(v, new ArrayList<Edge>());
 		neighbors.get(v).add(e);
 		return;
 	}
