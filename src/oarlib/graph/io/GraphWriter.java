@@ -5,13 +5,23 @@ package oarlib.graph.io;
  *
  */
 public class GraphWriter {
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	private Format.Name mFormat;
+	public GraphWriter(Format.Name format)
+	{
+		mFormat = format;
+	}
+	public Format.Name getFormat()
+	{
+		return mFormat;
+	}
+	public void setFormat(Format.Name newFormat)
+	{
+		mFormat = newFormat;
+	}
+	public boolean writeGraph(String filename)
+	{
+		//TODO
+		return false;
 	}
 
 }

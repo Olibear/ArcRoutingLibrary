@@ -17,7 +17,7 @@ import oarlib.core.Route;
 import oarlib.core.Vertex;
 import oarlib.exceptions.GraphInfeasibleException;
 import oarlib.exceptions.NoDemandSetException;
-import oarlib.exceptions.SetupException;
+import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.vertex.impl.DirectedVertex;
@@ -860,7 +860,7 @@ public class CommonAlgorithms {
 	 * @return answer - entry [0][0] holds the final cost, and the edge from node 
 	 * [i][0] to [i][1] that has cost [i][2] has flow [i][3] in the optimal solution.
 	 */
-	public static int[][] minCostNetworkFlow(DirectedGraph g) throws GraphInfeasibleException, SetupException
+	public static int[][] minCostNetworkFlow(DirectedGraph g) throws GraphInfeasibleException, UnsupportedFormatException
 	{
 		int nodes = g.getVertices().size();
 		int edges = g.getEdges().size()+1;
@@ -919,7 +919,7 @@ public class CommonAlgorithms {
 		}
 		else if( success == 2 || success == 3)
 		{
-			throw new SetupException("There was a problem setting up the min cost flow problem.  This probably indicates an " +
+			throw new UnsupportedFormatException("There was a problem setting up the min cost flow problem.  This probably indicates an " +
 					"error in the minCostNetworkFlow method.");
 		}
 
@@ -1742,7 +1742,7 @@ public class CommonAlgorithms {
 	 * @param graph
 	 * @return
 	 */
-	public static Set<Pair<UndirectedVertex>> minCostMatching(UndirectedGraph graph) throws SetupException
+	public static Set<Pair<UndirectedVertex>> minCostMatching(UndirectedGraph graph) throws UnsupportedFormatException
 	{	
 		HashSet<Pair<UndirectedVertex>> matching = new HashSet<Pair<UndirectedVertex>>();
 		HashMap<Integer, UndirectedVertex> indexedVertices = graph.getInternalVertexMap();

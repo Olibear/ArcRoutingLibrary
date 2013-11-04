@@ -16,6 +16,12 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 
 	private int vidCounter = 1; //for assigning internal ids of vertices
 	private int eidCounter = 1;
+	public enum Type{
+		DIRECTED,
+		UNDIRECTED,
+		MIXED,
+		WINDY
+	}
 	protected int assignVertexId() //returns the current vidCounter, and increments 
 	{
 		vidCounter++;

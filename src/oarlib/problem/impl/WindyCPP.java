@@ -1,13 +1,9 @@
 package oarlib.problem.impl;
 
 import java.util.Collection;
-
-import oarlib.core.Edge;
 import oarlib.core.Graph;
-import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.core.Vertex;
 import oarlib.graph.impl.UndirectedGraph;
 
 public class WindyCPP extends Problem{

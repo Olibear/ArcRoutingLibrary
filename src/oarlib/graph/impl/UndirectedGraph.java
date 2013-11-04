@@ -1,13 +1,11 @@
 package oarlib.graph.impl;
 import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
-
-import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
-import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 /**
  * First attempts at an Undirected Graph.

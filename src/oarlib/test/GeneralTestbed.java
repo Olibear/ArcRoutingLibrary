@@ -1,15 +1,14 @@
 package oarlib.test;
 
 import java.util.Collection;
-
 import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Link;
 import oarlib.core.Route;
-import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
-import oarlib.graph.util.CommonAlgorithms;
+import oarlib.graph.io.Format;
+import oarlib.graph.io.GraphReader;
 import oarlib.graph.util.Pair;
 import oarlib.problem.impl.DirectedCPP;
 import oarlib.problem.impl.UndirectedCPP;
@@ -25,12 +24,22 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		testDCPPSolver();
+		
 	}
 	private static void check (Link<?> a)
 	{
 		if (a.getClass() == Arc.class)
 			System.out.println("WEEEE");
+	}
+	private static void testGraphReader()
+	{
+		GraphReader gr = new GraphReader(Format.Name.DIMACS_Modified);
+		try 
+		{
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	private static void testUCPPSolver()
 	{

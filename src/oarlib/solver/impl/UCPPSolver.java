@@ -10,7 +10,7 @@ import oarlib.core.Edge;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.Solver;
-import oarlib.exceptions.SetupException;
+import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;

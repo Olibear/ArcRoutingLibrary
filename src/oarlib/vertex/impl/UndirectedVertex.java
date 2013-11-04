@@ -2,8 +2,6 @@ package oarlib.vertex.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Vertex;
 /**
