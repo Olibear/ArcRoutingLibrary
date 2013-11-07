@@ -2,7 +2,7 @@ package oarlib.exceptions;
 
 /**
  * Exception that should be thrown when a GraphReader ends up trying to read a graph, but 
- * there's no associated  read method for that format 
+ * there's no associated read method for that format 
  * 
  * @author oliverlum
  *

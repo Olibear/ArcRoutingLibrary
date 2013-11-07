@@ -2,7 +2,7 @@ package oarlib.exceptions;
 
 /**
  * Exception that should be thrown when demands aren't set and some problem which requires demands 
- * hasn't been set.  
+ * to be set is being solved.  
  * 
  * @author oliverlum
  *

@@ -79,4 +79,8 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * @return - a hash map that has ids as keys to the edges
 	 */
 	public abstract HashMap<Integer,E> getInternalEdgeMap();
+	/**
+	 * @return - the type that this graph structure represents
+	 */
+	public abstract Graph.Type getType();
 }

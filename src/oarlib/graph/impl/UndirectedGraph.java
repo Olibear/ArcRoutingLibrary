@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import oarlib.core.Edge;
+import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -43,6 +44,12 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		UndirectedVertex first = endpoints.getFirst();
 		HashMap<UndirectedVertex, ArrayList<Edge>> firstNeighbors = first.getNeighbors();
 		return firstNeighbors.get(endpoints.getSecond());
+	}
+
+
+	@Override
+	public oarlib.core.Graph.Type getType() {
+		return Graph.Type.UNDIRECTED;
 	}
 
 }

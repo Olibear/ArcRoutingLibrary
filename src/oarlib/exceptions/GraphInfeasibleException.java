@@ -1,9 +1,7 @@
 package oarlib.exceptions;
 
 /**
- * Exception that should be thrown when demands aren't set and some problem which requires demands 
- * hasn't been set.  
- * 
+ * Exception that should be thrown when it is not feasible to solve the problem on the specified graph.
  * @author oliverlum
  *
  */

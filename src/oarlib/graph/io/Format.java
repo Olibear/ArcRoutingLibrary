@@ -13,6 +13,7 @@ public class Format {
 		 * second line is "n m"
 		 * the next m lines are "i j c" where the mth edge is from vertex i to vertex j, with cost c
 		 */
+		Simple,
 		DIMACS_Modified
 	}
 }

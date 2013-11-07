@@ -62,6 +62,9 @@ public abstract class Vertex {
 	}
 	
 	public void setDemand(int newDemand) {
+		//we only care about nonzero demands anyways
+		if(newDemand==0)
+			return;
 		demandSet = true;
 		myDemand = newDemand;
 	}

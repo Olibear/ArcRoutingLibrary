@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import oarlib.core.Arc;
+import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.DirectedVertex;
@@ -41,6 +42,11 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 		DirectedVertex first = endpoints.getFirst();
 		HashMap<DirectedVertex, ArrayList<Arc>> firstNeighbors = first.getNeighbors();
 		return firstNeighbors.get(endpoints.getSecond());
+	}
+
+	@Override
+	public oarlib.core.Graph.Type getType() {
+		return Graph.Type.DIRECTED;
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 
 import oarlib.core.Arc;
 import oarlib.core.Edge;
+import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.graph.util.Pair;
 import oarlib.graph.util.UnmatchedPair;
@@ -38,5 +39,10 @@ public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
 	public Collection<Link<MixedVertex>> findEdges(Pair<MixedVertex> endpoints) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public oarlib.core.Graph.Type getType() {
+		return Graph.Type.MIXED;
 	}
 }

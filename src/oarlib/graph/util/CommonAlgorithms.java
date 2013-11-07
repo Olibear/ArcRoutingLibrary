@@ -189,6 +189,15 @@ public class CommonAlgorithms {
 	public static void connectedComponents(int n, int m, int nodei[], int nodej[],
 			int component[])
 	{
+		
+		//check for no edges
+		if (m == 0)
+		{
+			component[0] = n;
+			for(int i=1; i<n+1;i++)
+				component[i] = i;
+			return;
+		}
 		int edges,i,j,numcomp,p,q,r,typea,typeb,typec,tracka,trackb;
 		int compkey,key1,key2,key3,nodeu,nodev;
 		int numnodes[] = new int[n+1];
@@ -539,15 +548,15 @@ public class CommonAlgorithms {
 	 * @param startnode - if a specific path is requested to be stored in path, this is the start node.  Send 0 for no request.
 	 * @param endnode - if a specific path is requested to be stored in path, this is the end node
 	 * @param path - holds the path if it is requested from startnode to endnode
+	 * @param next - holds the matrix which encodes the information to reconstruct the shortest path between any two nodes.
 	 * @return path will hold the requested path, if one is requested
 	 *  next will hold the matrix from which it is possible to reconstruct the shortest path between any two nodes
 	 *  
 	 */
 	public static void allPairsShortestPaths(int n, int dist[][], int big,
-			int startnode, int endnode, int path[])
+			int startnode, int endnode,int[] path, int[][] next)
 	{
 		int i,j,k,d,num,node;
-		int next[][] = new int[n+1][n+1];
 		int order[] = new int[n+1];
 
 		// compute the shortest path distance matrix
@@ -733,7 +742,7 @@ public class CommonAlgorithms {
 			}
 		}
 
-		if(demand > supply)
+		if(demand > supply || demand >= 0)
 			throw new IllegalArgumentException();
 
 		try {
@@ -766,37 +775,43 @@ public class CommonAlgorithms {
 			//setup the residual graph
 			boolean improvements = true;
 			DirectedGraph resid;
-			ArrayList<DirectedVertex> DplusResid = new ArrayList<DirectedVertex>();
-			ArrayList<DirectedVertex> DminusResid = new ArrayList<DirectedVertex>();
+			ArrayList<DirectedVertex> DallResid;
 			DirectedVertex temp;
 			while (improvements)
 			{
 				improvements = false;
 				//preliminaries
 				resid = new DirectedGraph();
+				DallResid = new ArrayList<DirectedVertex>();
 				for(DirectedVertex v1: Dplus)
 				{
 					temp = new DirectedVertex("resid plus");
 					resid.addVertex(temp, v1.getId());
-					DplusResid.add(temp);
+					DallResid.add(temp);
 				}
 				for(DirectedVertex v1: Dminus)
 				{
 					temp = new DirectedVertex("resid minus");
 					resid.addVertex(temp, v1.getId());
-					DminusResid.add(temp);
+					DallResid.add(temp);
 				}
 
 				//add all the edges
-				for (i = 0; i < DplusResid.size(); i++)
+				for (i = 0; i < DallResid.size(); i++)
 				{
-					u = DplusResid.get(i);
-					for(j = 0; j < DminusResid.size(); j++)
+					u = DallResid.get(i);
+					for(j = 0; j < DallResid.size(); j++)
 					{
-						v = DminusResid.get(j);
+						if(i==j)
+							continue;
+						v = DallResid.get(j);
 						resid.addEdge(new Arc("duplicate", new Pair<DirectedVertex>(u,v), dist[u.getMatchId()][v.getMatchId()]));
-						if (ans.containsKey(new Pair<Integer>(u.getId(),v.getId())))
+						Pair<Integer> key = new Pair<Integer>(u.getMatchId(),v.getMatchId());
+						if (ans.containsKey(key) && ans.get(key) != 0)
+						{
 							resid.addEdge(new Arc("artificial", new Pair<DirectedVertex>(v,u), -dist[u.getMatchId()][v.getMatchId()]));
+							//keep track of association to other edge
+						}
 					}
 				}
 
@@ -806,7 +821,7 @@ public class CommonAlgorithms {
 				int [][] residPath = new int[n+1][n+1];
 				fwLeastCostPaths(resid, residDist, residPath);
 				Pair<Integer> pair;
-				for (i = 0; i < n; i++)
+				for (i = 1; i <= n; i++)
 				{
 					if(residDist[i][i] < 0) //negative cycle detected
 					{
@@ -818,8 +833,12 @@ public class CommonAlgorithms {
 							c = residPath[b][i];
 							u = resid.getInternalVertexMap().get(b);
 							v = resid.getInternalVertexMap().get(c);
-							fvu = ans.get(new Pair<Integer>(u.getMatchId(),v.getMatchId()));
-							if (residDist[b][c]  < 0 && (kunset || k > fvu))
+							pair = new Pair<Integer>(v.getMatchId(),u.getMatchId());
+							if(!ans.containsKey(pair))
+								fvu = 0;
+							else
+								fvu = ans.get(new Pair<Integer>(v.getMatchId(),u.getMatchId()));
+							if (residDist[b][c] < 0 && (kunset || k > fvu))
 							{
 								k = fvu;
 								kunset = false;
@@ -831,16 +850,21 @@ public class CommonAlgorithms {
 							c = residPath[b][i];
 							u = resid.getInternalVertexMap().get(b);
 							v = resid.getInternalVertexMap().get(c);
-							fvu = ans.get(new Pair<Integer>(u.getMatchId(),v.getMatchId()));
 							if (residDist[b][c]  < 0)
 							{
-								pair = new Pair<Integer>(u.getMatchId(),v.getMatchId());
-								ans.put(pair, ans.get(pair) + k);
+								pair = new Pair<Integer>(v.getMatchId(),u.getMatchId());
+								if(ans.get(pair) == k)
+									ans.remove(pair);
+								else
+									ans.put(pair, ans.get(pair) - k);
 							}
 							else 
 							{
-								pair = new Pair<Integer>(v.getMatchId(),u.getMatchId());
-								ans.put(pair, ans.get(pair) - k);
+								pair = new Pair<Integer>(u.getMatchId(),v.getMatchId());
+								if(!ans.containsKey(pair))
+									ans.put(pair, k);
+								else
+									ans.put(pair, ans.get(pair) + k);
 							}
 
 
@@ -924,8 +948,8 @@ public class CommonAlgorithms {
 		}
 
 		//everything is probably okay
-		int answer[][] = new int[edges+1][4];
-		for(int j=1;j<edges+1;j++)
+		int answer[][] = new int[arcsol[0][0]+1][4];
+		for(int j=1;j<arcsol[0][0]+1;j++)
 		{
 			answer[j][0] = arcsol[0][j];
 			answer[j][1] = arcsol[1][j];

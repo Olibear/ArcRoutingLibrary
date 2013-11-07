@@ -39,13 +39,15 @@ public class GraphReader {
 	{
 		switch (mFormat)
 		{
+		case Simple:
+			return readSimpleGraph(fileName);
 		case DIMACS_Modified:
-			return readDIMACSGraph(fileName);
+			return null;
 		}
 		throw new UnsupportedFormatException("While the format seems to have been added to the Format.Name type list,"
 				+ " there doesn't seem to be an appropriate reader method assigned to it.");
 	}
-	private Graph<?,?> readDIMACSGraph(String fileName) throws FormatMismatchException
+	private Graph<?,?> readSimpleGraph(String fileName) throws FormatMismatchException
 	{
 		try {
 			String type; //first line of DIMACS_Modified
@@ -73,7 +75,7 @@ public class GraphReader {
 			String[] splitLine;
 			
 			//branch on types, (more elegant way?)
-			if(type == "Directed")
+			if(type.equals("Directed"))
 			{
 				DirectedGraph ans = new DirectedGraph();
 				for(int i = 0; i < n; i++)
@@ -107,7 +109,7 @@ public class GraphReader {
 				return ans;
 			}
 			
-			else if(type == "Undirected")
+			else if(type.equals( "Undirected"))
 			{
 				UndirectedGraph ans = new UndirectedGraph();
 				for(int i = 0; i < n; i++)
@@ -142,12 +144,12 @@ public class GraphReader {
 				return ans;
 			}
 			
-			else if(type == "Mixed")
+			else if(type.equals("Mixed"))
 			{
 				//TODO
 			}
 			
-			else if (type == "Windy")
+			else if (type.equals("Windy"))
 			{
 				//TODO
 			}

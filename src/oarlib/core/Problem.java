@@ -25,6 +25,9 @@ public abstract class Problem {
 	 * @return the graph 
 	 */
 	public abstract Graph<?,?> getGraph();
+	/**
+	 * @return - The type of problem that this represents.
+	 */
 	public abstract Type getType();
 
 }

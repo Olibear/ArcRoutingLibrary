@@ -1,14 +1,21 @@
 package oarlib.test;
 
 import java.util.Collection;
+import java.util.HashMap;
+
 import oarlib.core.Arc;
 import oarlib.core.Edge;
+import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Route;
+import oarlib.core.Vertex;
+import oarlib.graph.graphgen.DirectedGraphGenerator;
+import oarlib.graph.graphgen.UndirectedGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.io.Format;
 import oarlib.graph.io.GraphReader;
+import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.problem.impl.DirectedCPP;
 import oarlib.problem.impl.UndirectedCPP;
@@ -24,43 +31,257 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		
+		validateMinCostFlow();
 	}
-	private static void check (Link<?> a)
+	private static void check(Link<?> a)
 	{
 		if (a.getClass() == Arc.class)
 			System.out.println("WEEEE");
 	}
+	private static void testDirectedGraphGenerator()
+	{
+		long start = System.currentTimeMillis();
+		DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+		DirectedGraph g = (DirectedGraph) dgg.generateGraph(1000, 10, true);
+		long end = System.currentTimeMillis();
+		System.out.println(end-start);
+		System.out.println("check things");
+
+	}
+
+	private static void testUndirectedGraphGenerator()
+	{
+		long start = System.currentTimeMillis();
+		UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+		UndirectedGraph g = (UndirectedGraph) ugg.generateGraph(1000, 10, true);
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
+		System.out.println("check things");
+	}
 	private static void testGraphReader()
 	{
-		GraphReader gr = new GraphReader(Format.Name.DIMACS_Modified);
+		GraphReader gr = new GraphReader(Format.Name.Simple);
 		try 
 		{
+			Graph<?,?> g = gr.readDirectedGraph("/Users/oliverlum/Downloads/blossom5-v2.04.src/GRAPH1.TXT");
+			if(g.getClass() == DirectedGraph.class)
+			{
+				DirectedGraph g2 = (DirectedGraph)g;
+			}
+			System.out.println("check things");
 		} catch(Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Compare solutions to the methods provided by Lau.
+	 */
+	private static void validateMinCostFlow()
+	{
+		try{
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			DirectedGraph g;
+			for(int i=10;i<150; i+=10)
+			{
+				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
+				//min cost flow not fruitful?
+				if(CommonAlgorithms.isEulerian(g))
+					continue;
+				
+				//set demands
+				for(DirectedVertex v:g.getVertices())
+				{
+					v.setDemand(v.getDelta());
+				}
+				System.out.println("Generated directed graph with n = " + i);
+				
+				//set up for using flow methods
+				int n = g.getVertices().size();
+				int dist[][] = new int[n+1][n+1];
+				int path[][] = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(g, dist, path);
+				HashMap<Pair<Integer>, Integer> myAns = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(g, dist); //mine
+				int[][] ans = CommonAlgorithms.minCostNetworkFlow(g); //Lau's
+				HashMap<Pair<Integer>,Integer> myAnsForComparison = new HashMap<Pair<Integer>, Integer>();
+				//unfurl our answer into its component edges; we want myAnsForComparison to contain vertex pairs as keys, and amount of flow over it as value.
+				int j;
+				int k;
+				int flow;
+				int cost = 0;
+				for(Pair<Integer> p: myAns.keySet())
+				{
+					cost += dist[p.getFirst()][p.getSecond()] * myAns.get(p);
+				}
+				//now check against ans
+				boolean costOK = true;
+				if(ans[0][0] != cost)
+					costOK = false;
+				System.out.println("costOK: " + costOK);
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	private static void validateAllPairsShortestPaths()
+	{
+		try{
+			//for undirected graphs
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph g;
+			for(int i=2;i<150; i+=10)
+			{
+				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
+				System.out.println("Generated undirected graph with n = " + i);
+				int n = g.getVertices().size();
+				int mDist[][] = new int[n+1][n+1];
+				int mPath[][] = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(g, mDist, mPath); //mine
+
+				int dist[][] = new int[n+1][n+1];
+				int path[][] = new int[n+1][n+1];
+				for(int j=0;j<n+1;j++)
+					for(int k=0;k<n+1;k++)
+						dist[j][k] = Integer.MAX_VALUE;
+				int l;
+				int m;
+				for(Edge e: g.getEdges())
+				{
+					l = e.getEndpoints().getFirst().getId();
+					m = e.getEndpoints().getSecond().getId();
+					dist[l][m] = e.getCost();
+					dist[m][l] = e.getCost();
+				}
+				CommonAlgorithms.allPairsShortestPaths(n, dist, Integer.MAX_VALUE, 0, 0, null, path); //Lau's
+				boolean distOK = true;
+				boolean pathOK = true;
+				for(int j=1;j<=n;j++)
+				{
+					for(int k = 1; k<=n; k++)
+					{
+						if(dist[j][k] != mDist[j][k]) 
+							distOK = false;
+						if(path[j][k] != mPath[k][j]) 
+							pathOK = false;
+					}
+				}
+				System.out.println("distOK: " + distOK);
+				System.out.println("pathOK: " + pathOK);
+
+
+			}
+			//for directed graphs
+			DirectedGraph g2;
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			for(int i=2;i<150; i+=10)
+			{
+				g2 = (DirectedGraph)dgg.generateGraph(i, 10, true);
+				System.out.println("Generated directed graph with n = " + i);
+				int n = g2.getVertices().size();
+				int[][] mDist = new int[n+1][n+1];
+				int[][] mPath = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(g2, mDist, mPath); //mine
+
+				int[][] dist = new int[n+1][n+1];
+				int[][] path = new int[n+1][n+1];
+				for(int j=0;j<n+1;j++)
+					for(int k=0;k<n+1;k++)
+						dist[j][k] = Integer.MAX_VALUE;
+				int l;
+				int m;
+				for(Arc a: g2.getEdges())
+				{
+					l = a.getEndpoints().getFirst().getId();
+					m = a.getEndpoints().getSecond().getId();
+					if(a.getCost() < dist[l][m])
+						dist[l][m] = a.getCost();
+				}
+				CommonAlgorithms.allPairsShortestPaths(n, dist, Integer.MAX_VALUE, 0, 0, null, path); //Lau's
+				boolean distOK = true;
+				boolean pathOK = true;
+				int mCost = 0;
+				for(int j=1;j<=n;j++)
+				{
+					for(int k = 1; k<=n; k++)
+					{
+						if(dist[j][k] != mDist[j][k]) 
+							distOK = false;
+						//paths might be different, we want to make sure they have the same cost
+						if(j==k)
+							continue;
+						l = j;
+						m = k;
+						mCost = 0;
+						while(l != m)
+						{
+							mCost += mDist[l][mPath[l][m]];
+							l = mPath[l][m];
+						}
+						if(mCost != mDist[j][k])
+							pathOK = false;
+					}
+				}
+				System.out.println("distOK: " + distOK);
+				System.out.println("pathOK: " + pathOK);
+			}
+
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	private static void validateMinCostMatching()
+	{
+		try{
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph g;
+			for(int i=1;i<150; i+=10)
+			{
+				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
+				System.out.println("Generated undirected graph with n = " + i);
+				CommonAlgorithms.minCostMatching(g); //Kolmogorov's
+				//TODO: Lau's
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * Compare solutions to gurobi / cplex solvers
+	 */
+	private static void validateUCPPSolver()
+	{
+
+	}
+	private static void validateDCPPSolver()
+	{
+
+	}
+	/**
+	 * make sure the machinery is working on toy problem.
+	 */
 	private static void testUCPPSolver()
 	{
 		try{
 			long start = System.currentTimeMillis();
 			UndirectedGraph test = new UndirectedGraph();
-			
+
 			UndirectedVertex v1 = new UndirectedVertex("dummy");
 			UndirectedVertex v2 = new UndirectedVertex("dummy2");
 			UndirectedVertex v3 = new UndirectedVertex("dummy3");
-			
+
 			Pair<UndirectedVertex> ep = new Pair<UndirectedVertex>(v1, v2);
 			Pair<UndirectedVertex> ep2 = new Pair<UndirectedVertex>(v2, v1);
 			Pair<UndirectedVertex> ep3 = new Pair<UndirectedVertex>(v2, v3);
 			Pair<UndirectedVertex> ep4 = new Pair<UndirectedVertex>(v3,v1);
-			
+
 			Edge e = new Edge("stuff", ep, 10);
 			Edge e2 = new Edge("more stuff", ep2, 20);
 			Edge e3 = new Edge("third stuff", ep3, 5);
 			Edge e4 = new Edge("fourth stuff", ep4, 7);
-			
+
 			test.addVertex(v1);
 			test.addVertex(v2);
 			test.addVertex(v3);
@@ -68,7 +289,7 @@ public class GeneralTestbed {
 			test.addEdge(e2);
 			test.addEdge(e3);
 			test.addEdge(e4);
-			
+
 			UndirectedCPP testInstance = new UndirectedCPP(test);
 			UCPPSolver testSolver = new UCPPSolver(testInstance);
 			Collection<Route> testAns = testSolver.trySolve();
