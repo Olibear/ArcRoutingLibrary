@@ -820,7 +820,7 @@ public class CommonAlgorithms {
 					if(i==j)
 						continue;
 					v = DallResid.get(j);
-					toAdd = new Arc("reduced original", new Pair<DirectedVertex>(u,v), dist[u.getMatchId()][v.getMatchId()]);
+					toAdd = new Arc("reduced original", new Pair<DirectedVertex>(u,v), 1+dist[u.getMatchId()][v.getMatchId()]);
 					reduced.addEdge(toAdd);
 					//if it's part of our greedy solution, then record the amount of flow in flow
 					Pair<Integer> key = new Pair<Integer>(u.getMatchId(),v.getMatchId());

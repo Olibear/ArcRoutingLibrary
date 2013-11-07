@@ -73,6 +73,34 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	private static void validateEulerTour()
+	{
+		try{
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph g;
+			for(int i=10;i<150;i+=10)
+			{
+				g = (UndirectedGraph)ugg.generateEulerianGraph(i, 10, true);
+				CommonAlgorithms.tryHierholzer(g);
+				
+				//make sure it's a real tour
+				
+			}
+			
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			DirectedGraph g2;
+			for(int i=10; i<150; i+=10)
+			{
+				g2 = (DirectedGraph)dgg.generateEulerianGraph(i, 10, true);
+				CommonAlgorithms.tryHierholzer(g2);
+				
+				//make sure it's a real tour
+			}
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Compare solutions to the methods provided by Lau.
 	 */
@@ -84,6 +112,7 @@ public class GeneralTestbed {
 			for(int i=10;i<150; i+=10)
 			{
 				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
+				
 				//min cost flow not fruitful?
 				if(CommonAlgorithms.isEulerian(g))
 					continue;
