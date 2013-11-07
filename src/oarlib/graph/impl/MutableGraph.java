@@ -19,16 +19,20 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	private HashSet<E> mEdges;
 	private HashMap<Integer, V> mGlobalVertexMap; //indexed by guids
 	private HashMap<Integer, V> mInternalVertexMap; //indexed by ids
+	private HashMap<Integer, V> mMatchingVertexMap; //indexed by match ids
 	private HashMap<Integer, E> mGlobalEdgeMap;
 	private HashMap<Integer, E> mInternalEdgeMap; 
+	private HashMap<Integer, E> mMatchingEdgeMap;
 	
 	protected MutableGraph(){
 		mVertices = new HashSet<V>();
 		mEdges = new HashSet<E>();
 		mGlobalVertexMap = new HashMap<Integer, V>();
 		mInternalVertexMap = new HashMap<Integer, V>();
+		mMatchingVertexMap = new HashMap<Integer, V>();
 		mGlobalEdgeMap = new HashMap<Integer, E>();
 		mInternalEdgeMap = new HashMap<Integer, E>();
+		mMatchingEdgeMap = new HashMap<Integer, E>();
 	}
 	
 	//==============================
@@ -44,11 +48,6 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		return mEdges;
 	}
 	@Override
-	public Graph<V,E> getDeepCopy() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
 	public void addEdge(E e) throws InvalidEndpointsException{
 		// enforce endpoints being added first
 		if (!mVertices.contains(e.getEndpoints().getFirst()) || !mVertices.contains(e.getEndpoints().getSecond()))
@@ -57,6 +56,12 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		mEdges.add(e);
 		mGlobalEdgeMap.put(e.getGuid(), e);
 		mInternalEdgeMap.put(e.getId(), e);
+	}
+	public void addEdge(E e, int matchId) throws InvalidEndpointsException
+	{
+		this.addEdge(e);
+		e.setMatchId(matchId);
+		mMatchingEdgeMap.put(matchId, e);
 	}
 	@Override
 	public void addVertex(V v) {
@@ -69,6 +74,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	{
 		this.addVertex(v);
 		v.setMatchId(matchId);
+		mMatchingVertexMap.put(matchId, v);
 	}
 	@Override
 	public HashMap<Integer, V> getGlobalVertexMap()
@@ -81,12 +87,23 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		return mInternalVertexMap;
 	}
 	@Override
+	public HashMap<Integer, V> getMatchingVertexMap()
+	{
+		return mMatchingVertexMap;
+	}
+	@Override
 	public HashMap<Integer, E> getGlobalEdgeMap()
 	{
 		return mGlobalEdgeMap;
 	}
+	@Override
 	public HashMap<Integer, E> getInternalEdgeMap()
 	{
 		return mInternalEdgeMap;
+	}
+	@Override 
+	public HashMap<Integer, E> getMatchingEdgeMap()
+	{
+		return mMatchingEdgeMap;
 	}
 }

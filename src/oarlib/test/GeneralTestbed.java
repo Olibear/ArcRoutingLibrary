@@ -8,7 +8,6 @@ import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Route;
-import oarlib.core.Vertex;
 import oarlib.graph.graphgen.DirectedGraphGenerator;
 import oarlib.graph.graphgen.UndirectedGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;

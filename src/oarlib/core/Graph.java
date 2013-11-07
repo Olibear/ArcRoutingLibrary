@@ -72,6 +72,10 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 */
 	public abstract HashMap<Integer,V> getInternalVertexMap();
 	/**
+	 * @return - a hash map that has match ids as keys to the vertices
+	 */
+	public abstract HashMap<Integer,V> getMatchingVertexMap();
+	/**
 	 * @return - a hash map that has guids as keys to the edges
 	 */
 	public abstract HashMap<Integer,E> getGlobalEdgeMap();
@@ -79,6 +83,10 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * @return - a hash map that has ids as keys to the edges
 	 */
 	public abstract HashMap<Integer,E> getInternalEdgeMap();
+	/**
+	 * @return - a hash map that has edge ids as keys to the vertices
+	 */
+	public abstract HashMap<Integer,E> getMatchingEdgeMap();
 	/**
 	 * @return - the type that this graph structure represents
 	 */

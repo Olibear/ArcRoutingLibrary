@@ -21,7 +21,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	public DirectedGraph(){
 		super();
 	}
-	
+
 	@Override
 	public void addVertex(DirectedVertex v) {
 		super.addVertex(v);
@@ -47,6 +47,25 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	@Override
 	public oarlib.core.Graph.Type getType() {
 		return Graph.Type.DIRECTED;
+	}
+
+	@Override
+	public DirectedGraph getDeepCopy() {
+		try {
+			DirectedGraph ans = new DirectedGraph();
+			for(DirectedVertex v: this.getVertices())
+			{
+				ans.addVertex(new DirectedVertex("deep copy original"), v.getId());
+			}
+			for(Arc a : this.getEdges())
+			{
+				ans.addEdge(new Arc("deep copy original", new Pair<DirectedVertex>(ans.getMatchingVertexMap().get(a.getTail().getId()), ans.getMatchingVertexMap().get(a.getHead().getId())), a.getCost()), a.getId());
+			}
+			return ans;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }

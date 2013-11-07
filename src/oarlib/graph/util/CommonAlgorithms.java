@@ -78,7 +78,7 @@ public class CommonAlgorithms {
 		{
 			//greedily go until we've come back to start
 			do {
-				
+
 				currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
 				edgeCycle.add(currEdge.getId()); //add it to the trail
 				//update the currVertex
@@ -90,7 +90,7 @@ public class CommonAlgorithms {
 				currNeighbors.get(currVertex).remove(currEdge);
 				if(currNeighbors.get(currVertex).size() == 0)
 					currNeighbors.remove(currVertex);
-				
+
 				currNeighbors = currVertex.getNeighbors();
 				if(!currEdge.isDirected())
 				{
@@ -189,7 +189,7 @@ public class CommonAlgorithms {
 	public static void connectedComponents(int n, int m, int nodei[], int nodej[],
 			int component[])
 	{
-		
+
 		//check for no edges
 		if (m == 0)
 		{
@@ -710,6 +710,26 @@ public class CommonAlgorithms {
 			e.printStackTrace();
 		}
 	}
+	public static DirectedGraph getResidualGraph(DirectedGraph g, HashMap<Integer, Integer> f)
+	{
+		try {
+			DirectedGraph ans = g.getDeepCopy();
+			HashSet<Arc> origEdges = new HashSet<Arc>();
+			origEdges.addAll(ans.getEdges());
+			for(Arc a: origEdges)
+			{
+				if(f.containsKey(a.getMatchId()) && f.get(a.getMatchId()) > 0)
+				{
+					ans.addEdge(new Arc("artificial residual edge", new Pair<DirectedVertex>(a.getHead(), a.getTail()), -a.getCost()));
+				}
+			}
+			return ans;
+		} catch(Exception e) 
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
 	/**
 	 * Implements the cycle cancelling algorithm to calculate a min cost flow through the graph g with distance matrix given by dist.
 	 * @param g
@@ -717,12 +737,12 @@ public class CommonAlgorithms {
 	public static HashMap<Pair<Integer>, Integer> cycleCancelingMinCostNetworkFlow(DirectedGraph g, int[][] dist) throws IllegalArgumentException
 	{
 		HashMap<Pair<Integer>, Integer> ans = new HashMap<Pair<Integer>, Integer>();
+		HashMap<Integer, Integer> flow = new HashMap<Integer, Integer>();
 		ArrayList<DirectedVertex> Dplus = new ArrayList<DirectedVertex>();
 		ArrayList<DirectedVertex> Dminus = new ArrayList<DirectedVertex>();
 		//vars to check for valid demand setting
 		int supply = 0;
 		int demand = 0;
-		//greedily establish an initial feasible flow
 		for (DirectedVertex v: g.getVertices())
 		{
 			//only nonzero demands are set
@@ -745,6 +765,7 @@ public class CommonAlgorithms {
 		if(demand > supply || demand >= 0)
 			throw new IllegalArgumentException();
 
+		//greedily establish an initial feasible flow
 		try {
 			DirectedVertex u = Dplus.get(0);
 			DirectedVertex v = Dminus.get(0); // holds the current Dplus and Dminus nodes respectively
@@ -772,72 +793,88 @@ public class CommonAlgorithms {
 				}
 			}
 
+			//set up the reduced graph (the base for the residual)
+			ArrayList<DirectedVertex> DallResid;
+			DirectedVertex temp;
+			Arc toAdd;
+			DirectedGraph reduced = new DirectedGraph();
+			DallResid = new ArrayList<DirectedVertex>();
+			for(DirectedVertex v1: Dplus)
+			{
+				temp = new DirectedVertex("resid plus");
+				reduced.addVertex(temp, v1.getId());
+				DallResid.add(temp);
+			}
+			for(DirectedVertex v1: Dminus)
+			{
+				temp = new DirectedVertex("resid minus");
+				reduced.addVertex(temp, v1.getId());
+				DallResid.add(temp);
+			}
+			//add all the normal edges
+			for (i = 0; i < DallResid.size(); i++)
+			{
+				u = DallResid.get(i);
+				for(j = 0; j < DallResid.size(); j++)
+				{
+					if(i==j)
+						continue;
+					v = DallResid.get(j);
+					toAdd = new Arc("reduced original", new Pair<DirectedVertex>(u,v), dist[u.getMatchId()][v.getMatchId()]);
+					reduced.addEdge(toAdd);
+					//if it's part of our greedy solution, then record the amount of flow in flow
+					Pair<Integer> key = new Pair<Integer>(u.getMatchId(),v.getMatchId());
+					if (ans.containsKey(key) )
+					{
+						flow.put(toAdd.getId(), ans.get(key));
+					}
+				}
+			}
+
+
 			//setup the residual graph
 			boolean improvements = true;
 			DirectedGraph resid;
-			ArrayList<DirectedVertex> DallResid;
-			DirectedVertex temp;
+			HashMap<Integer, DirectedVertex> reducedVertexMap = reduced.getInternalVertexMap();
+			
+			//while there's a negative cycle
 			while (improvements)
 			{
 				improvements = false;
 				//preliminaries
-				resid = new DirectedGraph();
-				DallResid = new ArrayList<DirectedVertex>();
-				for(DirectedVertex v1: Dplus)
-				{
-					temp = new DirectedVertex("resid plus");
-					resid.addVertex(temp, v1.getId());
-					DallResid.add(temp);
-				}
-				for(DirectedVertex v1: Dminus)
-				{
-					temp = new DirectedVertex("resid minus");
-					resid.addVertex(temp, v1.getId());
-					DallResid.add(temp);
-				}
-
-				//add all the edges
-				for (i = 0; i < DallResid.size(); i++)
-				{
-					u = DallResid.get(i);
-					for(j = 0; j < DallResid.size(); j++)
-					{
-						if(i==j)
-							continue;
-						v = DallResid.get(j);
-						resid.addEdge(new Arc("duplicate", new Pair<DirectedVertex>(u,v), dist[u.getMatchId()][v.getMatchId()]));
-						Pair<Integer> key = new Pair<Integer>(u.getMatchId(),v.getMatchId());
-						if (ans.containsKey(key) && ans.get(key) != 0)
-						{
-							resid.addEdge(new Arc("artificial", new Pair<DirectedVertex>(v,u), -dist[u.getMatchId()][v.getMatchId()]));
-							//keep track of association to other edge
-						}
-					}
-				}
+				resid = getResidualGraph(reduced, flow);
 
 				//solve the all pairs shortest paths
 				int n = resid.getVertices().size();
 				int[][] residDist = new int[n+1][n+1];
 				int [][] residPath = new int[n+1][n+1];
 				fwLeastCostPaths(resid, residDist, residPath);
+
+				//cancel negative cycles
 				Pair<Integer> pair;
 				for (i = 1; i <= n; i++)
 				{
 					if(residDist[i][i] < 0) //negative cycle detected
 					{
 						k = 0;
-						int b, c, fvu;
+						int b, c;
+						int fvu = 0;
 						boolean kunset = true;
 						b = i;
+						//calculate how much flow we can push around it
 						do {
 							c = residPath[b][i];
 							u = resid.getInternalVertexMap().get(b);
 							v = resid.getInternalVertexMap().get(c);
-							pair = new Pair<Integer>(v.getMatchId(),u.getMatchId());
-							if(!ans.containsKey(pair))
-								fvu = 0;
-							else
-								fvu = ans.get(new Pair<Integer>(v.getMatchId(),u.getMatchId()));
+							List<Arc> connections = v.getNeighbors().get(u);
+							for (Arc a: connections)
+							{
+								if(a.getCost() == -residDist[b][c] && residDist[b][c] < 0)
+								{
+									fvu = flow.get(a.getMatchId());
+									break;
+								}
+							}
 							if (residDist[b][c] < 0 && (kunset || k > fvu))
 							{
 								k = fvu;
@@ -852,7 +889,16 @@ public class CommonAlgorithms {
 							v = resid.getInternalVertexMap().get(c);
 							if (residDist[b][c]  < 0)
 							{
-								pair = new Pair<Integer>(v.getMatchId(),u.getMatchId());
+								pair = new Pair<Integer>(reducedVertexMap.get(v.getMatchId()).getMatchId(),reducedVertexMap.get(u.getMatchId()).getMatchId());
+								List<Arc> connections = v.getNeighbors().get(u); //to find the correct guy to cancel
+								for(Arc a:connections)
+								{
+									if(a.getCost() == -residDist[b][c])
+									{
+										flow.put(a.getMatchId(), flow.get(a.getMatchId()) - k);
+										break;
+									}
+								}
 								if(ans.get(pair) == k)
 									ans.remove(pair);
 								else
@@ -860,7 +906,19 @@ public class CommonAlgorithms {
 							}
 							else 
 							{
-								pair = new Pair<Integer>(u.getMatchId(),v.getMatchId());
+								pair = new Pair<Integer>(reducedVertexMap.get(u.getMatchId()).getMatchId(),reducedVertexMap.get(v.getMatchId()).getMatchId());
+								List<Arc> connections = u.getNeighbors().get(v);
+								for (Arc a: connections)
+								{
+									if(a.getCost() == residDist[b][c])
+									{
+										if(!flow.containsKey(a.getMatchId()))
+											flow.put(a.getMatchId(), k);
+										else
+											flow.put(a.getMatchId(), flow.get(a.getMatchId()) + k);
+										break;
+									}
+								}
 								if(!ans.containsKey(pair))
 									ans.put(pair, k);
 								else
@@ -870,6 +928,7 @@ public class CommonAlgorithms {
 
 						} while ((b = c) != i);
 						improvements = true;
+						break;
 					}
 				}
 			}
@@ -1770,13 +1829,13 @@ public class CommonAlgorithms {
 	{	
 		HashSet<Pair<UndirectedVertex>> matching = new HashSet<Pair<UndirectedVertex>>();
 		HashMap<Integer, UndirectedVertex> indexedVertices = graph.getInternalVertexMap();
-		
+
 		//setup our input to Kolmogorov's Blossom V code
 		int n = graph.getVertices().size();
 		int m = graph.getEdges().size();
 		int[]edges = new int[2*m];
 		int[]weights = new int[m];
-		
+
 		//edges[2m] and edges[2m+1] hold the endpoints of each edge, weight[m] holds the weight between them.
 		for(Edge e: graph.getEdges())
 		{
@@ -1786,10 +1845,10 @@ public class CommonAlgorithms {
 			weights[e.getId()-1] = e.getCost();
 		}
 		int[] ans = CAlgorithms.blossomV(n, m, edges, weights);
-		
+
 		//to make sure we only report unique pairs, (and not, say 0-1 and 1-0).
 		ArrayList<Integer> matched = new ArrayList<Integer>();
-		
+
 		//now reinterpret the results
 		for (int i=0; i<ans.length;i++)
 		{
@@ -1797,7 +1856,7 @@ public class CommonAlgorithms {
 				continue;
 			matching.add(new Pair<UndirectedVertex>(indexedVertices.get(ans[i]+1), indexedVertices.get(i+1)));
 			matched.add(ans[i]);
-			
+
 		}
 		return matching;
 	}

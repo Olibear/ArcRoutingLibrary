@@ -1,12 +1,14 @@
 package oarlib.graph.impl;
 import java.util.ArrayList;
-
 import java.util.HashMap;
 import java.util.List;
+
+import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
+import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 /**
  * First attempts at an Undirected Graph.
@@ -50,6 +52,26 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 	@Override
 	public oarlib.core.Graph.Type getType() {
 		return Graph.Type.UNDIRECTED;
+	}
+
+
+	@Override
+	public UndirectedGraph getDeepCopy() {
+		try {
+			UndirectedGraph ans = new UndirectedGraph();
+			for(UndirectedVertex v: this.getVertices())
+			{
+				ans.addVertex(new UndirectedVertex("deep copy original"), v.getId());
+			}
+			for(Edge e : this.getEdges())
+			{
+				ans.addEdge(new Edge("deep copy original", new Pair<UndirectedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost()));
+			}
+			return ans;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }
