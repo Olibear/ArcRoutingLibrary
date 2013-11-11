@@ -17,7 +17,7 @@ import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
 public class DCPPSolver extends Solver{
-	
+
 	DirectedCPP mInstance;
 
 	public DCPPSolver(DirectedCPP instance) throws IllegalArgumentException {
@@ -42,16 +42,20 @@ public class DCPPSolver extends Solver{
 
 		//min cost flow
 		try {
-			int n = copy.getVertices().size();
-			int [][] dist = new int[n+1][n+1];
-			int[][] path = new int[n+1][n+1];
-			CommonAlgorithms.fwLeastCostPaths(copy,dist,path);
-			HashMap<Pair<Integer>, Integer> flowanswer = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(copy, dist);
-
-			//add the solution to the graph (augment)
-			for (Pair<Integer> p: flowanswer.keySet())
+			if(!CommonAlgorithms.isEulerian(copy))
 			{
-				CommonAlgorithms.addShortestPath(copy, dist, path, p);
+				int n = copy.getVertices().size();
+				int [][] dist = new int[n+1][n+1];
+				int[][] path = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(copy,dist,path);
+				HashMap<Pair<Integer>, Integer> flowanswer = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(copy, dist);
+
+				//add the solution to the graph (augment)
+				for (Pair<Integer> p: flowanswer.keySet())
+				{
+					for(int i = 0; i < flowanswer.get(p); i++)
+						CommonAlgorithms.addShortestPath(copy, dist, path, p);
+				}
 			}
 
 

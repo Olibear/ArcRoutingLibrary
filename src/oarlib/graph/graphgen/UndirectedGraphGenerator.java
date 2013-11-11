@@ -2,7 +2,9 @@ package oarlib.graph.graphgen;
 
 import java.util.HashMap;
 import java.util.HashSet;
+
 import oarlib.core.Edge;
+import oarlib.core.Graph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
@@ -88,6 +90,40 @@ public class UndirectedGraphGenerator extends GraphGenerator{
 
 			return ans;
 		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	@Override
+	public UndirectedGraph generateEulerianGraph(int n, int maxCost,
+			boolean connected, double density) {
+		try {
+			UndirectedGraph g = this.generateGraph(n, maxCost, connected, density);
+			//make Eulerian
+			UndirectedVertex temp = null;
+			boolean lookingForPartner = false;
+			for(UndirectedVertex v: g.getVertices())
+			{
+				//if odd degree
+				if(v.getDegree() % 2 == 1)
+				{
+					//either set temp, or connect it with temp
+					if(lookingForPartner)
+					{
+						g.addEdge(new Edge("to make Eulerian", new Pair<UndirectedVertex>(temp, v), (int)Math.round(maxCost * Math.random())));
+						lookingForPartner = false;
+					}
+					else
+					{
+						temp = v;
+						lookingForPartner = true;
+					}
+				}
+					
+			}
+			return g;
+		} catch(Exception e)
+		{
 			e.printStackTrace();
 			return null;
 		}

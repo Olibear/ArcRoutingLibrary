@@ -1,7 +1,10 @@
 package oarlib.test;
 
+import java.util.ArrayList;
+import gurobi.*;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import oarlib.core.Arc;
 import oarlib.core.Edge;
@@ -30,7 +33,7 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		validateMinCostFlow();
+		validateUCPPSolver();
 	}
 	private static void check(Link<?> a)
 	{
@@ -45,7 +48,6 @@ public class GeneralTestbed {
 		long end = System.currentTimeMillis();
 		System.out.println(end-start);
 		System.out.println("check things");
-
 	}
 
 	private static void testUndirectedGraphGenerator()
@@ -78,23 +80,90 @@ public class GeneralTestbed {
 		try{
 			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
 			UndirectedGraph g;
+			boolean tourOK;
 			for(int i=10;i<150;i+=10)
 			{
+				tourOK = false;
 				g = (UndirectedGraph)ugg.generateEulerianGraph(i, 10, true);
-				CommonAlgorithms.tryHierholzer(g);
-				
+				System.out.println("Undirected graph of size " + i + " is Eulerian? " + CommonAlgorithms.isEulerian(g));
+				ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(g);
+
+				if(ans.size() != g.getEdges().size())
+				{
+					System.out.println("tourOK: " + tourOK);
+					continue;
+				}
+				HashSet<Integer> used = new HashSet<Integer>();
+				HashMap<Integer, Edge> indexedEdges = g.getInternalEdgeMap();
+				Edge curr = null;
+				Edge prev = null;
 				//make sure it's a real tour
-				
+				for(int j = 0; j < ans.size(); j++)
+				{
+					// can't walk the same edge
+					if(used.contains(ans.get(j)))
+					{
+						System.out.println("tourOK: " + tourOK);
+						break;
+					}
+					//make sure endpoints match up
+					prev = curr;
+					curr = indexedEdges.get(ans.get(j));
+					if(prev == null)
+						continue;
+					if(!(prev.getEndpoints().getFirst().getId() == curr.getEndpoints().getFirst().getId() ||
+							prev.getEndpoints().getSecond().getId() == curr.getEndpoints().getFirst().getId() ||
+							prev.getEndpoints().getFirst().getId() == curr.getEndpoints().getSecond().getId() ||
+							prev.getEndpoints().getSecond().getId() == curr.getEndpoints().getSecond().getId()))
+					{
+						System.out.println("tourOK: " + tourOK);
+						break;
+					}
+				}
+				tourOK = true;
+				System.out.println("tourOK: " + tourOK);
 			}
-			
+
 			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
 			DirectedGraph g2;
 			for(int i=10; i<150; i+=10)
 			{
+				tourOK = false;
 				g2 = (DirectedGraph)dgg.generateEulerianGraph(i, 10, true);
-				CommonAlgorithms.tryHierholzer(g2);
-				
+				System.out.println("Directed graph of size " + i + " is Eulerian? " + CommonAlgorithms.isEulerian(g2));
+				ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(g2);
+
+				if(ans.size() != g2.getEdges().size())
+				{
+					System.out.println("tourOK: " + tourOK);
+					continue;
+				}
+				HashSet<Integer> used = new HashSet<Integer>();
+				HashMap<Integer, Arc> indexedEdges = g2.getInternalEdgeMap();
+				Arc curr = null;
+				Arc prev = null;
 				//make sure it's a real tour
+				for(int j = 0; j < ans.size(); j++)
+				{
+					// can't walk the same edge
+					if(used.contains(ans.get(j)))
+					{
+						System.out.println("tourOK: " + tourOK);
+						break;
+					}
+					//make sure endpoints match up
+					prev = curr;
+					curr = indexedEdges.get(ans.get(j));
+					if(prev == null)
+						continue;
+					if(!(prev.getHead().getId() == curr.getTail().getId()))
+					{
+						System.out.println("tourOK: " + tourOK);
+						break;
+					}
+				}
+				tourOK = true;
+				System.out.println("tourOK: " + tourOK);
 			}
 		}catch(Exception e)
 		{
@@ -112,18 +181,18 @@ public class GeneralTestbed {
 			for(int i=10;i<150; i+=10)
 			{
 				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
-				
+
 				//min cost flow not fruitful?
 				if(CommonAlgorithms.isEulerian(g))
 					continue;
-				
+
 				//set demands
 				for(DirectedVertex v:g.getVertices())
 				{
 					v.setDemand(v.getDelta());
 				}
 				System.out.println("Generated directed graph with n = " + i);
-				
+
 				//set up for using flow methods
 				int n = g.getVertices().size();
 				int dist[][] = new int[n+1][n+1];
@@ -131,11 +200,7 @@ public class GeneralTestbed {
 				CommonAlgorithms.fwLeastCostPaths(g, dist, path);
 				HashMap<Pair<Integer>, Integer> myAns = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(g, dist); //mine
 				int[][] ans = CommonAlgorithms.minCostNetworkFlow(g); //Lau's
-				HashMap<Pair<Integer>,Integer> myAnsForComparison = new HashMap<Pair<Integer>, Integer>();
-				//unfurl our answer into its component edges; we want myAnsForComparison to contain vertex pairs as keys, and amount of flow over it as value.
-				int j;
-				int k;
-				int flow;
+				
 				int cost = 0;
 				for(Pair<Integer> p: myAns.keySet())
 				{
@@ -281,11 +346,38 @@ public class GeneralTestbed {
 	 */
 	private static void validateUCPPSolver()
 	{
+		UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+		UndirectedGraph g;
+		UndirectedCPP validInstance;
+		UCPPSolver validSolver;
+		Collection<Route> validAns;
+		for(int i=2;i<150; i+=10)
+		{
+			g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
+			System.out.println("Generated undirected graph with n = " + i);
 
+			validInstance = new UndirectedCPP(g);
+			validSolver = new UCPPSolver(validInstance);
+			validAns = validSolver.trySolve();
+		}
 	}
 	private static void validateDCPPSolver()
 	{
+		DirectedGraph g;
+		DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+		DirectedCPP validInstance;
+		DCPPSolver validSolver;
+		Collection<Route> validAns;
+		for(int i=2;i<150; i+=10)
+		{
+			g = (DirectedGraph)dgg.generateGraph(i, 10, true);
+			System.out.println("Generated directed graph with n = " + i);
 
+			validInstance = new DirectedCPP(g);
+			validSolver = new DCPPSolver(validInstance);
+			validAns = validSolver.trySolve();
+
+		}
 	}
 	/**
 	 * make sure the machinery is working on toy problem.
