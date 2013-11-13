@@ -61,7 +61,8 @@ public class UCPPSolver extends Solver{
 			{
 				for (UndirectedVertex v2: oddVertices)
 				{
-					if(v.getId() == v2.getId())
+					//only add one edge per pair of vertices
+					if(v.getId() <= v2.getId())
 						continue;
 					matchingGraph.addEdge(new Edge("matchingEdge",new Pair<UndirectedVertex>(v,v2), dist[v.getMatchId()][v2.getMatchId()]));
 				}

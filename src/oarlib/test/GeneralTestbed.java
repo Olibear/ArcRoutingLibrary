@@ -33,7 +33,7 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		validateDCPPSolver();
+		validateUCPPSolver();
 	}
 	private static void check(Link<?> a)
 	{
