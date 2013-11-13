@@ -49,7 +49,6 @@ public class GeneralTestbed {
 		System.out.println(end-start);
 		System.out.println("check things");
 	}
-
 	private static void testUndirectedGraphGenerator()
 	{
 		long start = System.currentTimeMillis();
@@ -346,19 +345,128 @@ public class GeneralTestbed {
 	 */
 	private static void validateUCPPSolver()
 	{
-		UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-		UndirectedGraph g;
-		UndirectedCPP validInstance;
-		UCPPSolver validSolver;
-		Collection<Route> validAns;
-		for(int i=2;i<150; i+=10)
-		{
-			g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
-			System.out.println("Generated undirected graph with n = " + i);
+		try {
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph g;
+			UndirectedGraph g2;
+			UndirectedCPP validInstance;
+			UCPPSolver validSolver;
+			Collection<Route> validAns;
+			
 
-			validInstance = new UndirectedCPP(g);
-			validSolver = new UCPPSolver(validInstance);
-			validAns = validSolver.trySolve();
+			//Gurobi stuff
+			GRBEnv env = new GRBEnv("miplog.log");
+			GRBModel  model;
+			GRBLinExpr expr;
+			GRBVar[][] varArray;
+			ArrayList<Integer> oddVertices;
+			
+			//the answers
+			int l;
+			int myCost;
+			int trueCost;
+			
+			for(int i=2;i<150; i+=10)
+			{
+				myCost = 0;
+				trueCost = 0;
+				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
+				System.out.println("Generated undirected graph with n = " + i);
+				if(CommonAlgorithms.isEulerian(g))
+					continue;
+				//copy for Gurobi to work on
+				g2 = g.getDeepCopy();
+				validInstance = new UndirectedCPP(g);
+				validSolver = new UCPPSolver(validInstance);
+				validAns = validSolver.trySolve(); //my ans
+				for(Route r: validAns)
+				{
+					myCost += r.getCost();
+				}
+
+				int n = g2.getVertices().size();
+				int[][] dist = new int[n+1][n+1];
+				int[][] path = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(g2, dist, path);
+				
+				//set up oddVertices
+				oddVertices = new ArrayList<Integer>();
+				for(UndirectedVertex v: g2.getVertices())
+				{
+					if(v.getDegree() %2 == 1)
+						oddVertices.add(v.getId());
+				}
+				
+				//Now set up the model in Gurobi and solve it, and see if you get the right answer
+				model = new GRBModel(env);
+				//put in the base cost of all the edges that we'll add to the objective
+				for(Edge a: g2.getEdges())
+					trueCost+=a.getCost();
+				
+				//create variables
+				//after this snippet, element[j][k] contains the variable x_jk which represents the
+				//number of paths from vertex Dplus.get(j) to Dminus.get(k) that we add to the graph to make it Eulerian.
+				l = oddVertices.size();
+				varArray = new GRBVar[l][l];
+				for(int j=0; j<l;j++)
+				{
+					for(int k=0; k<l; k++)
+					{
+						if(j==k)
+							continue;
+						varArray[j][k] = model.addVar(0.0,1.0,dist[oddVertices.get(j)][oddVertices.get(k)], GRB.BINARY, "x" + oddVertices.get(j) + oddVertices.get(k));
+					}
+				}
+				
+				//update the model
+				model.update();
+				
+
+				//create constraints
+				for(int j=0; j<l; j++)
+				{
+					expr = new GRBLinExpr();
+					//for each j, sum up the x_jk and make sure they equal 1
+					for(int k=0; k<l; k++)
+					{
+						if(j==k)
+							continue;
+						expr.addTerm(1, varArray[j][k]);
+					}
+					model.addConstr(expr, GRB.EQUAL, 1, "cj"+j);
+				}
+				for(int j=0; j<l; j++)
+				{
+					expr = new GRBLinExpr();
+					//for each k, sum up the x_jk and make sure they equal 1
+					for(int k=0; k<l; k++)
+					{
+						if(j==k)
+							continue;
+						expr.addTerm(1, varArray[k][j]);
+					}
+					model.addConstr(expr, GRB.EQUAL, 1, "cj"+j);
+				}
+				for(int j=0; j<l; j++)
+				{
+					if(j==0)
+						continue;
+					expr = new GRBLinExpr();
+					//enforce symmetry
+					for(int k=0; k<j; k++)
+					{
+						expr.addTerm(1, varArray[j][k]);
+						expr.addTerm(-1, varArray[k][j]);
+					}
+					model.addConstr(expr, GRB.EQUAL, 0, "cj"+j);
+				}
+				model.optimize();
+				trueCost+=model.get(GRB.DoubleAttr.ObjVal)/2;
+				System.out.println("myCost = " + myCost + ", trueCost = " + trueCost);
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 	}
 	private static void validateDCPPSolver()
@@ -387,6 +495,8 @@ public class GeneralTestbed {
 				myCost=0;
 				trueCost=0;
 				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
+				if(CommonAlgorithms.isEulerian(g))
+					continue;
 				//copy for gurobi to run on
 				g2 = g.getDeepCopy();
 				HashMap<Integer, DirectedVertex> indexedVertices = g2.getInternalVertexMap();
@@ -404,7 +514,7 @@ public class GeneralTestbed {
 				int[][] dist = new int[n+1][n+1];
 				int[][] path = new int[n+1][n+1];
 				CommonAlgorithms.fwLeastCostPaths(g2, dist, path);
-				
+
 				//calculate Dplus and Dminus
 				Dplus = new ArrayList<Integer>();
 				Dminus = new ArrayList<Integer>();
@@ -415,18 +525,18 @@ public class GeneralTestbed {
 					else if(v.getDelta() > 0)
 						Dplus.add(v.getId());
 				}
-				
+
 				//Now set up the model in Gurobi and solve it, and see if you get the right answer
-				 model = new GRBModel(env);
-				 //put in the base cost of all the edges that we'll add to the objective
-				 for(Arc a: g2.getEdges())
-					 trueCost+=a.getCost();
-				 
-				 //create variables
-				 //after this snippet, element[j][k] contains the variable x_jk which represents the
-				 //number of paths from vertex Dplus.get(j) to Dminus.get(k) that we add to the graph to make it Eulerian.
-				 l = Dplus.size();
-				 m = Dminus.size();
+				model = new GRBModel(env);
+				//put in the base cost of all the edges that we'll add to the objective
+				for(Arc a: g2.getEdges())
+					trueCost+=a.getCost();
+
+				//create variables
+				//after this snippet, element[j][k] contains the variable x_jk which represents the
+				//number of paths from vertex Dplus.get(j) to Dminus.get(k) that we add to the graph to make it Eulerian.
+				l = Dplus.size();
+				m = Dminus.size();
 				varArray = new GRBVar[l][m];
 				for(int j=0; j<l;j++)
 				{
@@ -435,10 +545,10 @@ public class GeneralTestbed {
 						varArray[j][k] = model.addVar(0.0,Double.MAX_VALUE,dist[Dplus.get(j)][Dminus.get(k)], GRB.INTEGER, "x" + Dplus.get(j) + Dminus.get(k));
 					}
 				}
-				
+
 				//update the model with changes
 				model.update();
-				
+
 				//create constraints
 				for(int j=0; j<l; j++)
 				{
