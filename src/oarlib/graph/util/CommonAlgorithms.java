@@ -19,8 +19,10 @@ import oarlib.exceptions.GraphInfeasibleException;
 import oarlib.exceptions.NoDemandSetException;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.vertex.impl.DirectedVertex;
+import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
 public class CommonAlgorithms {
@@ -35,7 +37,7 @@ public class CommonAlgorithms {
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
 		//TODO: Fleury's
-		return hierholzer(eulerianGraph, true);
+		return hierholzer(eulerianGraph);
 	}
 	/**
 	 * Hierholzer's algorithm for determining an Euler tour through an undirected Eulerian graph.
@@ -46,13 +48,18 @@ public class CommonAlgorithms {
 	public static ArrayList<Integer> tryHierholzer(UndirectedGraph eulerianGraph) throws IllegalArgumentException{
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
-		return hierholzer(eulerianGraph, false);
+		return hierholzer(eulerianGraph);
+	}
+	public static ArrayList<Integer> tryHierholzer(MixedGraph eulerianGraph) throws IllegalArgumentException{
+		if(!isStronglyEulerian(eulerianGraph))
+			throw new IllegalArgumentException();
+		return hierholzer(eulerianGraph);
 	}
 	/**
 	 * business logic for Hierholzer's algorithm
 	 * @return the Eulerian cycle
 	 */
-	private static ArrayList<Integer> hierholzer(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph, boolean directed)
+	private static ArrayList<Integer> hierholzer(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph)
 	{
 		ArrayList<Integer> edgeTrail = new ArrayList<Integer>();
 		ArrayList<Integer> edgeCycle = new ArrayList<Integer>();
@@ -535,6 +542,26 @@ public class CommonAlgorithms {
 		for (UndirectedVertex v:graph.getVertices()) 
 		{
 			if (v.getDegree() % 2 == 1)
+				return false;
+		}
+		return true;
+	}
+	/**
+	 * Checks to see if the mixed graph is strongly eulerian.  By 'strongly eulerian' we mean that all nodes are both
+	 * balanced (in-degree = out-degree) and even (the parity of the number of incident undirected edges of each
+	 * vertex is even).  This guarantees that the graph is eulerian, but it is strictly speaking not necessary.  However,
+	 * the necessary and sufficient conditions are computationally very expensive to check, and all heuristics implemented
+	 * use this notion of Eulerian anyways.
+	 * @param graph
+	 * @return true if the graph is eulerian, false oth.
+	 */
+	public static boolean isStronglyEulerian(MixedGraph graph)
+	{
+		for(MixedVertex v: graph.getVertices())
+		{
+			if(v.getDegree() % 2 == 1)
+				return false;
+			if(v.getDelta() != 0)
 				return false;
 		}
 		return true;

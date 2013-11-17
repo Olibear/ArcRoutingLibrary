@@ -7,12 +7,15 @@ import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+import oarlib.graph.impl.DirectedGraph;
+import oarlib.graph.impl.MixedGraph;
 
 public class MixedCPP extends Problem{
 	
-
-	public MixedCPP(Graph<Vertex, Link<Vertex>> g, ObjectiveFunction o) {
-		super(g, o);
+	private MixedGraph mGraph;	
+	
+	public MixedCPP(MixedGraph g) {
+		mGraph = g;
 	}
 
 	@Override
@@ -26,9 +29,8 @@ public class MixedCPP extends Problem{
 	}
 
 	@Override
-	public Graph<?, ?> getGraph() {
-		// TODO Auto-generated method stub
-		return null;
+	public MixedGraph getGraph() {
+		return mGraph;
 	}
 
 }

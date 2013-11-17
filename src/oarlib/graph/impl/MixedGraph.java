@@ -3,11 +3,13 @@ package oarlib.graph.impl;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
+import oarlib.core.MixedEdge;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.graph.util.UnmatchedPair;
@@ -20,7 +22,7 @@ import oarlib.vertex.impl.UndirectedVertex;
  * @author Oliver
  *
  */
-public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
+public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 
 	
 	//constructors
@@ -34,7 +36,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
 	}
 	
 	@Override
-	public void addEdge(Link<MixedVertex> e) throws InvalidEndpointsException{
+	public void addEdge(MixedEdge e) throws InvalidEndpointsException{
 		//handle the two different cases
 		if(e.isDirected())
 		{
@@ -59,7 +61,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
 	}
 
 	@Override
-	public Collection<Link<MixedVertex>> findEdges(Pair<MixedVertex> endpoints) {
+	public List<MixedEdge> findEdges(Pair<MixedVertex> endpoints) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -70,7 +72,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
 	}
 
 	@Override
-	public Graph<MixedVertex, Link<MixedVertex>> getDeepCopy() {
+	public Graph<MixedVertex, MixedEdge> getDeepCopy() {
 		try {
 			MixedGraph ans = new MixedGraph();
 			for(MixedVertex v: this.getVertices())
@@ -79,7 +81,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, Link<MixedVertex>>{
 			}
 			for(Link<MixedVertex> e : this.getEdges())
 			{
-				ans.addEdge(new Link<MixedVertex>("deep copy original", new Pair<MixedVertex>(ans.getMatchingVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getMatchingVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost()));
+				ans.addEdge(new MixedEdge("deep copy original", new Pair<MixedVertex>(ans.getMatchingVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getMatchingVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected()));
 			}
 			return ans;
 		} catch(Exception e) {
