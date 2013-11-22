@@ -3,14 +3,12 @@ package oarlib.solver.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import oarlib.core.Edge;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.Solver;
-import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
@@ -30,53 +28,12 @@ public class UCPPSolver extends Solver{
 	@Override
 	protected Collection<Route> solve() {
 
-		//solve min cost matching
 		try {
+
 			UndirectedGraph copy = mInstance.getGraph();
-			HashMap<Integer, UndirectedVertex> indexedVertices = copy.getInternalVertexMap();
+			eulerAugment(copy);
+
 			HashMap<Integer, Edge> indexedEdges = copy.getInternalEdgeMap();
-
-			//solve shortest paths
-			int n = copy.getVertices().size();
-			int[][] dist = new int[n+1][n+1];
-			int[][] path = new int[n+1][n+1];
-			CommonAlgorithms.fwLeastCostPaths(copy, dist, path);
-
-
-			//setup the complete graph composed entirely of the unbalanced vertices
-			UndirectedGraph matchingGraph = new UndirectedGraph();
-
-			//setup our graph of unbalanced vertices
-			for (UndirectedVertex v: copy.getVertices())
-			{
-				if(v.getDegree() % 2 == 1)
-				{
-					matchingGraph.addVertex(new UndirectedVertex("oddVertex"), v.getId());
-				}
-			}
-
-			//connect with least cost edges
-			Collection<UndirectedVertex> oddVertices = matchingGraph.getVertices();
-			for (UndirectedVertex v: oddVertices)
-			{
-				for (UndirectedVertex v2: oddVertices)
-				{
-					//only add one edge per pair of vertices
-					if(v.getId() <= v2.getId())
-						continue;
-					matchingGraph.addEdge(new Edge("matchingEdge",new Pair<UndirectedVertex>(v,v2), dist[v.getMatchId()][v2.getMatchId()]));
-				}
-			}
-
-			Set<Pair<UndirectedVertex>> matchingSolution = CommonAlgorithms.minCostMatching(matchingGraph);
-
-
-			//add the paths to the graph
-			for (Pair<UndirectedVertex> p: matchingSolution)
-			{
-				CommonAlgorithms.addShortestPath(copy, dist, path, new Pair<Integer>(p.getFirst().getMatchId(),p.getSecond().getMatchId()));
-			}
-
 			//return the answer
 			ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
 			Tour eulerTour = new Tour();
@@ -101,8 +58,62 @@ public class UCPPSolver extends Solver{
 
 	@Override
 	protected UndirectedCPP getInstance() {
-		// TODO Auto-generated method stub
 		return mInstance;
 	}
 
+	/**
+	 * Carries out the bulk of the solve logic; it produces a least cost eulerian augmentation of the graph.
+	 * @param input - the original undirected graph
+	 * @return the least cost eulerian augmentation
+	 */
+	public void eulerAugment(UndirectedGraph input)
+	{
+		try
+		{
+			//solve shortest paths
+			int n = input.getVertices().size();
+			int[][] dist = new int[n+1][n+1];
+			int[][] path = new int[n+1][n+1];
+			int[][] edgePath = new int[n+1][n+1];
+			CommonAlgorithms.fwLeastCostPaths(input, dist, path, edgePath);
+			
+			//setup the complete graph composed entirely of the unbalanced vertices
+			UndirectedGraph matchingGraph = new UndirectedGraph();
+			
+			//setup our graph of unbalanced vertices
+			for (UndirectedVertex v: input.getVertices())
+			{
+				if(v.getDegree() % 2 == 1)
+				{
+					matchingGraph.addVertex(new UndirectedVertex("oddVertex"), v.getId());
+				}
+			}
+			
+			//connect with least cost edges
+			Collection<UndirectedVertex> oddVertices = matchingGraph.getVertices();
+			for (UndirectedVertex v: oddVertices)
+			{
+				for (UndirectedVertex v2: oddVertices)
+				{
+					//only add one edge per pair of vertices
+					if(v.getId() <= v2.getId())
+						continue;
+					matchingGraph.addEdge(new Edge("matchingEdge",new Pair<UndirectedVertex>(v,v2), dist[v.getMatchId()][v2.getMatchId()]));
+				}
+			}
+			
+			Set<Pair<UndirectedVertex>> matchingSolution = CommonAlgorithms.minCostMatching(matchingGraph);
+			
+			//add the paths to the graph
+			for (Pair<UndirectedVertex> p: matchingSolution)
+			{
+				CommonAlgorithms.addShortestPath(input, dist, path, edgePath, new Pair<Integer>(p.getFirst().getMatchId(),p.getSecond().getMatchId()));
+			}
+			return;
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
 }

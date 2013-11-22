@@ -3,7 +3,6 @@ package oarlib.solver.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
@@ -31,8 +30,24 @@ public class DCPPSolver extends Solver{
 		DirectedGraph copy = mInstance.getGraph();
 		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
 
+		eulerAugment(copy);
+
+		// return the answer
+		ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
+		Tour eulerTour = new Tour();
+		for(int i=0; i<ans.size();i++)
+		{
+			eulerTour.appendEdge(indexedArcs.get(ans.get(i)));
+		}
+		ArrayList<Route> ret = new ArrayList<Route>();
+		ret.add(eulerTour);
+		return ret;
+	}
+
+	public void eulerAugment(DirectedGraph input)
+	{
 		//prepare our unbalanced vertex sets
-		for(DirectedVertex v: copy.getVertices())
+		for(DirectedVertex v: input.getVertices())
 		{
 			if(v.getDelta() != 0)
 			{
@@ -42,39 +57,28 @@ public class DCPPSolver extends Solver{
 
 		//min cost flow
 		try {
-			if(!CommonAlgorithms.isEulerian(copy))
+			if(!CommonAlgorithms.isEulerian(input))
 			{
-				int n = copy.getVertices().size();
+				int n = input.getVertices().size();
 				int [][] dist = new int[n+1][n+1];
 				int[][] path = new int[n+1][n+1];
-				CommonAlgorithms.fwLeastCostPaths(copy,dist,path);
-				HashMap<Pair<Integer>, Integer> flowanswer = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(copy, dist);
+				int[][] edgePath = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(input,dist,path, edgePath);
+				HashMap<Pair<Integer>, Integer> flowanswer = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(input, dist);
 
 				//add the solution to the graph (augment)
 				for (Pair<Integer> p: flowanswer.keySet())
 				{
 					for(int i = 0; i < flowanswer.get(p); i++)
-						CommonAlgorithms.addShortestPath(copy, dist, path, p);
+						CommonAlgorithms.addShortestPath(input, dist, path, edgePath, p);
 				}
 			}
-
-
-			// return the answer
-			ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
-			Tour eulerTour = new Tour();
-			for(int i=0; i<ans.size();i++)
-			{
-				eulerTour.appendEdge(indexedArcs.get(ans.get(i)));
-			}
-			ArrayList<Route> ret = new ArrayList<Route>();
-			ret.add(eulerTour);
-			return ret;
-		} catch(Exception e)
+		}
+		catch(Exception e)
 		{
 			e.printStackTrace();
-			return null;
+			return;
 		}
-
 	}
 
 	@Override

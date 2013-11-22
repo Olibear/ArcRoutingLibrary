@@ -685,6 +685,74 @@ public class CommonAlgorithms {
 			}
 		}
 	}
+	public static void fwLeastCostPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int[][] dist, int[][] path, int[][] edgePath) throws IllegalArgumentException
+	{
+		//initialize dist and path
+		int n = g.getVertices().size();
+		if(dist.length != n+1 || path.length != n+1 || edgePath.length != n+1)
+			throw new IllegalArgumentException();
+
+		//initialize dist and path
+		for(int i=0;i<=n;i++)
+		{
+			for(int j=0;j<=n;j++)
+			{
+				dist[i][j] = Integer.MAX_VALUE;
+			}
+			path[0][i] = Integer.MAX_VALUE;
+			path[i][0] = Integer.MAX_VALUE;
+			edgePath[0][i] = Integer.MAX_VALUE;
+			edgePath[i][0] = Integer.MAX_VALUE;
+		}
+
+		Vertex vi;
+		int min;
+		for(int i=1;i<=n;i++)
+		{
+			vi = g.getInternalVertexMap().get(i);
+			for(Vertex v :vi.getNeighbors().keySet())
+			{
+				List<? extends Link<?extends Vertex>> l = vi.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				Link<? extends Vertex> edge = null;
+				for (Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+					{
+						min = link.getCost();
+						edge = link;
+					}
+				}
+				dist[vi.getId()][v.getId()] = min;
+				path[vi.getId()][v.getId()] = v.getId();
+				edgePath[vi.getId()][v.getId()] = edge.getId();
+			}
+		}
+
+		//business logic
+		for (int k = 1; k <= n; k++ )
+		{
+			for( int i = 1; i <= n; i ++)
+			{
+				//if there is an edge from i to k
+				if (dist[i][k] < Integer.MAX_VALUE)
+					for (int j = 1; j <= n; j++)
+					{
+						//if there is an edge from k to j
+						if(dist[k][j] < Integer.MAX_VALUE
+								&& (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j]) )
+						{
+							path[i][j] = path[i][k];
+							edgePath[i][j] = edgePath[i][k];
+							dist[i][j] = dist[i][k] + dist[k][j];
+							if (i==j && dist[i][j] < 0)
+								return; //negative cycle
+						}
+					}
+
+			}
+		}
+	}
 	/**
 	 * adds the shortest path from p1 to p2 to g.
 	 * @param g - the directed graph in which to add the paths
@@ -711,6 +779,27 @@ public class CommonAlgorithms {
 			e.printStackTrace();
 		}
 	}
+	public static void addShortestPath(DirectedGraph g, int[][] dist, int[][]path, int[][] edgePath, Pair<Integer> p)
+	{
+		try {
+			int curr = p.getFirst();
+			int end = p.getSecond();
+			int next = 0;
+			int nextEdge = 0;
+			int cost = 0;
+			DirectedVertex u,v;
+			do {
+				next = path[curr][end];
+				nextEdge = edgePath[curr][end];
+				cost = dist[curr][next];
+				u = g.getInternalVertexMap().get(curr);
+				v = g.getInternalVertexMap().get(next);
+				g.addEdge(new Arc("from addShortestPath", new Pair<DirectedVertex>(u,v), cost), nextEdge);
+			} while ( (curr =next) != end);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * adds the shortest path from p1 to p2 to g.
 	 * @param g - the undirected graph in which to add the paths
@@ -732,6 +821,27 @@ public class CommonAlgorithms {
 				u = g.getInternalVertexMap().get(curr);
 				v = g.getInternalVertexMap().get(next);
 				g.addEdge(new Edge("from addShortestPath", new Pair<UndirectedVertex>(u,v), cost));
+			} while ( (curr =next) != end);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public static void addShortestPath(UndirectedGraph g, int[][] dist, int[][]path, int[][] edgePath, Pair<Integer> p)
+	{
+		try {
+			int curr = p.getFirst();
+			int end = p.getSecond();
+			int next = 0;
+			int nextEdge = 0;
+			int cost = 0;
+			UndirectedVertex u,v;
+			do {
+				next = path[curr][end];
+				nextEdge = edgePath[curr][end];
+				cost = dist[curr][next];
+				u = g.getInternalVertexMap().get(curr);
+				v = g.getInternalVertexMap().get(next);
+				g.addEdge(new Edge("from addShortestPath", new Pair<UndirectedVertex>(u,v), cost), nextEdge);
 			} while ( (curr =next) != end);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -863,7 +973,7 @@ public class CommonAlgorithms {
 			boolean improvements = true;
 			DirectedGraph resid;
 			HashMap<Integer, DirectedVertex> reducedVertexMap = reduced.getInternalVertexMap();
-			
+
 			//while there's a negative cycle
 			while (improvements)
 			{
