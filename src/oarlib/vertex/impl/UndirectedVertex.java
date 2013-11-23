@@ -2,6 +2,8 @@ package oarlib.vertex.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Vertex;
 /**
@@ -38,6 +40,14 @@ public class UndirectedVertex extends Vertex{
 		if(!neighbors.containsKey(v))
 			neighbors.put(v, new ArrayList<Edge>());
 		neighbors.get(v).add(e);
+		return;
+	}
+
+	public void removeFromNeighbors(UndirectedVertex v, Edge e) throws IllegalArgumentException
+	{
+		neighbors.get(v).remove(e);
+		if(neighbors.get(v).size()==0)
+			neighbors.remove(v);
 		return;
 	}
 

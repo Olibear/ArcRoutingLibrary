@@ -68,5 +68,12 @@ public class MixedVertex extends Vertex {
 			neighbors.put(v, new ArrayList<MixedEdge>());
 		neighbors.get(v).add(e);
 	}
+	public void removeFromNeighbors(MixedVertex v, MixedEdge e) throws IllegalArgumentException
+	{
+		neighbors.get(v).remove(e);
+		if(neighbors.get(v).size() == 0)
+			neighbors.remove(v);
+		return;
+	}
 
 }

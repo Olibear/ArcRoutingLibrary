@@ -54,6 +54,13 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 */
 	public abstract void addEdge(E e) throws InvalidEndpointsException;
 	/**
+	 * To remove an edge from the graph.  This updates the degrees of the vertices, and throws to the specific implementation of the graph.
+	 * Throws an IllegalArgumentException if the edge isn't a member of the edge collection belonging to the graph.
+	 * @param e - edge to be removed from the graph
+	 * @throws IllegalArgumentException
+	 */
+	public abstract void removeEdge(E e) throws IllegalArgumentException;
+	/**
 	 * Provides a means of getting a by value copy of this graph
 	 * @return a deep copy of the graph
 	 */
@@ -72,10 +79,6 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 */
 	public abstract HashMap<Integer,V> getInternalVertexMap();
 	/**
-	 * @return - a hash map that has match ids as keys to the vertices
-	 */
-	public abstract HashMap<Integer,V> getMatchingVertexMap();
-	/**
 	 * @return - a hash map that has guids as keys to the edges
 	 */
 	public abstract HashMap<Integer,E> getGlobalEdgeMap();
@@ -83,10 +86,6 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * @return - a hash map that has ids as keys to the edges
 	 */
 	public abstract HashMap<Integer,E> getInternalEdgeMap();
-	/**
-	 * @return - a hash map that has edge ids as keys to the vertices
-	 */
-	public abstract HashMap<Integer,E> getMatchingEdgeMap();
 	/**
 	 * @return - the type that this graph structure represents
 	 */

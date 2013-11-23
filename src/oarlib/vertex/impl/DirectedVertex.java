@@ -49,12 +49,18 @@ public class DirectedVertex extends Vertex{
 	{
 		return neighbors;
 	}
-	
 	public void addToNeighbors(DirectedVertex v, Arc a)
 	{
 		if(!neighbors.containsKey(v))
 			neighbors.put(v, new ArrayList<Arc>());
 		neighbors.get(v).add(a);
+		return;
+	}
+	public void removeFromNeighbors(DirectedVertex v, Arc a) throws IllegalArgumentException
+	{
+		neighbors.get(v).remove(a);
+		if(neighbors.get(v).size()==0)
+			neighbors.remove(v);
 		return;
 	}
 

@@ -5,7 +5,6 @@ import gurobi.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-
 import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;

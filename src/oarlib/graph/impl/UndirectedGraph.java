@@ -40,6 +40,20 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		toUpdate.setDegree(toUpdate.getDegree()+1);
 		super.addEdge(e);
 	}
+	@Override
+	public void removeEdge(Edge e) throws IllegalArgumentException
+	{
+		if(!this.getEdges().contains(e))
+			throw new IllegalArgumentException();
+		Pair<UndirectedVertex> endpoints = e.getEndpoints();
+		endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
+		endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
+		UndirectedVertex toUpdate = endpoints.getFirst();
+		toUpdate.setDegree(toUpdate.getDegree() - 1);
+		toUpdate = e.getEndpoints().getSecond();
+		toUpdate.setDegree(toUpdate.getDegree() - 1);
+		super.removeEdge(e);
+	}
 	
 	@Override
 	public List<Edge> findEdges(Pair<UndirectedVertex> endpoints) {
@@ -59,13 +73,13 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 	public UndirectedGraph getDeepCopy() {
 		try {
 			UndirectedGraph ans = new UndirectedGraph();
-			for(UndirectedVertex v: this.getVertices())
+			for(int i=0;i<this.getVertices().size()+1;i++)
 			{
-				ans.addVertex(new UndirectedVertex("deep copy original"), v.getId());
+				ans.addVertex(new UndirectedVertex("deep copy original"), i);
 			}
 			for(Edge e : this.getEdges())
 			{
-				ans.addEdge(new Edge("deep copy original", new Pair<UndirectedVertex>(ans.getMatchingVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getMatchingVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost()));
+				ans.addEdge(new Edge("deep copy original", new Pair<UndirectedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost()));
 			}
 			return ans;
 		} catch(Exception e) {

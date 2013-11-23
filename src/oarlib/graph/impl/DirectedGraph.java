@@ -38,6 +38,18 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	}
 
 	@Override
+	public void removeEdge(Arc e) throws IllegalArgumentException
+	{
+		if(!this.getEdges().contains(e))
+			throw new IllegalArgumentException();
+		e.getTail().removeFromNeighbors(e.getHead(), e);
+		DirectedVertex toUpdate = e.getTail();
+		toUpdate.setOutDegree(toUpdate.getOutDegree() - 1);
+		toUpdate = e.getHead();
+		toUpdate.setInDegree(toUpdate.getInDegree() - 1);
+		super.removeEdge(e);
+	}
+	@Override
 	public List<Arc> findEdges(Pair<DirectedVertex> endpoints) {
 		DirectedVertex first = endpoints.getFirst();
 		HashMap<DirectedVertex, ArrayList<Arc>> firstNeighbors = first.getNeighbors();
@@ -53,13 +65,13 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	public DirectedGraph getDeepCopy() {
 		try {
 			DirectedGraph ans = new DirectedGraph();
-			for(DirectedVertex v: this.getVertices())
+			for(int i=1;i<this.getVertices().size()+1;i++)
 			{
-				ans.addVertex(new DirectedVertex("deep copy original"), v.getId());
+				ans.addVertex(new DirectedVertex("deep copy original"), i);
 			}
 			for(Arc a : this.getEdges())
 			{
-				ans.addEdge(new Arc("deep copy original", new Pair<DirectedVertex>(ans.getMatchingVertexMap().get(a.getTail().getId()), ans.getMatchingVertexMap().get(a.getHead().getId())), a.getCost()), a.getId());
+				ans.addEdge(new Arc("deep copy original", new Pair<DirectedVertex>(ans.getInternalVertexMap().get(a.getTail().getId()), ans.getInternalVertexMap().get(a.getHead().getId())), a.getCost()), a.getId());
 			}
 			return ans;
 		} catch(Exception e) {

@@ -59,6 +59,13 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 			super.addEdge(e);
 		}
 	}
+	
+	@Override
+	public void removeEdge(MixedEdge e) throws IllegalArgumentException
+	{
+		if(!this.getEdges().contains(e))
+			throw new IllegalArgumentException();
+	}
 
 	@Override
 	public List<MixedEdge> findEdges(Pair<MixedVertex> endpoints) {
@@ -75,13 +82,13 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 	public Graph<MixedVertex, MixedEdge> getDeepCopy() {
 		try {
 			MixedGraph ans = new MixedGraph();
-			for(MixedVertex v: this.getVertices())
+			for(int i = 0; i< this.getVertices().size()+1; i++)
 			{
-				ans.addVertex(new MixedVertex("deep copy original"), v.getId());
+				ans.addVertex(new MixedVertex("deep copy original"), i);
 			}
 			for(Link<MixedVertex> e : this.getEdges())
 			{
-				ans.addEdge(new MixedEdge("deep copy original", new Pair<MixedVertex>(ans.getMatchingVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getMatchingVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected()));
+				ans.addEdge(new MixedEdge("deep copy original", new Pair<MixedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected()));
 			}
 			return ans;
 		} catch(Exception e) {
