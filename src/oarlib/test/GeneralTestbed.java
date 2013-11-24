@@ -32,7 +32,7 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		validateUCPPSolver();
+		validateMinCostFlow2();
 	}
 	private static void check(Link<?> a)
 	{
@@ -203,6 +203,52 @@ public class GeneralTestbed {
 				for(Pair<Integer> p: myAns.keySet())
 				{
 					cost += dist[p.getFirst()][p.getSecond()] * myAns.get(p);
+				}
+				//now check against ans
+				boolean costOK = true;
+				if(ans[0][0] != cost)
+					costOK = false;
+				System.out.println("costOK: " + costOK);
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private static void validateMinCostFlow2()
+	{
+		try{
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			DirectedGraph g;
+			for(int i=10;i<150; i+=10)
+			{
+				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
+
+				//min cost flow not fruitful?
+				if(CommonAlgorithms.isEulerian(g))
+					continue;
+
+				//set demands
+				for(DirectedVertex v:g.getVertices())
+				{
+					v.setDemand(v.getDelta());
+				}
+				System.out.println("Generated directed graph with n = " + i);
+
+				//set up for using flow methods
+				int n = g.getVertices().size();
+				int dist[][] = new int[n+1][n+1];
+				int path[][] = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(g, dist, path);
+				int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
+				int[][] ans = CommonAlgorithms.minCostNetworkFlow(g); //Lau's
+
+				int cost = 0;
+				HashMap<Integer, Arc> indexedArcs = g.getInternalEdgeMap();
+				for(int j=0; j<myAns.length; j++)
+				{
+					cost += j* indexedArcs.get(j).getCost();
 				}
 				//now check against ans
 				boolean costOK = true;

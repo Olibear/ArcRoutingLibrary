@@ -894,7 +894,7 @@ public class CommonAlgorithms {
 		int[] artificialIds = new int[m+1]; //entry i holds the id in copy of the artificial edge that maps to edge i of g
 
 		//initialize
-		for(int i=1;i<m+2;i++)
+		for(int i=1;i<m+1;i++)
 		{
 			realIds[i] = i;
 		}
@@ -954,7 +954,7 @@ public class CommonAlgorithms {
 		ArrayList<Integer> augmentingPath;
 		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
 		try{
-			while(dist[sourceId][sinkId] < Integer.MAX_VALUE)
+			while(dist[sourceId][sinkId] < Integer.MAX_VALUE) //while a path from source to sink exists
 			{
 				//push as much flow as possible along the shortest path from source to sink
 				curr = sourceId;
