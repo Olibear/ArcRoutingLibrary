@@ -1,5 +1,6 @@
 package oarlib.core;
 
+import oarlib.exceptions.NoCapacitySetException;
 import oarlib.graph.util.Pair;
 
 /**
@@ -8,7 +9,7 @@ import oarlib.graph.util.Pair;
  *
  */
 public abstract class Link<V extends Vertex> {
-	
+
 	private static int counter = 1; //for assigning edge ids
 	private String mLabel;
 	private int guid; //the idea is that this will be unique for all links, even between graphs
@@ -16,8 +17,10 @@ public abstract class Link<V extends Vertex> {
 	private int matchId;
 	private Pair<V> mEndpoints;
 	private int mCost;
+	private int mCapacity;
 	private boolean isDirected;
-	
+	private boolean capacitySet;
+
 	public Link(String label, Pair<V> endpoints, int cost)
 	{
 		setId(-1);
@@ -26,13 +29,14 @@ public abstract class Link<V extends Vertex> {
 		setGuid(counter);
 		setEndpoints(endpoints);
 		setCost(cost);
+		capacitySet = false;
 		counter++;
 	}
 
 	//==================================
 	// Getters and Setters
 	//==================================
-	
+
 	public String getLabel() {
 		return mLabel;
 	}
@@ -85,6 +89,29 @@ public abstract class Link<V extends Vertex> {
 
 	public void setMatchId(int matchId) {
 		this.matchId = matchId;
+	}
+
+	public void setCapacity(int newCapacity) throws IllegalArgumentException
+	{
+		//negative capcity is not meaningful
+		if(newCapacity < 0)
+			throw new IllegalArgumentException();
+		capacitySet = true;
+		mCapacity = newCapacity;
+	}
+
+	public int getCapacity() throws NoCapacitySetException{
+		if(!capacitySet)
+			throw new NoCapacitySetException();
+		return mCapacity;
+	}
+
+	public boolean isCapacitySet() {
+		return capacitySet;
+	}
+
+	public void unsetCapacity() {
+		capacitySet = false;
 	}
 
 }

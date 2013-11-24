@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import oarlib.exceptions.NoCapacitySetException;
 import oarlib.exceptions.NoDemandSetException;
 import oarlib.vertex.impl.UndirectedVertex;
 
@@ -71,6 +72,10 @@ public abstract class Vertex {
 	
 	public void unsetDemand() {
 		demandSet = false;
+	}
+	
+	public boolean isDemandSet() {
+		return demandSet;
 	}
 
 	public int getGuid() {

@@ -7,6 +7,8 @@ import java.util.List;
 import oarlib.core.Arc;
 import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
+import oarlib.exceptions.NoCapacitySetException;
+import oarlib.exceptions.NoDemandSetException;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.DirectedVertex;
 /**
@@ -65,12 +67,22 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	public DirectedGraph getDeepCopy() {
 		try {
 			DirectedGraph ans = new DirectedGraph();
+			DirectedVertex temp, temp2;
+			Arc a;
+			HashMap<Integer, DirectedVertex> indexedVertices = this.getInternalVertexMap();
+			HashMap<Integer, Arc> indexedArcs = this.getInternalEdgeMap();
 			for(int i=1;i<this.getVertices().size()+1;i++)
 			{
-				ans.addVertex(new DirectedVertex("deep copy original"), i);
+				temp = new DirectedVertex("deep copy original"); //the new guy
+				temp2 = indexedVertices.get(i); //the old guy
+				if(temp2.isDemandSet())
+					temp.setDemand(temp2.getDemand());
+				ans.addVertex(temp, i);
+				
 			}
-			for(Arc a : this.getEdges())
+			for(int i=1; i<this.getEdges().size()+1; i++)
 			{
+				a = indexedArcs.get(i);
 				ans.addEdge(new Arc("deep copy original", new Pair<DirectedVertex>(ans.getInternalVertexMap().get(a.getTail().getId()), ans.getInternalVertexMap().get(a.getHead().getId())), a.getCost()), a.getId());
 			}
 			return ans;

@@ -22,8 +22,8 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 	public UndirectedGraph(){
 		super();
 	}
-	
-	
+
+
 	@Override
 	public void addVertex(UndirectedVertex v) {
 		super.addVertex(v);
@@ -54,7 +54,7 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		toUpdate.setDegree(toUpdate.getDegree() - 1);
 		super.removeEdge(e);
 	}
-	
+
 	@Override
 	public List<Edge> findEdges(Pair<UndirectedVertex> endpoints) {
 		UndirectedVertex first = endpoints.getFirst();
@@ -73,12 +73,15 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 	public UndirectedGraph getDeepCopy() {
 		try {
 			UndirectedGraph ans = new UndirectedGraph();
-			for(int i=0;i<this.getVertices().size()+1;i++)
+			HashMap<Integer, Edge> indexedEdges = this.getInternalEdgeMap();
+			for(int i=1;i<this.getVertices().size()+1;i++)
 			{
 				ans.addVertex(new UndirectedVertex("deep copy original"), i);
 			}
-			for(Edge e : this.getEdges())
+			Edge e;
+			for(int i=1; i<this.getEdges().size()+1;i++)
 			{
+				e = indexedEdges.get(i);
 				ans.addEdge(new Edge("deep copy original", new Pair<UndirectedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost()));
 			}
 			return ans;

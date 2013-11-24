@@ -16,6 +16,8 @@ import oarlib.core.Graph;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
 import oarlib.exceptions.GraphInfeasibleException;
+import oarlib.exceptions.InvalidEndpointsException;
+import oarlib.exceptions.NoCapacitySetException;
 import oarlib.exceptions.NoDemandSetException;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;
@@ -847,7 +849,15 @@ public class CommonAlgorithms {
 			e.printStackTrace();
 		}
 	}
-	public static DirectedGraph getResidualGraph(DirectedGraph g, HashMap<Integer, Integer> f)
+
+	/**
+	 * Gets the residual graph of g, given flow given by f.  Note that this does not respect capacities; use the other getResidualGraph
+	 * for that.   
+	 * @param g - the original graph, for which we want the residual
+	 * @param f - the current feasible flow solution relative to which the residual graph will be generated
+	 * @return - the residual graph g_x relative to the flow solution specified by f.
+	 */
+	private static DirectedGraph getResidualGraph(DirectedGraph g, HashMap<Integer, Integer> f)
 	{
 		try {
 			DirectedGraph ans = g.getDeepCopy();
@@ -868,8 +878,183 @@ public class CommonAlgorithms {
 		}
 	}
 	/**
-	 * Implements the cycle cancelling algorithm to calculate a min cost flow through the graph g with distance matrix given by dist.
+	 * Implements the shortest successive paths with potentials algorithm to calculate a min cost flow through the graph g
 	 * @param g
+	 * @return - an array that contains flow values.  That is, entry i has value j if edge i  has j units of flow pushed across it 
+	 * in the min cost solution.
+	 * @throws IllegalArgumentException - if the problem is determined to be infeasible.
+	 */
+	public static int[] shortestSuccessivePathsMinCostNetworkFlow(DirectedGraph g) throws IllegalArgumentException
+	{
+		//so we don't mess with the original
+		DirectedGraph copy = g.getDeepCopy();
+		int m = copy.getEdges().size();
+		int[] ans = new int[m + 1]; //the answer
+		int[] realIds = new int[m+1]; //entry i holds the id in copy of the edge that maps to edge i of g
+		int[] artificialIds = new int[m+1]; //entry i holds the id in copy of the artificial edge that maps to edge i of g
+
+		//initialize
+		for(int i=1;i<m+2;i++)
+		{
+			realIds[i] = i;
+		}
+
+		//add a source a sink
+		DirectedVertex source = new DirectedVertex("source");
+		DirectedVertex sink = new DirectedVertex("sink");
+		copy.addVertex(source);
+		copy.addVertex(sink);
+
+		//add the sink and source edges
+		Arc temp, temp2;
+		for(DirectedVertex v: copy.getVertices())
+		{
+			try{
+				if(v.getDemand() > 0) //has supply
+				{
+					temp = new Arc("source arc", new Pair<DirectedVertex>(source, v), 0);
+					temp.setCapacity(v.getDemand());
+					copy.addEdge(temp);
+				}
+				else if(v.getDemand() < 0) //has demand
+				{
+					temp = new Arc("sink arc", new Pair<DirectedVertex>(v, sink), 0);
+					temp.setCapacity( -v.getDemand());
+					copy.addEdge(temp);
+				}
+			} catch (NoDemandSetException e)
+			{
+				//do nothing
+			} catch(InvalidEndpointsException e)
+			{
+				//bad
+				e.printStackTrace();
+				return null;
+			}
+		}
+
+		//figure out residual graph, and look for paths from source to sink
+		int n = copy.getVertices().size();
+		int [][] dist = new int[n+1][n+1];
+		int[][] path = new int[n+1][n+1];
+		int[][] edgePath = new int[n+1][n+1];
+		CommonAlgorithms.fwLeastCostPaths(copy,dist,path, edgePath);
+
+		//reduce costs
+		int sourceId = source.getId();
+		int sinkId = sink.getId();
+		for(Arc a: copy.getEdges())
+		{
+			a.setCost(a.getCost() + dist[sourceId][a.getTail().getId()] - dist[sourceId][a.getHead().getId()]);
+		}
+
+		//start looking for augmenting paths
+		int next, nextEdge, curr;
+		int maxFlow;
+		ArrayList<Integer> augmentingPath;
+		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
+		try{
+			while(dist[sourceId][sinkId] < Integer.MAX_VALUE)
+			{
+				//push as much flow as possible along the shortest path from source to sink
+				curr = sourceId;
+				augmentingPath = new ArrayList<Integer>();
+				maxFlow = Integer.MAX_VALUE; //how much we're entitled to push in this iteration
+				do {
+					next = path[curr][sinkId];
+					nextEdge = edgePath[curr][sinkId];
+					augmentingPath.add(nextEdge);
+					temp = indexedArcs.get(nextEdge);
+					if(temp.isCapacitySet() && maxFlow > temp.getCapacity())
+					{
+						maxFlow = temp.getCapacity();
+					}
+				} while ( (curr =next) != sinkId);
+				//now push it
+				for(Integer index: augmentingPath)
+				{
+					temp = indexedArcs.get(index);
+					if(artificialIds[temp.getMatchId()] != 0) // if we're artificial
+					{
+						ans[temp.getMatchId()] -= maxFlow;
+						//if we don't have a real arc corresponding to this, then add one
+						if(realIds[temp.getMatchId()] == 0)
+						{
+							temp2 = new Arc("real insertion", new Pair<DirectedVertex>(temp.getHead(), temp.getTail()), -temp.getCost());
+							temp2.setCapacity(maxFlow);
+							copy.addEdge(temp2, temp.getMatchId());
+							realIds[temp.getMatchId()] = temp2.getId();
+						}
+						//if we do have a real arc, update its capacity
+						else
+						{
+							temp2 = indexedArcs.get(realIds[temp.getMatchId()]);
+							temp2.setCapacity(temp.getCapacity() + maxFlow);
+						}
+						
+						//update capacities
+						temp.setCapacity(temp.getCapacity() - maxFlow);
+						//remove if the capcity is zero
+						if(temp.getCapacity() == 0)
+						{
+							artificialIds[temp.getMatchId()] = 0;
+							copy.removeEdge(temp);
+						}
+					}
+					else //we're real
+					{
+						ans[temp.getMatchId()] +=maxFlow;
+						//if  we don't have an artificial arc corresponding to this, then add one
+						if(artificialIds[temp.getMatchId()] == 0)
+						{
+							temp2 = new Arc("real insertion", new Pair<DirectedVertex>(temp.getHead(), temp.getTail()), -temp.getCost());
+							temp2.setCapacity(maxFlow);
+							copy.addEdge(temp2, temp.getMatchId());
+							realIds[temp.getMatchId()] = temp2.getId();
+						}
+						else
+						{
+							temp2 = indexedArcs.get(artificialIds[temp.getMatchId()]);
+							temp2.setCapacity(temp.getCapacity() + maxFlow);
+						}
+						
+						//update capacities
+						temp.setCapacity(temp.getCapacity() - maxFlow);
+						//remove if the capcity is zero
+						if(temp.getCapacity() == 0)
+						{
+							realIds[temp.getMatchId()] = 0;
+							copy.removeEdge(temp);
+						}
+					}
+					
+				}
+
+				//reduce costs
+				for(Arc a: copy.getEdges())
+				{
+					a.setCost(a.getCost() + dist[sourceId][a.getTail().getId()] - dist[sourceId][a.getHead().getId()]);
+				}
+				
+				//recalculate shortest paths
+				dist = new int[n+1][n+1];
+				path = new int[n+1][n+1];
+				edgePath = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(copy, dist, path, edgePath);
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		return ans;
+	}
+	/**
+	 * Implements the cycle cancelling algorithm to calculate a min cost flow through the graph g with distance matrix given by dist.
+	 * NOTE: Currently does not support capacities; for that, use shortestSuccessivePaths.
+	 * @param g
+	 * @return - a map that has node id pairs as keys, and integers as values.  An entry of ((i,j), k) means that k units of flow
+	 * should be pushed along the shortest path from i to j.
 	 */
 	public static HashMap<Pair<Integer>, Integer> cycleCancelingMinCostNetworkFlow(DirectedGraph g, int[][] dist) throws IllegalArgumentException
 	{
