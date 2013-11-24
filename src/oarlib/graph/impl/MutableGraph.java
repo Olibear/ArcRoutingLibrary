@@ -73,7 +73,6 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	@Override
 	public void removeEdge(E e)
 	{
-		this.removeEdge(e);
 		mEdges.remove(e);
 		mGlobalEdgeMap.remove(e.getGuid());
 		mInternalEdgeMap.remove(e.getId());

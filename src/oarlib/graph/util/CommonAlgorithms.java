@@ -888,16 +888,8 @@ public class CommonAlgorithms {
 	{
 		//so we don't mess with the original
 		DirectedGraph copy = g.getDeepCopy();
-		int m = copy.getEdges().size();
-		int[] ans = new int[m + 1]; //the answer
-		int[] realIds = new int[m+1]; //entry i holds the id in copy of the edge that maps to edge i of g
-		int[] artificialIds = new int[m+1]; //entry i holds the id in copy of the artificial edge that maps to edge i of g
-
-		//initialize
-		for(int i=1;i<m+1;i++)
-		{
-			realIds[i] = i;
-		}
+		int m = copy.getEdges().size(); //for trimming
+		int[] retArray = new int[m+1];
 
 		//add a source a sink
 		DirectedVertex source = new DirectedVertex("source");
@@ -915,12 +907,14 @@ public class CommonAlgorithms {
 					temp = new Arc("source arc", new Pair<DirectedVertex>(source, v), 0);
 					temp.setCapacity(v.getDemand());
 					copy.addEdge(temp);
+					temp.setMatchId(temp.getId());
 				}
 				else if(v.getDemand() < 0) //has demand
 				{
 					temp = new Arc("sink arc", new Pair<DirectedVertex>(v, sink), 0);
 					temp.setCapacity( -v.getDemand());
 					copy.addEdge(temp);
+					temp.setMatchId(temp.getId());
 				}
 			} catch (NoDemandSetException e)
 			{
@@ -931,6 +925,17 @@ public class CommonAlgorithms {
 				e.printStackTrace();
 				return null;
 			}
+		}
+
+		int newm = copy.getEdges().size();
+		int[] realIds = new int[newm+1]; //entry i holds the id in copy of the edge that maps to edge i of g
+		int[] artificialIds = new int[newm+1]; //entry i holds the id in copy of the artificial edge that maps to edge i of g
+		int[] ans = new int[newm + 1]; //the answer
+
+		//initialize
+		for(int i=1;i<newm+1;i++)
+		{
+			realIds[i] = i;
 		}
 
 		//figure out residual graph, and look for paths from source to sink
@@ -974,7 +979,7 @@ public class CommonAlgorithms {
 				for(Integer index: augmentingPath)
 				{
 					temp = indexedArcs.get(index);
-					if(artificialIds[temp.getMatchId()] != 0) // if we're artificial
+					if(artificialIds[temp.getMatchId()] == temp.getId()) // if we're artificial
 					{
 						ans[temp.getMatchId()] -= maxFlow;
 						//if we don't have a real arc corresponding to this, then add one
@@ -989,9 +994,10 @@ public class CommonAlgorithms {
 						else
 						{
 							temp2 = indexedArcs.get(realIds[temp.getMatchId()]);
-							temp2.setCapacity(temp.getCapacity() + maxFlow);
+							if(temp2.isCapacitySet())
+								temp2.setCapacity(temp2.getCapacity() + maxFlow);
 						}
-						
+
 						//update capacities
 						temp.setCapacity(temp.getCapacity() - maxFlow);
 						//remove if the capcity is zero
@@ -1001,7 +1007,7 @@ public class CommonAlgorithms {
 							copy.removeEdge(temp);
 						}
 					}
-					else //we're real
+					else if(realIds[temp.getMatchId()] == temp.getId())//we're real
 					{
 						ans[temp.getMatchId()] +=maxFlow;
 						//if  we don't have an artificial arc corresponding to this, then add one
@@ -1010,24 +1016,31 @@ public class CommonAlgorithms {
 							temp2 = new Arc("real insertion", new Pair<DirectedVertex>(temp.getHead(), temp.getTail()), -temp.getCost());
 							temp2.setCapacity(maxFlow);
 							copy.addEdge(temp2, temp.getMatchId());
-							realIds[temp.getMatchId()] = temp2.getId();
+							artificialIds[temp.getMatchId()] = temp2.getId();
 						}
 						else
 						{
 							temp2 = indexedArcs.get(artificialIds[temp.getMatchId()]);
-							temp2.setCapacity(temp.getCapacity() + maxFlow);
+							temp2.setCapacity(temp2.getCapacity() + maxFlow);
 						}
-						
-						//update capacities
-						temp.setCapacity(temp.getCapacity() - maxFlow);
-						//remove if the capcity is zero
-						if(temp.getCapacity() == 0)
+
+						//update capacity of temp
+						if(temp.isCapacitySet())//if no capacity set, then we assume infinite capacity
 						{
-							realIds[temp.getMatchId()] = 0;
-							copy.removeEdge(temp);
+							temp.setCapacity(temp.getCapacity() - maxFlow);
+							//remove if the capcity is zero
+							if(temp.getCapacity() == 0)
+							{
+								realIds[temp.getMatchId()] = 0;
+								copy.removeEdge(temp);
+							}
 						}
 					}
-					
+					else
+					{
+						System.out.println("BADDD");
+					}
+
 				}
 
 				//reduce costs
@@ -1035,7 +1048,7 @@ public class CommonAlgorithms {
 				{
 					a.setCost(a.getCost() + dist[sourceId][a.getTail().getId()] - dist[sourceId][a.getHead().getId()]);
 				}
-				
+
 				//recalculate shortest paths
 				dist = new int[n+1][n+1];
 				path = new int[n+1][n+1];
@@ -1047,7 +1060,12 @@ public class CommonAlgorithms {
 			e.printStackTrace();
 			return null;
 		}
-		return ans;
+		//trim out artificial flows
+		for(int i=1; i<retArray.length; i++)
+		{
+			retArray[i] = ans[i];
+		}
+		return retArray;
 	}
 	/**
 	 * Implements the cycle cancelling algorithm to calculate a min cost flow through the graph g with distance matrix given by dist.

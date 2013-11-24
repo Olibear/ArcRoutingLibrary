@@ -215,7 +215,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void validateMinCostFlow2()
 	{
 		try{
@@ -246,20 +246,78 @@ public class GeneralTestbed {
 
 				int cost = 0;
 				HashMap<Integer, Arc> indexedArcs = g.getInternalEdgeMap();
-				for(int j=0; j<myAns.length; j++)
+				for(int j=1; j<myAns.length; j++)
 				{
-					cost += j* indexedArcs.get(j).getCost();
+					cost += myAns[j] * indexedArcs.get(j).getCost();
 				}
 				//now check against ans
 				boolean costOK = true;
 				if(ans[0][0] != cost)
 					costOK = false;
+				System.out.println("true cost: " + ans[0][0]);
+				System.out.println("my cost: " + cost);
 				System.out.println("costOK: " + costOK);
 			}
 		} catch(Exception e)
 		{
 			e.printStackTrace();
 		}
+	}
+	private static void testMinCostFlow2()
+	{
+		DirectedGraph g = new DirectedGraph();
+		//set up graph
+		DirectedVertex v1 = new DirectedVertex("orig");
+		v1.setDemand(5);
+		DirectedVertex v2 = new DirectedVertex("orig");
+		DirectedVertex v3 = new DirectedVertex("orig");
+		DirectedVertex v4 = new DirectedVertex("orig");
+		v4.setDemand(-3);
+		DirectedVertex v5 = new DirectedVertex("orig");
+		v5.setDemand(-2);
+
+		Arc a1 = new Arc("orig", new Pair<DirectedVertex>(v1, v2), 1);
+		a1.setCapacity(7);
+		Arc a2 = new Arc("orig", new Pair<DirectedVertex>(v1, v3), 5);
+		a2.setCapacity(7);
+		Arc a3 = new Arc("orig", new Pair<DirectedVertex>(v2, v3), -2);
+		a3.setCapacity(2);
+		Arc a4 = new Arc("orig", new Pair<DirectedVertex>(v2, v4), 8);
+		a4.setCapacity(3);
+		Arc a5 = new Arc("orig", new Pair<DirectedVertex>(v3, v4), -3);
+		a1.setCapacity(3);
+		Arc a6 = new Arc("orig", new Pair<DirectedVertex>(v3, v5), 4);
+		a1.setCapacity(2);
+
+		g.addVertex(v1);
+		g.addVertex(v2);
+		g.addVertex(v3);
+		g.addVertex(v4);
+		g.addVertex(v5);
+		try
+		{
+			g.addEdge(a1);
+			g.addEdge(a2);
+			g.addEdge(a3);
+			g.addEdge(a4);
+			g.addEdge(a5);
+			g.addEdge(a6);
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+		//solve
+		int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
+		//getcost
+		int cost = 0;
+		HashMap<Integer, Arc> indexedArcs = g.getInternalEdgeMap();
+		for(int j=1; j<myAns.length; j++)
+		{
+			cost += myAns[j] * indexedArcs.get(j).getCost();
+		}
+		
+		System.out.println("example cost: " + cost);
 	}
 	private static void validateAllPairsShortestPaths()
 	{
@@ -397,7 +455,7 @@ public class GeneralTestbed {
 			UndirectedCPP validInstance;
 			UCPPSolver validSolver;
 			Collection<Route> validAns;
-			
+
 
 			//Gurobi stuff
 			GRBEnv env = new GRBEnv("miplog.log");
@@ -405,12 +463,12 @@ public class GeneralTestbed {
 			GRBLinExpr expr;
 			GRBVar[][] varArray;
 			ArrayList<Integer> oddVertices;
-			
+
 			//the answers
 			int l;
 			int myCost;
 			int trueCost;
-			
+
 			for(int i=2;i<150; i+=10)
 			{
 				myCost = 0;
@@ -433,7 +491,7 @@ public class GeneralTestbed {
 				int[][] dist = new int[n+1][n+1];
 				int[][] path = new int[n+1][n+1];
 				CommonAlgorithms.fwLeastCostPaths(g2, dist, path);
-				
+
 				//set up oddVertices
 				oddVertices = new ArrayList<Integer>();
 				for(UndirectedVertex v: g2.getVertices())
@@ -441,13 +499,13 @@ public class GeneralTestbed {
 					if(v.getDegree() %2 == 1)
 						oddVertices.add(v.getId());
 				}
-				
+
 				//Now set up the model in Gurobi and solve it, and see if you get the right answer
 				model = new GRBModel(env);
 				//put in the base cost of all the edges that we'll add to the objective
 				for(Edge a: g2.getEdges())
 					trueCost+=a.getCost();
-				
+
 				//create variables
 				//after this snippet, element[j][k] contains the variable x_jk which represents the
 				//number of paths from vertex Dplus.get(j) to Dminus.get(k) that we add to the graph to make it Eulerian.
@@ -462,10 +520,10 @@ public class GeneralTestbed {
 						varArray[j][k] = model.addVar(0.0,1.0,dist[oddVertices.get(j)][oddVertices.get(k)], GRB.BINARY, "x" + oddVertices.get(j) + oddVertices.get(k));
 					}
 				}
-				
+
 				//update the model
 				model.update();
-				
+
 
 				//create constraints
 				for(int j=0; j<l; j++)

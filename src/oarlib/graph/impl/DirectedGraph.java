@@ -68,7 +68,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 		try {
 			DirectedGraph ans = new DirectedGraph();
 			DirectedVertex temp, temp2;
-			Arc a;
+			Arc a, a2;
 			HashMap<Integer, DirectedVertex> indexedVertices = this.getInternalVertexMap();
 			HashMap<Integer, Arc> indexedArcs = this.getInternalEdgeMap();
 			for(int i=1;i<this.getVertices().size()+1;i++)
@@ -83,7 +83,10 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 			for(int i=1; i<this.getEdges().size()+1; i++)
 			{
 				a = indexedArcs.get(i);
-				ans.addEdge(new Arc("deep copy original", new Pair<DirectedVertex>(ans.getInternalVertexMap().get(a.getTail().getId()), ans.getInternalVertexMap().get(a.getHead().getId())), a.getCost()), a.getId());
+				a2 = new Arc("deep copy original", new Pair<DirectedVertex>(ans.getInternalVertexMap().get(a.getTail().getId()), ans.getInternalVertexMap().get(a.getHead().getId())), a.getCost());
+				if(a.isCapacitySet())
+					a2.setCapacity(a.getCapacity());
+				ans.addEdge(a2, i);
 			}
 			return ans;
 		} catch(Exception e) {
