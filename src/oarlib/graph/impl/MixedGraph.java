@@ -92,8 +92,6 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 			ex.printStackTrace();
 			return;
 		}
-
-
 	}
 
 	@Override
