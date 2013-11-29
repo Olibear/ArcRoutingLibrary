@@ -468,14 +468,14 @@ public class MCPPSolver extends Solver{
 		try {
 			//set up the undirected graph, and then solve the min cost matching
 			UndirectedGraph setup = new UndirectedGraph();
-			for(int i = 0; i < input.getVertices().size()+1 ; i++)
+			for(int i = 1; i < input.getVertices().size()+1 ; i++)
 			{
 				setup.addVertex(new UndirectedVertex("even setup graph"), i);
 			}
 			HashMap<Integer, UndirectedVertex> indexedVertices = setup.getInternalVertexMap();
 			for(MixedEdge e:input.getEdges())
 			{
-				setup.addEdge(new Edge("even setup graph", new Pair<UndirectedVertex>(indexedVertices.get(e.getTail().getId()), indexedVertices.get(e.getHead().getId())), e.getCost()), e.getId());
+				setup.addEdge(new Edge("even setup graph", new Pair<UndirectedVertex>(indexedVertices.get(e.getEndpoints().getFirst().getId()), indexedVertices.get(e.getEndpoints().getSecond().getId())), e.getCost()), e.getId());
 			}
 
 			//solve shortest paths
@@ -519,15 +519,15 @@ public class MCPPSolver extends Solver{
 			for(Pair<UndirectedVertex> p : matchingSolution)
 			{
 				//add the 'undirected' shortest path
-				int curr = p.getFirst().getId();
-				int end = p.getSecond().getId();
+				int curr = p.getFirst().getMatchId();
+				int end = p.getSecond().getMatchId();
 				int next = 0;
 				int nextEdge = 0;
 				do {
 					next = path[curr][end];
 					nextEdge = edgePath[curr][end];
 					e = input.getInternalEdgeMap().get(setupEdges.get(nextEdge).getMatchId());
-					input.addEdge(new MixedEdge("added in phase I",  new Pair<MixedVertex>(e.getTail(), e.getHead()), e.getCost(), e.isDirected()));
+					input.addEdge(new MixedEdge("added in phase I",  new Pair<MixedVertex>(e.getEndpoints().getFirst(), e.getEndpoints().getSecond()), e.getCost(), e.isDirected()));
 				} while ( (curr =next) != end);
 			}
 

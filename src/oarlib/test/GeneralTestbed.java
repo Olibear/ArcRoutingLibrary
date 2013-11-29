@@ -86,7 +86,7 @@ public class GeneralTestbed {
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
 		try
 		{
-			Graph<?,?> g = gr.readGraph("C:\\Users\\Oliver Lum\\Downloads\\MCPP\\MA0532");
+			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0532");
 			if(g.getClass() == MixedGraph.class)
 			{
 				MixedGraph g2 = (MixedGraph)g;
@@ -141,7 +141,7 @@ public class GeneralTestbed {
 			MixedCPP validInstance;
 			MCPPSolver validSolver;
 			Collection<Route> validAns;
-			Graph<?,?> g = gr.readGraph("C:\\Users\\Oliver Lum\\Downloads\\MCPP\\MA0532");
+			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0532");
 			if(g.getClass() == MixedGraph.class)
 			{
 				MixedGraph g2 = (MixedGraph)g;
