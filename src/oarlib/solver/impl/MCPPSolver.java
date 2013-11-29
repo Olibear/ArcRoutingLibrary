@@ -55,7 +55,19 @@ public class MCPPSolver extends Solver{
 		inOutDegree(copy, U, M, inMdubPrime);
 
 		//Even
-		MixedGraph ans1 = evenParity(copy, U, M, inMdubPrime);
+		MixedGraph temp = evenParity(copy, U, M, inMdubPrime);
+		//check euleriannes
+		for(MixedVertex v: temp.getVertices())
+		{
+			if(v.getDelta()!=0)
+			{
+				System.out.println("delta fault");
+			}
+			if(v.getDegree()%2==1)
+			{
+				System.out.println("even fault");
+			}
+		}
 		//End Mixed 1
 
 		//Start Mixed 2
@@ -351,7 +363,7 @@ public class MCPPSolver extends Solver{
 	 * @param U - the corresponding collection from running inoutdegree on input
 	 * @param inMdubPrime - the corresponding list from running inoutdegree on input
 	 */
-	private MixedGraph evenParity(MixedGraph input, ArrayList<MixedEdge> M, ArrayList<MixedEdge> U, ArrayList<Boolean> inMdubPrime)
+	private MixedGraph evenParity(MixedGraph input, ArrayList<MixedEdge> U, ArrayList<MixedEdge> M, ArrayList<Boolean> inMdubPrime)
 	{
 		//the sets that we'll use to construct the answer
 		ArrayList<MixedEdge> Mprime = new ArrayList<MixedEdge>();
@@ -376,7 +388,7 @@ public class MCPPSolver extends Solver{
 			for (int i = 0; i < U.size(); i ++)
 			{
 				e = U.get(i);
-				temp.addEdge(new MixedEdge("from U", new Pair<MixedVertex>(tempVertices.get(e.getTail().getId()), tempVertices.get(e.getHead().getId())), e.getCost(), false), i);
+				temp.addEdge(new MixedEdge("from U", new Pair<MixedVertex>(tempVertices.get(e.getEndpoints().getFirst().getId()), tempVertices.get(e.getEndpoints().getSecond().getId())), e.getCost(), false), i);
 			}
 			//now figure out the odd vertices
 			ArrayList<MixedVertex>  Vprime = new ArrayList<MixedVertex>();
@@ -470,7 +482,7 @@ public class MCPPSolver extends Solver{
 			for(int i = 0; i < Uprime.size(); i ++)
 			{
 				e = Uprime.get(i);
-				ans.addEdge(new MixedEdge("final", new Pair<MixedVertex>(ansVertices.get(e.getTail().getId()), ansVertices.get(e.getHead().getId())), e.getCost(), e.isDirected()));
+				ans.addEdge(new MixedEdge("final", new Pair<MixedVertex>(ansVertices.get(e.getEndpoints().getFirst().getId()), ansVertices.get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected()));
 			}
 			return ans;
 		} catch(Exception e)

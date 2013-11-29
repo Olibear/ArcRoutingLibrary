@@ -141,7 +141,7 @@ public class GeneralTestbed {
 			MixedCPP validInstance;
 			MCPPSolver validSolver;
 			Collection<Route> validAns;
-			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0532");
+			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0535");
 			if(g.getClass() == MixedGraph.class)
 			{
 				MixedGraph g2 = (MixedGraph)g;
