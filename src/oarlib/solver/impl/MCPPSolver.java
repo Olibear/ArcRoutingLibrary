@@ -55,19 +55,7 @@ public class MCPPSolver extends Solver{
 		inOutDegree(copy, U, M, inMdubPrime);
 
 		//Even
-		MixedGraph temp = evenParity(copy, U, M, inMdubPrime);
-		//check euleriannes
-		for(MixedVertex v: temp.getVertices())
-		{
-			if(v.getDelta()!=0)
-			{
-				System.out.println("delta fault");
-			}
-			if(v.getDegree()%2==1)
-			{
-				System.out.println("even fault");
-			}
-		}
+		MixedGraph ans1 = evenParity(copy, U, M, inMdubPrime);
 		//End Mixed 1
 
 		//Start Mixed 2
