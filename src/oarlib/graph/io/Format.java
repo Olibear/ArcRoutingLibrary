@@ -14,6 +14,7 @@ public class Format {
 		 * the next m lines are "i j c" where the mth edge is from vertex i to vertex j, with cost c
 		 */
 		Simple,
-		DIMACS_Modified
+		DIMACS_Modified,
+		Corberan
 	}
 }

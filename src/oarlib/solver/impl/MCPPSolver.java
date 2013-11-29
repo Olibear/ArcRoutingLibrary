@@ -47,15 +47,16 @@ public class MCPPSolver extends Solver{
 		evenDegree(copy);
 
 		//Symmetric
-		ArrayList<MixedEdge> U = new ArrayList<MixedEdge>();
-		ArrayList<MixedEdge> M = new ArrayList<MixedEdge>();
-		ArrayList<Boolean> inMdubPrime =  new ArrayList<Boolean>();
-		inOutDegree(copy, U, M, inMdubPrime);
+		//ArrayList<MixedEdge> U = new ArrayList<MixedEdge>();
+		//ArrayList<MixedEdge> M = new ArrayList<MixedEdge>();
+		//ArrayList<Boolean> inMdubPrime =  new ArrayList<Boolean>();
+		//inOutDegree(copy, U, M, inMdubPrime);
 
 		//Even
-		MixedGraph ans1 = evenParity(copy, U, M, inMdubPrime);
+		//MixedGraph ans1 = evenParity(copy, U, M, inMdubPrime);
 
 		//Start Large Cycles - Even (Mixed 2)
+		/*
 		ArrayList<MixedEdge> U2 = new ArrayList<MixedEdge>();
 		ArrayList<MixedEdge> M2 = new ArrayList<MixedEdge>();
 		ArrayList<Boolean> inMdubPrime2 =  new ArrayList<Boolean>();
@@ -67,7 +68,7 @@ public class MCPPSolver extends Solver{
 			if(inMdubPrime2.get(i))
 				copy2.addEdge(M2.get(i));
 		}
-
+	*/
 		//select the lower cost of the two
 		return null;
 		
@@ -101,7 +102,7 @@ public class MCPPSolver extends Solver{
 			for(int i = 0; i < U.size(); i++)
 			{
 				e = U.get(i);
-				G1.addEdge(new Edge("final", new Pair<UndirectedVertex>(g1Vertices.get(e.getTail().getId()), g1Vertices.get(e.getHead().getId())), e.getCost()));
+				G1.addEdge(new Edge("final", new Pair<UndirectedVertex>(g1Vertices.get(e.getEndpoints().getFirst().getId()), g1Vertices.get(e.getEndpoints().getSecond().getId())), e.getCost()));
 			}
 			//add edges in E to G2
 			HashMap<Integer, MixedEdge> inputEdges = input.getInternalEdgeMap();
@@ -110,7 +111,7 @@ public class MCPPSolver extends Solver{
 				e = inputEdges.get(i);
 				if(e.isDirected())
 					continue;
-				G2.addEdge(new Edge("final", new Pair<UndirectedVertex>(g2Vertices.get(e.getTail().getId()), g2Vertices.get(e.getHead().getId())), e.getCost()));
+				G2.addEdge(new Edge("final", new Pair<UndirectedVertex>(g2Vertices.get(e.getEndpoints().getFirst().getId()), g2Vertices.get(e.getEndpoints().getSecond().getId())), e.getCost()));
 			}
 
 			ArrayList<Integer> oddVertexIndices = new ArrayList<Integer>();
@@ -138,10 +139,10 @@ public class MCPPSolver extends Solver{
 			HashMap<Integer, UndirectedVertex> matchingVertices = matchingGraph.getInternalVertexMap();
 			int n2 = matchingGraph.getVertices().size();
 			UndirectedVertex u1, u2;
-			for(int i = 0; i < n2; i++)
+			for(int i = 1; i < n2+1; i++)
 			{
 				u1 = matchingVertices.get(i);
-				for(int j = 0; j < n2; j++)
+				for(int j = 1; j < n2+1; j++)
 				{
 					if(i==j)
 						continue;
@@ -195,7 +196,7 @@ public class MCPPSolver extends Solver{
 			HashMap<Integer, DirectedVertex> setupVertices = setup.getInternalVertexMap();
 			HashMap<Integer, Arc> setupEdges = setup.getInternalEdgeMap();
 			int m = input.getEdges().size();
-			for(int i = 0; i < m + 1; i++)
+			for(int i = 1; i < m + 1; i++)
 			{
 				e = inputEdges.get(i);
 				if(e.isDirected())
@@ -205,13 +206,13 @@ public class MCPPSolver extends Solver{
 				else
 				{
 					//add two arcs; one in either direction
-					setup.addEdge(new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getTail().getId()), setupVertices.get(e.getHead().getId())), e.getCost()), e.getId());
-					setup.addEdge(new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getHead().getId()), setupVertices.get(e.getTail().getId())), e.getCost()), e.getId());
+					setup.addEdge(new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getFirst().getId()), setupVertices.get(e.getEndpoints().getSecond().getId())), e.getCost()), e.getId());
+					setup.addEdge(new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getSecond().getId()), setupVertices.get(e.getEndpoints().getFirst().getId())), e.getCost()), e.getId());
 					//add two arcs that we get for free, but only have capacity 1 for when we solve the min cost flow
-					a = new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getTail().getId()), setupVertices.get(e.getHead().getId())), 0);
+					a = new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getFirst().getId()), setupVertices.get(e.getEndpoints().getSecond().getId())), 0);
 					a.setCapacity(1);
 					setup.addEdge(a, e.getId());
-					a = new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getHead().getId()), setupVertices.get(e.getTail().getId())), 0);
+					a = new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getSecond().getId()), setupVertices.get(e.getEndpoints().getFirst().getId())), 0);
 					a.setCapacity(1);
 					setup.addEdge(a, e.getId());
 
@@ -270,14 +271,15 @@ public class MCPPSolver extends Solver{
 					if(flowanswer[i] == 0)
 						continue;
 					temp = inputVertices.get(a.getTail().getId());
-					if(temp.equals(e.getTail())) // arc is 'forward'
+					if(temp.equals(e.getEndpoints().getFirst())) // arc is 'forward'
 					{
 						//update undirTraversals
 						if(undirTraversals[e.getId()] == 0)
 							undirTraversals[e.getId()] = 1;
 						else // was already -1, so we have traversal in both directions, so add to U, we don't know
 						{
-							U.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getTail(), e.getHead()), e.getCost(), false));
+							U.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getEndpoints().getFirst(), e.getEndpoints().getSecond()), e.getCost(), false));
+							undirTraversals[e.getId()] = 2; //so we don't add it to M again later
 						}
 					}
 					else // arc is backward
@@ -287,7 +289,8 @@ public class MCPPSolver extends Solver{
 							undirTraversals[e.getId()] = -1;
 						else // was already 1, so we have traversal in both directions, so add to U, we don't know
 						{
-							U.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getTail(), e.getHead()), e.getCost(), false));
+							U.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getEndpoints().getFirst(), e.getEndpoints().getSecond()), e.getCost(), false));
+							undirTraversals[e.getId()] = 2;
 						}
 					}
 				}
@@ -296,17 +299,19 @@ public class MCPPSolver extends Solver{
 			//now just go through, and any undirTraversal entries of 1 should be added forward, -1 should be added backward
 			for (int i=1; i < undirTraversals.length; i++)
 			{
-				if(undirTraversals[i] == 0)
-					continue;
 				e = inputEdges.get(i);
-				if(undirTraversals[i] == 1) //add a forward copy
+				if(undirTraversals[i] == 0)
 				{
-					M.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getTail(), e.getHead()), e.getCost(), true));
+					U.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getEndpoints().getFirst(), e.getEndpoints().getSecond()), e.getCost(), false));
+				}
+				else if(undirTraversals[i] == 1) //add a forward copy
+				{
+					M.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getEndpoints().getFirst(), e.getEndpoints().getSecond()), e.getCost(), true));
 					inMdubPrime.add(false);
 				}
 				else if(undirTraversals[i] == -1) //add a backwards copy
 				{
-					M.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getHead(), e.getTail()), e.getCost(), true));
+					M.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getEndpoints().getSecond(), e.getEndpoints().getFirst()), e.getCost(), true));
 					inMdubPrime.add(false);
 				}
 			}

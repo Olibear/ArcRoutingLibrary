@@ -8,12 +8,15 @@ import java.util.HashMap;
 import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
+import oarlib.core.MixedEdge;
 import oarlib.exceptions.FormatMismatchException;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.DirectedVertex;
+import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
 /**
@@ -35,7 +38,7 @@ public class GraphReader {
 	{
 		return mFormat;
 	}
-	public Graph<?,?> readDirectedGraph(String fileName) throws UnsupportedFormatException, FormatMismatchException
+	public Graph<?,?> readGraph(String fileName) throws UnsupportedFormatException, FormatMismatchException
 	{
 		switch (mFormat)
 		{
@@ -43,15 +46,102 @@ public class GraphReader {
 			return readSimpleGraph(fileName);
 		case DIMACS_Modified:
 			return null;
+		case Corberan:
+			return readCorberanGraph(fileName);
 		}
 		throw new UnsupportedFormatException("While the format seems to have been added to the Format.Name type list,"
 				+ " there doesn't seem to be an appropriate reader method assigned to it.");
+	}
+	private Graph<?,?> readCorberanGraph(String fileName) throws FormatMismatchException
+	{
+		try{
+			String line;
+			String type = "";
+			String[] temp;
+			File graphFile = new File(fileName);
+			BufferedReader br = new BufferedReader(new FileReader(graphFile));
+			//header info
+			int n = 0;
+			int m = 0;
+			while((line = br.readLine()) != null)
+			{
+				if(line.contains("NOMBRE"))
+				{
+					temp = line.split("\\s+|:");
+					if(temp[3].startsWith("MA"))
+						type = "Mixed";
+				}
+				else if(line.contains("VERTICES"))
+				{
+					temp = line.split("\\s+|:");
+					n = Integer.parseInt(temp[3]);
+				}
+				else if(line.contains("ARISTAS"))
+				{
+					temp = line.split("\\s+|:");
+					m = Integer.parseInt(temp[3]);
+					break;
+				}
+			}
+
+			if(n == 0 || m == 0)
+				throw new FormatMismatchException("We could not detect any vertices (edges) in the file.");
+			//now split off into types
+			if(type == "Mixed")
+			{
+				MixedGraph ans = new MixedGraph();
+				int tailId;
+				int headId;
+				int cost1;
+				int cost2;
+				for(int i = 0; i < n; i++)
+				{
+					ans.addVertex(new MixedVertex("original"));
+				}
+				HashMap<Integer, MixedVertex> ansVertices = ans.getInternalVertexMap();
+				br.readLine();
+				br.readLine();
+				while((line = br.readLine()) != null)
+				{
+					if(line.contains("ARISTAS"))
+						break;
+					temp = line.split("\\s+|:|\\)|,");
+					tailId = Integer.parseInt(temp[1]);
+					headId = Integer.parseInt(temp[3]);
+					cost1 = Integer.parseInt(temp[6]);
+					cost2 = Integer.parseInt(temp[7]);
+					if(cost1 == 99999999) //backwards arc
+					{
+						ans.addEdge(new MixedEdge("original", new Pair<MixedVertex>(ansVertices.get(headId), ansVertices.get(tailId)), cost2, true));
+					}
+					else if(cost2 == 99999999) //forwards arc
+					{
+						ans.addEdge(new MixedEdge("original", new Pair<MixedVertex>(ansVertices.get(tailId), ansVertices.get(headId)), cost1, true));
+					}
+					else // edge
+					{
+						ans.addEdge(new MixedEdge("original", new Pair<MixedVertex>(ansVertices.get(tailId), ansVertices.get(headId)), cost1, false));
+					}
+				}
+				br.close();
+				return ans;
+			}
+			else
+			{
+				br.close();
+				throw new FormatMismatchException("We don't currently support the type of graph right now.");
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 	private Graph<?,?> readSimpleGraph(String fileName) throws FormatMismatchException
 	{
 		try {
 			String type; //first line of DIMACS_Modified
-			String header; //seoncd line of DIMACS_Modified
+			String header; //second line of DIMACS_Modified
 			File graphFile = new File(fileName);
 			BufferedReader br = new BufferedReader(new FileReader(graphFile));
 			//header info
@@ -73,7 +163,7 @@ public class GraphReader {
 
 			String line;
 			String[] splitLine;
-			
+
 			//branch on types, (more elegant way?)
 			if(type.equals("Directed"))
 			{
@@ -108,7 +198,7 @@ public class GraphReader {
 				br.close();
 				return ans;
 			}
-			
+
 			else if(type.equals( "Undirected"))
 			{
 				UndirectedGraph ans = new UndirectedGraph();
@@ -133,7 +223,7 @@ public class GraphReader {
 						throw new FormatMismatchException("One of the edge lines had too many entries in it.");
 					}
 					ans.addEdge(new Edge("Original", new Pair<UndirectedVertex>(indexedVertices.get(Integer.parseInt(splitLine[0])), indexedVertices.get(Integer.parseInt(splitLine[1]))), Integer.parseInt(splitLine[2])));
-					
+
 				}
 				if((line = br.readLine()) != null)
 				{
@@ -143,12 +233,12 @@ public class GraphReader {
 				br.close();
 				return ans;
 			}
-			
+
 			else if(type.equals("Mixed"))
 			{
 				//TODO
 			}
-			
+
 			else if (type.equals("Windy"))
 			{
 				//TODO

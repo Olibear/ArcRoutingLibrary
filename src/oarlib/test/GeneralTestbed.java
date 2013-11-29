@@ -1,28 +1,36 @@
 package oarlib.test;
 
 import java.util.ArrayList;
+
 import gurobi.*;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+
 import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
+import oarlib.core.MixedEdge;
 import oarlib.core.Route;
 import oarlib.graph.graphgen.DirectedGraphGenerator;
 import oarlib.graph.graphgen.UndirectedGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.io.Format;
 import oarlib.graph.io.GraphReader;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.problem.impl.DirectedCPP;
+import oarlib.problem.impl.MixedCPP;
 import oarlib.problem.impl.UndirectedCPP;
 import oarlib.solver.impl.DCPPSolver;
+import oarlib.solver.impl.MCPPSolver;
 import oarlib.solver.impl.UCPPSolver;
 import oarlib.vertex.impl.DirectedVertex;
+import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
 public class GeneralTestbed {
@@ -32,7 +40,7 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		validateMinCostFlow2();
+		testFredericksons();
 	}
 	private static void check(Link<?> a)
 	{
@@ -62,12 +70,87 @@ public class GeneralTestbed {
 		GraphReader gr = new GraphReader(Format.Name.Simple);
 		try 
 		{
-			Graph<?,?> g = gr.readDirectedGraph("/Users/oliverlum/Downloads/blossom5-v2.04.src/GRAPH1.TXT");
+			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/blossom5-v2.04.src/GRAPH1.TXT");
 			if(g.getClass() == DirectedGraph.class)
 			{
 				DirectedGraph g2 = (DirectedGraph)g;
 			}
 			System.out.println("check things");
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	private static void testCorberanGraphReader()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		try
+		{
+			Graph<?,?> g = gr.readGraph("C:\\Users\\Oliver Lum\\Downloads\\MCPP\\MA0532");
+			if(g.getClass() == MixedGraph.class)
+			{
+				MixedGraph g2 = (MixedGraph)g;
+				
+				DirectedGraph g3 = new DirectedGraph();
+				for(int i = 0; i < g2.getVertices().size(); i ++)
+				{
+					g3.addVertex(new DirectedVertex("checking connectedness"));
+				}
+				HashMap<Integer, DirectedVertex> g3Vertices = g3.getInternalVertexMap();
+				HashMap<Integer, MixedEdge> g2Edges = g2.getInternalEdgeMap();
+				MixedEdge e;
+				
+				for(int i = 1; i < g2.getEdges().size()+1; i++)
+				{
+					e = g2Edges.get(i);
+					if(e.isDirected())
+						g3.addEdge(new Arc("checking connectedness", new Pair<DirectedVertex>(g3Vertices.get(e.getTail().getId()), g3Vertices.get(e.getHead().getId())), e.getCost()));
+					else
+					{
+						g3.addEdge(new Arc("checking connectedness", new Pair<DirectedVertex>(g3Vertices.get(e.getEndpoints().getFirst().getId()), g3Vertices.get(e.getEndpoints().getSecond().getId())), e.getCost()));
+						g3.addEdge(new Arc("checking connectedness", new Pair<DirectedVertex>(g3Vertices.get(e.getEndpoints().getSecond().getId()), g3Vertices.get(e.getEndpoints().getFirst().getId())), e.getCost()));
+					}
+				}
+				int n = g3.getVertices().size();
+				int m = g3.getEdges().size();
+				int[] nodei = new int[m+1];
+				int[] nodej = new int[m+1];
+				int[] component = new int[n+1];
+				HashMap<Integer, Arc> g3Edges = g3.getInternalEdgeMap();
+				Arc a;
+				for(int i = 1; i < m+1; i++)
+				{
+					a = g3Edges.get(i);
+					nodei[i] = a.getTail().getId();
+					nodej[i] = a.getHead().getId();
+				}
+				CommonAlgorithms.stronglyConnectedComponents(n, m, nodei, nodej, component);
+
+				System.out.println("check things");
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	private static void testFredericksons()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		try
+		{
+			MixedCPP validInstance;
+			MCPPSolver validSolver;
+			Collection<Route> validAns;
+			Graph<?,?> g = gr.readGraph("C:\\Users\\Oliver Lum\\Downloads\\MCPP\\MA0532");
+			if(g.getClass() == MixedGraph.class)
+			{
+				MixedGraph g2 = (MixedGraph)g;
+				
+				validInstance = new MixedCPP(g2);
+				validSolver = new MCPPSolver(validInstance);
+				validAns = validSolver.trySolve(); //my ans
+				
+			}
 		} catch(Exception e)
 		{
 			e.printStackTrace();
