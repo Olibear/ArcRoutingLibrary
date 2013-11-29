@@ -39,36 +39,50 @@ public class MCPPSolver extends Solver{
 	protected Collection<Route> solve() {
 		try {
 
-		MixedGraph copy = mInstance.getGraph();
-		MixedGraph copy2 = copy.getDeepCopy();
+		MixedGraph copy = mInstance.getGraph(); //starting point for Mixed1
+		MixedGraph copy2 = copy.getDeepCopy(); //starting point for Mixed2
+		
+		//Vars for bookkeeping
+		ArrayList<MixedEdge> U = new ArrayList<MixedEdge>();
+		ArrayList<MixedEdge> M = new ArrayList<MixedEdge>();
+		ArrayList<Boolean> inMdubPrime =  new ArrayList<Boolean>();
 
-		//Start Even-Symmetric-Even (Mixed 1)
+		//Start Mixed 1
 		//Even
 		evenDegree(copy);
 
 		//Symmetric
-		//ArrayList<MixedEdge> U = new ArrayList<MixedEdge>();
-		//ArrayList<MixedEdge> M = new ArrayList<MixedEdge>();
-		//ArrayList<Boolean> inMdubPrime =  new ArrayList<Boolean>();
-		//inOutDegree(copy, U, M, inMdubPrime);
+		inOutDegree(copy, U, M, inMdubPrime);
 
 		//Even
-		//MixedGraph ans1 = evenParity(copy, U, M, inMdubPrime);
+		MixedGraph ans1 = evenParity(copy, U, M, inMdubPrime);
+		//End Mixed 1
 
-		//Start Large Cycles - Even (Mixed 2)
-		/*
-		ArrayList<MixedEdge> U2 = new ArrayList<MixedEdge>();
-		ArrayList<MixedEdge> M2 = new ArrayList<MixedEdge>();
-		ArrayList<Boolean> inMdubPrime2 =  new ArrayList<Boolean>();
-		inOutDegree(copy2, U2, M2, inMdubPrime2);
-		largeCycles(copy2, U2);
-		//add in the last guys from M2
-		for(int i = 0; i < M2.size(); i ++)
+		//Start Mixed 2
+		U = new ArrayList<MixedEdge>();
+		M = new ArrayList<MixedEdge>();
+		inMdubPrime =  new ArrayList<Boolean>();
+		inOutDegree(copy2, U, M, inMdubPrime);
+		largeCycles(copy2, U);
+		MixedGraph ans2 = new MixedGraph();
+		for(int i = 0; i < copy2.getVertices().size(); i++)
 		{
-			if(inMdubPrime2.get(i))
-				copy2.addEdge(M2.get(i));
+			ans2.addVertex(new MixedVertex(""),i);
 		}
-	*/
+		HashMap<Integer, MixedVertex> ans2Vertices = ans2.getInternalVertexMap();
+		MixedEdge e;
+		for(int i = 0;i < M.size(); i++)
+		{
+			e = M.get(i);
+			ans2.addEdge(new MixedEdge("", new Pair<MixedVertex>(ans2Vertices.get(e.getTail().getId()), ans2Vertices.get(e.getHead().getId())),e.getCost(),true ));
+		}
+		for(int i = 0; i < U.size(); i++)
+		{
+			e = U.get(i);
+			ans2.addEdge(new MixedEdge("", new Pair<MixedVertex>(ans2Vertices.get(e.getEndpoints().getFirst().getId()), ans2Vertices.get(e.getEndpoints().getSecond().getId())), e.getCost(), false));
+		}
+		//End Mixed 2
+		
 		//select the lower cost of the two
 		return null;
 		
@@ -86,9 +100,11 @@ public class MCPPSolver extends Solver{
 	private void largeCycles(MixedGraph input, ArrayList<MixedEdge> U)
 	{
 		try {
-			UndirectedGraph G1 = new UndirectedGraph();
-			UndirectedGraph G2 = new UndirectedGraph();
+			UndirectedGraph G1 = new UndirectedGraph(); //G', in which we identify the odd degree nodes
+			UndirectedGraph G2 = new UndirectedGraph(); //G'', in which we calculate least cost paths
 
+			int maxCost = 0;
+			
 			for(int i = 1; i < input.getVertices().size() + 1; i++)
 			{
 				G1.addVertex(new UndirectedVertex("symmetric setup graph"), i);
@@ -112,6 +128,7 @@ public class MCPPSolver extends Solver{
 				if(e.isDirected())
 					continue;
 				G2.addEdge(new Edge("final", new Pair<UndirectedVertex>(g2Vertices.get(e.getEndpoints().getFirst().getId()), g2Vertices.get(e.getEndpoints().getSecond().getId())), e.getCost()));
+				maxCost += e.getCost();
 			}
 
 			ArrayList<Integer> oddVertexIndices = new ArrayList<Integer>();
@@ -144,11 +161,14 @@ public class MCPPSolver extends Solver{
 				u1 = matchingVertices.get(i);
 				for(int j = 1; j < n2+1; j++)
 				{
-					if(i==j)
+					if(i<=j)
 						continue;
 					u2 = matchingVertices.get(j);
-					matchingGraph.addEdge(new Edge("matching edge", new Pair<UndirectedVertex>(u1 , u2), dist[u1.getMatchId()][u2.getMatchId()]));
-				}
+					if(dist[u1.getMatchId()][u2.getMatchId()] == Integer.MAX_VALUE)
+						matchingGraph.addEdge(new Edge("matching edge", new Pair<UndirectedVertex>(u1 , u2), maxCost));
+					else
+						matchingGraph.addEdge(new Edge("matching edge", new Pair<UndirectedVertex>(u1 , u2), dist[u1.getMatchId()][u2.getMatchId()]));
+					}
 			}
 			Set<Pair<UndirectedVertex>> matchSolution = CommonAlgorithms.minCostMatching(matchingGraph);
 			for(Pair<UndirectedVertex> p: matchSolution)
@@ -164,7 +184,7 @@ public class MCPPSolver extends Solver{
 					cost = dist[curr][next];
 					u = input.getInternalVertexMap().get(curr);
 					v = input.getInternalVertexMap().get(next);
-					input.addEdge(new MixedEdge("from largeCycles", new Pair<MixedVertex>(u,v), cost, false));
+					U.add(new MixedEdge("from largeCycles", new Pair<MixedVertex>(u,v), cost, false));
 				} while ( (curr =next) != end);
 			}
 		} catch(Exception e)
@@ -250,6 +270,7 @@ public class MCPPSolver extends Solver{
 					//add back the original
 					M.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(e.getTail(), e.getHead()), e.getCost(), true));
 					inMdubPrime.add(false);
+					undirTraversals[e.getId()] = 2;
 					for(int j = 0; j < flowanswer[i]; j++)
 					{
 						//add copy to M
