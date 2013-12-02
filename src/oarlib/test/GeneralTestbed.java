@@ -1,7 +1,6 @@
 package oarlib.test;
 
 import java.util.ArrayList;
-
 import gurobi.*;
 
 import java.util.Collection;
@@ -28,6 +27,7 @@ import oarlib.problem.impl.MixedCPP;
 import oarlib.problem.impl.UndirectedCPP;
 import oarlib.solver.impl.DCPPSolver;
 import oarlib.solver.impl.MCPPSolver;
+import oarlib.solver.impl.ModifiedMCPPSolver;
 import oarlib.solver.impl.UCPPSolver;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
@@ -139,15 +139,14 @@ public class GeneralTestbed {
 		try
 		{
 			MixedCPP validInstance;
-			MCPPSolver validSolver;
+			ModifiedMCPPSolver validSolver;
 			Collection<Route> validAns;
 			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0535");
 			if(g.getClass() == MixedGraph.class)
 			{
 				MixedGraph g2 = (MixedGraph)g;
-				
 				validInstance = new MixedCPP(g2);
-				validSolver = new MCPPSolver(validInstance);
+				validSolver = new ModifiedMCPPSolver(validInstance);
 				validAns = validSolver.trySolve(); //my ans
 				
 			}

@@ -42,11 +42,12 @@ public class ModifiedMCPPSolver extends Solver{
 			//Vars for bookkeeping
 			ArrayList<MixedEdge> U = new ArrayList<MixedEdge>();
 			ArrayList<MixedEdge> M = new ArrayList<MixedEdge>();
+			ArrayList<MixedEdge> added = new ArrayList<MixedEdge>();
 			ArrayList<Boolean> inMdubPrime =  new ArrayList<Boolean>();
 
 			//Start Mixed 1
 			//Even
-			CommonAlgorithms.evenDegree(ans1);
+			CommonAlgorithms.evenDegree(ans1, added);
 
 			//Symmetric
 			CommonAlgorithms.inOutDegree(ans1, U, M, inMdubPrime);
@@ -56,12 +57,18 @@ public class ModifiedMCPPSolver extends Solver{
 			//End Mixed 1
 			
 			//Start Improvement Phase
-			
+			for(int i = 0; i <M.size(); i++)
+			{
+				if(inMdubPrime.get(i))
+					added.add(M.get(i));
+			}
+			CommonAlgorithms.eliminateAddedDirectedCycles(ans1, added);
 			//End Improvement Phase
 
 			//Start Mixed 2
 			U = new ArrayList<MixedEdge>();
 			M = new ArrayList<MixedEdge>();
+			added = new ArrayList<MixedEdge>();
 			inMdubPrime =  new ArrayList<Boolean>();
 			CommonAlgorithms.inOutDegree(ans2, U, M, inMdubPrime);
 			CommonAlgorithms.largeCycles(ans2, U);
@@ -77,7 +84,7 @@ public class ModifiedMCPPSolver extends Solver{
 			//End Mixed 2
 			
 			//Start Improvement Phase
-			
+			CommonAlgorithms.eliminateAddedDirectedCycles(ans2, added);
 			//End Improvement Phase
 
 			//select the lower cost of the two

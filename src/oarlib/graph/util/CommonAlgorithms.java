@@ -832,15 +832,12 @@ public class CommonAlgorithms {
 	 * Eliminates directed cycles in the mixed graph if valid (that is, it only eliminates those cycles consisting entirely
 	 * of added edges, as specified by M and inMdubPrime)
 	 * @param input - the graph in which we wish to carry out the elimination.
-	 * @param M - a list that contains the arcs in input
-	 * @param inMdubPrime - a list indexed accordingly with M to indicate whether or not the ith arc in M was added, or is an original.
+	 * @param M - a list that contains the arcs in input which have been added (and are therefore candidates for removal).
 	 */
-	public static void eliminateAddedDirectedCycles(MixedGraph input, ArrayList<MixedEdge> M, ArrayList<Boolean> inMdubPrime) throws IllegalArgumentException
+	public static void eliminateAddedDirectedCycles(MixedGraph input, ArrayList<MixedEdge> added) throws IllegalArgumentException
 	{
 		try {
-			int mSize = M.size();
-			if(mSize != inMdubPrime.size())
-				throw new IllegalArgumentException(); 
+			int mSize = added.size();
 			DirectedGraph add = new DirectedGraph();
 			for(int i = 1; i < input.getVertices().size() + 1; i ++)
 			{
@@ -851,11 +848,8 @@ public class CommonAlgorithms {
 			MixedEdge e;
 			for(int i = 0; i < mSize; i++)
 			{
-				if(inMdubPrime.get(i))
-				{
-					e = M.get(i);
+					e = added.get(i);
 					add.addEdge(new Arc("for cycle elimination", new Pair<DirectedVertex>(addVertices.get(e.getTail().getId()), addVertices.get(e.getHead().getId())), e.getCost()), e.getId());
-				}
 			}
 
 			int n = add.getVertices().size();
@@ -865,6 +859,7 @@ public class CommonAlgorithms {
 			boolean cycleDetected = true;
 			int curr,next, nextEdge;
 			HashMap<Integer, Arc> addArcs = add.getInternalEdgeMap();
+			HashMap<Integer, MixedEdge> inputEdges = input.getInternalEdgeMap();
 			Arc u;
 			while(cycleDetected)
 			{
@@ -883,7 +878,10 @@ public class CommonAlgorithms {
 							next = path[curr][i];
 							nextEdge = edgePath[curr][i];
 							//delete the arc both in add, and in the input graph
-							
+							u = addArcs.get(nextEdge); //the arc in add
+							e = inputEdges.get(u.getMatchId()); //the mixed edge in input
+							add.removeEdge(u);
+							input.removeEdge(e);
 						}while((curr = next) != i);
 					}
 				}
@@ -964,6 +962,87 @@ public class CommonAlgorithms {
 					nextEdge = edgePath[curr][end];
 					e = input.getInternalEdgeMap().get(setupEdges.get(nextEdge).getMatchId());
 					input.addEdge(new MixedEdge("added in phase I",  new Pair<MixedVertex>(e.getEndpoints().getFirst(), e.getEndpoints().getSecond()), e.getCost(), e.isDirected()));
+				} while ( (curr =next) != end);
+			}
+
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
+	/**
+	 * Essentially solves the UCPP on the Mixed Graph, ignoring arc direction,
+	 * as in Mixed 1 of Frederickson.
+	 * @param input - a mixed graph, which is augmented with the solution to the matching.
+	 */
+	public static void evenDegree(MixedGraph input, ArrayList<MixedEdge> added)
+	{
+		try {
+			//set up the undirected graph, and then solve the min cost matching
+			UndirectedGraph setup = new UndirectedGraph();
+			for(int i = 1; i < input.getVertices().size()+1 ; i++)
+			{
+				setup.addVertex(new UndirectedVertex("even setup graph"), i);
+			}
+			HashMap<Integer, UndirectedVertex> indexedVertices = setup.getInternalVertexMap();
+			for(MixedEdge e:input.getEdges())
+			{
+				setup.addEdge(new Edge("even setup graph", new Pair<UndirectedVertex>(indexedVertices.get(e.getEndpoints().getFirst().getId()), indexedVertices.get(e.getEndpoints().getSecond().getId())), e.getCost()), e.getId());
+			}
+
+			//solve shortest paths
+			int n = setup.getVertices().size();
+			int[][] dist = new int[n+1][n+1];
+			int[][] path = new int[n+1][n+1];
+			int[][] edgePath = new int[n+1][n+1];
+			CommonAlgorithms.fwLeastCostPaths(setup, dist, path, edgePath);
+
+			//setup the complete graph composed entirely of the unbalanced vertices
+			UndirectedGraph matchingGraph = new UndirectedGraph();
+
+			//setup our graph of unbalanced vertices
+			for (UndirectedVertex v: setup.getVertices())
+			{
+				if(v.getDegree() % 2 == 1)
+				{
+					matchingGraph.addVertex(new UndirectedVertex("oddVertex"), v.getId());
+				}
+			}
+
+			//connect with least cost edges
+			Collection<UndirectedVertex> oddVertices = matchingGraph.getVertices();
+			for (UndirectedVertex v: oddVertices)
+			{
+				for (UndirectedVertex v2: oddVertices)
+				{
+					//only add one edge per pair of vertices
+					if(v.getId() <= v2.getId())
+						continue;
+					matchingGraph.addEdge(new Edge("matchingEdge",new Pair<UndirectedVertex>(v,v2), dist[v.getMatchId()][v2.getMatchId()]));
+				}
+			}
+
+			Set<Pair<UndirectedVertex>> matchingSolution = CommonAlgorithms.minCostMatching(matchingGraph);
+
+
+			//now add copies in the mixed graph
+			MixedEdge e, temp;
+			HashMap<Integer, Edge> setupEdges = setup.getInternalEdgeMap();
+			for(Pair<UndirectedVertex> p : matchingSolution)
+			{
+				//add the 'undirected' shortest path
+				int curr = p.getFirst().getMatchId();
+				int end = p.getSecond().getMatchId();
+				int next = 0;
+				int nextEdge = 0;
+				do {
+					next = path[curr][end];
+					nextEdge = edgePath[curr][end];
+					e = input.getInternalEdgeMap().get(setupEdges.get(nextEdge).getMatchId());
+					temp = new MixedEdge("added in phase I",  new Pair<MixedVertex>(e.getEndpoints().getFirst(), e.getEndpoints().getSecond()), e.getCost(), e.isDirected());
+					input.addEdge(temp);
+					added.add(temp);
 				} while ( (curr =next) != end);
 			}
 
