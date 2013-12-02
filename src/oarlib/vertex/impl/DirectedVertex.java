@@ -64,4 +64,9 @@ public class DirectedVertex extends Vertex{
 		return;
 	}
 
+	@Override
+	public void clearNeighbors() {
+		neighbors = new HashMap<DirectedVertex,ArrayList<Arc>>();
+	}
+
 }

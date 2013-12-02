@@ -88,7 +88,6 @@ public class CommonAlgorithms {
 		{
 			//greedily go until we've come back to start
 			do {
-
 				currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
 				edgeCycle.add(currEdge.getId()); //add it to the trail
 				//update the currVertex
@@ -697,17 +696,11 @@ public class CommonAlgorithms {
 	 * @param U - the corresponding collection from running inoutdegree on input
 	 * @param inMdubPrime - the corresponding list from running inoutdegree on input
 	 */
-	public static MixedGraph evenParity(MixedGraph input, ArrayList<MixedEdge> U, ArrayList<MixedEdge> M, ArrayList<Boolean> inMdubPrime)
+	public static void evenParity(MixedGraph input, ArrayList<MixedEdge> U, ArrayList<MixedEdge> M, ArrayList<Boolean> inMdubPrime)
 	{
 		//the sets that we'll use to construct the answer
 		ArrayList<MixedEdge> Mprime = new ArrayList<MixedEdge>();
 		ArrayList<MixedEdge> Uprime = new ArrayList<MixedEdge>();
-		MixedGraph ans = new MixedGraph();
-		for(int i = 1; i < input.getVertices().size() + 1; i++)
-		{
-			ans.addVertex(new MixedVertex("parity graph"), i);
-		}
-		HashMap<Integer, MixedVertex> ansVertices = ans.getInternalVertexMap();
 
 		//first figure out the odd degree vertices relative to the output of inoutdegree
 		try {
@@ -775,6 +768,7 @@ public class CommonAlgorithms {
 					else //if it's directed backward, remove the original
 					{
 						M.remove(currEdge.getMatchId());
+						inMdubPrime.remove(currEdge.getMatchId());
 						curr = currEdge.getTail();
 					}
 				}
@@ -808,21 +802,96 @@ public class CommonAlgorithms {
 				Uprime.add(U.get(i));
 			}
 
-			for(int i = 0; i < Mprime.size(); i++)
+			input.clearEdges();
+			for(int i = 0; i < Mprime.size(); i++) 
 			{
-				e = Mprime.get(i);
-				ans.addEdge(new MixedEdge("final", new Pair<MixedVertex>(ansVertices.get(e.getTail().getId()), ansVertices.get(e.getHead().getId())), e.getCost(), e.isDirected()));
+				input.addEdge(Mprime.get(i));
 			}
 			for(int i = 0; i < Uprime.size(); i ++)
 			{
-				e = Uprime.get(i);
-				ans.addEdge(new MixedEdge("final", new Pair<MixedVertex>(ansVertices.get(e.getEndpoints().getFirst().getId()), ansVertices.get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected()));
+				input.addEdge(Uprime.get(i));
 			}
-			return ans;
+			return;
 		} catch(Exception e)
 		{
 			e.printStackTrace();
-			return null;
+			return;
+		}
+	}
+	/*
+	 * Mainly for use with the MCPP Solvers, once we have our answer, we want to be able to search for 
+	 * convert an eulerian mixed graph into an eulerian directed graph.  This graph simply identifies
+	 * undirected cycles in the input graph, and directs them in an arbitrary direction.  
+	 */
+	public static DirectedGraph directUndirectedCycles(MixedGraph input)
+	{
+		//TODO
+		return null;
+	}
+	/**
+	 * Eliminates directed cycles in the mixed graph if valid (that is, it only eliminates those cycles consisting entirely
+	 * of added edges, as specified by M and inMdubPrime)
+	 * @param input - the graph in which we wish to carry out the elimination.
+	 * @param M - a list that contains the arcs in input
+	 * @param inMdubPrime - a list indexed accordingly with M to indicate whether or not the ith arc in M was added, or is an original.
+	 */
+	public static void eliminateAddedDirectedCycles(MixedGraph input, ArrayList<MixedEdge> M, ArrayList<Boolean> inMdubPrime) throws IllegalArgumentException
+	{
+		try {
+			int mSize = M.size();
+			if(mSize != inMdubPrime.size())
+				throw new IllegalArgumentException(); 
+			DirectedGraph add = new DirectedGraph();
+			for(int i = 1; i < input.getVertices().size() + 1; i ++)
+			{
+				add.addVertex(new DirectedVertex(""),i);
+			}
+			//only add the edges that correspond to the added ones before.
+			HashMap<Integer, DirectedVertex> addVertices = add.getInternalVertexMap();
+			MixedEdge e;
+			for(int i = 0; i < mSize; i++)
+			{
+				if(inMdubPrime.get(i))
+				{
+					e = M.get(i);
+					add.addEdge(new Arc("for cycle elimination", new Pair<DirectedVertex>(addVertices.get(e.getTail().getId()), addVertices.get(e.getHead().getId())), e.getCost()), e.getId());
+				}
+			}
+
+			int n = add.getVertices().size();
+			int[][] dist;
+			int[][] path;
+			int[][] edgePath;
+			boolean cycleDetected = true;
+			int curr,next, nextEdge;
+			HashMap<Integer, Arc> addArcs = add.getInternalEdgeMap();
+			Arc u;
+			while(cycleDetected)
+			{
+				dist = new int[n+1][n+1];
+				path = new int[n+1][n+1];
+				edgePath = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(add, dist, path, edgePath);
+				for(int i = 1; i < n+1; i++)
+				{
+					if(dist[i][i] < Integer.MAX_VALUE)
+					{
+						cycleDetected = true;
+						//remove cycle
+						curr = i;
+						do {
+							next = path[curr][i];
+							nextEdge = edgePath[curr][i];
+							//delete the arc both in add, and in the input graph
+							
+						}while((curr = next) != i);
+					}
+				}
+			}
+		} catch (Exception ex)
+		{
+			ex.printStackTrace();
+			return;
 		}
 	}
 	/**
@@ -1330,7 +1399,7 @@ public class CommonAlgorithms {
 			return;
 		}
 	}
-	
+
 	public static void fwLeastCostPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int[][] dist, int[][] path, int[][] edgePath) throws IllegalArgumentException
 	{
 		//initialize dist and path

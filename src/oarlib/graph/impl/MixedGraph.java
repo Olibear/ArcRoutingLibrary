@@ -39,6 +39,8 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 	@Override
 	public void addEdge(MixedEdge e) throws InvalidEndpointsException{
 		//handle the two different cases
+		if(!this.getVertices().contains(e.getEndpoints().getFirst()) || !this.getVertices().contains(e.getEndpoints().getSecond()))
+			throw new InvalidEndpointsException();
 		if(e.isDirected())
 		{
 			e.getEndpoints().getFirst().addToNeighbors(e.getEndpoints().getSecond(), e);
@@ -58,6 +60,19 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 			toUpdate = e.getEndpoints().getSecond();
 			toUpdate.setDegree(toUpdate.getDegree()+1);
 			super.addEdge(e);
+		}
+	}
+	
+	@Override
+	public void clearEdges()
+	{
+		super.clearEdges();
+		for(MixedVertex v: this.getVertices())
+		{
+			v.setDegree(0);
+			v.setInDegree(0);
+			v.setOutDegree(0);
+			v.clearNeighbors();
 		}
 	}
 

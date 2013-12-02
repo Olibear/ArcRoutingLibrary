@@ -85,7 +85,10 @@ public class GraphReader {
 			}
 
 			if(n == 0 || m == 0)
+			{
+				br.close();
 				throw new FormatMismatchException("We could not detect any vertices (edges) in the file.");
+			}
 			//now split off into types
 			if(type == "Mixed")
 			{

@@ -44,6 +44,13 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		return mEdges;
 	}
 	@Override
+	public void clearEdges() {
+		mEdges = new HashSet<E>();
+		mInternalEdgeMap = new HashMap<Integer, E>();
+		mGlobalEdgeMap = new HashMap<Integer, E>();
+		super.resetEdgeCounter();
+	}
+	@Override
 	public void addEdge(E e) throws InvalidEndpointsException{
 		// enforce endpoints being added first
 		if (!mVertices.contains(e.getEndpoints().getFirst()) || !mVertices.contains(e.getEndpoints().getSecond()))

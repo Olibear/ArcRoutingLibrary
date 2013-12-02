@@ -40,6 +40,17 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		toUpdate.setDegree(toUpdate.getDegree()+1);
 		super.addEdge(e);
 	}
+	
+	@Override
+	public void clearEdges()
+	{
+		super.clearEdges();
+		for(UndirectedVertex v: this.getVertices())
+		{
+			v.setDegree(0);
+			v.clearNeighbors();
+		}
+	}
 	@Override
 	public void removeEdge(Edge e) throws IllegalArgumentException
 	{

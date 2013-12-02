@@ -51,5 +51,10 @@ public class UndirectedVertex extends Vertex{
 		return;
 	}
 
+	@Override
+	public void clearNeighbors() {
+		neighbors = new HashMap<UndirectedVertex, ArrayList<Edge>>();
+	}
+
 
 }

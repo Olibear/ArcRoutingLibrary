@@ -14,17 +14,23 @@ import oarlib.problem.impl.MixedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.MixedVertex;
 
-public class MCPPSolver extends Solver{
+/**
+ * 
+ * @author oliverlum
+ *
+ */
+public class ModifiedMCPPSolver extends Solver{
 
 	MixedCPP mInstance;
 
-	public MCPPSolver(MixedCPP instance) throws IllegalArgumentException {
+	public ModifiedMCPPSolver(MixedCPP instance) throws IllegalArgumentException {
 		super(instance);
 		mInstance = instance;
 	}
 
 	/**
-	 * Implements Frederickson's heuristic for the mixed CPP.
+	 * Implements Frederickson's heuristic for the mixed CPP, and then eliminates added directed cycles, as 
+	 * detailed in Pearn and Chou.
 	 */
 	@Override
 	protected Collection<Route> solve() {
@@ -48,6 +54,10 @@ public class MCPPSolver extends Solver{
 			//Even
 			CommonAlgorithms.evenParity(ans1, U, M, inMdubPrime);
 			//End Mixed 1
+			
+			//Start Improvement Phase
+			
+			//End Improvement Phase
 
 			//Start Mixed 2
 			U = new ArrayList<MixedEdge>();
@@ -65,6 +75,10 @@ public class MCPPSolver extends Solver{
 				ans2.addEdge(U.get(i));
 			}
 			//End Mixed 2
+			
+			//Start Improvement Phase
+			
+			//End Improvement Phase
 
 			//select the lower cost of the two
 			int cost1 = 0;

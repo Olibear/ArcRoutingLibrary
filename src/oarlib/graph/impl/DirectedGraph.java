@@ -28,6 +28,18 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	public void addVertex(DirectedVertex v) {
 		super.addVertex(v);
 	}
+	
+	@Override
+	public void clearEdges()
+	{
+		super.clearEdges();
+		for(DirectedVertex v: this.getVertices())
+		{
+			v.setInDegree(0);
+			v.setOutDegree(0);
+			v.clearNeighbors();
+		}
+	}
 
 	@Override
 	public void addEdge(Arc e) throws InvalidEndpointsException{ 

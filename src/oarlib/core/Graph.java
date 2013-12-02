@@ -43,6 +43,17 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 */
 	public abstract Collection<E> getEdges();
 	/**
+	 * Erases all edges in the graph, leaving only the vertices behind
+	 */
+	public abstract void clearEdges();
+	/**
+	 * Resets the Edge counter / id assignment to start over.
+	 */
+	protected void resetEdgeCounter()
+	{
+		eidCounter = 1;
+	}
+	/**
 	 * To add a vertex to the graph.
 	 * @param v - vertex to be added
 	 */

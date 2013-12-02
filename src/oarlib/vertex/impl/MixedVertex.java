@@ -76,4 +76,9 @@ public class MixedVertex extends Vertex {
 		return;
 	}
 
+	@Override
+	public void clearNeighbors() {
+		neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
+	}
+
 }
