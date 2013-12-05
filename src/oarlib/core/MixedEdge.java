@@ -49,5 +49,9 @@ public class MixedEdge extends Link<MixedVertex>{
 			return getEndpoints().getFirst();
 		throw new WrongEdgeTypeException();
 	}
+	@Override
+	public MixedEdge getCopy() {
+		return new MixedEdge("copy", this.getEndpoints(), this.getCost(), this.isDirected());
+	}
 
 }

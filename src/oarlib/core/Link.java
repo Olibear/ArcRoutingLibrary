@@ -32,6 +32,11 @@ public abstract class Link<V extends Vertex> {
 		capacitySet = false;
 		counter++;
 	}
+	/**
+	 * Gets a copy of the edge.
+	 * @return - a copy of the edge
+	 */
+	public abstract Link<V> getCopy();
 
 	//==================================
 	// Getters and Setters

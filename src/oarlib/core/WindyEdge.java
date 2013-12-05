@@ -21,5 +21,9 @@ public class WindyEdge extends Link<UndirectedVertex>{
 	public void setReverseCost(int mReverseCost) {
 		this.mReverseCost = mReverseCost;
 	}
+	@Override
+	public WindyEdge getCopy() {
+		return new WindyEdge("copy", this.getEndpoints(), this.getCost(), this.getReverseCost());
+	}
 
 }

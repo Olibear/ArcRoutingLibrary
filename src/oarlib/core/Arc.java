@@ -37,5 +37,9 @@ public class Arc extends Link<DirectedVertex>{
 	{
 		return getEndpoints().getFirst();
 	}
+	@Override
+	public Arc getCopy() {
+		return new Arc("copy", this.getEndpoints(), this.getCost());
+	}
 
 }

@@ -20,4 +20,9 @@ public class Edge extends Link<UndirectedVertex>{
 		setDirected(false);
 	}
 
+	@Override
+	public Edge getCopy() {
+		return new Edge("copy", this.getEndpoints(), this.getCost());
+	}
+
 }
