@@ -88,7 +88,8 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 			directedBackward = false;
 			numCopies = 0;
 		}
-		throw new WrongEdgeTypeException("You may only direct a type A or type D edge.");
+		else
+			throw new WrongEdgeTypeException("You may only direct a type A or type D edge.");
 	}
 	public void directBackward() throws WrongEdgeTypeException
 	{
@@ -105,7 +106,8 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 			directedBackward = true;
 			numCopies = 0;
 		}
-		throw new WrongEdgeTypeException("You may only direct a type A or type D edge.");
+		else
+			throw new WrongEdgeTypeException("You may only direct a type A or type D edge.");
 
 	}
 	public void addCopy() throws WrongEdgeTypeException

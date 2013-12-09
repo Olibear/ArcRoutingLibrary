@@ -56,7 +56,7 @@ public class DCPPSolver extends Solver{
 		}
 
 		//min cost flow
-		try {
+		/*try {
 			if(!CommonAlgorithms.isEulerian(input))
 			{
 				int n = input.getVertices().size();
@@ -71,6 +71,24 @@ public class DCPPSolver extends Solver{
 				{
 					for(int i = 0; i < flowanswer.get(p); i++)
 						CommonAlgorithms.addShortestPath(input, dist, path, edgePath, p);
+				}
+			}
+		}*/
+		try {
+			if(!CommonAlgorithms.isEulerian(input))
+			{
+				int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(input);
+
+				HashMap<Integer, Arc> indexedArcs = input.getInternalEdgeMap();
+				Arc temp;
+				//add the solution to the graph (augment)
+				for(int i = 1; i < flowanswer.length; i++)
+				{
+					temp = indexedArcs.get(i);
+					for(int j = 0; j < flowanswer[i]; j++)
+					{
+						input.addEdge(new Arc("added from flow", temp.getEndpoints(), temp.getCost()));
+					}
 				}
 			}
 		}

@@ -68,7 +68,7 @@ public class GraphReader {
 				if(line.contains("NOMBRE"))
 				{
 					temp = line.split("\\s+|:");
-					if(temp[3].startsWith("MA"))
+					if(temp[3].startsWith("MA") || temp[3].startsWith("MB"))
 						type = "Mixed";
 				}
 				else if(line.contains("VERTICES"))
@@ -104,15 +104,24 @@ public class GraphReader {
 				HashMap<Integer, MixedVertex> ansVertices = ans.getInternalVertexMap();
 				br.readLine();
 				br.readLine();
+				int index;
 				while((line = br.readLine()) != null)
 				{
 					if(line.contains("ARISTAS"))
 						break;
-					temp = line.split("\\s+|:|\\)|,");
-					tailId = Integer.parseInt(temp[1]);
-					headId = Integer.parseInt(temp[3]);
-					cost1 = Integer.parseInt(temp[6]);
-					cost2 = Integer.parseInt(temp[7]);
+					temp = line.split("\\s+|:|\\)|,|\\(");
+					index = 1;
+					if(temp[index].isEmpty())
+						index++;
+					tailId = Integer.parseInt(temp[index++]);
+					if(temp[index].isEmpty())
+						index++;
+					if(temp[index].isEmpty())
+						index++;
+					headId = Integer.parseInt(temp[index++]);
+					index+=2;
+					cost1 = Integer.parseInt(temp[index++]);
+					cost2 = Integer.parseInt(temp[index]);
 					if(cost1 == 99999999) //backwards arc
 					{
 						ans.addEdge(new MixedEdge("original", new Pair<MixedVertex>(ansVertices.get(headId), ansVertices.get(tailId)), cost2, true));

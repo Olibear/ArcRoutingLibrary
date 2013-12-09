@@ -102,4 +102,14 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		}
 	}
 
+
+	@Override
+	public void addEdge(int i, int j, String desc, int cost)
+			throws InvalidEndpointsException {
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		this.addEdge(new Edge(desc, new Pair<UndirectedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost));
+		
+	}
+
 }

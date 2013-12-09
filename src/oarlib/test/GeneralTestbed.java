@@ -1,11 +1,13 @@
 package oarlib.test;
 
+import java.io.File;
 import java.util.ArrayList;
 import gurobi.*;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Stack;
 
 import oarlib.core.Arc;
 import oarlib.core.Edge;
@@ -26,6 +28,7 @@ import oarlib.problem.impl.DirectedCPP;
 import oarlib.problem.impl.MixedCPP;
 import oarlib.problem.impl.UndirectedCPP;
 import oarlib.solver.impl.DCPPSolver;
+import oarlib.solver.impl.ImprovedMCPPSolver;
 import oarlib.solver.impl.MCPPSolver;
 import oarlib.solver.impl.ModifiedMCPPSolver;
 import oarlib.solver.impl.UCPPSolver;
@@ -90,7 +93,7 @@ public class GeneralTestbed {
 			if(g.getClass() == MixedGraph.class)
 			{
 				MixedGraph g2 = (MixedGraph)g;
-				
+
 				DirectedGraph g3 = new DirectedGraph();
 				for(int i = 0; i < g2.getVertices().size(); i ++)
 				{
@@ -99,7 +102,7 @@ public class GeneralTestbed {
 				HashMap<Integer, DirectedVertex> g3Vertices = g3.getInternalVertexMap();
 				HashMap<Integer, MixedEdge> g2Edges = g2.getInternalEdgeMap();
 				MixedEdge e;
-				
+
 				for(int i = 1; i < g2.getEdges().size()+1; i++)
 				{
 					e = g2Edges.get(i);
@@ -139,16 +142,58 @@ public class GeneralTestbed {
 		try
 		{
 			MixedCPP validInstance;
-			ModifiedMCPPSolver validSolver;
+			MCPPSolver validSolver;
 			Collection<Route> validAns;
-			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0535");
+
+			File testInstanceFolder = new File("/Users/oliverlum/Downloads/MCPP");
+			long start;
+			long end;
+
+			for(final File testInstance: testInstanceFolder.listFiles())
+			{
+				String temp = testInstance.getName();
+				System.out.println(temp);
+				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/" + temp);
+				if(g.getClass() == MixedGraph.class)
+				{
+					MixedGraph g2 = (MixedGraph)g;
+					validInstance = new MixedCPP(g2);
+					validSolver = new MCPPSolver(validInstance);
+					start = System.nanoTime();
+					validAns = validSolver.trySolve(); //my ans
+					end = System.nanoTime();
+					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
+
+				}
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	private static void testYaoyuenyong()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		try
+		{
+			MixedCPP validInstance;
+			ImprovedMCPPSolver validSolver;
+			Collection<Route> validAns;
+
+			long start;
+			long end;
+
+			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0532");
 			if(g.getClass() == MixedGraph.class)
 			{
 				MixedGraph g2 = (MixedGraph)g;
 				validInstance = new MixedCPP(g2);
-				validSolver = new ModifiedMCPPSolver(validInstance);
+				validSolver = new ImprovedMCPPSolver(validInstance);
+				start = System.nanoTime();
 				validAns = validSolver.trySolve(); //my ans
-				
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
+
 			}
 		} catch(Exception e)
 		{
@@ -160,13 +205,18 @@ public class GeneralTestbed {
 		try{
 			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
 			UndirectedGraph g;
+			long startTime;
+			long endTime;
 			boolean tourOK;
 			for(int i=10;i<150;i+=10)
 			{
 				tourOK = false;
 				g = (UndirectedGraph)ugg.generateEulerianGraph(i, 10, true);
 				System.out.println("Undirected graph of size " + i + " is Eulerian? " + CommonAlgorithms.isEulerian(g));
+				startTime = System.nanoTime();
 				ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(g);
+				endTime = System.nanoTime();
+				System.out.println("It took " + (endTime-startTime)/(1e6) + " milliseconds to run our hierholzer implementation on a graph with " + g.getEdges().size() + " edges.");
 
 				if(ans.size() != g.getEdges().size())
 				{
@@ -211,7 +261,10 @@ public class GeneralTestbed {
 				tourOK = false;
 				g2 = (DirectedGraph)dgg.generateEulerianGraph(i, 10, true);
 				System.out.println("Directed graph of size " + i + " is Eulerian? " + CommonAlgorithms.isEulerian(g2));
+				startTime = System.nanoTime();
 				ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(g2);
+				endTime = System.nanoTime();
+				System.out.println("It took " + (endTime-startTime)/(1e6) + " milliseconds to run our hierholzer implementation on a graph with " + g2.getEdges().size() + " edges.");
 
 				if(ans.size() != g2.getEdges().size())
 				{
@@ -258,6 +311,8 @@ public class GeneralTestbed {
 		try{
 			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
 			DirectedGraph g;
+			long start;
+			long end;
 			for(int i=10;i<150; i+=10)
 			{
 				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
@@ -278,7 +333,11 @@ public class GeneralTestbed {
 				int dist[][] = new int[n+1][n+1];
 				int path[][] = new int[n+1][n+1];
 				CommonAlgorithms.fwLeastCostPaths(g, dist, path);
+				start = System.nanoTime();
 				HashMap<Pair<Integer>, Integer> myAns = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(g, dist); //mine
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our cycle canceling min cost flow implementation on a graph with " + g.getEdges().size() + " edges.");
+
 				int[][] ans = CommonAlgorithms.minCostNetworkFlow(g); //Lau's
 
 				int cost = 0;
@@ -297,12 +356,60 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	private static void timeMinCostFlow()
+	{
+		try{
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			DirectedGraph g;
+			long start;
+			long end;
+			long duration;
+			double density;
+			for(int i=10;i<300; i+=10)
+			{
+				density = (2.0*i)/(i*i/2.0); // we want roughly 4n edges
+				g = (DirectedGraph)dgg.generateGraph(i, 10, true, density);
+
+				//min cost flow not fruitful?
+				if(CommonAlgorithms.isEulerian(g))
+					continue;
+
+				//set demands
+				for(DirectedVertex v:g.getVertices())
+				{
+					v.setDemand(v.getDelta());
+				}
+
+				//set up for using flow methods
+				int n = g.getVertices().size();
+
+				duration  = 0;
+				for(int j = 0; j < 10; j++) //time it out 100 times, and take average
+				{
+					int dist[][] = new int[n+1][n+1];
+					int path[][] = new int[n+1][n+1];
+					CommonAlgorithms.fwLeastCostPaths(g, dist, path);
+					start = System.nanoTime();
+					HashMap<Pair<Integer>, Integer> myAns = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(g, dist); //mine
+					end = System.nanoTime();
+					duration += (end - start);
+				}
+				System.out.println(duration/(1e7) + "," + g.getEdges().size() + ";");
+			}
+		} catch(Exception ex)
+		{
+			ex.printStackTrace();
+			return;
+		}
+	}
 
 	private static void validateMinCostFlow2()
 	{
 		try{
 			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
 			DirectedGraph g;
+			long start;
+			long end;
 			for(int i=10;i<150; i+=10)
 			{
 				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
@@ -323,7 +430,11 @@ public class GeneralTestbed {
 				int dist[][] = new int[n+1][n+1];
 				int path[][] = new int[n+1][n+1];
 				CommonAlgorithms.fwLeastCostPaths(g, dist, path);
+				start = System.nanoTime();
 				int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our SSP min cost flow implementation on a graph with " + g.getEdges().size() + " edges.");
+
 				int[][] ans = CommonAlgorithms.minCostNetworkFlow(g); //Lau's
 
 				int cost = 0;
@@ -343,6 +454,51 @@ public class GeneralTestbed {
 		} catch(Exception e)
 		{
 			e.printStackTrace();
+		}
+	}
+	private static void timeMinCostFlow2(){
+		try{
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			DirectedGraph g;
+			long start;
+			long end;
+			long duration;
+			double density;
+			for(int i=10;i<150; i+=10)
+			{
+				density = (2.0*i)/(i*i/2.0);
+				g = (DirectedGraph)dgg.generateGraph(i, 10, true, density);
+
+				//min cost flow not fruitful?
+				if(CommonAlgorithms.isEulerian(g))
+					continue;
+
+				//set demands
+				for(DirectedVertex v:g.getVertices())
+				{
+					v.setDemand(v.getDelta());
+				}
+
+				//set up for using flow methods
+				int n = g.getVertices().size();
+				duration =0;
+				for(int j =0; j<10; j++)
+				{
+					int dist[][] = new int[n+1][n+1];
+					int path[][] = new int[n+1][n+1];
+					CommonAlgorithms.fwLeastCostPaths(g, dist, path);
+					start = System.nanoTime();
+					int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
+					end = System.nanoTime();
+					duration += (end-start);
+				}
+				System.out.println((duration)/(1e7) + "," + g.getEdges().size() + ";");
+
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
 		}
 	}
 	private static void testMinCostFlow2()
@@ -398,7 +554,7 @@ public class GeneralTestbed {
 		{
 			cost += myAns[j] * indexedArcs.get(j).getCost();
 		}
-		
+
 		System.out.println("example cost: " + cost);
 	}
 	private static void validateAllPairsShortestPaths()
@@ -407,6 +563,8 @@ public class GeneralTestbed {
 			//for undirected graphs
 			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
 			UndirectedGraph g;
+			long start;
+			long end;
 			for(int i=2;i<150; i+=10)
 			{
 				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
@@ -414,7 +572,11 @@ public class GeneralTestbed {
 				int n = g.getVertices().size();
 				int mDist[][] = new int[n+1][n+1];
 				int mPath[][] = new int[n+1][n+1];
+				start = System.nanoTime();
 				CommonAlgorithms.fwLeastCostPaths(g, mDist, mPath); //mine
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our APSP implementation on a graph with " + g.getEdges().size() + " edges.");
+
 
 				int dist[][] = new int[n+1][n+1];
 				int path[][] = new int[n+1][n+1];
@@ -508,6 +670,100 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	private static void validateDijkstras()
+	{
+		try{
+			//for undirected graphs
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph g;
+			long start;
+			long end;
+			for(int i=2;i<500; i+=10)
+			{
+				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
+				System.out.println("Generated undirected graph with n = " + i);
+				int n = g.getVertices().size();
+				int mDist[][] = new int[n+1][n+1];
+				int mPath[][] = new int[n+1][n+1];
+				start = System.nanoTime();
+				CommonAlgorithms.fwLeastCostPaths(g, mDist, mPath); //mine
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our APSP implementation on a graph with " + g.getEdges().size() + " edges.");
+
+
+				int dist[] = new int[n+1];
+				int path[] = new int[n+1];
+				int edgePath[] = new int[n+1];
+				start = System.nanoTime();
+				CommonAlgorithms.dijkstrasAlgorithm(g, 1, dist, path, edgePath);
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Dijkstras implementation on a graph with " + g.getEdges().size() + " edges.");
+
+			}
+			//for directed graphs
+			DirectedGraph g2;
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			for(int i=2;i<150; i+=10)
+			{
+				g2 = (DirectedGraph)dgg.generateGraph(i, 10, true);
+				System.out.println("Generated directed graph with n = " + i);
+				int n = g2.getVertices().size();
+				int[][] mDist = new int[n+1][n+1];
+				int[][] mPath = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(g2, mDist, mPath); //mine
+
+				int[] dist = new int[n+1];
+				int[] path = new int[n+1];
+				int[] edgePath = new int[n+1];
+				CommonAlgorithms.dijkstrasAlgorithm(g2, 1, dist, path, edgePath);
+				boolean distOK = true;
+				int mCost = 0;
+				for(int j=2;j<=n;j++)
+				{
+					if(dist[j] != mDist[1][j])
+						distOK = false;
+				}
+				System.out.println("distOK: " + distOK);
+			}
+
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	private static void timeAPSP()
+	{
+		try{
+			//for undirected graphs
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph g;
+			long start;
+			long end;
+			long duration;
+			double density;
+			for(int i=2;i<500; i+=10)
+			{
+				density = (4.0*i)/(i*i/2.0);
+				g = (UndirectedGraph)ugg.generateGraph(i, 10, true, density);
+				int n = g.getVertices().size();
+				duration = 0;
+				for(int j=0;j<10;j++)
+				{
+					int mDist[][] = new int[n+1][n+1];
+					int mPath[][] = new int[n+1][n+1];
+					start = System.nanoTime();
+					CommonAlgorithms.fwLeastCostPaths(g, mDist, mPath); //mine
+					end = System.nanoTime();
+					duration+=(end-start);
+				}
+				System.out.println(duration/(1e7) + "," + g.getEdges().size() + ";");
+			}
+		} catch(Exception ex)
+		{
+			ex.printStackTrace();
+			return;
+		}
+	}
 	private static void validateMinCostMatching()
 	{
 		try{
@@ -538,6 +794,9 @@ public class GeneralTestbed {
 			UCPPSolver validSolver;
 			Collection<Route> validAns;
 
+			//timing stuff
+			long start;
+			long end;
 
 			//Gurobi stuff
 			GRBEnv env = new GRBEnv("miplog.log");
@@ -563,7 +822,11 @@ public class GeneralTestbed {
 				g2 = g.getDeepCopy();
 				validInstance = new UndirectedCPP(g);
 				validSolver = new UCPPSolver(validInstance);
+				start = System.nanoTime();
 				validAns = validSolver.trySolve(); //my ans
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our UCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
+
 				for(Route r: validAns)
 				{
 					myCost += r.getCost();
@@ -654,6 +917,54 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	private static void timeUCPPSolver()
+	{
+		try {
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph g;
+			UndirectedGraph g2;
+			UndirectedCPP validInstance;
+			UCPPSolver validSolver;
+			Collection<Route> validAns;
+
+			//timing stuff
+			long start;
+			long end;
+			double density;
+
+			//Gurobi stuff
+			GRBEnv env = new GRBEnv("miplog.log");
+			GRBModel  model;
+			GRBLinExpr expr;
+			GRBVar[][] varArray;
+			ArrayList<Integer> oddVertices;
+
+			//the answers
+			int l;
+			int myCost;
+			int trueCost;
+
+			for(int i=2;i<150; i+=10)
+			{
+				myCost = 0;
+				trueCost = 0;
+				density = (4.0*i)/(i*i/2.0);
+				g = (UndirectedGraph)ugg.generateGraph(i, 10, true, density);
+				if(CommonAlgorithms.isEulerian(g))
+					continue;
+				validInstance = new UndirectedCPP(g);
+				validSolver = new UCPPSolver(validInstance);
+				start = System.nanoTime();
+				validAns = validSolver.trySolve(); //my ans
+				end = System.nanoTime();
+				System.out.println((end-start)/(1e6) + "," + g.getEdges().size() + ";");
+			}
+		} catch(Exception ex)
+		{
+			ex.printStackTrace();
+			return;
+		}
+	}
 	private static void validateDCPPSolver()
 	{
 		try{
@@ -663,6 +974,10 @@ public class GeneralTestbed {
 			DirectedCPP validInstance;
 			DCPPSolver validSolver;
 			Collection<Route> validAns;
+
+			//timing stuff
+			long start;
+			long end;
 
 			//Gurobi stuff
 			GRBEnv env = new GRBEnv("miplog.log");
@@ -689,7 +1004,11 @@ public class GeneralTestbed {
 
 				validInstance = new DirectedCPP(g);
 				validSolver = new DCPPSolver(validInstance);
+				start = System.nanoTime();
 				validAns = validSolver.trySolve(); //my ans
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our DCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
+
 				for(Route r: validAns)
 				{
 					myCost += r.getCost();
@@ -763,6 +1082,57 @@ public class GeneralTestbed {
 		catch(Exception e)
 		{
 			e.printStackTrace();
+		}
+	}
+	private static void timeDCPPSolver()
+	{
+		try{
+			DirectedGraph g;
+			DirectedGraph g2;
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			DirectedCPP validInstance;
+			DCPPSolver validSolver;
+			Collection<Route> validAns;
+
+			//timing stuff
+			long start;
+			long end;
+
+			//Gurobi stuff
+			GRBEnv env = new GRBEnv("miplog.log");
+			GRBModel  model;
+			GRBLinExpr expr;
+			GRBVar[][] varArray;
+			ArrayList<Integer> Dplus;
+			ArrayList<Integer> Dminus;
+			int l;
+			int m;
+			int myCost;
+			double trueCost;
+			double density;
+			for(int i=2;i<150; i+=10)
+			{
+				myCost=0;
+				trueCost=0;
+				density = (2.0*i)/(i*i/2.0);
+				g = (DirectedGraph)dgg.generateGraph(i, 10, true, density);
+				if(CommonAlgorithms.isEulerian(g))
+					continue;
+				//copy for gurobi to run on
+				g2 = g.getDeepCopy();
+				HashMap<Integer, DirectedVertex> indexedVertices = g2.getInternalVertexMap();
+
+				validInstance = new DirectedCPP(g);
+				validSolver = new DCPPSolver(validInstance);
+				start = System.nanoTime();
+				validAns = validSolver.trySolve(); //my ans
+				end = System.nanoTime();
+				System.out.println((end-start)/(1e6) + "," + g.getEdges().size() + ";");
+			}
+		} catch(Exception ex)
+		{
+			ex.printStackTrace();
+			return;
 		}
 	}
 	/**

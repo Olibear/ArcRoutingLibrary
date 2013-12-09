@@ -1,7 +1,9 @@
 package oarlib.graph.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -111,8 +113,18 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 
 	@Override
 	public List<MixedEdge> findEdges(Pair<MixedVertex> endpoints) {
-		// TODO Auto-generated method stub
-		return null;
+		List<MixedEdge> ret = new ArrayList<MixedEdge>();
+		HashSet<MixedEdge> temp = new HashSet<MixedEdge>(); //to make sure we don't add two copies of an edge
+		MixedVertex first = endpoints.getFirst();
+		HashMap<MixedVertex, ArrayList<MixedEdge>> firstNeighbors = first.getNeighbors();
+		if(firstNeighbors.get(endpoints.getSecond()) != null)
+			temp.addAll(firstNeighbors.get(endpoints.getSecond()));
+		MixedVertex second = endpoints.getSecond();
+		HashMap<MixedVertex, ArrayList<MixedEdge>> secondNeighbors = second.getNeighbors();
+		if(secondNeighbors.get(first) != null)
+			temp.addAll(secondNeighbors.get(first));
+		ret.addAll(temp);
+		return ret;
 	}
 
 	@Override
@@ -140,5 +152,18 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	@Override
+	public void addEdge(int i, int j, String desc, int cost)
+			throws InvalidEndpointsException {
+		this.addEdge(i,j,desc,cost,false);
+	}
+	
+	public void addEdge(int i, int j, String desc, int cost, boolean isDirected) throws InvalidEndpointsException
+	{
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		this.addEdge(new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, isDirected));
 	}
 }

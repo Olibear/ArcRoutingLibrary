@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 import oarlib.core.Arc;
@@ -27,6 +28,7 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
+import oarlib.graph.util.Utils.DijkstrasComparator;
 
 public class CommonAlgorithms {
 
@@ -625,6 +627,131 @@ public class CommonAlgorithms {
 		path[0] = num;
 	}
 	/**
+	 * Implements Dijkstra's Algorithm with Priority Queues, to achieve |E| + |V|log|V| single-source shortest paths 
+	 * @param g - the graph on which to solve our shortest path problem.
+	 * @param source - the Vertex from which paths and distances will be calculated 
+	 * @param dist - the ith entry contains the shortest distance from source to vertex i.
+	 * @param path - the ith entry contains the previous vertex on the shortest path from source to vertex i.
+	 */
+	public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException
+	{
+		int n = g.getVertices().size();
+		if(dist.length != n+1 || path.length != n+1)
+			throw new IllegalArgumentException();
+
+		//initialize
+		PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
+		dist[sourceId] = 0;
+		path[sourceId] = -1;
+		for(int i=1; i <=n;i++)
+		{
+			if(i != sourceId)
+			{
+				dist[i] = Integer.MAX_VALUE;
+				path[i] = -1;
+			}
+			pq.add(new Pair<Integer>(i,dist[i]));
+		}
+
+		Vertex u;
+		Pair<Integer> temp;
+		int min, alt, uid, vid;
+		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+		//now actually do the walk
+		while(!pq.isEmpty())
+		{
+			temp = pq.poll();
+			u = indexedVertices.get(temp.getFirst());
+			uid = u.getId();
+			for(Vertex v: u.getNeighbors().keySet())
+			{
+				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				vid = v.getId();
+				for(Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+						min = link.getCost();
+				}
+				alt = dist[uid] + min;
+				if(alt < dist[vid])
+				{
+					//found a better path
+					pq.remove(new Pair<Integer>(vid,dist[vid]));
+					dist[vid] = alt;
+					path[vid] = uid;
+					pq.add(new Pair<Integer>(vid,dist[vid]));
+				}
+			}
+		}
+	}
+	/**
+	 * Implements Dijkstra's Algorithm with Priority Queues, to achieve |E| + |V|log|V| single-source shortest paths 
+	 * @param g - the graph on which to solve our shortest path problem.
+	 * @param source - the Vertex from which paths and distances will be calculated 
+	 * @param dist - the ith entry will contain the shortest distance from source to vertex i.
+	 * @param path - the ith entry will contain the previous vertex on the shortest path from source to vertex i.
+	 * @param edgePath - the ith entry will contain the edge that gets traversed to get from the vertex in the (i-1)th entry of path to the ith entry of path. 
+	 */
+	public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException
+	{
+		int n = g.getVertices().size();
+		if(dist.length != n+1 || path.length != n+1 || edgePath.length != n+1)
+			throw new IllegalArgumentException();
+
+		//initialize
+		PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
+		dist[sourceId] = 0;
+		path[sourceId] = -1;
+		for(int i=1; i <=n;i++)
+		{
+			if(i != sourceId)
+			{
+				dist[i] = Integer.MAX_VALUE;
+				path[i] = -1;
+				edgePath[i] = -1;
+			}
+			pq.add(new Pair<Integer>(i,dist[i]));
+		}
+
+		Vertex u;
+		Pair<Integer> temp;
+		int min, alt, uid, vid, minid;
+		minid = Integer.MAX_VALUE;
+		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+		//now actually do the walk
+		while(!pq.isEmpty())
+		{
+			temp = pq.poll();
+			u = indexedVertices.get(temp.getFirst());
+			uid = u.getId();
+			for(Vertex v: u.getNeighbors().keySet())
+			{
+				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				vid = v.getId();
+				for(Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+					{
+						min = link.getCost();
+						minid = link.getId();
+					}
+				}
+				alt = dist[uid] + min;
+				if(alt < dist[vid])
+				{
+					//found a better path
+					pq.remove(new Pair<Integer>(vid,dist[vid]));
+					dist[vid] = alt;
+					path[vid] = uid;
+					edgePath[vid] = minid;
+					pq.add(new Pair<Integer>(vid,dist[vid]));
+				}
+			}
+		}
+	}
+	/**
 	 * Implements the Floyd-Warshall shortest paths algorithm.
 	 * @param g - the graph in which the shortest paths should be calculated
 	 * @param dist - an [n+1][n+1] matrix that will be filled with shortest paths at the end: the 0th column and row 
@@ -692,7 +819,7 @@ public class CommonAlgorithms {
 			}
 		}
 	}
-	
+
 	/*
 	 * Mainly for use with the MCPP Solvers, once we have our answer, we want to be able to search for 
 	 * convert an eulerian mixed graph into an eulerian directed graph.  This graph simply identifies
@@ -769,6 +896,11 @@ public class CommonAlgorithms {
 					}
 
 			}
+		}
+		for(int i = 1; i <= n; i++)
+		{
+			if(dist[i][i] == Integer.MAX_VALUE)
+				dist[i][i] = 0;
 		}
 	}
 	/**
@@ -902,6 +1034,12 @@ public class CommonAlgorithms {
 	 */
 	public static int[] shortestSuccessivePathsMinCostNetworkFlow(DirectedGraph g) throws IllegalArgumentException
 	{
+		//timing stuff
+		long start;
+		long end;
+		long duration=0;
+		int iterations = 0;
+
 		//so we don't mess with the original
 		DirectedGraph copy = g.getDeepCopy();
 		int m = copy.getEdges().size(); //for trimming
@@ -959,38 +1097,56 @@ public class CommonAlgorithms {
 		int [][] dist = new int[n+1][n+1];
 		int[][] path = new int[n+1][n+1];
 		int[][] edgePath = new int[n+1][n+1];
+
+		start = System.nanoTime();
 		CommonAlgorithms.fwLeastCostPaths(copy,dist,path, edgePath);
+		end = System.nanoTime();
+		duration += (end - start);
 
 		//reduce costs
 		int sourceId = source.getId();
 		int sinkId = sink.getId();
 		for(Arc a: copy.getEdges())
 		{
+			if(a.getTail().getId() == sourceId)
+				continue;
 			a.setCost(a.getCost() + dist[sourceId][a.getTail().getId()] - dist[sourceId][a.getHead().getId()]);
 		}
 
+		//check for legality
+		if(dist[sourceId][sinkId] == Integer.MAX_VALUE)
+			throw new IllegalArgumentException("Your graph is not connected, or this is not a valid flow problem");
+
 		//start looking for augmenting paths
-		int next, nextEdge, curr;
+		int prev, prevEdge, curr;
 		int maxFlow;
+		int[] dijkstraDist = new int[n+1];
+		int[] dijkstraPath = new int[n+1];
+		int[] dijkstraEdge = new int[n+1];
 		ArrayList<Integer> augmentingPath;
 		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
+
+		//first time
+		CommonAlgorithms.dijkstrasAlgorithm(copy, sourceId, dijkstraDist, dijkstraPath, dijkstraEdge);
+
 		try{
-			while(dist[sourceId][sinkId] < Integer.MAX_VALUE) //while a path from source to sink exists
+			while(dijkstraDist[sinkId] < Integer.MAX_VALUE) //while a path from source to sink exists
 			{
+				iterations++;
 				//push as much flow as possible along the shortest path from source to sink
-				curr = sourceId;
+				prev = sinkId;
 				augmentingPath = new ArrayList<Integer>();
 				maxFlow = Integer.MAX_VALUE; //how much we're entitled to push in this iteration
 				do {
-					next = path[curr][sinkId];
-					nextEdge = edgePath[curr][sinkId];
-					augmentingPath.add(nextEdge);
-					temp = indexedArcs.get(nextEdge);
+					prevEdge = dijkstraEdge[prev];
+					augmentingPath.add(prevEdge);
+					temp = indexedArcs.get(prevEdge);
 					if(temp.isCapacitySet() && maxFlow > temp.getCapacity())
 					{
 						maxFlow = temp.getCapacity();
 					}
-				} while ( (curr =next) != sinkId);
+					prev = dijkstraPath[prev];
+				} while ( prev != sourceId);
 				//now push it
 				for(Integer index: augmentingPath)
 				{
@@ -1062,20 +1218,26 @@ public class CommonAlgorithms {
 				//reduce costs
 				for(Arc a: copy.getEdges())
 				{
-					a.setCost(a.getCost() + dist[sourceId][a.getTail().getId()] - dist[sourceId][a.getHead().getId()]);
+					a.setCost(a.getCost() + dijkstraDist[a.getTail().getId()] - dijkstraDist[a.getHead().getId()]);
 				}
 
 				//recalculate shortest paths
 				dist = new int[n+1][n+1];
 				path = new int[n+1][n+1];
 				edgePath = new int[n+1][n+1];
-				CommonAlgorithms.fwLeastCostPaths(copy, dist, path, edgePath);
+				start = System.nanoTime();
+				CommonAlgorithms.dijkstrasAlgorithm(copy, sourceId, dijkstraDist, dijkstraPath, dijkstraEdge);
+				//CommonAlgorithms.fwLeastCostPaths(copy, dist, path, edgePath);
+				end = System.nanoTime();
+				duration += (end - start);
 			}
 		} catch(Exception e)
 		{
 			e.printStackTrace();
 			return null;
 		}
+		System.out.println("Time spent in shortest paths: " + duration/1e6 +"ms.");
+		System.out.println("We went through " + iterations + " iterations.");
 		//trim out artificial flows
 		for(int i=1; i<retArray.length; i++)
 		{
@@ -2216,6 +2378,6 @@ public class CommonAlgorithms {
 		}
 		return matching;
 	}
-	
+
 
 }

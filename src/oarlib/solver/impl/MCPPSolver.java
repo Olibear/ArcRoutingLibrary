@@ -85,6 +85,12 @@ public class MCPPSolver extends Solver{
 			{
 				cost2+=temp.getCost();
 			}
+			if(cost1<=cost2)
+				System.out.println("Total cost: " + cost1);
+			else
+				System.out.println("Total cost: " + cost2);
+
+			/*
 			ArrayList<Route> ret = new ArrayList<Route>();
 			ArrayList<Integer> tour;
 			if(cost1 <= cost2)
@@ -110,6 +116,8 @@ public class MCPPSolver extends Solver{
 				ret.add(eulerTour);
 			}
 			return ret;
+			 */
+			return null;
 
 		} catch(Exception e )
 		{
@@ -218,7 +226,7 @@ public class MCPPSolver extends Solver{
 			return;
 		}
 	}
-	
+
 	/**
 	 * Modifies the output from inoutdegree to make M and U still satisfy our balance constraints, but 
 	 * make them also obey evenness constraints that may have been violated in the process of 
@@ -284,54 +292,65 @@ public class MCPPSolver extends Solver{
 			HashMap<MixedVertex, ArrayList<MixedEdge>> currNeighbors;
 			MixedEdge currEdge;
 			HashMap<Integer, MixedVertex> inputVertices = input.getInternalVertexMap();
-			while(!Vprime.isEmpty())
+			int startId;
+			if(!Vprime.isEmpty())
 			{
 				curr = temp2Vertices.get(Vprime.remove(0).getId()); //in the M'' graph
-				//go until we get to another guy in Vprime
-				while(!Vprime.remove(tempVertices.get(curr.getId())))
+				startId = curr.getId();
+
+				while(!Vprime.isEmpty())
 				{
-					currNeighbors = curr.getNeighbors(); //neighbors in M''
-					currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
-					if(currEdge.getTail().equals(curr)) //if it's directed 'forward' then add a copy
+					curr = temp2Vertices.get(curr.getId()); //in the M'' graph
+					//go until we get to another guy in Vprime
+					while(!Vprime.remove(tempVertices.get(curr.getId())))
 					{
-						Mprime.add(new MixedEdge("duplicate from M''", new Pair<MixedVertex>(inputVertices.get(currEdge.getTail().getId()), inputVertices.get(currEdge.getHead().getId())), currEdge.getCost(), true));
-						curr = currEdge.getHead();
+						currNeighbors = curr.getNeighbors(); //neighbors in M''
+						currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
+						if(currEdge.getEndpoints().getFirst().equals(curr)) //if it's directed 'forward' then add a copy
+						{
+							Mprime.add(new MixedEdge("duplicate from M''", new Pair<MixedVertex>(inputVertices.get(currEdge.getEndpoints().getFirst().getId()), inputVertices.get(currEdge.getEndpoints().getSecond().getId())), currEdge.getCost(), true));
+							curr = currEdge.getEndpoints().getSecond();
+						}
+						else //if it's directed backward, remove the original
+						{
+							M.set(currEdge.getMatchId(), null);
+							inMdubPrime.set(currEdge.getMatchId(), null);
+							//M.remove(currEdge.getMatchId());
+							//inMdubPrime.remove(currEdge.getMatchId());
+							curr = currEdge.getEndpoints().getFirst();
+						}
 					}
-					else //if it's directed backward, remove the original
+					//now look in temp, not temp2
+					curr = tempVertices.get(curr.getId());
+					while(!Vprime.remove(curr) && curr.getId() != startId)
 					{
-						M.remove(currEdge.getMatchId());
-						inMdubPrime.remove(currEdge.getMatchId());
-						curr = currEdge.getTail();
-					}
-				}
-				//now look in temp, not temp2
-				curr = tempVertices.get(curr.getId());
-				while(!Vprime.remove(curr))
-				{
-					currNeighbors = curr.getNeighbors(); //neighbors in M''
-					currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
-					U.remove(currEdge.getMatchId()); //remove it from U, and throw it into Mprime directed now
-					if(curr.equals(currEdge.getTail()))
-					{
-						Mprime.add(new MixedEdge("directed from U", new Pair<MixedVertex>(inputVertices.get(currEdge.getTail().getId()), inputVertices.get(currEdge.getHead().getId())), currEdge.getCost(), true));
-						curr = currEdge.getHead();
-					}
-					else
-					{
-						Mprime.add(new MixedEdge("directed from U", new Pair<MixedVertex>(inputVertices.get(currEdge.getHead().getId()), inputVertices.get(currEdge.getTail().getId())), currEdge.getCost(), true));
-						curr = currEdge.getTail();
+						currNeighbors = curr.getNeighbors(); //neighbors in M''
+						currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
+						U.set(currEdge.getMatchId(), null); //remove it from U, and throw it into Mprime directed now
+						if(curr.equals(currEdge.getEndpoints().getFirst()))
+						{
+							Mprime.add(new MixedEdge("directed from U", new Pair<MixedVertex>(inputVertices.get(currEdge.getEndpoints().getFirst().getId()), inputVertices.get(currEdge.getEndpoints().getSecond().getId())), currEdge.getCost(), true));
+							curr = currEdge.getEndpoints().getSecond();
+						}
+						else
+						{
+							Mprime.add(new MixedEdge("directed from U", new Pair<MixedVertex>(inputVertices.get(currEdge.getEndpoints().getSecond().getId()), inputVertices.get(currEdge.getEndpoints().getFirst().getId())), currEdge.getCost(), true));
+							curr = currEdge.getEndpoints().getFirst();
+						}
 					}
 				}
 			}
 			//add M to M'
 			for(int i = 0; i < M.size(); i++)
 			{
-				Mprime.add(M.get(i));
+				if(M.get(i) != null)
+					Mprime.add(M.get(i));
 			}
 			//add U to U'
 			for(int i = 0; i < U.size(); i++)
 			{
-				Uprime.add(U.get(i));
+				if(U.get(i) != null)
+					Uprime.add(U.get(i));
 			}
 
 			input.clearEdges();
@@ -442,7 +461,8 @@ public class MCPPSolver extends Solver{
 	{
 		try {
 			DirectedGraph setup = new DirectedGraph();
-			for(int i = 1; i < input.getVertices().size() + 1; i++)
+			int n = input.getVertices().size();
+			for(int i = 1; i < n + 1; i++)
 			{
 				setup.addVertex(new DirectedVertex("symmetric setup graph"), i);
 			}
@@ -560,7 +580,8 @@ public class MCPPSolver extends Solver{
 			}
 
 			//now just go through, and any undirTraversal entries of 1 should be added forward, -1 should be added backward
-			for (int i=1; i < undirTraversals.length; i++)
+			int undirLength = undirTraversals.length;
+			for (int i=1; i < undirLength; i++)
 			{
 				e = inputEdges.get(i);
 				if(undirTraversals[i] == 0)

@@ -80,7 +80,6 @@ public class ImprovedMCPPSolver extends Solver {
 			HashMap<Integer, MixedEdge> gij1Edges;
 			HashMap<Integer, MixedEdge> gij3Edges;
 			HashMap<Integer, MixedEdge> gij4Edges;
-			List<MixedEdge> toRemove;
 			int curr, next, end;
 			int start = 1;
 			while(improvements) //while we're making progress
@@ -116,14 +115,6 @@ public class ImprovedMCPPSolver extends Solver {
 					CostMod2(Gij1, G, gEdgeContainers, i, j); //cost mod 2 on Gij1
 					CostMod2(Gij2, G, gEdgeContainers, i, j); //cost mod 2 on Gij2
 
-					//set Cij and Cji to infinity in Gij1
-					toRemove = Gij1.findEdges(new Pair<MixedVertex>(gij1Vertices.get(i), gij1Vertices.get(j)));
-					toRemove.addAll(Gij1.findEdges(new Pair<MixedVertex>(gij1Vertices.get(j), gij1Vertices.get(i))));
-					for(MixedEdge elim: toRemove)
-					{
-						Gij1.removeEdge(elim);
-					}
-
 					//solve the shortest paths problem in Gij1
 					dist = new int[n+1][n+1]; //we want to use distances in Gij2, but shortest paths from Gij1
 					path = new int[n+1][n+1];
@@ -132,6 +123,45 @@ public class ImprovedMCPPSolver extends Solver {
 					CommonAlgorithms.fwLeastCostPaths(Gij1, dist, path, edgePath);
 					dist = new int[n+1][n+1];
 					CommonAlgorithms.fwLeastCostPaths(Gij2, dist, path2);
+					
+					/**
+					 * CHECK THE CONNECTEDNESS OF GIJ1 and GIJ2 FOR DEBUGGING
+					 */
+					int ndebug = Gij2.getVertices().size();
+					int mdebug = 0;
+					int[] componentdebug = new int[ndebug+1];
+					for(MixedEdge edebug: Gij2.getEdges())
+					{
+						if(edebug.isDirected())
+							mdebug++;
+						else
+							mdebug+=2;
+					}
+					int[] nodei = new int[mdebug+1];
+					int[] nodej = new int[mdebug+1];
+					int tempdebug = 1;
+					for(MixedEdge edebug: Gij2.getEdges())
+					{
+						if(edebug.isDirected())
+						{
+							nodei[tempdebug] = edebug.getTail().getId();
+							nodej[tempdebug] = edebug.getHead().getId();
+							tempdebug++;
+						}
+						else
+						{
+							nodei[tempdebug] = edebug.getEndpoints().getFirst().getId();
+							nodej[tempdebug] = edebug.getEndpoints().getSecond().getId();
+							tempdebug++;
+							nodei[tempdebug] = edebug.getEndpoints().getSecond().getId();
+							nodej[tempdebug] = edebug.getEndpoints().getFirst().getId();
+							tempdebug++;
+						}
+						
+					}
+					CommonAlgorithms.stronglyConnectedComponents(ndebug, mdebug, nodei, nodej, componentdebug);
+					
+					
 					//now branch off; if we're type a or d, we need to check both directions SP ij, and SP ji; if we're type c or f, just SP ij
 					if(iStat == EDGETYPE.A || iStat == EDGETYPE.D)
 					{
@@ -140,19 +170,25 @@ public class ImprovedMCPPSolver extends Solver {
 						//SP ij
 						curr = i;
 						end = j;
-						do
-						{
-							next = path[curr][end];
-							cost1 += dist[curr][next];
-						} while((curr = next) != end);
+						if(dist[curr][end] == Integer.MAX_VALUE)
+							cost1 = Integer.MAX_VALUE;
+						else
+							do
+							{
+								next = path[curr][end];
+								cost1 += dist[curr][next];
+							} while((curr = next) != end);
 						//SP ji
 						curr = j;
 						end = i;
-						do
-						{
-							next = path[curr][end];
-							cost2 += dist[curr][next];
-						}while((curr = next) != end);
+						if(dist[curr][end] == Integer.MAX_VALUE)
+							cost2 = Integer.MAX_VALUE;
+						else
+							do
+							{
+								next = path[curr][end];
+								cost2 += dist[curr][next];
+							}while((curr = next) != end);
 
 						//now do the cost comparisons to decide whether it's fruitful to replace
 						if(cost1 < toImprove.getFirst().getCost() && cost1 < cost2)
@@ -177,6 +213,8 @@ public class ImprovedMCPPSolver extends Solver {
 						cost1 = 0;
 						curr = (toImprove.isDirectedBackward())?j:i;
 						end = (toImprove.isDirectedBackward())?i:j;
+						if(dist[curr][end] == Integer.MAX_VALUE)
+							continue;
 						do
 						{
 							next = path[curr][end];
@@ -225,23 +263,25 @@ public class ImprovedMCPPSolver extends Solver {
 					gij4Edges = Gij4.getInternalEdgeMap();
 
 					CostMod2(Gij3, G, gEdgeContainers, i, j);
-					
+
 					dist = new int[n+1][n+1]; //find SPij in Gij3
 					path = new int[n+1][n+1];
 					edgePath = new int[n+1][n+1];
-				
+
 					CommonAlgorithms.fwLeastCostPaths(Gij3, dist, path, edgePath);
-					
+
 					//calculate cost
 					cost1 = 0;
 					curr = (toImprove.isDirectedBackward())?j:i;
 					end = (toImprove.isDirectedBackward())?i:j;
+					if(dist[curr][end] == Integer.MAX_VALUE)
+						continue;
 					do
 					{
 						next = path[curr][end];
 						cost1 += dist[curr][next];
 					} while((curr = next) != end);
-					
+
 					//clone gEdgeContainers, which effectively represents Gstar
 					Gnew = new ArrayList<MultiEdge<MixedEdge>>();
 					Gnew.add(null);
@@ -249,29 +289,31 @@ public class ImprovedMCPPSolver extends Solver {
 					{
 						Gnew.add(gEdgeContainers.get(k).getCopy());
 					}
-					
+
 					//now add SPij to Gnew
 					curr = (toImprove.isDirectedBackward())?j:i;
 					addShortestPathAndUpdate(curr, end, path, edgePath, gij3Edges,Gnew);
-					
+
 					CostMod2(Gij4, G, Gnew, i, j);
-					
+
 					dist2 = new int[n+1][n+1]; //find SPij in Gij4
 					path2 = new int[n+1][n+1];
 					edgePath2 = new int[n+1][n+1];
-					
+
 					CommonAlgorithms.fwLeastCostPaths(Gij4, dist2, path2, edgePath2);
-					
+
 					//calculate cost
 					cost2 = 0;
 					curr = (toImprove.isDirectedBackward())?j:i;
 					end = (toImprove.isDirectedBackward())?i:j;
+					if(dist[curr][end] == Integer.MAX_VALUE)
+						continue;
 					do
 					{
 						next = path[curr][end];
 						cost2 += dist[curr][next];
 					} while((curr = next) != end);
-					
+
 					//check if costs line up, and then add accordingly
 					if(cost1 + cost2 < 0)
 					{
@@ -287,17 +329,22 @@ public class ImprovedMCPPSolver extends Solver {
 				}
 			}
 			//replace any remaining type a's with type d's
-			for(int k=0;k<gEdgeContainers.size(); k++)
+			for(int k=1;k<gEdgeContainers.size(); k++)
 			{
 				toImprove = gEdgeContainers.get(k);
+				if(toImprove == null)
+					System.out.println("Debug");
 				if(toImprove.getType() == EDGETYPE.A)
+				{
+					toImprove.directForward();
 					toImprove.addReverseCopy();
+				}
 			}
-			
+
 			//now finally construct the eulerian mixed graph.
 			G.clearEdges();
 			MixedEdge e;
-			for(int k=0; k<gEdgeContainers.size(); k++)
+			for(int k=1; k<gEdgeContainers.size(); k++)
 			{
 				toImprove = gEdgeContainers.get(k);
 				e = toImprove.getFirst();
@@ -323,6 +370,11 @@ public class ImprovedMCPPSolver extends Solver {
 			}
 			if(CommonAlgorithms.isStronglyEulerian(G))
 				System.out.println("Halleleujah!!!");
+			int debugCost = 0;
+			for(MixedEdge debug: G.getEdges())
+			{
+				debugCost += debug.getCost();
+			}
 
 			return null;
 		} catch(Exception ex)
@@ -360,7 +412,7 @@ public class ImprovedMCPPSolver extends Solver {
 					add.addEdge(new Arc("for cycle elimination", new Pair<DirectedVertex>(addVertices.get(e.getEndpoints().getFirst().getId()), addVertices.get(e.getEndpoints().getSecond().getId())), e.getCost()), e.getId());
 				else
 					add.addEdge(new Arc("for cycle elimination", new Pair<DirectedVertex>(addVertices.get(e.getEndpoints().getSecond().getId()), addVertices.get(e.getEndpoints().getFirst().getId())), e.getCost()), e.getId());
-				
+
 			}
 
 			int[][] dist;
@@ -379,7 +431,7 @@ public class ImprovedMCPPSolver extends Solver {
 				CommonAlgorithms.fwLeastCostPaths(add, dist, path, edgePath);
 				for(int i = 1; i < n+1; i++)
 				{
-					if(dist[i][i] < Integer.MAX_VALUE)
+					if(dist[i][i] < Integer.MAX_VALUE && dist[i][i] > 0)
 					{
 						cycleDetected = true;
 						//remove cycle
@@ -555,13 +607,12 @@ public class ImprovedMCPPSolver extends Solver {
 					e2 = gijEdges.get(k);
 					cost = e.getCost();
 					gijEdges.get(k).setCost(-cost);
-					Gij.addEdge(new MixedEdge("", new Pair<MixedVertex>(e2.getHead(), e2.getTail()), -cost, true), e.getId()); //going to need to figure out who to mod if we traverse this arc.
+					Gij.addEdge(new MixedEdge("", new Pair<MixedVertex>(e2.getEndpoints().getSecond(), e2.getEndpoints().getFirst()), -cost, true), e.getId()); //going to need to figure out who to mod if we traverse this arc.
 				}
 			}
 			//now delete all links between vertex i and vertex j
 			HashMap<Integer, MixedVertex> gijVertices = Gij.getInternalVertexMap();
 			List<MixedEdge> toRemove = Gij.findEdges(new Pair<MixedVertex>(gijVertices.get(i), gijVertices.get(j)));
-			toRemove.addAll(Gij.findEdges(new Pair<MixedVertex>(gijVertices.get(j), gijVertices.get(i))));
 			for(MixedEdge elim: toRemove)
 			{
 				Gij.removeEdge(elim);
@@ -675,16 +726,19 @@ public class ImprovedMCPPSolver extends Solver {
 				}
 				else if(!a.isCapacitySet()) //arc corresponding to an edge, but not artificial
 				{
+					//direct the edge
+					if(flowanswer[i] > 0)
+					{
+						if(a.getTail().getId() == e.getEndpoints().getFirst().getId()) //direct it forward
+							edgeContainers.get(e.getId()).directForward();
+						else //direct it backwards
+							edgeContainers.get(e.getId()).directBackward();
+					}
 					for(int j = 0; j < flowanswer[i]; j++)
 					{
 						//add copy to M
 						M.add(new MixedEdge("copy from symmetry", new Pair<MixedVertex>(inputVertices.get(a.getTail().getId()), inputVertices.get(a.getHead().getId())), e.getCost(), true));
 						inMdubPrime.add(true);
-						//direct the edge
-						if(a.getTail().getId() == e.getEndpoints().getFirst().getId()) //direct it forward
-							edgeContainers.get(e.getId()).directForward();
-						else //direct it backwards
-							edgeContainers.get(e.getId()).directBackward();
 						eContainer.addCopy();//c
 					}
 				}
@@ -823,7 +877,7 @@ public class ImprovedMCPPSolver extends Solver {
 					nextEdge = edgePath[curr][end];
 					e = input.getInternalEdgeMap().get(setupEdges.get(nextEdge).getMatchId());
 					temp = new MixedEdge("added in phase I",  new Pair<MixedVertex>(e.getEndpoints().getFirst(), e.getEndpoints().getSecond()), e.getCost(), e.isDirected());
-					input.addEdge(temp);
+					input.addEdge(temp, e.getId());
 					if(temp.isDirected())
 						Am.add(temp);
 					else

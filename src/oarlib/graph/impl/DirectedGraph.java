@@ -65,9 +65,14 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	}
 	@Override
 	public List<Arc> findEdges(Pair<DirectedVertex> endpoints) {
+		List<Arc> ret = new ArrayList<Arc>();
 		DirectedVertex first = endpoints.getFirst();
 		HashMap<DirectedVertex, ArrayList<Arc>> firstNeighbors = first.getNeighbors();
-		return firstNeighbors.get(endpoints.getSecond());
+		ret.addAll(firstNeighbors.get(endpoints.getSecond()));
+		DirectedVertex second = endpoints.getSecond();
+		HashMap<DirectedVertex, ArrayList<Arc>> secondNeighbors = second.getNeighbors();
+		ret.addAll(secondNeighbors.get(endpoints.getFirst()));
+		return ret;
 	}
 
 	@Override
@@ -105,6 +110,15 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	@Override
+	public void addEdge(int i, int j, String desc, int cost)
+			throws InvalidEndpointsException {
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		this.addEdge(new Arc(desc, new Pair<DirectedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)),cost));
+		
 	}
 
 }

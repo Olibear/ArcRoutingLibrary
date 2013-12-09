@@ -65,6 +65,16 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 */
 	public abstract void addEdge(E e) throws InvalidEndpointsException;
 	/**
+	 * A more notationally elegant way of adding an edge to a graph, it will create a new edge from vertex i to vertex j,
+	 * with the appropriate cost and description.  If this is a mixed graph, it will default to adding an edge, but look for
+	 * a version that takes directedness as an argument
+	 * @param i - add edge from vertex i
+	 * @param j - add edge to vertex j
+	 * @param desc - description for the edge
+	 * @param cost - cost of traversing the edge
+	 */
+	public abstract void addEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException;
+	/**
 	 * To remove an edge from the graph.  This updates the degrees of the vertices, and throws to the specific implementation of the graph.
 	 * Throws an IllegalArgumentException if the edge isn't a member of the edge collection belonging to the graph.
 	 * @param e - edge to be removed from the graph
