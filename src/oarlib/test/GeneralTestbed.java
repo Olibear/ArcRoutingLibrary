@@ -464,7 +464,7 @@ public class GeneralTestbed {
 			long end;
 			long duration;
 			double density;
-			for(int i=10;i<150; i+=10)
+			for(int i=10;i<1000; i+=10)
 			{
 				density = (2.0*i)/(i*i/2.0);
 				g = (DirectedGraph)dgg.generateGraph(i, 10, true, density);
@@ -482,17 +482,14 @@ public class GeneralTestbed {
 				//set up for using flow methods
 				int n = g.getVertices().size();
 				duration =0;
-				for(int j =0; j<10; j++)
-				{
-					int dist[][] = new int[n+1][n+1];
-					int path[][] = new int[n+1][n+1];
-					CommonAlgorithms.fwLeastCostPaths(g, dist, path);
-					start = System.nanoTime();
-					int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
-					end = System.nanoTime();
-					duration += (end-start);
-				}
-				System.out.println((duration)/(1e7) + "," + g.getEdges().size() + ";");
+				int dist[][] = new int[n+1][n+1];
+				int path[][] = new int[n+1][n+1];
+				CommonAlgorithms.fwLeastCostPaths(g, dist, path);
+				start = System.nanoTime();
+				int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
+				end = System.nanoTime();
+				duration += (end-start);
+				System.out.println((duration)/(1e6) + "," + g.getEdges().size() + ";");
 
 			}
 		} catch(Exception e)

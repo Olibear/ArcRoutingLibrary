@@ -1098,10 +1098,7 @@ public class CommonAlgorithms {
 		int[][] path = new int[n+1][n+1];
 		int[][] edgePath = new int[n+1][n+1];
 
-		start = System.nanoTime();
 		CommonAlgorithms.fwLeastCostPaths(copy,dist,path, edgePath);
-		end = System.nanoTime();
-		duration += (end - start);
 
 		//reduce costs
 		int sourceId = source.getId();
@@ -1225,19 +1222,13 @@ public class CommonAlgorithms {
 				dist = new int[n+1][n+1];
 				path = new int[n+1][n+1];
 				edgePath = new int[n+1][n+1];
-				start = System.nanoTime();
 				CommonAlgorithms.dijkstrasAlgorithm(copy, sourceId, dijkstraDist, dijkstraPath, dijkstraEdge);
-				//CommonAlgorithms.fwLeastCostPaths(copy, dist, path, edgePath);
-				end = System.nanoTime();
-				duration += (end - start);
 			}
 		} catch(Exception e)
 		{
 			e.printStackTrace();
 			return null;
 		}
-		System.out.println("Time spent in shortest paths: " + duration/1e6 +"ms.");
-		System.out.println("We went through " + iterations + " iterations.");
 		//trim out artificial flows
 		for(int i=1; i<retArray.length; i++)
 		{
