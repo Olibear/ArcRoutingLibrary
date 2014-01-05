@@ -2,15 +2,16 @@ package oarlib.core;
 
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.UndirectedVertex;
+import oarlib.vertex.impl.WindyVertex;
 /**
  * WindyEdge class, basic class for an undirected link with asymmetric costs.
  * @author Oliver
  *
  */
-public class WindyEdge extends Link<UndirectedVertex>{
+public class WindyEdge extends Link<WindyVertex>{
 
 	private int mReverseCost;
-	public WindyEdge(String label, Pair<UndirectedVertex> endpoints, int cost, int reverseCost) {
+	public WindyEdge(String label, Pair<WindyVertex> endpoints, int cost, int reverseCost) {
 		super(label, endpoints, cost);
 		setReverseCost(reverseCost);
 		setDirected(false);

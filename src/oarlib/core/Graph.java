@@ -111,4 +111,20 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * @return - the type that this graph structure represents
 	 */
 	public abstract Graph.Type getType();
+	/**
+	 * Factory method for generating an edge.
+	 * @param i - first endpoint index for the edge created
+	 * @param j - second endpoint index for the edge created
+	 * @param desc - description of edge to be created
+	 * @param cost - cost of edge to be created
+	 * @return - an instance of an edge satisfying these properties
+	 * @throws InvalidEndpointsException - if i or j > number of vertices
+	 */
+	public abstract E constructEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException;
+	/**
+	 * Factory method for generating a vertex.
+	 * @param desc - description for the vertex created
+	 * @return - a vertex satisfying these properties
+	 */
+	public abstract V constructVertex(String desc);
 }

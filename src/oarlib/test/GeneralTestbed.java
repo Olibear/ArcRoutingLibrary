@@ -43,7 +43,7 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		testFredericksons();
+		validateBellmanFord();
 	}
 	private static void check(Link<?> a)
 	{
@@ -718,6 +718,83 @@ public class GeneralTestbed {
 				for(int j=2;j<=n;j++)
 				{
 					if(dist[j] != mDist[1][j])
+						distOK = false;
+				}
+				System.out.println("distOK: " + distOK);
+			}
+
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	private static void validateBellmanFord()
+	{
+		try{
+			//for undirected graphs
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph g;
+			long start;
+			long end;
+			for(int i=2;i<500; i+=10)
+			{
+				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
+				System.out.println("Generated undirected graph with n = " + i);
+				int n = g.getVertices().size();
+
+
+				int dist[] = new int[n+1];
+				int path[] = new int[n+1];
+				int edgePath[] = new int[n+1];
+				start = System.nanoTime();
+				CommonAlgorithms.slfShortestPaths(g, 1, dist, path, edgePath);
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Bellman-Ford implementation on a graph with " + g.getEdges().size() + " edges.");
+				
+				int dist2[] = new int[n+1];
+				int path2[] = new int[n+1];
+				int edgePath2[] = new int[n+1];
+				start = System.nanoTime();
+				CommonAlgorithms.dijkstrasAlgorithm(g, 1, dist2, path2, edgePath2);
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Dijkstras implementation on a graph with " + g.getEdges().size() + " edges.");
+				
+				boolean distOK = true;
+				for(int j=2;j<=n;j++)
+				{
+					if(dist2[j] != dist[j])
+						distOK = false;
+				}
+				System.out.println("distOK: " + distOK);
+
+			}
+			//for directed graphs
+			DirectedGraph g2;
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			for(int i=2;i<150; i+=10)
+			{
+				g2 = (DirectedGraph)dgg.generateGraph(i, 10, true);
+				System.out.println("Generated directed graph with n = " + i);
+				int n = g2.getVertices().size();
+
+				
+
+				int dist[] = new int[n+1];
+				int path[] = new int[n+1];
+				int edgePath[] = new int[n+1];
+				start = System.nanoTime();
+				CommonAlgorithms.slfShortestPaths(g2, 1, dist, path, edgePath);
+				end = System.nanoTime();
+				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Bellman-Ford implementation on a graph with " + g2.getEdges().size() + " edges.");
+				
+				int[] dist2 = new int[n+1];
+				int[] path2 = new int[n+1];
+				int[] edgePath2 = new int[n+1];
+				CommonAlgorithms.dijkstrasAlgorithm(g2, 1, dist2, path2, edgePath2);
+				boolean distOK = true;
+				for(int j=2;j<=n;j++)
+				{
+					if(dist2[j] != dist[j])
 						distOK = false;
 				}
 				System.out.println("distOK: " + distOK);

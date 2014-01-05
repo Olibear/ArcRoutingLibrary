@@ -1,16 +1,15 @@
 package oarlib.problem.impl;
 
 import java.util.Collection;
-import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.graph.impl.UndirectedGraph;
+import oarlib.graph.impl.WindyGraph;
 
 public class WindyCPP extends Problem{
 	
-	UndirectedGraph mGraph;
+	WindyGraph mGraph;
 
-	public WindyCPP(UndirectedGraph g) {
+	public WindyCPP(WindyGraph g) {
 		mGraph = g;
 	}
 
@@ -26,7 +25,7 @@ public class WindyCPP extends Problem{
 	}
 
 	@Override
-	public Graph<?, ?> getGraph() {
+	public WindyGraph getGraph() {
 		return mGraph;
 	}
 

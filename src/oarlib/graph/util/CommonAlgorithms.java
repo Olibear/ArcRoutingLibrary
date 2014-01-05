@@ -5,9 +5,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 
 import oarlib.core.Arc;
@@ -17,6 +19,7 @@ import oarlib.core.Graph;
 import oarlib.core.MixedEdge;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+import oarlib.core.WindyEdge;
 import oarlib.exceptions.GraphInfeasibleException;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.exceptions.NoCapacitySetException;
@@ -25,9 +28,11 @@ import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.graph.impl.WindyGraph;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
+import oarlib.vertex.impl.WindyVertex;
 import oarlib.graph.util.Utils.DijkstrasComparator;
 
 public class CommonAlgorithms {
@@ -551,6 +556,20 @@ public class CommonAlgorithms {
 		return true;
 	}
 	/**
+	 * Checks to see if the windy graph is eulerian.
+	 * @param graph
+	 * @return true if the graph is eulerian, false oth.
+	 */
+	public static boolean isEulerian(WindyGraph graph) 
+	{
+		for (WindyVertex v:graph.getVertices()) 
+		{
+			if (v.getDegree() % 2 == 1)
+				return false;
+		}
+		return true;
+	}
+	/**
 	 * Checks to see if the mixed graph is strongly eulerian.  By 'strongly eulerian' we mean that all nodes are both
 	 * balanced (in-degree = out-degree) and even (the parity of the number of incident undirected edges of each
 	 * vertex is even).  This guarantees that the graph is eulerian, but it is strictly speaking not necessary.  However,
@@ -627,6 +646,517 @@ public class CommonAlgorithms {
 		path[0] = num;
 	}
 	/**
+	 * Implements the Bellman-Ford single-source shortest paths algorithm, (useful if facing negative edge weights, but only need a single-source algorithm). 
+	 * Complexity is |V||E|.
+	 * @param g - the graph on which to solve our shortest path problem.
+	 * @param sourceId - the vertex from which paths and distances will be calculated
+	 * @param dist - the ith entry contains the shortest distance from source to vetex i.
+	 * @param path - the ith entry contains the previous vertex on the shortest path from source to vertex i.
+	 * @throws IllegalArgumentException
+	 */
+	public static void bellmanFordShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException
+	{
+		int n = g.getVertices().size();
+		int BIG = 0; //the sum of all edge costs
+		for(Link<? extends Vertex> l : g.getEdges())
+			BIG += l.getCost();
+		
+		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
+			throw new IllegalArgumentException();
+		
+		//initialization
+		for(int i = 0; i <= n ; i++)
+		{
+			dist[i] = BIG;
+			path[i] = 0;
+		}
+		dist[sourceId] = 0;
+		
+		//relax edges
+		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
+		activeVertices.add(sourceId);
+		boolean[] active = new boolean[n+1];
+		active[sourceId] = true;
+		Vertex u;
+		int min, uid, vid, alt;
+		while(!activeVertices.isEmpty())
+		{
+			u = indexedVertices.get(activeVertices.remove());
+			uid = u.getId();
+			active[uid] = false;
+			for(Vertex v: u.getNeighbors().keySet())
+			{
+				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				vid = v.getId();
+				for(Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+						min = link.getCost();
+				}
+				alt = dist[uid] + min;
+				if(alt < dist[vid])
+				{
+					//found a better path
+					dist[vid] = alt;
+					path[vid] = uid;
+					if(!active[vid])
+					{
+						active[vid] = true;
+						activeVertices.add(vid);
+					}
+				}
+			}
+		}
+		
+		int p,q, cost;
+		//check for negative cycles
+		for(Link<? extends Vertex> l: g.getEdges())
+		{
+			p = l.getEndpoints().getFirst().getId();
+			q = l.getEndpoints().getSecond().getId();
+			cost = l.getCost();
+			if(dist[p] + cost < dist[q])
+			{
+				throw new IllegalArgumentException("This graph contains a negative cycle.");
+			}
+		}
+	}
+	/**
+	 * Implements the Bellman-Ford single-source shortest paths algorithm, (useful if facing negative edge weights, but only need a single-source algorithm). 
+	 * Complexity is |V||E|.
+	 * @param g - the graph on which to solve our shortest path problem.
+	 * @param sourceId - the vertex from which paths and distances will be calculated
+	 * @param dist - the ith entry contains the shortest distance from source to vetex i.
+	 * @param path - the ith entry contains the previous vertex on the shortest path from source to vertex i.
+	 * @param edgePath - the ith entry contains the previous link on the shortest path from source to vertex i.
+	 * @throws IllegalArgumentException
+	 */
+	public static void bellmanFordShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException
+	{
+		int n = g.getVertices().size();
+		int BIG = 0; //the sum of all edge costs
+		for(Link<? extends Vertex> l : g.getEdges())
+			BIG += l.getCost();
+		
+		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
+			throw new IllegalArgumentException();
+		
+		//initialization
+		for(int i = 0; i <= n ; i++)
+		{
+			dist[i] = BIG;
+			path[i] = 0;
+			edgePath[i] = 0;
+		}
+		dist[sourceId] = 0;
+		
+		//relax edges
+		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
+		activeVertices.add(sourceId);
+		boolean[] active = new boolean[n+1];
+		active[sourceId] = true;
+		Vertex u;
+		int min, uid, vid, alt;
+		int minid = 0;
+		while(!activeVertices.isEmpty())
+		{
+			u = indexedVertices.get(activeVertices.remove());
+			uid = u.getId();
+			active[uid] = false;
+			for(Vertex v: u.getNeighbors().keySet())
+			{
+				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				vid = v.getId();
+				for(Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+					{
+						min = link.getCost();
+						minid = link.getId();
+					}
+				}
+				alt = dist[uid] + min;
+				if(alt < dist[vid])
+				{
+					//found a better path
+					dist[vid] = alt;
+					path[vid] = uid;
+					edgePath[vid] = minid;
+					if(!active[vid])
+					{
+						active[vid] = true;
+						activeVertices.add(vid);
+					}
+				}
+			}
+		}
+		
+		int p,q, cost;
+		//check for negative cycles
+		for(Link<? extends Vertex> l: g.getEdges())
+		{
+			p = l.getEndpoints().getFirst().getId();
+			q = l.getEndpoints().getSecond().getId();
+			cost = l.getCost();
+			if(dist[p] + cost < dist[q])
+			{
+				throw new IllegalArgumentException("This graph contains a negative cycle.");
+			}
+		}
+	}
+	/**
+	 * Implements the Pape's single-source shortest paths algorithm, (useful if facing negative edge weights, but only need a single-source algorithm). 
+	 * Complexity is |V||E|.
+	 * @param g - the graph on which to solve our shortest path problem.
+	 * @param sourceId - the vertex from which paths and distances will be calculated
+	 * @param dist - the ith entry contains the shortest distance from source to vetex i.
+	 * @param path - the ith entry contains the previous vertex on the shortest path from source to vertex i.
+	 * @throws IllegalArgumentException
+	 */
+	public static void papeShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException
+	{
+		int n = g.getVertices().size();
+		int BIG = 0; //the sum of all edge costs
+		for(Link<? extends Vertex> l : g.getEdges())
+			BIG += l.getCost();
+		
+		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
+			throw new IllegalArgumentException();
+		
+		//initialization
+		for(int i = 0; i <= n ; i++)
+		{
+			dist[i] = BIG;
+			path[i] = 0;
+		}
+		dist[sourceId] = 0;
+		
+		//relax edges
+		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
+		activeVertices.add(sourceId);
+		boolean[] active = new boolean[n+1];
+		boolean[] labeled = new boolean[n+1];
+		active[sourceId] = true;
+		Vertex u;
+		int min, uid, vid, alt;
+		while(!activeVertices.isEmpty())
+		{
+			u = indexedVertices.get(activeVertices.remove());
+			uid = u.getId();
+			active[uid] = false;
+			for(Vertex v: u.getNeighbors().keySet())
+			{
+				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				vid = v.getId();
+				for(Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+						min = link.getCost();
+				}
+				alt = dist[uid] + min;
+				if(alt < dist[vid])
+				{
+					//found a better path
+					dist[vid] = alt;
+					path[vid] = uid;
+					if(!active[vid])
+					{
+						active[vid] = true;
+						if(!labeled[vid])
+						{
+							activeVertices.add(vid);
+							labeled[vid] = true;
+						}
+						else
+							activeVertices.addFirst(vid);
+					}
+				}
+			}
+		}
+		
+		int p,q, cost;
+		//check for negative cycles
+		for(Link<? extends Vertex> l: g.getEdges())
+		{
+			p = l.getEndpoints().getFirst().getId();
+			q = l.getEndpoints().getSecond().getId();
+			cost = l.getCost();
+			if(dist[p] + cost < dist[q])
+			{
+				throw new IllegalArgumentException("This graph contains a negative cycle.");
+			}
+		}
+	}
+	/**
+	 * Implements the Pape's single-source shortest paths algorithm
+	 * @param g - the graph on which to solve our shortest path problem.
+	 * @param sourceId - the vertex from which paths and distances will be calculated
+	 * @param dist - the ith entry contains the shortest distance from source to vetex i.
+	 * @param path - the ith entry contains the previous vertex on the shortest path from source to vertex i.
+	 * @param edgePath - the ith entry contains the previous link on the shortest path from source to vertex i.
+	 * @throws IllegalArgumentException
+	 */
+	public static void papeShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException
+	{
+		int n = g.getVertices().size();
+		int BIG = 0; //the sum of all edge costs
+		for(Link<? extends Vertex> l : g.getEdges())
+			BIG += l.getCost();
+		
+		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
+			throw new IllegalArgumentException();
+		
+		//initialization
+		for(int i = 0; i <= n ; i++)
+		{
+			dist[i] = BIG;
+			path[i] = 0;
+			edgePath[i] = 0;
+		}
+		dist[sourceId] = 0;
+		
+		//relax edges
+		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
+		activeVertices.add(sourceId);
+		boolean[] active = new boolean[n+1];
+		boolean[] labeled = new boolean[n+1];
+		active[sourceId] = true;
+		Vertex u;
+		int min, uid, vid, alt;
+		int minid = 0;
+		while(!activeVertices.isEmpty())
+		{
+			u = indexedVertices.get(activeVertices.remove());
+			uid = u.getId();
+			active[uid] = false;
+			for(Vertex v: u.getNeighbors().keySet())
+			{
+				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				vid = v.getId();
+				for(Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+					{
+						min = link.getCost();
+						minid = link.getId();
+					}
+				}
+				alt = dist[uid] + min;
+				if(alt < dist[vid])
+				{
+					//found a better path
+					dist[vid] = alt;
+					path[vid] = uid;
+					edgePath[vid] = minid;
+					if(!active[vid])
+					{
+						active[vid] = true;
+						if(!labeled[vid])
+						{
+							activeVertices.add(vid);
+							labeled[vid] = true;
+						}
+						else
+							activeVertices.addFirst(vid);
+					}
+				}
+			}
+		}
+		
+		int p,q, cost;
+		//check for negative cycles
+		for(Link<? extends Vertex> l: g.getEdges())
+		{
+			p = l.getEndpoints().getFirst().getId();
+			q = l.getEndpoints().getSecond().getId();
+			cost = l.getCost();
+			if(dist[p] + cost < dist[q])
+			{
+				throw new IllegalArgumentException("This graph contains a negative cycle.");
+			}
+		}
+	}
+	/**
+	 * Implements the SLF single-source shortest paths algorithm, given in Bertsekas '93 paper
+	 * @param g - the graph on which to solve our shortest path problem.
+	 * @param sourceId - the vertex from which paths and distances will be calculated
+	 * @param dist - the ith entry contains the shortest distance from source to vetex i.
+	 * @param path - the ith entry contains the previous vertex on the shortest path from source to vertex i.
+	 * @throws IllegalArgumentException
+	 */
+	public static void slfShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException
+	{
+		int n = g.getVertices().size();
+		int BIG = 0; //the sum of all edge costs
+		for(Link<? extends Vertex> l : g.getEdges())
+			BIG += l.getCost();
+		
+		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
+			throw new IllegalArgumentException();
+		
+		//initialization
+		for(int i = 0; i <= n ; i++)
+		{
+			dist[i] = BIG;
+			path[i] = 0;
+		}
+		dist[sourceId] = 0;
+		
+		//relax edges
+		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
+		activeVertices.add(sourceId);
+		boolean[] active = new boolean[n+1];
+		active[sourceId] = true;
+		Vertex u;
+		int min, uid, vid, alt;
+		while(!activeVertices.isEmpty())
+		{
+			u = indexedVertices.get(activeVertices.remove());
+			uid = u.getId();
+			active[uid] = false;
+			for(Vertex v: u.getNeighbors().keySet())
+			{
+				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				vid = v.getId();
+				for(Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+						min = link.getCost();
+				}
+				alt = dist[uid] + min;
+				if(alt < dist[vid])
+				{
+					//found a better path
+					dist[vid] = alt;
+					path[vid] = uid;
+					if(!active[vid])
+					{
+						active[vid] = true;
+						if(activeVertices.isEmpty())
+							activeVertices.add(vid);
+						if(dist[vid] <= dist[activeVertices.peek()])
+							activeVertices.addFirst(vid);
+						else
+							activeVertices.addLast(vid);
+					}
+				}
+			}
+		}
+		
+		int p,q, cost;
+		//check for negative cycles
+		for(Link<? extends Vertex> l: g.getEdges())
+		{
+			p = l.getEndpoints().getFirst().getId();
+			q = l.getEndpoints().getSecond().getId();
+			cost = l.getCost();
+			if(dist[p] + cost < dist[q])
+			{
+				throw new IllegalArgumentException("This graph contains a negative cycle.");
+			}
+		}
+	}
+	/**
+	 * Implements the SLF single-source shortest paths algorithm, given in Bertsekas '93 paper. 
+	 * @param g - the graph on which to solve our shortest path problem.
+	 * @param sourceId - the vertex from which paths and distances will be calculated
+	 * @param dist - the ith entry contains the shortest distance from source to vetex i.
+	 * @param path - the ith entry contains the previous vertex on the shortest path from source to vertex i.
+	 * @param edgePath - the ith entry contains the previous link on the shortest path from source to vertex i.
+	 * @throws IllegalArgumentException
+	 */
+	public static void slfShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException
+	{
+		int n = g.getVertices().size();
+		int BIG = 0; //the sum of all edge costs
+		for(Link<? extends Vertex> l : g.getEdges())
+			BIG += l.getCost();
+		
+		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
+			throw new IllegalArgumentException();
+		
+		//initialization
+		for(int i = 0; i <= n ; i++)
+		{
+			dist[i] = BIG;
+			path[i] = 0;
+			edgePath[i] = 0;
+		}
+		dist[sourceId] = 0;
+		
+		//relax edges
+		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
+		activeVertices.add(sourceId);
+		boolean[] active = new boolean[n+1];
+		active[sourceId] = true;
+		Vertex u;
+		int min, uid, vid, alt;
+		int minid = 0;
+		while(!activeVertices.isEmpty())
+		{
+			u = indexedVertices.get(activeVertices.remove());
+			uid = u.getId();
+			active[uid] = false;
+			for(Vertex v: u.getNeighbors().keySet())
+			{
+				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+				min = Integer.MAX_VALUE;
+				vid = v.getId();
+				for(Link<? extends Vertex> link: l)
+				{
+					if(link.getCost() < min)
+					{
+						min = link.getCost();
+						minid = link.getId();
+					}
+				}
+				alt = dist[uid] + min;
+				if(alt < dist[vid])
+				{
+					//found a better path
+					dist[vid] = alt;
+					path[vid] = uid;
+					edgePath[vid] = minid;
+					if(!active[vid])
+					{
+						active[vid] = true;
+
+						if(activeVertices.isEmpty())
+							activeVertices.add(vid);
+						else if(dist[vid] <= dist[activeVertices.peek()])
+							activeVertices.addFirst(vid);
+						else
+							activeVertices.addLast(vid);
+					}
+				}
+			}
+		}
+		
+		int p,q, cost;
+		//check for negative cycles
+		for(Link<? extends Vertex> l: g.getEdges())
+		{
+			p = l.getEndpoints().getFirst().getId();
+			q = l.getEndpoints().getSecond().getId();
+			cost = l.getCost();
+			if(dist[p] + cost < dist[q])
+			{
+				throw new IllegalArgumentException("This graph contains a negative cycle.");
+			}
+		}
+	}
+	/**
 	 * Implements Dijkstra's Algorithm with Priority Queues, to achieve |E| + |V|log|V| single-source shortest paths 
 	 * @param g - the graph on which to solve our shortest path problem.
 	 * @param source - the Vertex from which paths and distances will be calculated 
@@ -691,7 +1221,7 @@ public class CommonAlgorithms {
 	 * @param source - the Vertex from which paths and distances will be calculated 
 	 * @param dist - the ith entry will contain the shortest distance from source to vertex i.
 	 * @param path - the ith entry will contain the previous vertex on the shortest path from source to vertex i.
-	 * @param edgePath - the ith entry will contain the edge that gets traversed to get from the vertex in the (i-1)th entry of path to the ith entry of path. 
+	 * @param edgePath - the ith entry will contain the id of the edge that gets traversed to get from the previous vertex in the path to the ith vertex. 
 	 */
 	public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException
 	{
@@ -946,6 +1476,23 @@ public class CommonAlgorithms {
 				v = g.getInternalVertexMap().get(next);
 				g.addEdge(new Arc("from addShortestPath", new Pair<DirectedVertex>(u,v), cost), nextEdge);
 			} while ( (curr =next) != end);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public static void addShortestPath(WindyGraph g, int[][] dist, int[][] path, int[][] edgePath, Pair<Integer> p)
+	{
+		try {
+			int curr = p.getFirst();
+			int end = p.getSecond();
+			int next = 0;
+			int nextEdge = 0;
+			HashMap<Integer, WindyEdge> indexedEdges = g.getInternalEdgeMap();
+			do {
+				next = path[curr][end];
+				nextEdge = edgePath[curr][end];
+				g.addEdge(indexedEdges.get(nextEdge).getCopy());
+			} while ( (curr = next) != end);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

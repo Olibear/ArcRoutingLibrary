@@ -66,6 +66,17 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		e.setMatchId(matchId);
 	}
 	@Override
+	public void addEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException
+	{
+		this.addEdge(this.constructEdge(i, j, desc, cost));
+	}
+	public void addEdge(int i, int j, String desc, int cost, int matchId) throws InvalidEndpointsException
+	{
+		E temp = this.constructEdge(matchId, j, desc, cost);
+		temp.setMatchId(matchId);
+		this.addEdge(temp);
+	}
+	@Override
 	public void addVertex(V v) {
 		v.setId(this.assignVertexId());
 		mVertices.add(v);

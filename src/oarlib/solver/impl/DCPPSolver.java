@@ -54,26 +54,6 @@ public class DCPPSolver extends Solver{
 				v.setDemand(v.getDelta());
 			}
 		}
-
-		//min cost flow
-		/*try {
-			if(!CommonAlgorithms.isEulerian(input))
-			{
-				int n = input.getVertices().size();
-				int [][] dist = new int[n+1][n+1];
-				int[][] path = new int[n+1][n+1];
-				int[][] edgePath = new int[n+1][n+1];
-				CommonAlgorithms.fwLeastCostPaths(input,dist,path, edgePath);
-				HashMap<Pair<Integer>, Integer> flowanswer = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(input, dist);
-
-				//add the solution to the graph (augment)
-				for (Pair<Integer> p: flowanswer.keySet())
-				{
-					for(int i = 0; i < flowanswer.get(p); i++)
-						CommonAlgorithms.addShortestPath(input, dist, path, edgePath, p);
-				}
-			}
-		}*/
 		try {
 			if(!CommonAlgorithms.isEulerian(input))
 			{
