@@ -14,17 +14,17 @@ import oarlib.vertex.impl.WindyVertex;
 
 public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 
-	
+
 	//constructors
 	public WindyGraph(){
 		super();
 	}
-	
+
 	@Override
 	public void addVertex(WindyVertex v) {
 		super.addVertex(v);
 	}
-	
+
 	@Override
 	public List<WindyEdge> findEdges(Pair<WindyVertex> endpoints) {
 		WindyVertex first = endpoints.getFirst();
@@ -36,12 +36,12 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 	public oarlib.core.Graph.Type getType() {
 		return Graph.Type.WINDY;
 	}
-	
+
 	public void addEdge(int i, int j, String desc, int cost, int reverseCost)
 			throws InvalidEndpointsException {
 		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost));
 	}
-	
+
 	@Override
 	public void addEdge(WindyEdge e) throws InvalidEndpointsException{
 		Pair<WindyVertex> endpoints = e.getEndpoints();
@@ -53,7 +53,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 		toUpdate.setDegree(toUpdate.getDegree()+1);
 		super.addEdge(e);
 	}
-	
+
 	@Override
 	public void clearEdges()
 	{
@@ -64,7 +64,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 			v.clearNeighbors();
 		}
 	}
-	
+
 	@Override
 	public void removeEdge(WindyEdge e) throws IllegalArgumentException
 	{
@@ -89,11 +89,13 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 			{
 				ans.addVertex(new WindyVertex("deep copy original"), i);
 			}
-			WindyEdge e;
+			WindyEdge e, e2;
 			for(int i=1; i<this.getEdges().size()+1;i++)
 			{
 				e = indexedEdges.get(i);
-				ans.addEdge(new WindyEdge("deep copy original", new Pair<WindyVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.getReverseCost()));
+				e2 = new WindyEdge("deep copy original", new Pair<WindyVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.getReverseCost());
+				e2.setRequired(e.isRequired());
+				ans.addEdge(e2);
 			}
 			return ans;
 		} catch(Exception e) {
@@ -108,15 +110,15 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 		if(i > this.getVertices().size() || j > this.getVertices().size())
 			throw new InvalidEndpointsException();
 		return new WindyEdge(desc, new Pair<WindyVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, cost);
-	
+
 	}
-	
+
 	public WindyEdge constructEdge(int i, int j, String desc, int cost, int reverseCost)
 			throws InvalidEndpointsException {
 		if(i > this.getVertices().size() || j > this.getVertices().size())
 			throw new InvalidEndpointsException();
 		return new WindyEdge(desc, new Pair<WindyVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, reverseCost);
-	
+
 	}
 
 	@Override

@@ -72,7 +72,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	}
 	public void addEdge(int i, int j, String desc, int cost, int matchId) throws InvalidEndpointsException
 	{
-		E temp = this.constructEdge(matchId, j, desc, cost);
+		E temp = this.constructEdge(i, j, desc, cost);
 		temp.setMatchId(matchId);
 		this.addEdge(temp);
 	}

@@ -19,6 +19,7 @@ public abstract class Link<V extends Vertex> {
 	private int mCost;
 	private int mCapacity;
 	private boolean isDirected;
+	private boolean isRequired;
 	private boolean capacitySet;
 
 	public Link(String label, Pair<V> endpoints, int cost)
@@ -29,6 +30,7 @@ public abstract class Link<V extends Vertex> {
 		setGuid(counter);
 		setEndpoints(endpoints);
 		setCost(cost);
+		setRequired(true);
 		capacitySet = false;
 		counter++;
 	}
@@ -117,6 +119,12 @@ public abstract class Link<V extends Vertex> {
 
 	public void unsetCapacity() {
 		capacitySet = false;
+	}
+	public boolean isRequired() {
+		return isRequired;
+	}
+	public void setRequired(boolean isRequired) {
+		this.isRequired = isRequired;
 	}
 
 }

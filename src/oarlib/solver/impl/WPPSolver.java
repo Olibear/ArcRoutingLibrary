@@ -148,7 +148,6 @@ public class WPPSolver extends Solver{
 	}
 	public static void eulerAugment(WindyGraph g)
 	{
-
 		try
 		{
 			//the windy graph, but with edges that carry the average cost of each traversal.

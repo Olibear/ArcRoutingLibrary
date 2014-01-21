@@ -66,7 +66,7 @@ public class UCPPSolver extends Solver{
 	 * @param input - the original undirected graph
 	 * @return the least cost eulerian augmentation
 	 */
-	public void eulerAugment(UndirectedGraph input)
+	private static void eulerAugment(UndirectedGraph input)
 	{
 		try
 		{

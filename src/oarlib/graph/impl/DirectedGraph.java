@@ -103,6 +103,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 				a2 = new Arc("deep copy original", new Pair<DirectedVertex>(ans.getInternalVertexMap().get(a.getTail().getId()), ans.getInternalVertexMap().get(a.getHead().getId())), a.getCost());
 				if(a.isCapacitySet())
 					a2.setCapacity(a.getCapacity());
+				a2.setRequired(a.isRequired());
 				ans.addEdge(a2, i);
 			}
 			return ans;

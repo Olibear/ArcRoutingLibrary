@@ -141,12 +141,15 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 			{
 				ans.addVertex(new MixedVertex("deep copy original"), i);
 			}
-			MixedEdge e;
+			MixedEdge e, e2;
 			for(int i=1;i<this.getEdges().size()+1;i++)
 			{
 				e = indexedEdges.get(i);
-				ans.addEdge(new MixedEdge("deep copy original", new Pair<MixedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected()));
+				e2 = new MixedEdge("deep copy original", new Pair<MixedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected());
+				e2.setRequired(e.isRequired());
+				ans.addEdge(e2);
 			}
+				
 			return ans;
 		} catch(Exception e) {
 			e.printStackTrace();

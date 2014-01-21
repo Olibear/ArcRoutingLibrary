@@ -44,7 +44,7 @@ public class DCPPSolver extends Solver{
 		return ret;
 	}
 
-	public void eulerAugment(DirectedGraph input)
+	private static void eulerAugment(DirectedGraph input)
 	{
 		//prepare our unbalanced vertex sets
 		for(DirectedVertex v: input.getVertices())

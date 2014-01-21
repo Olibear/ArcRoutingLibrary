@@ -148,7 +148,7 @@ public class ImprovedWPPSolver extends Solver{
 
 	}
 	
-	private HashSet<Integer> buildL(DirectedGraph gaux, HashSet<Integer> e1, int[] flowanswer)
+	private static HashSet<Integer> buildL(DirectedGraph gaux, HashSet<Integer> e1, int[] flowanswer)
 	{
 		HashSet<Integer> ans = new HashSet<Integer>();
 		Arc temp;
@@ -168,7 +168,7 @@ public class ImprovedWPPSolver extends Solver{
 		return ans;
 	}
 
-	private DirectedGraph buildGdr(WindyGraph g, HashSet<Integer> unbalancedEdges)
+	private static DirectedGraph buildGdr(WindyGraph g, HashSet<Integer> unbalancedEdges)
 	{
 		try {
 			DirectedGraph ans = new DirectedGraph();
@@ -201,7 +201,7 @@ public class ImprovedWPPSolver extends Solver{
 			return null;
 		}
 	}
-	private DirectedGraph buildGaux(WindyGraph g, HashSet<Integer> unbalancedEdges)
+	private static DirectedGraph buildGaux(WindyGraph g, HashSet<Integer> unbalancedEdges)
 	{
 		try {
 			DirectedGraph ans = new DirectedGraph();
@@ -257,7 +257,7 @@ public class ImprovedWPPSolver extends Solver{
 	}
 
 
-	private void buildEdgeSets(HashSet<Integer> e1, HashSet<Integer> e2, WindyGraph g, double averageCost)
+	private static void buildEdgeSets(HashSet<Integer> e1, HashSet<Integer> e2, WindyGraph g, double averageCost)
 	{
 		double costDiff;
 		for(WindyEdge e: g.getEdges())

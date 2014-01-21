@@ -35,7 +35,7 @@ public class DirectedRPP extends Problem {
 	}
 
 	@Override
-	public Graph<?, ?> getGraph() {
+	public DirectedGraph getGraph() {
 		return mGraph;
 	}
 
