@@ -55,7 +55,7 @@ public class WPPSolver extends Solver{
 		return Problem.Type.WINDY_CHINESE_POSTMAN;
 	}
 
-	public static void constructOptimalWindyTour(WindyGraph g) throws IllegalArgumentException
+	public static DirectedGraph constructOptimalWindyTour(WindyGraph g) throws IllegalArgumentException
 	{
 		if(!CommonAlgorithms.isEulerian(g))
 			throw new IllegalArgumentException();
@@ -75,34 +75,54 @@ public class WPPSolver extends Solver{
 			WindyEdge e;
 			Arc temp;
 			int artID = 0;
+			int tempCost;
 			for(int i = 1; i < m+1; i++)
 			{
 				e = windyEdges.get(i);
+				tempCost = Math.abs(e.getCost() - e.getReverseCost());
 				//add an artificial one in the greater cost direction
 				if(e.getCost() > e.getReverseCost())
 				{
-					temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getFirst().getId()), flowVertices.get(e.getEndpoints().getSecond().getId())), e.getCost());
+					temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getFirst().getId()), flowVertices.get(e.getEndpoints().getSecond().getId())), tempCost);
 					temp.setCapacity(2);
 					flowGraph.addEdge(temp);
 					artID = temp.getId();
 				}
 				else
 				{
-					temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getSecond().getId()), flowVertices.get(e.getEndpoints().getFirst().getId())), e.getReverseCost());
+					temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getSecond().getId()), flowVertices.get(e.getEndpoints().getFirst().getId())), tempCost);
 					temp.setCapacity(2);
 					flowGraph.addEdge(temp);
 					artID = temp.getId();
 				}
 				//add one in each direction
-				flowGraph.addEdge(new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getFirst().getId()), flowVertices.get(e.getEndpoints().getSecond().getId())), e.getCost()), artID);
-				flowGraph.addEdge(new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getSecond().getId()), flowVertices.get(e.getEndpoints().getFirst().getId())), e.getReverseCost()), artID);
+				flowGraph.addEdge(new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getFirst().getId()), flowVertices.get(e.getEndpoints().getSecond().getId())), 2 * e.getCost()), artID);
+				flowGraph.addEdge(new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getSecond().getId()), flowVertices.get(e.getEndpoints().getFirst().getId())), 2 * e.getReverseCost()), artID);
 				
 			}
 			
+			if(CommonAlgorithms.isEulerian(flowGraph))
+			{
+				DirectedGraph ans = new DirectedGraph();
+				for(int i = 1; i < m+1; i++)
+				{
+					e = windyEdges.get(i);
+					//add an arc in the least cost direction
+					if(e.getCost() > e.getReverseCost())
+					{
+						temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getFirst().getId()), flowVertices.get(e.getEndpoints().getSecond().getId())), e.getReverseCost());
+					}
+					else
+					{
+						temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getSecond().getId()), flowVertices.get(e.getEndpoints().getFirst().getId())), e.getCost());
+					}
+				}
+				return ans;
+			}
 			for(DirectedVertex v: flowGraph.getVertices())
 			{
 				if(v.getDelta() != 0)
-					v.setDemand(v.getDelta());
+					v.setDemand(-1 * v.getDelta());
 			}
 			int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(flowGraph);
 			
@@ -112,7 +132,7 @@ public class WPPSolver extends Solver{
 			DirectedGraph ans = new DirectedGraph();
 			for (int i = 1; i < n+1; i++)
 			{
-				flowGraph.addVertex(new DirectedVertex("ans"));
+				ans.addVertex(new DirectedVertex("ans"));
 			}
 			for(int i = 1; i < flowanswer.length; i++)
 			{
@@ -139,11 +159,13 @@ public class WPPSolver extends Solver{
 			
 			//should be done now
 			if(!CommonAlgorithms.isEulerian(ans))
-				System.out.println("BADD."); //should never happen
+				System.out.println("The flow augmentation failed."); //should never happen
+			
+			return ans;
 				
 		} catch(Exception e) {
 			e.printStackTrace();
-			return;
+			return null;
 		}
 	}
 	public static void eulerAugment(WindyGraph g)
@@ -208,6 +230,8 @@ public class WPPSolver extends Solver{
 			}
 
 			//should be Eulerian now
+			if(!CommonAlgorithms.isEulerian(g))
+				System.out.println("The UCPP augmentation failed.");
 		} catch(Exception e)
 		{
 			e.printStackTrace();

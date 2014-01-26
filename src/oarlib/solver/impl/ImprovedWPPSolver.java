@@ -140,6 +140,8 @@ public class ImprovedWPPSolver extends Solver{
 			}
 
 			//should be Eulerian now
+			if(!CommonAlgorithms.isEulerian(g))
+				System.out.println("The UCPP augmentation failed.");
 		} catch(Exception e)
 		{
 			e.printStackTrace();
@@ -208,11 +210,11 @@ public class ImprovedWPPSolver extends Solver{
 			int n = g.getVertices().size();
 			for(int i = 0; i < n; i++)
 			{
-				ans.addVertex(new DirectedVertex("Gdr"));
+				ans.addVertex(new DirectedVertex("Gaux"));
 			}
 
 			//put in an arc for each of the edges in g
-			int i,j,sumCost;
+			int i,j,tempCost;
 			for(WindyEdge e: g.getEdges())
 			{
 				i = e.getEndpoints().getFirst().getId();
@@ -232,17 +234,18 @@ public class ImprovedWPPSolver extends Solver{
 				temp = indexedEdges.get(id);
 				i = temp.getEndpoints().getFirst().getId();
 				j = temp.getEndpoints().getSecond().getId();
-				sumCost = temp.getCost() + temp.getReverseCost();
 
 				if(temp.getCost() < temp.getReverseCost())
 				{
-					toAdd = new Arc("Gaux_e1",new Pair<DirectedVertex>(indexedVertices.get(j), indexedVertices.get(i)), sumCost);
+					tempCost = temp.getReverseCost() - temp.getCost();
+					toAdd = new Arc("Gaux",new Pair<DirectedVertex>(indexedVertices.get(j), indexedVertices.get(i)), tempCost);
 					toAdd.setCapacity(2);
 					ans.addEdge(toAdd);
 				}
 				else
 				{
-					toAdd = new Arc("Gaux_e1",new Pair<DirectedVertex>(indexedVertices.get(i), indexedVertices.get(j)), sumCost);
+					tempCost = temp.getCost() - temp.getReverseCost();
+					toAdd = new Arc("Gaux",new Pair<DirectedVertex>(indexedVertices.get(i), indexedVertices.get(j)), tempCost);
 					toAdd.setCapacity(2);
 					ans.addEdge(toAdd);
 				}
@@ -262,7 +265,7 @@ public class ImprovedWPPSolver extends Solver{
 		double costDiff;
 		for(WindyEdge e: g.getEdges())
 		{
-			costDiff = Math.abs(e.getCost() + e.getReverseCost());
+			costDiff = Math.abs(e.getCost() - e.getReverseCost());
 			if(costDiff > K * averageCost )
 				e1.add(e.getId());
 			else

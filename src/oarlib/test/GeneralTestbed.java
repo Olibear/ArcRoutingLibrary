@@ -15,11 +15,13 @@ import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.MixedEdge;
 import oarlib.core.Route;
+import oarlib.core.WindyEdge;
 import oarlib.graph.graphgen.DirectedGraphGenerator;
 import oarlib.graph.graphgen.UndirectedGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.Format;
 import oarlib.graph.io.GraphReader;
 import oarlib.graph.util.CommonAlgorithms;
@@ -27,14 +29,18 @@ import oarlib.graph.util.Pair;
 import oarlib.problem.impl.DirectedCPP;
 import oarlib.problem.impl.MixedCPP;
 import oarlib.problem.impl.UndirectedCPP;
+import oarlib.problem.impl.WindyCPP;
 import oarlib.solver.impl.DCPPSolver;
 import oarlib.solver.impl.ImprovedMCPPSolver;
+import oarlib.solver.impl.ImprovedWPPSolver;
 import oarlib.solver.impl.MCPPSolver;
 import oarlib.solver.impl.ModifiedMCPPSolver;
 import oarlib.solver.impl.UCPPSolver;
+import oarlib.solver.impl.WPPSolver;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
+import oarlib.vertex.impl.WindyVertex;
 
 public class GeneralTestbed {
 
@@ -43,7 +49,7 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		validateBellmanFord();
+		testFredericksons();
 	}
 	private static void check(Link<?> a)
 	{
@@ -1250,6 +1256,48 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * make sure the machinery is working on toy problem.
+	 */
+	private static void testWPPSolver()
+	{
+		try{
+			long start = System.currentTimeMillis();
+			WindyGraph test = new WindyGraph();
+
+			WindyVertex v1 = new WindyVertex("dummy");
+			WindyVertex v2 = new WindyVertex("dummy2");
+			WindyVertex v3 = new WindyVertex("dummy3");
+
+			Pair<WindyVertex> ep = new Pair<WindyVertex>(v1, v2);
+			Pair<WindyVertex> ep2 = new Pair<WindyVertex>(v2, v1);
+			Pair<WindyVertex> ep3 = new Pair<WindyVertex>(v2, v3);
+			Pair<WindyVertex> ep4 = new Pair<WindyVertex>(v3,v1);
+
+			WindyEdge e = new WindyEdge("stuff", ep, 10,3);
+			WindyEdge e2 = new WindyEdge("more stuff", ep2, 20,2);
+			WindyEdge e3 = new WindyEdge("third stuff", ep3, 5,10);
+			WindyEdge e4 = new WindyEdge("fourth stuff", ep4, 7,17);
+
+			test.addVertex(v1);
+			test.addVertex(v2);
+			test.addVertex(v3);
+			test.addEdge(e);
+			test.addEdge(e2);
+			test.addEdge(e3);
+			test.addEdge(e4);
+
+			WindyCPP testInstance = new WindyCPP(test);
+			ImprovedWPPSolver testSolver = new ImprovedWPPSolver(testInstance);
+			Collection<Route> testAns = testSolver.trySolve();
+			long end = System.currentTimeMillis();
+			System.out.println(end - start);
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	private static void testDCPPSolver()
 	{
 		try {

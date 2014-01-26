@@ -90,7 +90,7 @@ public class MCPPSolver extends Solver{
 			else
 				System.out.println("Total cost: " + cost2);
 
-			/*
+			
 			ArrayList<Route> ret = new ArrayList<Route>();
 			ArrayList<Integer> tour;
 			if(cost1 <= cost2)
@@ -116,8 +116,6 @@ public class MCPPSolver extends Solver{
 				ret.add(eulerTour);
 			}
 			return ret;
-			 */
-			return null;
 
 		} catch(Exception e )
 		{

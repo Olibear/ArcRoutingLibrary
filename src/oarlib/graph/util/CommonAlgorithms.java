@@ -47,7 +47,7 @@ public class CommonAlgorithms {
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
 		//TODO: Fleury's
-		return hierholzer(eulerianGraph);
+		return hierholzer(eulerianGraph, false);
 	}
 	/**
 	 * Hierholzer's algorithm for determining an Euler tour through an undirected Eulerian graph.
@@ -58,18 +58,25 @@ public class CommonAlgorithms {
 	public static ArrayList<Integer> tryHierholzer(UndirectedGraph eulerianGraph) throws IllegalArgumentException{
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
-		return hierholzer(eulerianGraph);
+		return hierholzer(eulerianGraph, false);
 	}
+	/**
+	 * Hierholzer's algorithm for determining an Euler tour through an undirected Eulerian graph.
+	 * @param eulerianGraph - an eulerian graph on which to construct the tour 
+	 * @return a ArrayList object containing the tour (values are edge ids)
+	 * @throws IllegalArgumentException if the graph passed in is not Eulerian.
+	 */
 	public static ArrayList<Integer> tryHierholzer(MixedGraph eulerianGraph) throws IllegalArgumentException{
 		if(!isStronglyEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
-		return hierholzer(eulerianGraph);
+		DirectedGraph ans = CommonAlgorithms.directUndirectedCycles(eulerianGraph); 
+		return hierholzer(ans, true);
 	}
 	/**
 	 * business logic for Hierholzer's algorithm
 	 * @return the Eulerian cycle
 	 */
-	private static ArrayList<Integer> hierholzer(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph)
+	private static ArrayList<Integer> hierholzer(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph, boolean useMatchIds)
 	{
 		ArrayList<Integer> edgeTrail = new ArrayList<Integer>();
 		ArrayList<Integer> edgeCycle = new ArrayList<Integer>();
@@ -96,7 +103,10 @@ public class CommonAlgorithms {
 			//greedily go until we've come back to start
 			do {
 				currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
-				edgeCycle.add(currEdge.getId()); //add it to the trail
+				if(useMatchIds)
+					edgeCycle.add(currEdge.getMatchId());
+				else
+					edgeCycle.add(currEdge.getId()); //add it to the trail
 				//update the currVertex
 				prevVertex = currVertex;
 				currVertex = (currEdge.getEndpoints().getFirst().getId() == currVertex.getId())?currEdge.getEndpoints().getSecond():currEdge.getEndpoints().getFirst();
@@ -660,10 +670,10 @@ public class CommonAlgorithms {
 		int BIG = 0; //the sum of all edge costs
 		for(Link<? extends Vertex> l : g.getEdges())
 			BIG += l.getCost();
-		
+
 		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
 			throw new IllegalArgumentException();
-		
+
 		//initialization
 		for(int i = 0; i <= n ; i++)
 		{
@@ -671,7 +681,7 @@ public class CommonAlgorithms {
 			path[i] = 0;
 		}
 		dist[sourceId] = 0;
-		
+
 		//relax edges
 		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
 		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
@@ -709,7 +719,7 @@ public class CommonAlgorithms {
 				}
 			}
 		}
-		
+
 		int p,q, cost;
 		//check for negative cycles
 		for(Link<? extends Vertex> l: g.getEdges())
@@ -739,10 +749,10 @@ public class CommonAlgorithms {
 		int BIG = 0; //the sum of all edge costs
 		for(Link<? extends Vertex> l : g.getEdges())
 			BIG += l.getCost();
-		
+
 		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
 			throw new IllegalArgumentException();
-		
+
 		//initialization
 		for(int i = 0; i <= n ; i++)
 		{
@@ -751,7 +761,7 @@ public class CommonAlgorithms {
 			edgePath[i] = 0;
 		}
 		dist[sourceId] = 0;
-		
+
 		//relax edges
 		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
 		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
@@ -794,7 +804,7 @@ public class CommonAlgorithms {
 				}
 			}
 		}
-		
+
 		int p,q, cost;
 		//check for negative cycles
 		for(Link<? extends Vertex> l: g.getEdges())
@@ -823,10 +833,10 @@ public class CommonAlgorithms {
 		int BIG = 0; //the sum of all edge costs
 		for(Link<? extends Vertex> l : g.getEdges())
 			BIG += l.getCost();
-		
+
 		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
 			throw new IllegalArgumentException();
-		
+
 		//initialization
 		for(int i = 0; i <= n ; i++)
 		{
@@ -834,7 +844,7 @@ public class CommonAlgorithms {
 			path[i] = 0;
 		}
 		dist[sourceId] = 0;
-		
+
 		//relax edges
 		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
 		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
@@ -879,7 +889,7 @@ public class CommonAlgorithms {
 				}
 			}
 		}
-		
+
 		int p,q, cost;
 		//check for negative cycles
 		for(Link<? extends Vertex> l: g.getEdges())
@@ -908,10 +918,10 @@ public class CommonAlgorithms {
 		int BIG = 0; //the sum of all edge costs
 		for(Link<? extends Vertex> l : g.getEdges())
 			BIG += l.getCost();
-		
+
 		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
 			throw new IllegalArgumentException();
-		
+
 		//initialization
 		for(int i = 0; i <= n ; i++)
 		{
@@ -920,7 +930,7 @@ public class CommonAlgorithms {
 			edgePath[i] = 0;
 		}
 		dist[sourceId] = 0;
-		
+
 		//relax edges
 		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
 		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
@@ -970,7 +980,7 @@ public class CommonAlgorithms {
 				}
 			}
 		}
-		
+
 		int p,q, cost;
 		//check for negative cycles
 		for(Link<? extends Vertex> l: g.getEdges())
@@ -998,10 +1008,10 @@ public class CommonAlgorithms {
 		int BIG = 0; //the sum of all edge costs
 		for(Link<? extends Vertex> l : g.getEdges())
 			BIG += l.getCost();
-		
+
 		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
 			throw new IllegalArgumentException();
-		
+
 		//initialization
 		for(int i = 0; i <= n ; i++)
 		{
@@ -1009,7 +1019,7 @@ public class CommonAlgorithms {
 			path[i] = 0;
 		}
 		dist[sourceId] = 0;
-		
+
 		//relax edges
 		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
 		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
@@ -1052,7 +1062,7 @@ public class CommonAlgorithms {
 				}
 			}
 		}
-		
+
 		int p,q, cost;
 		//check for negative cycles
 		for(Link<? extends Vertex> l: g.getEdges())
@@ -1081,10 +1091,10 @@ public class CommonAlgorithms {
 		int BIG = 0; //the sum of all edge costs
 		for(Link<? extends Vertex> l : g.getEdges())
 			BIG += l.getCost();
-		
+
 		if(dist.length != n+1 || path.length != n+1 || BIG < 0)
 			throw new IllegalArgumentException();
-		
+
 		//initialization
 		for(int i = 0; i <= n ; i++)
 		{
@@ -1093,7 +1103,7 @@ public class CommonAlgorithms {
 			edgePath[i] = 0;
 		}
 		dist[sourceId] = 0;
-		
+
 		//relax edges
 		HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
 		LinkedList<Integer> activeVertices = new LinkedList<Integer>();
@@ -1142,7 +1152,7 @@ public class CommonAlgorithms {
 				}
 			}
 		}
-		
+
 		int p,q, cost;
 		//check for negative cycles
 		for(Link<? extends Vertex> l: g.getEdges())
@@ -1355,10 +1365,104 @@ public class CommonAlgorithms {
 	 * convert an eulerian mixed graph into an eulerian directed graph.  This graph simply identifies
 	 * undirected cycles in the input graph, and directs them in an arbitrary direction.  
 	 */
-	public static DirectedGraph directUndirectedCycles(MixedGraph input)
+	private static DirectedGraph directUndirectedCycles(MixedGraph input) throws IllegalArgumentException
 	{
-		//TODO
-		return null;
+		if(!CommonAlgorithms.isStronglyEulerian(input))
+			throw new IllegalArgumentException("Tried to run directUndirectedCycles on a non-eulerian Mixed Graph.");
+		try
+		{
+			DirectedGraph ans = new DirectedGraph();
+			UndirectedGraph temp = new UndirectedGraph();
+			int n = input.getVertices().size();
+			for(int i = 0; i < n; i++)
+			{
+				temp.addVertex(new UndirectedVertex("temp"));
+				ans.addVertex(new DirectedVertex("ans"));
+			}
+			for(MixedEdge e:input.getEdges())
+			{
+				//create an undirected graph that only has the undirected edges from input
+				if(!e.isDirected())
+					temp.addEdge(e.getEndpoints().getFirst().getId(), e.getEndpoints().getSecond().getId(), "temp", e.getCost(), e.getId());
+				else
+					ans.addEdge(e.getTail().getId(), e.getHead().getId(), "ans", e.getCost(), e.getId());
+			}
+
+			UndirectedVertex start = null;
+			HashSet<Integer> usedEdges;
+			ArrayList<Integer> vertexIds;
+			ArrayList<Integer> edgeIds;
+			HashMap<UndirectedVertex, ArrayList<Edge>> neighbors;
+			HashMap<Integer, Edge> indexedEdges = temp.getInternalEdgeMap();
+			HashMap<Integer, UndirectedVertex> indexedVertices = temp.getInternalVertexMap();
+			UndirectedVertex curr;
+			int startId = 0;
+			int currId = 0;
+			boolean foundNewEdge;
+			Edge e2;
+			while(temp.getEdges().size() > 0)
+			{
+				//pick any guy with an incident edge
+				for(UndirectedVertex v: temp.getVertices()) 
+				{
+					if(v.getDegree() > 0)
+					{
+						start = v;
+						startId = start.getId();
+						currId = startId;
+						break;
+					}
+				}
+
+				foundNewEdge = false;
+				//greedily move until we make it back to start
+				usedEdges = new HashSet<Integer>();
+				vertexIds = new ArrayList<Integer>();
+				edgeIds = new ArrayList<Integer>();
+				vertexIds.add(startId);
+				do
+				{
+					curr = indexedVertices.get(currId);
+					neighbors = curr.getNeighbors();
+					for(UndirectedVertex v: neighbors.keySet())
+					{
+						for(Edge e : neighbors.get(v))
+						{
+							if(!usedEdges.contains(e.getId()))
+							{
+								foundNewEdge = true;
+								currId = v.getId();
+								vertexIds.add(currId);
+								edgeIds.add(e.getId());
+								usedEdges.add(e.getId());
+								break;
+							}
+						}
+						if(foundNewEdge)
+						{
+							foundNewEdge = false;
+							break;
+						}
+					}
+				} while (currId != startId);
+				
+				//remove cycle from temp, and add cycle to ans
+				int lim = edgeIds.size();
+				for(int i = 0; i < lim; i++)
+				{
+					e2 = indexedEdges.get(edgeIds.get(i));
+					temp.removeEdge(e2);
+					ans.addEdge(vertexIds.get(i), vertexIds.get(i+1), "directing cycle", e2.getCost(), e2.getId());
+				}
+
+			} 
+			return ans;
+
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 	public static void fwLeastCostPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int[][] dist, int[][] path, int[][] edgePath) throws IllegalArgumentException
 	{
@@ -1459,6 +1563,14 @@ public class CommonAlgorithms {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * adds the shortest path from p1 to p2 to g.
+	 * @param g - the directed graph in which to add the paths
+	 * @param dist - the dist matrix (probably output from fwLeastCostPaths)
+	 * @param path - the path matrix (probably output from fwLeastCostPaths)
+	 * @param edgePath - the edgePath matrix (probably output from fwLeastCostPaths) that gives the edge ids of the paths in path.
+	 * @param p - the ids (in g) of the vertices you want to add the shortest path from (to)
+	 */
 	public static void addShortestPath(DirectedGraph g, int[][] dist, int[][]path, int[][] edgePath, Pair<Integer> p)
 	{
 		try {
@@ -1466,20 +1578,24 @@ public class CommonAlgorithms {
 			int end = p.getSecond();
 			int next = 0;
 			int nextEdge = 0;
-			int cost = 0;
-			DirectedVertex u,v;
+			HashMap<Integer, Arc> indexedArcs = g.getInternalEdgeMap();
 			do {
 				next = path[curr][end];
 				nextEdge = edgePath[curr][end];
-				cost = dist[curr][next];
-				u = g.getInternalVertexMap().get(curr);
-				v = g.getInternalVertexMap().get(next);
-				g.addEdge(new Arc("from addShortestPath", new Pair<DirectedVertex>(u,v), cost), nextEdge);
+				g.addEdge(indexedArcs.get(nextEdge).getCopy(), nextEdge);
 			} while ( (curr =next) != end);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * adds the shortest path from p1 to p2 to g.
+	 * @param g - the directed graph in which to add the paths
+	 * @param dist - the dist matrix (probably output from fwLeastCostPaths)
+	 * @param path - the path matrix (probably output from fwLeastCostPaths)
+	 * @param edgePath - the edgePath matrix (probably output from fwLeastCostPaths) that gives the edge ids of the paths in path.
+	 * @param p - the ids (in g) of the vertices you want to add the shortest path from (to)
+	 */
 	public static void addShortestPath(WindyGraph g, int[][] dist, int[][] path, int[][] edgePath, Pair<Integer> p)
 	{
 		try {
@@ -1491,7 +1607,7 @@ public class CommonAlgorithms {
 			do {
 				next = path[curr][end];
 				nextEdge = edgePath[curr][end];
-				g.addEdge(indexedEdges.get(nextEdge).getCopy());
+				g.addEdge(indexedEdges.get(nextEdge).getCopy(),nextEdge);
 			} while ( (curr = next) != end);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -1523,6 +1639,42 @@ public class CommonAlgorithms {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * adds the shortest path from p1 to p2 to g.
+	 * @param g - the directed graph in which to add the paths
+	 * @param dist - the dist matrix (probably output from fwLeastCostPaths)
+	 * @param path - the path matrix (probably output from fwLeastCostPaths)
+	 * @param edgePath - the edgePath matrix (probably output from fwLeastCostPaths) that gives the edge ids of the paths in path.
+	 * @param p - the ids (in g) of the vertices you want to remove the shortest path from (to)
+	 */
+	public static void removeShortestPath(UndirectedGraph g, int[][] dist, int[][]path, int[][] edgePath, Pair<Integer> p)
+	{
+		try {
+			int curr = p.getFirst();
+			int end = p.getSecond();
+			int next = 0;
+			int nextEdge = 0;
+			HashMap<Integer, Edge> indexedEdges = g.getInternalEdgeMap();
+			Edge toRemove;
+			do {
+				next = path[curr][end];
+				nextEdge = edgePath[curr][end];
+				System.out.println("next edge: " + nextEdge);
+				toRemove = indexedEdges.get(nextEdge);
+				g.removeEdge(toRemove);
+			} while ( (curr =next) != end);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	/**
+	 * adds the shortest path from p1 to p2 to g.
+	 * @param g - the directed graph in which to add the paths
+	 * @param dist - the dist matrix (probably output from fwLeastCostPaths)
+	 * @param path - the path matrix (probably output from fwLeastCostPaths)
+	 * @param edgePath - the edgePath matrix (probably output from fwLeastCostPaths) that gives the edge ids of the paths in path.
+	 * @param p - the ids (in g) of the vertices you want to add the shortest path from (to)
+	 */
 	public static void addShortestPath(UndirectedGraph g, int[][] dist, int[][]path, int[][] edgePath, Pair<Integer> p)
 	{
 		try {
@@ -1530,15 +1682,11 @@ public class CommonAlgorithms {
 			int end = p.getSecond();
 			int next = 0;
 			int nextEdge = 0;
-			int cost = 0;
-			UndirectedVertex u,v;
+			HashMap<Integer, Edge> indexedEdges = g.getInternalEdgeMap();
 			do {
 				next = path[curr][end];
 				nextEdge = edgePath[curr][end];
-				cost = dist[curr][next];
-				u = g.getInternalVertexMap().get(curr);
-				v = g.getInternalVertexMap().get(next);
-				g.addEdge(new Edge("from addShortestPath", new Pair<UndirectedVertex>(u,v), cost), nextEdge);
+				g.addEdge(indexedEdges.get(nextEdge).getCopy(), nextEdge);
 			} while ( (curr =next) != end);
 		} catch(Exception e) {
 			e.printStackTrace();
