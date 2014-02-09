@@ -147,7 +147,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 				e = indexedEdges.get(i);
 				e2 = new MixedEdge("deep copy original", new Pair<MixedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected());
 				e2.setRequired(e.isRequired());
-				ans.addEdge(e2);
+				ans.addEdge(e2, i);
 			}
 				
 			return ans;

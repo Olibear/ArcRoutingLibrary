@@ -38,7 +38,7 @@ public class ImprovedWPPSolver extends Solver{
 
 	@Override
 	protected Collection<Route> solve() {
-		WindyGraph copy = mInstance.getGraph();
+		WindyGraph copy = mInstance.getGraph().getDeepCopy();
 
 		//calculate average cost
 		double averageCost = calculateAverageCost(copy);
@@ -50,30 +50,34 @@ public class ImprovedWPPSolver extends Solver{
 
 		// build Gdr
 		DirectedGraph Gdr = buildGdr(copy, E1);
-
-		//build Gaux
-		DirectedGraph Gaux = buildGaux(copy, E1);
-
-		//set up the flow problem on Gaux using demands from Gdr
-		HashMap<Integer, DirectedVertex> indexedVertices = Gdr.getInternalVertexMap();
-		for(DirectedVertex v: Gaux.getVertices())
+		HashSet<Integer> L = new HashSet<Integer>();
+		if(!CommonAlgorithms.isEulerian(Gdr))
 		{
-			v.setDemand(indexedVertices.get(v.getId()).getDelta());
+
+			//build Gaux
+			DirectedGraph Gaux = buildGaux(copy, E1);
+
+			//set up the flow problem on Gaux using demands from Gdr
+			HashMap<Integer, DirectedVertex> indexedVertices = Gdr.getInternalVertexMap();
+			for(DirectedVertex v: Gaux.getVertices())
+			{
+				v.setDemand(indexedVertices.get(v.getId()).getDelta());
+			}
+
+
+			//solve the flow problem on Gaux with demands from Gdr
+			int flowanswer[] = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(Gaux);
+
+			//create L
+			L = buildL(Gaux, E1, flowanswer);
 		}
-		
 
-		//solve the flow problem on Gaux with demands from Gdr
-		int flowanswer[] = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(Gaux);
-
-		//create L
-		HashSet<Integer> L = buildL(Gaux, E1, flowanswer);
-		
 		//euler augment
 		eulerAugment(copy, L);
 		WPPSolver.constructOptimalWindyTour(copy);
 		return null;
 	}
-	
+
 	public static void eulerAugment(WindyGraph g, HashSet<Integer> L)
 	{
 
@@ -149,7 +153,7 @@ public class ImprovedWPPSolver extends Solver{
 		}
 
 	}
-	
+
 	private static HashSet<Integer> buildL(DirectedGraph gaux, HashSet<Integer> e1, int[] flowanswer)
 	{
 		HashSet<Integer> ans = new HashSet<Integer>();

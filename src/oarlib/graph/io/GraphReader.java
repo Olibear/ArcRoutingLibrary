@@ -14,10 +14,12 @@ import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
+import oarlib.vertex.impl.WindyVertex;
 
 /**
  * Reader to accept various file formats, and store them as a graph object.  Plans to use Gephi.
@@ -70,6 +72,8 @@ public class GraphReader {
 					temp = line.split("\\s+|:");
 					if(temp[3].startsWith("MA") || temp[3].startsWith("MB"))
 						type = "Mixed";
+					else if(temp[3].startsWith("WA") || temp[3].startsWith("WB"))
+						type = "Windy";
 				}
 				else if(line.contains("VERTICES"))
 				{
@@ -134,6 +138,45 @@ public class GraphReader {
 					{
 						ans.addEdge(new MixedEdge("original", new Pair<MixedVertex>(ansVertices.get(tailId), ansVertices.get(headId)), cost1, false));
 					}
+				}
+				br.close();
+				return ans;
+			}
+			else if(type == "Windy")
+			{
+				WindyGraph ans = new WindyGraph();
+				int tailId;
+				int headId;
+				int cost1;
+				int cost2;
+				for(int i = 0; i < n; i++)
+				{
+					ans.addVertex(new WindyVertex("original"));
+				}
+				HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
+				br.readLine();
+				br.readLine();
+				int index;
+				while((line = br.readLine()) != null)
+				{
+					if(line.contains("ARISTAS"))
+						break;
+					temp = line.split("\\s+|:|\\)|,|\\(");
+					index = 1;
+					if(temp[index].isEmpty())
+						index++;
+					tailId = Integer.parseInt(temp[index++]);
+					if(temp[index].isEmpty())
+						index++;
+					if(temp[index].isEmpty())
+						index++;
+					headId = Integer.parseInt(temp[index++]);
+					index+=2;
+					cost1 = Integer.parseInt(temp[index++]);
+					cost2 = Integer.parseInt(temp[index]);
+
+					ans.addEdge(tailId, headId, "original", cost1, cost2);
+
 				}
 				br.close();
 				return ans;

@@ -2,6 +2,7 @@ package oarlib.solver.impl;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import oarlib.core.Arc;
@@ -39,7 +40,7 @@ public class WPPSolver extends Solver{
 		try
 		{
 
-			WindyGraph copy = mInstance.getGraph();
+			WindyGraph copy = mInstance.getGraph().getDeepCopy();
 			eulerAugment(copy);
 			constructOptimalWindyTour(copy);
 			return null;
@@ -104,19 +105,31 @@ public class WPPSolver extends Solver{
 			if(CommonAlgorithms.isEulerian(flowGraph))
 			{
 				DirectedGraph ans = new DirectedGraph();
+				for (int i = 1; i < n+1; i++)
+				{
+					ans.addVertex(new DirectedVertex("ans"));
+				}
 				for(int i = 1; i < m+1; i++)
 				{
 					e = windyEdges.get(i);
 					//add an arc in the least cost direction
 					if(e.getCost() > e.getReverseCost())
 					{
-						temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getFirst().getId()), flowVertices.get(e.getEndpoints().getSecond().getId())), e.getReverseCost());
+						ans.addEdge(e.getEndpoints().getSecond().getId(), e.getEndpoints().getFirst().getId(), "ans", e.getReverseCost());
 					}
 					else
 					{
-						temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getSecond().getId()), flowVertices.get(e.getEndpoints().getFirst().getId())), e.getCost());
+						ans.addEdge(e.getEndpoints().getFirst().getId(), e.getEndpoints().getSecond().getId(), "ans",e.getCost());
 					}
 				}
+				//compute cost
+				HashSet<Arc> arcSet = ans.getEdges();
+				int cost = 0;
+				for(Arc a: arcSet)
+				{
+					cost += a.getCost();
+				}
+				System.out.println("Cost is: " + cost);
 				return ans;
 			}
 			for(DirectedVertex v: flowGraph.getVertices())
@@ -145,14 +158,14 @@ public class WPPSolver extends Solver{
 				{
 					for (int j =0; j <= flowanswer[i];j++)
 					{
-						ans.addEdge(temp.getTail().getId(),temp.getHead().getId(),"ans",temp.getCost());
+						ans.addEdge(temp.getTail().getId(),temp.getHead().getId(),"ans",temp.getCost()/2);
 					}
 				}
 				else if(artificial.getHead().getId() == temp.getTail().getId() && flowanswer[temp.getMatchId()] == 0)
 				{
 					for(int j = 0; j <= flowanswer[i]; j++)
 					{
-						ans.addEdge(temp.getTail().getId(),temp.getHead().getId(),"ans",temp.getCost());
+						ans.addEdge(temp.getTail().getId(),temp.getHead().getId(),"ans",temp.getCost()/2);
 					}
 				}
 			}
@@ -160,6 +173,15 @@ public class WPPSolver extends Solver{
 			//should be done now
 			if(!CommonAlgorithms.isEulerian(ans))
 				System.out.println("The flow augmentation failed."); //should never happen
+			
+			//compute cost
+			HashSet<Arc> arcSet = ans.getEdges();
+			int cost = 0;
+			for(Arc a: arcSet)
+			{
+				cost += a.getCost();
+			}
+			System.out.println("Cost is: " + cost);
 			
 			return ans;
 				

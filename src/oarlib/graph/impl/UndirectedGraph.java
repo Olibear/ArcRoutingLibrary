@@ -94,7 +94,7 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 				e = indexedEdges.get(i);
 				e2 = new Edge("deep copy original", new Pair<UndirectedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost());
 				e2.setRequired(e.isRequired());
-				ans.addEdge(e2);
+				ans.addEdge(e2, i);
 			}
 			return ans;
 		} catch(Exception e) {

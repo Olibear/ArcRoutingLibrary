@@ -39,13 +39,13 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 	public MultiEdge<E> getCopy()
 	{
 		try {
-			MultiEdge<E> ret = new MultiEdge(first);
+			MultiEdge<E> ret = new MultiEdge<E>(first);
 			//direct it properly
-			if(directedForward)
+			if(directedForward && !first.isDirected())
 			{
 				ret.directForward();
 			}
-			else if(directedBackward)
+			else if(directedBackward && !first.isDirected())
 			{
 				ret.directBackward();
 			}
@@ -53,6 +53,7 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 			//now add copies
 			if(numCopies == -1) //if we're type D, add reverse copy
 			{
+				ret.directForward();
 				ret.addReverseCopy();
 			}
 			else

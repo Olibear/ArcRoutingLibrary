@@ -1208,6 +1208,8 @@ public class CommonAlgorithms {
 				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
 				min = Integer.MAX_VALUE;
 				vid = v.getId();
+				if(!pq.contains(new Pair<Integer>(vid,dist[vid])))
+					continue;
 				for(Link<? extends Vertex> link: l)
 				{
 					if(link.getCost() < min)
@@ -1265,11 +1267,15 @@ public class CommonAlgorithms {
 			temp = pq.poll();
 			u = indexedVertices.get(temp.getFirst());
 			uid = u.getId();
+			if(dist[uid] == Integer.MAX_VALUE)
+				continue; //we got to the point where it's disconnected; don't add to max integer, and cause loop around
 			for(Vertex v: u.getNeighbors().keySet())
 			{
 				List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
 				min = Integer.MAX_VALUE;
 				vid = v.getId();
+				if(!pq.contains(new Pair<Integer>(vid,dist[vid])))
+					continue;
 				for(Link<? extends Vertex> link: l)
 				{
 					if(link.getCost() < min)
@@ -1278,6 +1284,7 @@ public class CommonAlgorithms {
 						minid = link.getId();
 					}
 				}
+				//don't go past max integer, that's bad
 				alt = dist[uid] + min;
 				if(alt < dist[vid])
 				{

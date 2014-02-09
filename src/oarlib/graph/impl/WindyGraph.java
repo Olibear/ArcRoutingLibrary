@@ -95,7 +95,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 				e = indexedEdges.get(i);
 				e2 = new WindyEdge("deep copy original", new Pair<WindyVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.getReverseCost());
 				e2.setRequired(e.isRequired());
-				ans.addEdge(e2);
+				ans.addEdge(e2, i);
 			}
 			return ans;
 		} catch(Exception e) {

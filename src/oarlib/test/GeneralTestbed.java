@@ -49,7 +49,7 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		testFredericksons();
+		testYaoyuenyong();
 	}
 	private static void check(Link<?> a)
 	{
@@ -189,7 +189,25 @@ public class GeneralTestbed {
 			long start;
 			long end;
 
-			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0532");
+			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0537");
+			
+			//the example from the paper
+			/*MixedGraph g = new MixedGraph();
+			g.addVertex(new MixedVertex("v1"));
+			g.addVertex(new MixedVertex("v2"));
+			g.addVertex(new MixedVertex("v3"));
+			g.addVertex(new MixedVertex("v4"));
+			g.addVertex(new MixedVertex("v5"));
+			
+			g.addEdge(5, 4, "(5-4)", 999, false);
+			g.addEdge(5, 2, "<5-2>", 1, true);
+			g.addEdge(1, 5, "<1-5>", 1, true);
+			g.addEdge(1, 4, "(1-4)", 999, false);
+			g.addEdge(3, 4, "<3-4>", 1, true);
+			g.addEdge(1, 2, "(1-2)", 999, false);
+			g.addEdge(1, 3, "<1-3>", 1, true);
+			g.addEdge(2, 3, "(2-3)", 999, false);*/
+			
 			if(g.getClass() == MixedGraph.class)
 			{
 				MixedGraph g2 = (MixedGraph)g;
@@ -756,7 +774,7 @@ public class GeneralTestbed {
 				CommonAlgorithms.slfShortestPaths(g, 1, dist, path, edgePath);
 				end = System.nanoTime();
 				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Bellman-Ford implementation on a graph with " + g.getEdges().size() + " edges.");
-				
+
 				int dist2[] = new int[n+1];
 				int path2[] = new int[n+1];
 				int edgePath2[] = new int[n+1];
@@ -764,7 +782,7 @@ public class GeneralTestbed {
 				CommonAlgorithms.dijkstrasAlgorithm(g, 1, dist2, path2, edgePath2);
 				end = System.nanoTime();
 				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Dijkstras implementation on a graph with " + g.getEdges().size() + " edges.");
-				
+
 				boolean distOK = true;
 				for(int j=2;j<=n;j++)
 				{
@@ -783,7 +801,7 @@ public class GeneralTestbed {
 				System.out.println("Generated directed graph with n = " + i);
 				int n = g2.getVertices().size();
 
-				
+
 
 				int dist[] = new int[n+1];
 				int path[] = new int[n+1];
@@ -792,7 +810,7 @@ public class GeneralTestbed {
 				CommonAlgorithms.slfShortestPaths(g2, 1, dist, path, edgePath);
 				end = System.nanoTime();
 				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Bellman-Ford implementation on a graph with " + g2.getEdges().size() + " edges.");
-				
+
 				int[] dist2 = new int[n+1];
 				int[] path2 = new int[n+1];
 				int[] edgePath2 = new int[n+1];
@@ -1261,43 +1279,73 @@ public class GeneralTestbed {
 	 */
 	private static void testWPPSolver()
 	{
-		try{
-			long start = System.currentTimeMillis();
-			WindyGraph test = new WindyGraph();
+		/*try
+		{
+			WindyCPP validInstance;
+			WPPSolver validSolver;
+			ImprovedWPPSolver validSolver2;
+			Collection<Route> validAns;
+			
+			WindyGraph g = new WindyGraph();
+			g.addVertex(new WindyVertex("v1"));
+			g.addVertex(new WindyVertex("v2"));
+			g.addVertex(new WindyVertex("v3"));
+			g.addVertex(new WindyVertex("v4"));
+			
+			g.addEdge(1,2,"orig",1,21);
+			g.addEdge(1,4,"orig",21,1);
+			g.addEdge(2,4,"orig",19,1);
+			g.addEdge(2,3,"orig",1,21);
+			g.addEdge(3,4,"orig",1,21);
+			
+			validInstance = new WindyCPP(g);
+			validSolver = new WPPSolver(validInstance);
+			validSolver2 = new ImprovedWPPSolver(validInstance);
+			validAns = validSolver.trySolve();
+			validAns = validSolver2.trySolve();
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}*/
+		
+		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		try
+		{
+			WindyCPP validInstance;
+			WPPSolver validSolver;
+			ImprovedWPPSolver validSolver2;
+			Collection<Route> validAns;
 
-			WindyVertex v1 = new WindyVertex("dummy");
-			WindyVertex v2 = new WindyVertex("dummy2");
-			WindyVertex v3 = new WindyVertex("dummy3");
+			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WPP");
+			long start;
+			long end;
 
-			Pair<WindyVertex> ep = new Pair<WindyVertex>(v1, v2);
-			Pair<WindyVertex> ep2 = new Pair<WindyVertex>(v2, v1);
-			Pair<WindyVertex> ep3 = new Pair<WindyVertex>(v2, v3);
-			Pair<WindyVertex> ep4 = new Pair<WindyVertex>(v3,v1);
+			for(final File testInstance: testInstanceFolder.listFiles())
+			{
+				String temp = testInstance.getName();
+				System.out.println(temp);
+				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WPP/" + temp);
+				if(g.getClass() == WindyGraph.class)
+				{
+					WindyGraph g2 = (WindyGraph)g;
+					validInstance = new WindyCPP(g2);
+					validSolver = new WPPSolver(validInstance);
+					validSolver2 = new ImprovedWPPSolver(validInstance);
+					start = System.nanoTime();
+					validAns = validSolver.trySolve(); //my ans
+					validAns = validSolver2.trySolve();
+					end = System.nanoTime();
+					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
 
-			WindyEdge e = new WindyEdge("stuff", ep, 10,3);
-			WindyEdge e2 = new WindyEdge("more stuff", ep2, 20,2);
-			WindyEdge e3 = new WindyEdge("third stuff", ep3, 5,10);
-			WindyEdge e4 = new WindyEdge("fourth stuff", ep4, 7,17);
-
-			test.addVertex(v1);
-			test.addVertex(v2);
-			test.addVertex(v3);
-			test.addEdge(e);
-			test.addEdge(e2);
-			test.addEdge(e3);
-			test.addEdge(e4);
-
-			WindyCPP testInstance = new WindyCPP(test);
-			ImprovedWPPSolver testSolver = new ImprovedWPPSolver(testInstance);
-			Collection<Route> testAns = testSolver.trySolve();
-			long end = System.currentTimeMillis();
-			System.out.println(end - start);
+				}
+			}
 		} catch(Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void testDCPPSolver()
 	{
 		try {
