@@ -4,7 +4,7 @@ import oarlib.exceptions.NoCapacitySetException;
 import oarlib.graph.util.Pair;
 
 /**
- * Link abstraction.  Provides most general contract for all Link objects.
+ * Link abstraction. Provides most general contract for all Link objects.
  * @author oliverlum
  *
  */
@@ -24,13 +24,17 @@ public abstract class Link<V extends Vertex> {
 
 	public Link(String label, Pair<V> endpoints, int cost)
 	{
+		this(label, endpoints, cost, true);
+	}
+	public Link(String label, Pair<V> endpoints, int cost, boolean required)
+	{
 		setId(-1);
 		setMatchId(-1);
 		setLabel(label);
 		setGuid(counter);
 		setEndpoints(endpoints);
 		setCost(cost);
-		setRequired(true);
+		setRequired(required);
 		capacitySet = false;
 		counter++;
 	}

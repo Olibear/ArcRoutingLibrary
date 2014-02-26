@@ -50,9 +50,102 @@ public class GraphReader {
 			return null;
 		case Corberan:
 			return readCorberanGraph(fileName);
+		case Yaoyuenyong:
+			return readYaoyuenyongGraph(fileName);
 		}
 		throw new UnsupportedFormatException("While the format seems to have been added to the Format.Name type list,"
 				+ " there doesn't seem to be an appropriate reader method assigned to it.");
+	}
+	private Graph<?,?> readYaoyuenyongGraph(String fileName) throws FormatMismatchException
+	{
+		try
+		{
+			String line;
+			String type="";
+			String[] temp;
+			File graphFile = new File(fileName);
+			BufferedReader br = new BufferedReader(new FileReader(graphFile));
+
+			//header info
+			int n = 0;
+			int m = 0;
+			line = br.readLine();
+			temp = line.split(",");
+
+			//graph type
+			type = temp[0];
+			n = Integer.parseInt(temp[2]);
+			m = Integer.parseInt(temp[3]);
+
+			//split on graph type
+
+			//undirected
+			if(type.equals("1"))
+			{
+				UndirectedGraph ans = new UndirectedGraph();
+				for(int i = 0; i < n; i++)
+				{
+					ans.addVertex(new UndirectedVertex("original"));
+				}
+				for(int i = 0; i < m; i++)
+				{
+					line = br.readLine();
+					temp = line.split(",");
+					
+					ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), "original", Integer.parseInt(temp[2]));
+				}
+				
+				br.close();
+				return ans;
+			}
+			//directed
+			else if(type.equals("2"))
+			{
+				DirectedGraph ans = new DirectedGraph();
+				for(int i = 0; i< n; i++)
+				{
+					ans.addVertex(new DirectedVertex("original"));
+				}
+				for(int i = 0; i < m; i++)
+				{
+					line = br.readLine();
+					temp = line.split(",");
+					
+					ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), "original", Integer.parseInt(temp[2]));
+				}
+				
+				br.close();
+				return ans;
+			}
+			//mixed
+			else if(type.equals("3"))
+			{
+				MixedGraph ans = new MixedGraph();
+				for(int i = 0; i < n; i++)
+				{
+					ans.addVertex(new MixedVertex("original"));
+				}
+				for(int i = 0; i < m; i++)
+				{
+					line = br.readLine();
+					temp = line.split(",");
+					
+					boolean directed = (temp[4].equals("1"));
+					ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), "original", Integer.parseInt(temp[2]), directed);
+				}
+				
+				br.close();
+				return ans;
+			}
+
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+
+
+		return null;
 	}
 	private Graph<?,?> readCorberanGraph(String fileName) throws FormatMismatchException
 	{
@@ -74,6 +167,8 @@ public class GraphReader {
 						type = "Mixed";
 					else if(temp[3].startsWith("WA") || temp[3].startsWith("WB"))
 						type = "Windy";
+					else if(temp[3].startsWith("A") || temp[3].startsWith("M"))
+						type = "WindyRural";
 				}
 				else if(line.contains("VERTICES"))
 				{
@@ -85,6 +180,11 @@ public class GraphReader {
 					temp = line.split("\\s+|:");
 					m = Integer.parseInt(temp[3]);
 					break;
+				}
+				else if(line.contains("RISTAS_REQ") || line.contains("RISTAS_NOREQ"))
+				{
+					temp = line.split("\\s+|:");
+					m += Integer.parseInt(temp[3]);
 				}
 			}
 

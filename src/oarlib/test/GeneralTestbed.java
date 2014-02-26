@@ -49,12 +49,41 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		testYaoyuenyong();
+		validateMCPPSolvers();
 	}
 	private static void check(Link<?> a)
 	{
 		if (a.getClass() == Arc.class)
 			System.out.println("WEEEE");
+	}
+	private static void testMST()
+	{
+		try
+		{
+			UndirectedGraph g = new UndirectedGraph();
+			for(int i = 1; i <= 4; i++)
+			{
+				g.addVertex(new UndirectedVertex("original"));
+			}
+			g.addEdge(1, 2, "", 3);
+			g.addEdge(1,3,"", 4);
+			g.addEdge(1,4,"",4);
+			g.addEdge(2,3,"",5);
+			g.addEdge(2,4,"",5);
+			g.addEdge(3,4,"",2);
+
+			int[] mst = CommonAlgorithms.minCostSpanningTree(g);
+			for(int i = 1; i < mst.length; i++)
+			{
+				System.out.print(mst[i] + " ");
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+
+
 	}
 	private static void testDirectedGraphGenerator()
 	{
@@ -177,6 +206,95 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	private static void validateImprovedMCPPSolver()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
+		try
+		{
+			MixedCPP validInstance;
+			ImprovedMCPPSolver validSolver;
+			Collection<Route> validAns;
+
+			File testInstanceFolder = new File("/Users/oliverlum/Downloads/YaoyuenyongInstances");
+			long start;
+			long end;
+
+			for(final File testInstance: testInstanceFolder.listFiles())
+			{
+				String temp = testInstance.getName();
+				System.out.println(temp);
+				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/YaoyuenyongInstances/" + temp);
+				if(g.getClass() == MixedGraph.class)
+				{
+					MixedGraph g2 = (MixedGraph)g;
+					validInstance = new MixedCPP(g2);
+					validSolver = new ImprovedMCPPSolver(validInstance);
+					start = System.nanoTime();
+					validAns = validSolver.trySolve();
+					end = System.nanoTime();
+					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
+
+				}
+			}
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	private static void validateMCPPSolvers()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
+		try
+		{
+			MixedCPP validInstance;
+			MCPPSolver validSolver;
+			Collection<Route> validAns;
+
+			File testInstanceFolder = new File("/Users/oliverlum/Downloads/YaoyuenyongInstances");
+			long start;
+			long end;
+
+			for(final File testInstance: testInstanceFolder.listFiles())
+			{
+				String temp = testInstance.getName();
+				System.out.println(temp);
+				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/YaoyuenyongInstances/" + temp);
+				int arcCount = 0;
+				int edgeCount = 0;
+				int oddDegreeCount = 0;
+				if(g.getClass() == MixedGraph.class)
+				{
+					MixedGraph g2 = (MixedGraph)g;
+					for(MixedEdge e: g2.getEdges())
+					{
+						if(e.isDirected())
+							arcCount++;
+						else
+							edgeCount++;
+					}
+					for(MixedVertex v: g2.getVertices())
+					{
+						if(v.getDegree() % 2 == 1)
+							oddDegreeCount++;
+					}
+					System.out.println("This graph has " + g2.getVertices().size() + " vertices," + arcCount + " arcs, and " + edgeCount + " edges.  " + oddDegreeCount + " of the vertices are odd.");
+					validInstance = new MixedCPP(g2);
+					validSolver = new MCPPSolver(validInstance);
+					start = System.nanoTime();
+					validAns = validSolver.trySolve();
+					end = System.nanoTime();
+					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
+
+				}
+			}
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
 	private static void testYaoyuenyong()
 	{
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
@@ -190,7 +308,7 @@ public class GeneralTestbed {
 			long end;
 
 			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0537");
-			
+
 			//the example from the paper
 			/*MixedGraph g = new MixedGraph();
 			g.addVertex(new MixedVertex("v1"));
@@ -198,7 +316,7 @@ public class GeneralTestbed {
 			g.addVertex(new MixedVertex("v3"));
 			g.addVertex(new MixedVertex("v4"));
 			g.addVertex(new MixedVertex("v5"));
-			
+
 			g.addEdge(5, 4, "(5-4)", 999, false);
 			g.addEdge(5, 2, "<5-2>", 1, true);
 			g.addEdge(1, 5, "<1-5>", 1, true);
@@ -207,7 +325,7 @@ public class GeneralTestbed {
 			g.addEdge(1, 2, "(1-2)", 999, false);
 			g.addEdge(1, 3, "<1-3>", 1, true);
 			g.addEdge(2, 3, "(2-3)", 999, false);*/
-			
+
 			if(g.getClass() == MixedGraph.class)
 			{
 				MixedGraph g2 = (MixedGraph)g;
@@ -1285,19 +1403,19 @@ public class GeneralTestbed {
 			WPPSolver validSolver;
 			ImprovedWPPSolver validSolver2;
 			Collection<Route> validAns;
-			
+
 			WindyGraph g = new WindyGraph();
 			g.addVertex(new WindyVertex("v1"));
 			g.addVertex(new WindyVertex("v2"));
 			g.addVertex(new WindyVertex("v3"));
 			g.addVertex(new WindyVertex("v4"));
-			
+
 			g.addEdge(1,2,"orig",1,21);
 			g.addEdge(1,4,"orig",21,1);
 			g.addEdge(2,4,"orig",19,1);
 			g.addEdge(2,3,"orig",1,21);
 			g.addEdge(3,4,"orig",1,21);
-			
+
 			validInstance = new WindyCPP(g);
 			validSolver = new WPPSolver(validInstance);
 			validSolver2 = new ImprovedWPPSolver(validInstance);
@@ -1308,7 +1426,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 			return;
 		}*/
-		
+
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
 		try
 		{

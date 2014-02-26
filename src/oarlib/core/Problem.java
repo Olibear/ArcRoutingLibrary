@@ -13,7 +13,8 @@ public abstract class Problem {
 		UNDIRECTED_CHINESE_POSTMAN, 
 		MIXED_CHINESE_POSTMAN, 
 		WINDY_CHINESE_POSTMAN,
-		DIRECTED_RURAL_POSTMAN
+		DIRECTED_RURAL_POSTMAN,
+		WINDY_RURAL_POSTMAN
 	}
 	/**
 	 * Says whether the provided set of routes is a feasible solution

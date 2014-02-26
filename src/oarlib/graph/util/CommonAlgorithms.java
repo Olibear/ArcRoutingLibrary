@@ -2,6 +2,7 @@ package oarlib.graph.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -162,6 +163,45 @@ public class CommonAlgorithms {
 			}
 		}
 		return edgeTrail;
+	}
+	/**
+	 * Checks to make sure that an augmentation of a graph is indeed an augmentation.  That is,
+	 * for each edge in the augmented graph, there is a corresponding edge in the original that it is a copy of,
+	 * with regard to cost direction and directedness.
+	 * @param orig - the base graph of which augmented is a putative augmentation.
+	 * @param augmented - the putative augmented graph
+	 * @return - true if augmented is a valid augmentation of orig, false oth.
+	 */
+	public static boolean isValidAugmentation(Graph<? extends Vertex, ? extends Link<? extends Vertex>> orig, Graph<? extends Vertex, ?  extends Link<? extends Vertex>> augmented)
+	{
+		if(orig.getClass() != augmented.getClass())
+			return false;
+		else if(orig.getVertices().size() != augmented.getVertices().size())
+			return false;
+		
+		int v1, v2;
+		HashMap<Integer, ? extends Vertex> origVertices = orig.getInternalVertexMap();
+		boolean foundCopy;
+		for(Link<? extends Vertex> l: augmented.getEdges())
+		{
+			v1 = l.getEndpoints().getFirst().getId();
+			v2 = l.getEndpoints().getSecond().getId();
+			foundCopy = false;
+			List<? extends Link<? extends Vertex>> candidates = origVertices.get(v1).getNeighbors().get(origVertices.get(v2));
+			for(Link<? extends Vertex> l2: candidates)
+			{
+				if(l2.getCost() == l.getCost())
+				{
+					if(l2.isDirected() && !l.isDirected())
+						continue;
+					foundCopy = true;
+					break;
+				}
+			}
+			if(!foundCopy)
+				return false;
+		}
+		return true;
 	}
 	/**
 	 * FindRoute algorithm (alternative to Fleury's given in Dussault et al. Plowing with Precedence
@@ -1299,6 +1339,200 @@ public class CommonAlgorithms {
 		}
 	}
 	/**
+	 * Implements the Floyd-Warshall shortest paths algorithm on a windy graph by transforming it into at digraph for which the solution will give us
+	 * the solution on the windy graph
+	 * @param g - the graph in which the shortest paths should be calculated
+	 * @param dist - an [n+1][n+1] matrix that will be filled with shortest paths at the end: the 0th column and row 
+	 * will be filled with Integer.MAX, and dist[i][j] will hold the shortest path cost between node i and node j.
+	 * @param path - an [n+1][n+1] matrix that will tell us how to reconstruct the shortest path: the 0th column and row
+	 * will be filled with Integer.MAX, and path[i][j] holds the id of the node to go to next in the shortest path from node i t node j.
+	 */
+	private static void windyFwLeastCostPaths(WindyGraph g, int[][] dist, int[][] path) throws IllegalArgumentException
+	{
+		//initialize dist and path
+		int n = g.getVertices().size();
+		int m = g.getEdges().size();
+		if(dist.length != n+1 || path.length != n+1)
+			throw new IllegalArgumentException();
+
+
+		try
+		{
+			//setup the digraph so and solve as normal; since we don't have to expose edge ids, 
+			//then no additional accounting is required.
+
+			DirectedGraph g2 = new DirectedGraph();
+			for(int i = 0; i < n; i++)
+			{
+				g2.addVertex(new DirectedVertex("original"));
+			}
+
+			HashMap<Integer, WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
+			WindyEdge temp;
+			for(int i = 1; i<=m; i++)
+			{
+				temp = indexedWindyEdges.get(i);
+				g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
+				g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", temp.getCost(), i);
+			}
+
+			//initialize dist and path
+			for(int i=0;i<=n;i++)
+			{
+				for(int j=0;j<=n;j++)
+				{
+					dist[i][j] = Integer.MAX_VALUE;
+				}
+				path[0][i] = Integer.MAX_VALUE;
+				path[i][0] = Integer.MAX_VALUE;
+			}
+
+			Vertex vi;
+			int min;
+			for(int i=1;i<=n;i++)
+			{
+				vi = g2.getInternalVertexMap().get(i);
+				for(Vertex v :vi.getNeighbors().keySet())
+				{
+					List<? extends Link<?extends Vertex>> l = vi.getNeighbors().get(v);
+					min = Integer.MAX_VALUE;
+					for (Link<? extends Vertex> link: l)
+					{
+						if(link.getCost() < min)
+							min = link.getCost();
+					}
+					dist[vi.getId()][v.getId()] = min;
+					path[vi.getId()][v.getId()] = v.getId();
+				}
+			}
+
+			//business logic
+			for (int k = 1; k <= n; k++ )
+			{
+				for( int i = 1; i <= n; i ++)
+				{
+					//if there is an edge from i to k
+					if (dist[i][k] < Integer.MAX_VALUE)
+						for (int j = 1; j <= n; j++)
+						{
+							//if there is an edge from k to j
+							if(dist[k][j] < Integer.MAX_VALUE
+									&& (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j]) )
+							{
+								path[i][j] = path[i][k];
+								dist[i][j] = dist[i][k] + dist[k][j];
+								if (i==j && dist[i][j] < 0)
+									return; //negative cycle
+							}
+						}
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
+	private static void windyFwLeastCostPaths(WindyGraph g, int[][] dist, int[][] path, int[][] edgePath) throws IllegalArgumentException
+	{
+		//initialize dist and path
+		int n = g.getVertices().size();
+		int m = g.getEdges().size();
+		if(dist.length != n+1 || path.length != n+1 || edgePath.length != n+1)
+			throw new IllegalArgumentException();
+
+		try
+		{
+			//setup the digraph so and solve as normal; just use the match id for edgepath
+
+			DirectedGraph g2 = new DirectedGraph();
+			for(int i = 0; i < n; i++)
+			{
+				g2.addVertex(new DirectedVertex("original"));
+			}
+
+			HashMap<Integer, WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
+			WindyEdge temp;
+			for(int i = 1; i<=m; i++)
+			{
+				temp = indexedWindyEdges.get(i);
+				g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
+				g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", temp.getCost(), i);
+			}
+
+			//initialize dist and path
+			for(int i=0;i<=n;i++)
+			{
+				for(int j=0;j<=n;j++)
+				{
+					dist[i][j] = Integer.MAX_VALUE;
+				}
+				path[0][i] = Integer.MAX_VALUE;
+				path[i][0] = Integer.MAX_VALUE;
+				edgePath[0][i] = Integer.MAX_VALUE;
+				edgePath[i][0] = Integer.MAX_VALUE;
+			}
+
+			Vertex vi;
+			int min;
+			for(int i=1;i<=n;i++)
+			{
+				vi = g2.getInternalVertexMap().get(i);
+				for(Vertex v :vi.getNeighbors().keySet())
+				{
+					List<? extends Link<?extends Vertex>> l = vi.getNeighbors().get(v);
+					min = Integer.MAX_VALUE;
+					Link<? extends Vertex> edge = null;
+					for (Link<? extends Vertex> link: l)
+					{
+						if(link.getCost() < min)
+						{
+							min = link.getCost();
+							edge = link;
+						}
+					}
+					dist[vi.getId()][v.getId()] = min;
+					path[vi.getId()][v.getId()] = v.getId();
+					edgePath[vi.getId()][v.getId()] = edge.getMatchId();
+				}
+			}
+
+			//business logic
+			for (int k = 1; k <= n; k++ )
+			{
+				for( int i = 1; i <= n; i ++)
+				{
+					//if there is an edge from i to k
+					if (dist[i][k] < Integer.MAX_VALUE)
+						for (int j = 1; j <= n; j++)
+						{
+							//if there is an edge from k to j
+							if(dist[k][j] < Integer.MAX_VALUE
+									&& (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j]) )
+							{
+								path[i][j] = path[i][k];
+								edgePath[i][j] = edgePath[i][k];
+								dist[i][j] = dist[i][k] + dist[k][j];
+								if (i==j && dist[i][j] < 0)
+									return; //negative cycle
+							}
+						}
+
+				}
+			}
+			for(int i = 1; i <= n; i++)
+			{
+				if(dist[i][i] == Integer.MAX_VALUE)
+					dist[i][i] = 0;
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
+	/**
 	 * Implements the Floyd-Warshall shortest paths algorithm.
 	 * @param g - the graph in which the shortest paths should be calculated
 	 * @param dist - an [n+1][n+1] matrix that will be filled with shortest paths at the end: the 0th column and row 
@@ -1312,6 +1546,11 @@ public class CommonAlgorithms {
 		int n = g.getVertices().size();
 		if(dist.length != n+1 || path.length != n+1)
 			throw new IllegalArgumentException();
+		if(g.getClass() == WindyGraph.class)
+		{
+			windyFwLeastCostPaths((WindyGraph)g, dist, path);
+			return;
+		}
 
 		//initialize dist and path
 		for(int i=0;i<=n;i++)
@@ -1362,9 +1601,62 @@ public class CommonAlgorithms {
 								return; //negative cycle
 						}
 					}
-
 			}
 		}
+	}
+
+	/**
+	 * Solves the min-cost spanning tree problem using Prim's algorithm
+	 * @param g - the undirected graph on which to solve the MST problem.
+	 * @return - an 0-1 array where the ith entry is 1 if the ith edge is included in the tree.
+	 */
+	public static int[] minCostSpanningTree(UndirectedGraph g)
+	{
+		int m = g.getEdges().size();
+		int[] ans = new int[m+1];
+		HashMap<Integer, Edge> indexedEdges = g.getInternalEdgeMap();
+		Edge temp;
+		ArrayList<Pair<Integer>> pq = new ArrayList<Pair<Integer>>();
+		for(int i = 1; i <= m; i++)
+		{
+			temp = indexedEdges.get(i);
+			pq.add(new Pair<Integer>(i, temp.getCost()));
+		}
+		Collections.sort(pq, new DijkstrasComparator()); //a sorted list of our edges
+		Collections.reverse(pq);
+
+		//now pick a start vertex, and start expanding
+		int start = pq.size()-1;
+		HashSet<Integer> visitedVertices = new HashSet<Integer>();
+		temp = indexedEdges.get(pq.get(start).getFirst()); //might as well start with the cheapest guy
+		ans[temp.getId()] = 1;
+		visitedVertices.add(temp.getEndpoints().getFirst().getId());
+		visitedVertices.add(temp.getEndpoints().getSecond().getId());
+		pq.remove(start);
+
+		//now grow this guy organically
+		Pair<UndirectedVertex> tempEndpoints;
+		int currTreeSize = 1;
+		int mstSize = g.getVertices().size()-1;
+		while(currTreeSize < mstSize)
+		{
+			start = pq.size()-1;
+			temp = indexedEdges.get(pq.get(start).getFirst());
+			tempEndpoints = temp.getEndpoints();
+			while(visitedVertices.contains(tempEndpoints.getFirst().getId()) == visitedVertices.contains(tempEndpoints.getSecond().getId()))
+			{
+				start--;
+				temp = indexedEdges.get(pq.get(start).getFirst());
+				tempEndpoints = temp.getEndpoints();
+			}
+			ans[temp.getId()] = 1;
+			visitedVertices.add(temp.getEndpoints().getFirst().getId());
+			visitedVertices.add(temp.getEndpoints().getSecond().getId());
+			pq.remove(start);
+			currTreeSize++;
+		}
+
+		return ans;
 	}
 
 	/*
@@ -1452,7 +1744,7 @@ public class CommonAlgorithms {
 						}
 					}
 				} while (currId != startId);
-				
+
 				//remove cycle from temp, and add cycle to ans
 				int lim = edgeIds.size();
 				for(int i = 0; i < lim; i++)

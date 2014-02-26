@@ -16,6 +16,12 @@ public class WindyEdge extends Link<WindyVertex>{
 		setReverseCost(reverseCost);
 		setDirected(false);
 	}
+	public WindyEdge(String label, Pair<WindyVertex> endpoints, int cost, int reverseCost, boolean required)
+	{
+		super(label, endpoints, cost, required);
+		setReverseCost(reverseCost);
+		setDirected(false);
+	}
 	public int getReverseCost() {
 		return mReverseCost;
 	}

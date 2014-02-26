@@ -29,6 +29,11 @@ public class MixedEdge extends Link<MixedVertex>{
 		super(label, endpoints, cost);
 		setDirected(isDirected);
 	}
+	public MixedEdge(String label, Pair<MixedVertex> endpoints, int cost, boolean isDirected, boolean required)
+	{
+		super(label, endpoints, cost, required);
+		setDirected(isDirected);
+	}
 	/**
 	 * Getter for the vertex that is at the head of this arc; (if the arc is from v1 to v2, this will return v2)
 	 * @return - the head vertex

@@ -3,6 +3,7 @@ package oarlib.solver.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import oarlib.core.Arc;
@@ -38,8 +39,8 @@ public class MCPPSolver extends Solver{
 	protected Collection<Route> solve() {
 		try {
 
-			MixedGraph ans1 = mInstance.getGraph(); //starting point for Mixed1
-			MixedGraph ans2 = ans1.getDeepCopy(); //starting point for Mixed2
+			MixedGraph ans1 = mInstance.getGraph().getDeepCopy(); //starting point for Mixed1
+			MixedGraph ans2 = mInstance.getGraph().getDeepCopy(); //starting point for Mixed2
 
 			//Vars for bookkeeping
 			ArrayList<MixedEdge> U = new ArrayList<MixedEdge>();
@@ -75,6 +76,7 @@ public class MCPPSolver extends Solver{
 			//End Mixed 2
 
 			//select the lower cost of the two
+			int origCost = 0;
 			int cost1 = 0;
 			int cost2 = 0;
 			for(MixedEdge temp: ans1.getEdges())
@@ -85,12 +87,23 @@ public class MCPPSolver extends Solver{
 			{
 				cost2+=temp.getCost();
 			}
-			if(cost1<=cost2)
-				System.out.println("Total cost: " + cost1);
-			else
-				System.out.println("Total cost: " + cost2);
-
+			MixedGraph orig = mInstance.getGraph();
+			for(MixedEdge temp: orig.getEdges())
+			{
+				origCost += temp.getCost();
+			}
 			
+			boolean ans1Okay = CommonAlgorithms.isValidAugmentation(orig, ans1);
+			boolean ans2Okay = CommonAlgorithms.isValidAugmentation(orig, ans2);
+			if(!ans1Okay || !ans2Okay)
+				System.out.println("BADD");
+			System.out.println("Total cost (original): " + origCost);
+			System.out.println("Total cost (Mixed 1): " + cost1);
+			System.out.println("Cost Difference: " + (cost1 - origCost));
+			System.out.println("Total cost (Mixed 2): " + cost2);
+			System.out.println("Cost Difference: " + (cost2 - origCost));
+
+
 			ArrayList<Route> ret = new ArrayList<Route>();
 			ArrayList<Integer> tour;
 			if(cost1 <= cost2)
@@ -135,8 +148,9 @@ public class MCPPSolver extends Solver{
 			UndirectedGraph G2 = new UndirectedGraph(); //G'', in which we calculate least cost paths
 
 			int maxCost = 0;
-
-			for(int i = 1; i < input.getVertices().size() + 1; i++)
+			int inputN = input.getVertices().size();
+			
+			for(int i = 1; i < inputN + 1; i++)
 			{
 				G1.addVertex(new UndirectedVertex("symmetric setup graph"), i);
 				G2.addVertex(new UndirectedVertex("symmetric setup graph"), i);
@@ -308,6 +322,7 @@ public class MCPPSolver extends Solver{
 						{
 							Mprime.add(new MixedEdge("duplicate from M''", new Pair<MixedVertex>(inputVertices.get(currEdge.getEndpoints().getFirst().getId()), inputVertices.get(currEdge.getEndpoints().getSecond().getId())), currEdge.getCost(), true));
 							curr = currEdge.getEndpoints().getSecond();
+							temp2.removeEdge(currEdge);
 						}
 						else //if it's directed backward, remove the original
 						{
@@ -316,6 +331,7 @@ public class MCPPSolver extends Solver{
 							//M.remove(currEdge.getMatchId());
 							//inMdubPrime.remove(currEdge.getMatchId());
 							curr = currEdge.getEndpoints().getFirst();
+							temp2.removeEdge(currEdge);
 						}
 					}
 					//now look in temp, not temp2
@@ -329,11 +345,13 @@ public class MCPPSolver extends Solver{
 						{
 							Mprime.add(new MixedEdge("directed from U", new Pair<MixedVertex>(inputVertices.get(currEdge.getEndpoints().getFirst().getId()), inputVertices.get(currEdge.getEndpoints().getSecond().getId())), currEdge.getCost(), true));
 							curr = currEdge.getEndpoints().getSecond();
+							temp.removeEdge(currEdge);
 						}
 						else
 						{
 							Mprime.add(new MixedEdge("directed from U", new Pair<MixedVertex>(inputVertices.get(currEdge.getEndpoints().getSecond().getId()), inputVertices.get(currEdge.getEndpoints().getFirst().getId())), currEdge.getCost(), true));
 							curr = currEdge.getEndpoints().getFirst();
+							temp.removeEdge(currEdge);
 						}
 					}
 				}
@@ -495,7 +513,8 @@ public class MCPPSolver extends Solver{
 			}
 
 			//prepare our unbalanced vertex sets
-			for(DirectedVertex v: setup.getVertices())
+			HashSet<DirectedVertex> setupVertexSet = setup.getVertices();
+			for(DirectedVertex v: setupVertexSet)
 			{
 				if(v.getDelta() != 0)
 				{

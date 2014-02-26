@@ -48,8 +48,10 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 			e.getEndpoints().getFirst().addToNeighbors(e.getEndpoints().getSecond(), e);
 			MixedVertex toUpdate = e.getEndpoints().getFirst();
 			toUpdate.setOutDegree(toUpdate.getOutDegree() + 1);
+			toUpdate.setDegree(toUpdate.getDegree()+1);
 			toUpdate = e.getEndpoints().getSecond();
 			toUpdate.setInDegree(toUpdate.getInDegree()+1);
+			toUpdate.setDegree(toUpdate.getDegree()+1);
 			super.addEdge(e);	
 		}
 		else

@@ -38,7 +38,7 @@ public class ImprovedMCPPSolver extends Solver {
 	protected Collection<Route> solve() {
 		try{
 			//Compute the inputs G, Gm and G star
-			MixedGraph G = mInstance.getGraph(); //original
+			MixedGraph G = mInstance.getGraph().getDeepCopy(); //original
 			HashMap<Integer, MixedEdge> gEdges = G.getInternalEdgeMap();
 			ArrayList<MultiEdge<MixedEdge>> gEdgeContainers = new ArrayList<MultiEdge<MixedEdge>>(); //machinery to help us keep track of status in G*
 			gEdgeContainers.add(null); //we want indices to be sympatico with the ids
@@ -392,12 +392,20 @@ public class ImprovedMCPPSolver extends Solver {
 			}
 			if(CommonAlgorithms.isStronglyEulerian(G))
 				System.out.println("Halleleujah!!!");
-			int debugCost = 0;
+			int debugCost1 = 0;
+			int debugCost2 = 0;
+			for(MixedEdge debug: mInstance.getGraph().getEdges())
+			{
+				debugCost1 += debug.getCost();
+			}
+			System.out.println("Original Cost is: " + debugCost1);
+			debugCost2 = 0;
 			for(MixedEdge debug: G.getEdges())
 			{
-				debugCost += debug.getCost();
+				debugCost2 += debug.getCost();
 			}
-			System.out.println("Cost is: " + debugCost);
+			System.out.println("Final Cost is: " + debugCost2);
+			System.out.println("Cost difference is: " + (debugCost2-debugCost1));
 
 			return null;
 		} catch(Exception ex)

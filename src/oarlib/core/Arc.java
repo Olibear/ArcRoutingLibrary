@@ -21,6 +21,11 @@ public class Arc extends Link<DirectedVertex>{
 		super(label, endpoints, cost);
 		setDirected(true);
 	}
+	public Arc(String label, Pair<DirectedVertex> endpoints, int cost, boolean required)
+	{
+		super(label, endpoints, cost, required);
+		setDirected(true);
+	}
 	/**
 	 * Getter for the vertex that is at the head of this arc; (if the arc is from v1 to v2, this will return v2)
 	 * @return - the head vertex
