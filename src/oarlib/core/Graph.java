@@ -32,6 +32,14 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 		eidCounter++;
 		return eidCounter - 1;
 	}
+	public int getEidCounter()
+	{
+		return eidCounter;
+	}
+	public int getVidCounter()
+	{
+		return vidCounter;
+	}
 	/**
 	 * Getter for the vertices.
 	 * @return a Collection of vertices belonging to this graph

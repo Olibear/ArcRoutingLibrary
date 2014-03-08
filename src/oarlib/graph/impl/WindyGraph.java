@@ -1,6 +1,7 @@
 package oarlib.graph.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -102,25 +103,33 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 		try {
 			WindyGraph ans = new WindyGraph();
 			HashMap<Integer, WindyEdge> indexedEdges = this.getInternalEdgeMap();
-			for(int i=1;i<this.getVertices().size()+1;i++)
+			HashMap<Integer, WindyVertex> indexedVertices = this.getInternalVertexMap();
+			WindyVertex temp;
+			int n = this.getVertices().size();
+			for(int i = 1; i <= n; i++)
 			{
-				ans.addVertex(new WindyVertex("deep copy original"), i);
+				temp = new WindyVertex("deep copy original"); //the new guy
+				ans.addVertex(temp, i);
 			}
 			WindyEdge e, e2;
-			for(int i=1; i<this.getEdges().size()+1;i++)
+			ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedEdges.keySet());
+			Collections.sort(forSorting);
+			int m = forSorting.size();
+			for(int i = 0; i < m; i++)
 			{
-				e = indexedEdges.get(i);
+				e = indexedEdges.get(forSorting.get(i));
 				e2 = new WindyEdge("deep copy original", new Pair<WindyVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.getReverseCost());
+				e2.setMatchId(e.getId());
 				e2.setRequired(e.isRequired());
-				ans.addEdge(e2, i);
+				ans.addEdge(e2, e.getId());
 			}
+
 			return ans;
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-
 	@Override
 	public WindyEdge constructEdge(int i, int j, String desc, int cost)
 			throws InvalidEndpointsException {

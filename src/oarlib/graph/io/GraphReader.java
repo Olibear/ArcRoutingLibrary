@@ -91,10 +91,10 @@ public class GraphReader {
 				{
 					line = br.readLine();
 					temp = line.split(",");
-					
+
 					ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), "original", Integer.parseInt(temp[2]));
 				}
-				
+
 				br.close();
 				return ans;
 			}
@@ -110,10 +110,10 @@ public class GraphReader {
 				{
 					line = br.readLine();
 					temp = line.split(",");
-					
+
 					ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), "original", Integer.parseInt(temp[2]));
 				}
-				
+
 				br.close();
 				return ans;
 			}
@@ -129,11 +129,11 @@ public class GraphReader {
 				{
 					line = br.readLine();
 					temp = line.split(",");
-					
+
 					boolean directed = (temp[4].equals("1"));
 					ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), "original", Integer.parseInt(temp[2]), directed);
 				}
-				
+
 				br.close();
 				return ans;
 			}
@@ -167,24 +167,35 @@ public class GraphReader {
 						type = "Mixed";
 					else if(temp[3].startsWith("WA") || temp[3].startsWith("WB"))
 						type = "Windy";
-					else if(temp[3].startsWith("A") || temp[3].startsWith("M"))
+					else if(temp[3].startsWith("A") || temp[3].startsWith("M") || temp[3].startsWith("m"))
 						type = "WindyRural";
+					else
+					{
+						br.close();
+						throw new FormatMismatchException("We could not figure out what type of graph this is.");	
+					}
 				}
 				else if(line.contains("VERTICES"))
 				{
 					temp = line.split("\\s+|:");
-					n = Integer.parseInt(temp[3]);
+					n = Integer.parseInt(temp[temp.length-1]);
 				}
 				else if(line.contains("ARISTAS"))
 				{
 					temp = line.split("\\s+|:");
-					m = Integer.parseInt(temp[3]);
+					m = Integer.parseInt(temp[temp.length-1]);
 					break;
 				}
-				else if(line.contains("RISTAS_REQ") || line.contains("RISTAS_NOREQ"))
+				else if(line.contains("RISTAS_REQ"))
 				{
 					temp = line.split("\\s+|:");
-					m += Integer.parseInt(temp[3]);
+					m += Integer.parseInt(temp[temp.length-1]);
+				}
+				else if(line.contains("RISTAS_NOREQ"))
+				{
+					temp = line.split("\\s+|:");
+					m += Integer.parseInt(temp[temp.length-1]);
+					break;
 				}
 			}
 
@@ -276,6 +287,74 @@ public class GraphReader {
 					cost2 = Integer.parseInt(temp[index]);
 
 					ans.addEdge(tailId, headId, "original", cost1, cost2);
+
+				}
+				br.close();
+				return ans;
+			}
+			else if(type == "WindyRural")
+			{
+				WindyGraph ans = new WindyGraph();
+				int tailId;
+				int headId;
+				int cost1;
+				int cost2;
+				for(int i = 0; i < n; i++)
+				{
+					ans.addVertex(new WindyVertex("original"));
+				}
+				HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
+				//	br.readLine();
+				//	br.readLine();
+				int index;
+				while((line = br.readLine()) != null)
+				{
+					if(line.contains("LISTA_ARISTAS_REQ")) //in-process the required guys
+					{
+						while((line = br.readLine()) != null)
+						{
+							if(line.contains("LISTA_ARISTAS_NOREQ"))
+							{
+								break;
+							}
+
+							temp = line.split("\\s+|:|\\)|,|\\(");
+							index = 1;
+							if(temp[index].isEmpty())
+								index++;
+							tailId = Integer.parseInt(temp[index++]);
+							if(temp[index].isEmpty())
+								index++;
+							if(temp[index].isEmpty())
+								index++;
+							headId = Integer.parseInt(temp[index++]);
+							index+=2;
+							cost1 = Integer.parseInt(temp[index++]);
+							cost2 = Integer.parseInt(temp[index]);
+
+							ans.addEdge(tailId, headId, "original", cost1, cost2, true);
+						}
+						while((line = br.readLine()) != null)
+						{
+							temp = line.split("\\s+|:|\\)|,|\\(");
+							if(temp.length == 1)
+								break;
+							index = 1;
+							if(temp[index].isEmpty())
+								index++;
+							tailId = Integer.parseInt(temp[index++]);
+							if(temp[index].isEmpty())
+								index++;
+							if(temp[index].isEmpty())
+								index++;
+							headId = Integer.parseInt(temp[index++]);
+							index+=2;
+							cost1 = Integer.parseInt(temp[index++]);
+							cost2 = Integer.parseInt(temp[index]);
+
+							ans.addEdge(tailId, headId, "original", cost1, cost2, false);
+						}
+					}
 
 				}
 				br.close();

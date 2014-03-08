@@ -1,5 +1,6 @@
 package oarlib.graph.impl;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -84,18 +85,27 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		try {
 			UndirectedGraph ans = new UndirectedGraph();
 			HashMap<Integer, Edge> indexedEdges = this.getInternalEdgeMap();
-			for(int i=1;i<this.getVertices().size()+1;i++)
+			HashMap<Integer, UndirectedVertex> indexedVertices = this.getInternalVertexMap();
+			UndirectedVertex temp;
+			int n = this.getVertices().size();
+			for(int i = 1; i <= n; i++)
 			{
-				ans.addVertex(new UndirectedVertex("deep copy original"), i);
+				temp = new UndirectedVertex("deep copy original"); //the new guy
+				ans.addVertex(temp, i);
 			}
 			Edge e, e2;
-			for(int i=1; i<this.getEdges().size()+1;i++)
+			ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedEdges.keySet());
+			Collections.sort(forSorting);
+			int m = forSorting.size();
+			for(int i = 0; i < m; i++)
 			{
-				e = indexedEdges.get(i);
+				e = indexedEdges.get(forSorting.get(i));
 				e2 = new Edge("deep copy original", new Pair<UndirectedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost());
 				e2.setRequired(e.isRequired());
-				ans.addEdge(e2, i);
+				e2.setMatchId(e.getId());
+				ans.addEdge(e2, e.getId());
 			}
+
 			return ans;
 		} catch(Exception e) {
 			e.printStackTrace();

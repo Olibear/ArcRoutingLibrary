@@ -95,7 +95,7 @@ public class MCPPSolver extends Solver{
 			
 			boolean ans1Okay = CommonAlgorithms.isValidAugmentation(orig, ans1);
 			boolean ans2Okay = CommonAlgorithms.isValidAugmentation(orig, ans2);
-			if(!ans1Okay || !ans2Okay)
+			if(!ans1Okay || !ans2Okay || !CommonAlgorithms.isStronglyEulerian(ans1) || !CommonAlgorithms.isStronglyEulerian(ans2))
 				System.out.println("BADD");
 			System.out.println("Total cost (original): " + origCost);
 			System.out.println("Total cost (Mixed 1): " + cost1);

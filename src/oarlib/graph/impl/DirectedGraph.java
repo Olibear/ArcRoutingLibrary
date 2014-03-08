@@ -1,6 +1,7 @@
 package oarlib.graph.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -88,23 +89,29 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 			Arc a, a2;
 			HashMap<Integer, DirectedVertex> indexedVertices = this.getInternalVertexMap();
 			HashMap<Integer, Arc> indexedArcs = this.getInternalEdgeMap();
-			for(int i=1;i<this.getVertices().size()+1;i++)
+			int n = this.getVertices().size();
+			int m = this.getEdges().size();
+			for(int i = 1;i <=n; i++)
 			{
 				temp = new DirectedVertex("deep copy original"); //the new guy
 				temp2 = indexedVertices.get(i); //the old guy
 				if(temp2.isDemandSet())
 					temp.setDemand(temp2.getDemand());
-				ans.addVertex(temp, i);
-				
+				ans.addVertex(temp);
 			}
-			for(int i=1; i<this.getEdges().size()+1; i++)
+			ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedArcs.keySet());
+			Collections.sort(forSorting);
+			m = forSorting.size();
+			
+			for(int i = 0; i < m; i++)
 			{
-				a = indexedArcs.get(i);
+				a = indexedArcs.get(forSorting.get(i));
 				a2 = new Arc("deep copy original", new Pair<DirectedVertex>(ans.getInternalVertexMap().get(a.getTail().getId()), ans.getInternalVertexMap().get(a.getHead().getId())), a.getCost());
 				if(a.isCapacitySet())
 					a2.setCapacity(a.getCapacity());
 				a2.setRequired(a.isRequired());
-				ans.addEdge(a2, i);
+				a2.setMatchId(a.getId());
+				ans.addEdge(a2, a.getId());
 			}
 			return ans;
 		} catch(Exception e) {
@@ -112,13 +119,33 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 			return null;
 		}
 	}
-
 	@Override
 	public void addEdge(int i, int j, String desc, int cost)
 			throws InvalidEndpointsException {
 		if(i > this.getVertices().size() || j > this.getVertices().size())
 			throw new InvalidEndpointsException();
 		this.addEdge(new Arc(desc, new Pair<DirectedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)),cost));
+		
+	}
+	
+	public void addEdge(int i, int j, String desc, int cost, boolean isReq)
+			throws InvalidEndpointsException {
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		Arc temp = this.constructEdge(i, j, desc, cost);
+		temp.setRequired(isReq);
+		this.addEdge(temp);
+		
+	}
+	
+	public void addEdge(int i, int j, String desc, int cost, int matchId, boolean isReq)
+			throws InvalidEndpointsException {
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		Arc temp = this.constructEdge(i, j, desc, cost);
+		temp.setRequired(isReq);
+		temp.setMatchId(matchId);
+		this.addEdge(temp);
 		
 	}
 

@@ -77,8 +77,9 @@ public class CommonAlgorithms {
 	 * business logic for Hierholzer's algorithm
 	 * @return the Eulerian cycle
 	 */
-	private static ArrayList<Integer> hierholzer(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph, boolean useMatchIds)
+	private static ArrayList<Integer> hierholzer(Graph<? extends Vertex,? extends Link<? extends Vertex>> orig, boolean useMatchIds)
 	{
+		Graph graph = orig.getDeepCopy();
 		ArrayList<Integer> edgeTrail = new ArrayList<Integer>();
 		ArrayList<Integer> edgeCycle = new ArrayList<Integer>();
 		ArrayList<Vertex> visitedVertices = new ArrayList<Vertex>();
@@ -98,6 +99,7 @@ public class CommonAlgorithms {
 		Iterator<Vertex> vertexIter;
 		boolean nextStart = true;
 
+		HashMap<Integer, ? extends Link<? extends Vertex>> indexedOrigEdges = orig.getInternalEdgeMap();
 
 		while(nextStart)
 		{
@@ -105,9 +107,9 @@ public class CommonAlgorithms {
 			do {
 				currEdge = currNeighbors.values().iterator().next().get(0); //grab anybody
 				if(useMatchIds)
-					edgeCycle.add(currEdge.getMatchId());
+					edgeCycle.add(indexedOrigEdges.get(currEdge.getMatchId()).getMatchId());
 				else
-					edgeCycle.add(currEdge.getId()); //add it to the trail
+					edgeCycle.add(currEdge.getMatchId()); //add it to the trail
 				//update the currVertex
 				prevVertex = currVertex;
 				currVertex = (currEdge.getEndpoints().getFirst().getId() == currVertex.getId())?currEdge.getEndpoints().getSecond():currEdge.getEndpoints().getFirst();
@@ -1769,6 +1771,11 @@ public class CommonAlgorithms {
 		int n = g.getVertices().size();
 		if(dist.length != n+1 || path.length != n+1 || edgePath.length != n+1)
 			throw new IllegalArgumentException();
+		if(g.getClass() == WindyGraph.class)
+		{
+			windyFwLeastCostPaths((WindyGraph)g, dist, path, edgePath);
+			return;
+		}
 
 		//initialize dist and path
 		for(int i=0;i<=n;i++)
@@ -2080,10 +2087,12 @@ public class CommonAlgorithms {
 		int[] artificialIds = new int[newm+1]; //entry i holds the id in copy of the artificial edge that maps to edge i of g
 		int[] ans = new int[newm + 1]; //the answer
 
+		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
+		
 		//initialize
 		for(int i=1;i<newm+1;i++)
 		{
-			realIds[i] = i;
+			realIds[indexedArcs.get(i).getMatchId()] = i;
 		}
 
 		//figure out residual graph, and look for paths from source to sink
@@ -2109,13 +2118,12 @@ public class CommonAlgorithms {
 			throw new IllegalArgumentException("Your graph is not connected, or this is not a valid flow problem");
 
 		//start looking for augmenting paths
-		int prev, prevEdge, curr;
+		int prev, prevEdge;
 		int maxFlow;
 		int[] dijkstraDist = new int[n+1];
 		int[] dijkstraPath = new int[n+1];
 		int[] dijkstraEdge = new int[n+1];
 		ArrayList<Integer> augmentingPath;
-		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
 
 		//first time
 		CommonAlgorithms.dijkstrasAlgorithm(copy, sourceId, dijkstraDist, dijkstraPath, dijkstraEdge);

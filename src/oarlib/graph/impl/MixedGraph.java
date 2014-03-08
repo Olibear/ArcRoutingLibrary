@@ -2,6 +2,7 @@ package oarlib.graph.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -54,7 +55,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 			toUpdate.setDegree(toUpdate.getDegree()+1);
 			super.addEdge(e);	
 		}
-		else
+		else 
 		{
 			Pair<MixedVertex> endpoints = e.getEndpoints();
 			endpoints.getFirst().addToNeighbors(endpoints.getSecond(), e);
@@ -66,7 +67,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 			super.addEdge(e);
 		}
 	}
-	
+
 	@Override
 	public void clearEdges()
 	{
@@ -86,26 +87,26 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 		if(!this.getEdges().contains(e))
 			throw new IllegalArgumentException();
 		try {
-		if(e.isDirected())
-		{
-			e.getEndpoints().getFirst().removeFromNeighbors(e.getEndpoints().getSecond(), e);
-			MixedVertex toUpdate = e.getEndpoints().getFirst();
-			toUpdate.setOutDegree(toUpdate.getOutDegree() - 1);
-			toUpdate = e.getEndpoints().getSecond();
-			toUpdate.setInDegree(toUpdate.getInDegree() - 1);
-			super.removeEdge(e);
-		}
-		else
-		{
-			Pair<MixedVertex> endpoints = e.getEndpoints();
-			endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
-			endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
-			MixedVertex toUpdate = endpoints.getFirst();
-			toUpdate.setDegree(toUpdate.getDegree() - 1);
-			toUpdate = e.getEndpoints().getSecond();
-			toUpdate.setDegree(toUpdate.getDegree() - 1);
-			super.removeEdge(e);
-		}
+			if(e.isDirected())
+			{
+				e.getEndpoints().getFirst().removeFromNeighbors(e.getEndpoints().getSecond(), e);
+				MixedVertex toUpdate = e.getEndpoints().getFirst();
+				toUpdate.setOutDegree(toUpdate.getOutDegree() - 1);
+				toUpdate = e.getEndpoints().getSecond();
+				toUpdate.setInDegree(toUpdate.getInDegree() - 1);
+				super.removeEdge(e);
+			}
+			else
+			{
+				Pair<MixedVertex> endpoints = e.getEndpoints();
+				endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
+				endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
+				MixedVertex toUpdate = endpoints.getFirst();
+				toUpdate.setDegree(toUpdate.getDegree() - 1);
+				toUpdate = e.getEndpoints().getSecond();
+				toUpdate.setDegree(toUpdate.getDegree() - 1);
+				super.removeEdge(e);
+			}
 		} catch(Exception ex)
 		{
 			ex.printStackTrace();
@@ -139,26 +140,38 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 		try {
 			MixedGraph ans = new MixedGraph();
 			HashMap<Integer, MixedEdge> indexedEdges = this.getInternalEdgeMap();
-			for(int i = 1; i< this.getVertices().size()+1; i++)
+			HashMap<Integer, MixedVertex> indexedVertices = this.getInternalVertexMap();
+			MixedVertex temp, temp2;
+			int n = this.getVertices().size();
+			int m = this.getEdges().size();
+			for(int i = 1; i <= n; i++)
 			{
-				ans.addVertex(new MixedVertex("deep copy original"), i);
+				temp = new MixedVertex("deep copy original"); //the new guy
+				temp2 = indexedVertices.get(i); //the old guy
+				if(temp2.isDemandSet())
+					temp.setDemand(temp2.getDemand());
+				ans.addVertex(temp, i);
 			}
 			MixedEdge e, e2;
-			for(int i=1;i<this.getEdges().size()+1;i++)
+			ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedEdges.keySet());
+			Collections.sort(forSorting);
+			m = forSorting.size();
+			for(int i = 0; i < m; i++)
 			{
-				e = indexedEdges.get(i);
+				e = indexedEdges.get(forSorting.get(i));
 				e2 = new MixedEdge("deep copy original", new Pair<MixedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected());
+				e2.setMatchId(e.getId());
 				e2.setRequired(e.isRequired());
-				ans.addEdge(e2, i);
+				ans.addEdge(e2, e.getId());
 			}
-				
+
 			return ans;
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
+
 	public void addEdge(int i, int j, String desc, int cost, boolean isDirected) throws InvalidEndpointsException
 	{
 		if(i > this.getVertices().size() || j > this.getVertices().size())
@@ -172,15 +185,15 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 		if(i > this.getVertices().size() || j > this.getVertices().size())
 			throw new InvalidEndpointsException();
 		return new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost);
-		
+
 	}
-	
+
 	public MixedEdge constructEdge(int i, int j, String desc, int cost, boolean isDirected)
 			throws InvalidEndpointsException {
 		if(i > this.getVertices().size() || j > this.getVertices().size())
 			throw new InvalidEndpointsException();
 		return new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, isDirected);
-		
+
 	}
 
 	@Override

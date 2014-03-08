@@ -43,7 +43,7 @@ public class ImprovedMCPPSolver extends Solver {
 			ArrayList<MultiEdge<MixedEdge>> gEdgeContainers = new ArrayList<MultiEdge<MixedEdge>>(); //machinery to help us keep track of status in G*
 			gEdgeContainers.add(null); //we want indices to be sympatico with the ids
 			int m = G.getEdges().size();
-			for(int i = 1; i < m+1; i++)
+			for(int i = 1; i <= m; i++)
 			{
 				gEdgeContainers.add(new MultiEdge<MixedEdge>(gEdges.get(i)));
 			}
@@ -117,7 +117,7 @@ public class ImprovedMCPPSolver extends Solver {
 					/**
 					 * CHECK THE CONNECTEDNESS OF GIJ1 and GIJ2 FOR DEBUGGING
 					 */
-					int ndebug = Gij2.getVertices().size();
+					/*int ndebug = Gij2.getVertices().size();
 					int mdebug = 0;
 					int[] componentdebug = new int[ndebug+1];
 					for(MixedEdge edebug: Gij2.getEdges())
@@ -149,7 +149,7 @@ public class ImprovedMCPPSolver extends Solver {
 						}
 
 					}
-					CommonAlgorithms.stronglyConnectedComponents(ndebug, mdebug, nodei, nodej, componentdebug);
+					CommonAlgorithms.stronglyConnectedComponents(ndebug, mdebug, nodei, nodej, componentdebug);*/
 
 					HashMap<Integer, MixedVertex> gij2Vertices = Gij2.getInternalVertexMap(); //indexed edges of Gij2 for calculating costs
 
@@ -158,7 +158,7 @@ public class ImprovedMCPPSolver extends Solver {
 					{
 						cost1 = 0; // cost of SPij
 						cost2 = 0; // cost of SPji
-						
+
 						//solve the shortest paths problem in Gij1
 						dist = new int[n+1]; //we want to use distances in Gij2, but shortest paths from Gij1
 						path = new int[n+1];
@@ -228,7 +228,7 @@ public class ImprovedMCPPSolver extends Solver {
 						cost1 = 0;
 						curr = (toImprove.isDirectedBackward())?j:i;
 						end = (toImprove.isDirectedBackward())?i:j;
-						
+
 						dist = new int[n+1]; //we want to use distances in Gij2, but shortest paths from Gij1
 						path = new int[n+1];
 						edgePath = new int[n+1];
@@ -237,7 +237,7 @@ public class ImprovedMCPPSolver extends Solver {
 						CommonAlgorithms.dijkstrasAlgorithm(Gij1, curr, dist, path, edgePath);
 						dist = new int[n+1];
 						CommonAlgorithms.dijkstrasAlgorithm(Gij2, curr, dist, path2,edgePath2);
-						
+
 						if(dist[end] == Integer.MAX_VALUE)
 							continue;
 
@@ -404,6 +404,8 @@ public class ImprovedMCPPSolver extends Solver {
 			{
 				debugCost2 += debug.getCost();
 			}
+			if(!CommonAlgorithms.isValidAugmentation(mInstance.getGraph(), G) || !CommonAlgorithms.isStronglyEulerian(G))
+				System.out.println("BADD");
 			System.out.println("Final Cost is: " + debugCost2);
 			System.out.println("Cost difference is: " + (debugCost2-debugCost1));
 
@@ -498,7 +500,7 @@ public class ImprovedMCPPSolver extends Solver {
 				next = path[end];
 				//attempt to add a copy along each container
 				toEdit = edgeContainers.get(gijEdges.get(edgePath[end]).getMatchId());
-				
+
 				//determine the direction that we're actually traversing the thing
 				if(next == toEdit.getFirst().getEndpoints().getFirst().getId()) //we're walking forward
 					forward = true;
@@ -711,14 +713,17 @@ public class ImprovedMCPPSolver extends Solver {
 					//add two arcs; one in either direction
 					setup.addEdge(new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getFirst().getId()), setupVertices.get(e.getEndpoints().getSecond().getId())), e.getCost()), e.getId());
 					setup.addEdge(new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getSecond().getId()), setupVertices.get(e.getEndpoints().getFirst().getId())), e.getCost()), e.getId());
-					//add two arcs that we get for free, but only have capacity 1 for when we solve the min cost flow
-					a = new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getFirst().getId()), setupVertices.get(e.getEndpoints().getSecond().getId())), 0);
-					a.setCapacity(1);
-					setup.addEdge(a, e.getId());
-					a = new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getSecond().getId()), setupVertices.get(e.getEndpoints().getFirst().getId())), 0);
-					a.setCapacity(1);
-					setup.addEdge(a, e.getId());
 
+					if(e.getCost() != 0)
+					{
+						//add two arcs that we get for free, but only have capacity 1 for when we solve the min cost flow
+						a = new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getFirst().getId()), setupVertices.get(e.getEndpoints().getSecond().getId())), 0);
+						a.setCapacity(1);
+						setup.addEdge(a, e.getId());
+						a = new Arc("symmetric setup graph", new Pair<DirectedVertex>(setupVertices.get(e.getEndpoints().getSecond().getId()), setupVertices.get(e.getEndpoints().getFirst().getId())), 0);
+						a.setCapacity(1);
+						setup.addEdge(a, e.getId());
+					}
 				}
 			}
 
@@ -736,7 +741,7 @@ public class ImprovedMCPPSolver extends Solver {
 
 			//build M and U
 			/*
-			 * the ith entry will be 1 if the flow solution included an arc along the ith edge (of input), (only
+			 * the ith entry of undirTraversals will be 1 if the flow solution included an arc along the ith edge (of input), (only
 			 * meaningful for undirected edges) from tail to head; -1 if it included one from head to tail.
 			 * This enables us to determine which are still left unoriented by this phase.
 			 */
@@ -770,7 +775,11 @@ public class ImprovedMCPPSolver extends Solver {
 					//direct the edge
 					if(flowanswer[i] > 0)
 					{
-						if(a.getTail().getId() == e.getEndpoints().getFirst().getId()) //direct it forward
+						if(e.getCost() == 0 && (edgeContainers.get(e.getId()).isDirectedBackward() || edgeContainers.get(e.getId()).isDirectedForward()))
+						{
+							U.add(new MixedEdge("special zero case", new Pair<MixedVertex>(e.getEndpoints().getFirst(), e.getEndpoints().getSecond()), 0, false));
+						}
+						else if(a.getTail().getId() == e.getEndpoints().getFirst().getId()) //direct it forward
 							edgeContainers.get(e.getId()).directForward();
 						else //direct it backwards
 							edgeContainers.get(e.getId()).directBackward();

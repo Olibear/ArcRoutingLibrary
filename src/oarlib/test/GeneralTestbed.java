@@ -30,13 +30,15 @@ import oarlib.problem.impl.DirectedCPP;
 import oarlib.problem.impl.MixedCPP;
 import oarlib.problem.impl.UndirectedCPP;
 import oarlib.problem.impl.WindyCPP;
+import oarlib.problem.impl.WindyRPP;
 import oarlib.solver.impl.DCPPSolver;
 import oarlib.solver.impl.ImprovedMCPPSolver;
 import oarlib.solver.impl.ImprovedWPPSolver;
+import oarlib.solver.impl.ImprovedWRPPSolver;
 import oarlib.solver.impl.MCPPSolver;
-import oarlib.solver.impl.ModifiedMCPPSolver;
 import oarlib.solver.impl.UCPPSolver;
 import oarlib.solver.impl.WPPSolver;
+import oarlib.solver.impl.WRPPSolver;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -49,7 +51,7 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		validateMCPPSolvers();
+		validateImprovedWRPPSolver();
 	}
 	private static void check(Link<?> a)
 	{
@@ -188,6 +190,8 @@ public class GeneralTestbed {
 			{
 				String temp = testInstance.getName();
 				System.out.println(temp);
+				if(temp.equals(".DS_Store"))
+					continue;
 				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/" + temp);
 				if(g.getClass() == MixedGraph.class)
 				{
@@ -223,6 +227,8 @@ public class GeneralTestbed {
 			{
 				String temp = testInstance.getName();
 				System.out.println(temp);
+				if(temp.equals(".DS_Store"))
+					continue;
 				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/YaoyuenyongInstances/" + temp);
 				if(g.getClass() == MixedGraph.class)
 				{
@@ -232,7 +238,7 @@ public class GeneralTestbed {
 					start = System.nanoTime();
 					validAns = validSolver.trySolve();
 					end = System.nanoTime();
-					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
+					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
 
 				}
 			}
@@ -260,6 +266,8 @@ public class GeneralTestbed {
 			{
 				String temp = testInstance.getName();
 				System.out.println(temp);
+				if(temp.equals(".DS_Store"))
+					continue;
 				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/YaoyuenyongInstances/" + temp);
 				int arcCount = 0;
 				int edgeCount = 0;
@@ -304,42 +312,106 @@ public class GeneralTestbed {
 			ImprovedMCPPSolver validSolver;
 			Collection<Route> validAns;
 
+			File testInstanceFolder = new File("/Users/oliverlum/Downloads/MCPP");
 			long start;
 			long end;
 
-			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0537");
-
-			//the example from the paper
-			/*MixedGraph g = new MixedGraph();
-			g.addVertex(new MixedVertex("v1"));
-			g.addVertex(new MixedVertex("v2"));
-			g.addVertex(new MixedVertex("v3"));
-			g.addVertex(new MixedVertex("v4"));
-			g.addVertex(new MixedVertex("v5"));
-
-			g.addEdge(5, 4, "(5-4)", 999, false);
-			g.addEdge(5, 2, "<5-2>", 1, true);
-			g.addEdge(1, 5, "<1-5>", 1, true);
-			g.addEdge(1, 4, "(1-4)", 999, false);
-			g.addEdge(3, 4, "<3-4>", 1, true);
-			g.addEdge(1, 2, "(1-2)", 999, false);
-			g.addEdge(1, 3, "<1-3>", 1, true);
-			g.addEdge(2, 3, "(2-3)", 999, false);*/
-
-			if(g.getClass() == MixedGraph.class)
+			for(final File testInstance: testInstanceFolder.listFiles())
 			{
-				MixedGraph g2 = (MixedGraph)g;
-				validInstance = new MixedCPP(g2);
-				validSolver = new ImprovedMCPPSolver(validInstance);
-				start = System.nanoTime();
-				validAns = validSolver.trySolve(); //my ans
-				end = System.nanoTime();
-				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
+				String temp = testInstance.getName();
+				System.out.println(temp);
+				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/" + temp);
+				if(g.getClass() == MixedGraph.class)
+				{
+					MixedGraph g2 = (MixedGraph)g;
+					validInstance = new MixedCPP(g2);
+					validSolver = new ImprovedMCPPSolver(validInstance);
+					start = System.nanoTime();
+					validAns = validSolver.trySolve(); //my ans
+					end = System.nanoTime();
+					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
 
+				}
 			}
 		} catch(Exception e)
 		{
 			e.printStackTrace();
+		}
+	}
+	private static void validateWRPPSolver()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		try
+		{
+			WindyRPP validInstance;
+			WRPPSolver validSolver;
+			Collection<Route> validAns;
+			
+			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WRPP");
+			long start;
+			long end;
+			
+			for(final File testInstance: testInstanceFolder.listFiles())
+			{
+				String temp = testInstance.getName();
+				System.out.println(temp);
+				if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
+					continue;
+				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
+				
+				if(g.getClass() == WindyGraph.class)
+				{
+					WindyGraph g2 = (WindyGraph)g;
+					validInstance = new WindyRPP(g2);
+					validSolver = new WRPPSolver(validInstance);
+					start = System.nanoTime();
+					validAns = validSolver.trySolve();
+					end = System.nanoTime();
+					System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
+				}
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
+	private static void validateImprovedWRPPSolver()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		try
+		{
+			WindyRPP validInstance;
+			ImprovedWRPPSolver validSolver;
+			Collection<Route> validAns;
+			
+			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WRPP");
+			long start;
+			long end;
+			
+			for(final File testInstance: testInstanceFolder.listFiles())
+			{
+				String temp = testInstance.getName();
+				System.out.println(temp);
+				if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
+					continue;
+				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
+				
+				if(g.getClass() == WindyGraph.class)
+				{
+					WindyGraph g2 = (WindyGraph)g;
+					validInstance = new WindyRPP(g2);
+					validSolver = new ImprovedWRPPSolver(validInstance);
+					start = System.nanoTime();
+					validAns = validSolver.trySolve();
+					end = System.nanoTime();
+					System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
+				}
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
 		}
 	}
 	private static void validateEulerTour()

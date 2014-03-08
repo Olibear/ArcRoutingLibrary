@@ -83,12 +83,13 @@ public class ImprovedWRPPSolver extends Solver{
 				int flowanswer[] = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(Gaux);
 
 				//create L
-				L = buildL(Gaux, E1, flowanswer);
+				L = buildL(Gaux, E1, E2, flowanswer);
 			}
 
 			//euler augment
 			eulerAugment(copy, windyReq, L);
-			WPPSolver.constructOptimalWindyTour(windyReq);
+			DirectedGraph ans = WRPPSolver.constructOptimalWindyTour(windyReq);
+			WRPPSolver.eliminateRedundantCycles(ans, windyReq, copy);
 			return null;
 		}
 		catch (Exception e)
@@ -121,7 +122,7 @@ public class ImprovedWRPPSolver extends Solver{
 				if(L.contains(e.getId()))
 					averageGraph.addEdge(new Edge("orig", new Pair<UndirectedVertex>(averageVertices.get(e.getEndpoints().getFirst().getId()), averageVertices.get(e.getEndpoints().getSecond().getId())), 0));
 				else
-					averageGraph.addEdge(new Edge("orig", new Pair<UndirectedVertex>(averageVertices.get(e.getEndpoints().getFirst().getId()), averageVertices.get(e.getEndpoints().getSecond().getId())), e.getCost() + e.getReverseCost()));
+					averageGraph.addEdge(new Edge("orig", new Pair<UndirectedVertex>(averageVertices.get(e.getEndpoints().getFirst().getId()), averageVertices.get(e.getEndpoints().getSecond().getId())), (e.getCost() + e.getReverseCost())/2));
 			}
 
 			//solve shortest paths in averageGraph
@@ -186,7 +187,7 @@ public class ImprovedWRPPSolver extends Solver{
 
 	}
 
-	private static HashSet<Integer> buildL(DirectedGraph gaux, HashSet<Integer> e1, int[] flowanswer)
+	private static HashSet<Integer> buildL(DirectedGraph gaux, HashSet<Integer> e1, HashSet<Integer> e2, int[] flowanswer)
 	{
 		HashSet<Integer> ans = new HashSet<Integer>();
 		Arc temp;
@@ -200,7 +201,7 @@ public class ImprovedWRPPSolver extends Solver{
 				continue;
 			if(flowanswer[i] >= 1 && e1.contains(tempMatchId)) //in e1, and flow >= 1
 				ans.add(tempMatchId);
-			else if(flowanswer[i] >= 2 && !e1.contains(tempMatchId))
+			else if(flowanswer[i] >= 2 && e2.contains(tempMatchId))
 				ans.add(tempMatchId);
 		}
 		return ans;
@@ -299,10 +300,11 @@ public class ImprovedWRPPSolver extends Solver{
 	private static void buildEdgeSets(HashSet<Integer> e1, HashSet<Integer> e2, WindyGraph g, double averageCost)
 	{
 		double costDiff;
+		double threshold = K * averageCost;
 		for(WindyEdge e: g.getEdges())
 		{
 			costDiff = Math.abs(e.getCost() - e.getReverseCost());
-			if(costDiff > K * averageCost )
+			if(costDiff > threshold )
 				e1.add(e.getMatchId());
 			else
 				e2.add(e.getMatchId());
@@ -323,7 +325,7 @@ public class ImprovedWRPPSolver extends Solver{
 
 	@Override
 	public Type getProblemType() {
-		return Problem.Type.WINDY_CHINESE_POSTMAN;
+		return Problem.Type.WINDY_RURAL_POSTMAN;
 	}
 
 

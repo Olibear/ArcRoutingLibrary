@@ -27,7 +27,7 @@ public class DCPPSolver extends Solver{
 	@Override
 	protected Collection<Route> solve() {
 
-		DirectedGraph copy = mInstance.getGraph();
+		DirectedGraph copy = mInstance.getGraph().getDeepCopy();
 		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
 
 		eulerAugment(copy);

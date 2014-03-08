@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import oarlib.core.Arc;
@@ -19,21 +20,22 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.problem.impl.WindyCPP;
+import oarlib.problem.impl.WindyRPP;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
 public class WRPPSolver extends Solver{
 
-	WindyCPP mInstance;
+	WindyRPP mInstance;
 
-	public WRPPSolver(WindyCPP instance) throws IllegalArgumentException {
+	public WRPPSolver(WindyRPP instance) throws IllegalArgumentException {
 		super(instance);
 		mInstance = instance;
 	}
 
 	@Override
-	protected WindyCPP getInstance() {
+	protected WindyRPP getInstance() {
 		return mInstance;
 	}
 
@@ -45,7 +47,8 @@ public class WRPPSolver extends Solver{
 			WindyGraph copy = mInstance.getGraph().getDeepCopy();
 			WindyGraph windyReq = connectRequiredComponents(copy);
 			eulerAugment(copy, windyReq);
-			constructOptimalWindyTour(windyReq);
+			DirectedGraph ans = constructOptimalWindyTour(windyReq);
+			eliminateRedundantCycles(ans, windyReq, copy);
 			return null;
 		} catch(Exception e)
 		{
@@ -56,7 +59,7 @@ public class WRPPSolver extends Solver{
 
 	@Override
 	public Type getProblemType() {
-		return Problem.Type.WINDY_CHINESE_POSTMAN;
+		return Problem.Type.WINDY_RURAL_POSTMAN;
 	}
 
 	/**
@@ -114,7 +117,7 @@ public class WRPPSolver extends Solver{
 				nodej[i] = e2[i];
 			}
 
-			CommonAlgorithms.connectedComponents(n, m, nodei, nodej, component);
+			CommonAlgorithms.connectedComponents(n, mreq, nodei, nodej, component);
 
 			//now find shortest paths
 			int[][] dist = new int[n+1][n+1];
@@ -144,12 +147,12 @@ public class WRPPSolver extends Solver{
 					if(comp1 == comp2)
 						continue; //dun care about internal distances
 
-					averagePathLength = calculateAveragePathCost(g, i, j, path, edgePath); //I know that the algorithm calls for average length, but this is better since we're contorting the model
+					averagePathLength = calculateAveragePathCost(g, i, j, path, edgePath); 
 					if(comp1<comp2)
 						tempKey = new Pair<Integer>(comp1,comp2);
 					else
 						tempKey = new Pair<Integer>(comp2,comp1);
-					if(!minCostPathVal.containsKey(tempKey) || averagePathLength < minCostPathVal.get(tempKey))
+					if(!minCostPathVal.containsKey(tempKey) || ((int)2*averagePathLength) < minCostPathVal.get(tempKey))
 					{
 						minCostPathVal.put(tempKey, (int)(2*averagePathLength));
 						minCostPathNodes.put(tempKey, new Pair<Integer>(i,j));
@@ -191,7 +194,7 @@ public class WRPPSolver extends Solver{
 					{
 						next = path[curr][end];
 						toAdd = indexedWindyEdges.get(edgePath[curr][end]);
-						windyReq.addEdge(curr, next, "mst added", toAdd.getCost(), toAdd.getReverseCost(), edgePath[curr][end], true);
+						windyReq.addEdge(curr, next, "mst added", toAdd.getCost(), toAdd.getReverseCost(), edgePath[curr][end], toAdd.isRequired());
 					} while((curr = next) !=  end);
 				}
 			}
@@ -201,6 +204,282 @@ public class WRPPSolver extends Solver{
 		{
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	/**
+	 * Method to remove any cycles of non-required edges, or added edges
+	 * @param g - the WindyGraph over which we are attempting to construct the optimal windy tour
+	 * @param ans - the directed graph representing that optimal windy tour.
+	 */
+	public static void eliminateRedundantCycles(DirectedGraph ans, WindyGraph windyReq, WindyGraph orig)
+	{
+		try
+		{
+			//Improvement Procedure 1
+			HashMap<Integer, DirectedVertex> ansVertices = ans.getInternalVertexMap();
+			int n = ans.getVertices().size();
+			DirectedVertex v;
+			HashMap<DirectedVertex, ArrayList<Arc>> vNeighbors, dvNeighbors;
+			ArrayList<Arc> vdvConnections, dvvConnections;
+			int xij, xji, toRemove;
+			for(int i = 1; i <= n; i++)
+			{
+				v = ansVertices.get(i);
+				vNeighbors = v.getNeighbors();
+				for(DirectedVertex dv: vNeighbors.keySet())
+				{
+					dvNeighbors = dv.getNeighbors();
+					if(v.getId() < dv.getId() && dvNeighbors.containsKey(v)) //to avoid redundant checking
+					{
+						vdvConnections = vNeighbors.get(dv);
+						xij = vdvConnections.size();
+						dvvConnections = dvNeighbors.get(v);
+						xji = dvvConnections.size();
+						if(xij + xji >= 3)
+						{
+							if(xij == xji)
+							{
+								toRemove = xij-1;
+							}
+							else
+							{
+								toRemove = Math.min(xij, xji);
+							}
+
+							//remove toRemove arcs in each direction
+							for(int j = 0; j < toRemove; j++)
+							{
+								ans.removeEdge(vdvConnections.get(0)); // I think this should work, so long as this vdvConnections and dvvConnections are passed by reference
+								ans.removeEdge(dvvConnections.get(0));
+							}
+						}
+					}
+				}
+			}
+
+			//Improvement Procedure 2
+			HashMap<Integer, WindyEdge> windyReqEdges = windyReq.getInternalEdgeMap();
+			DirectedGraph flowGraph = new DirectedGraph();
+			for(int i = 0; i < n; i ++)
+			{
+				flowGraph.addVertex(new DirectedVertex("flow"));
+			}
+			Arc temp;
+			WindyEdge windyReqTemp;
+			int tempCost;
+			boolean isReq;
+			for(int i = 1; i <= n; i ++)
+			{
+				v = ansVertices.get(i);
+				vNeighbors = v.getNeighbors();
+				for(DirectedVertex dv: vNeighbors.keySet())
+				{
+					vdvConnections = vNeighbors.get(dv);
+					isReq = vdvConnections.get(0).isRequired();
+					xij = vdvConnections.size();
+					tempCost = vdvConnections.get(0).getCost();
+					if(xij >= 3 && isReq) //a
+					{
+						temp = flowGraph.constructEdge(dv.getId(), v.getId(), "a", -2 * tempCost);
+						temp.setCapacity((int)Math.floor((xij-1)/2.0));
+						flowGraph.addEdge(temp);
+					}
+					else if(xij >= 2 && !isReq) //b
+					{
+						temp = flowGraph.constructEdge(dv.getId(), v.getId(), "b", -2 * tempCost);
+						temp.setCapacity((int)Math.floor((xij)/2.0));
+						flowGraph.addEdge(temp);
+					}
+					else if(xij > 0) //c
+					{
+						windyReqTemp = windyReqEdges.get(vdvConnections.get(0).getMatchId());
+						if(windyReqTemp.getCost() == tempCost)
+						{
+							tempCost = windyReqTemp.getReverseCost() - tempCost;
+						}
+						else
+							tempCost = windyReqTemp.getCost() - tempCost;
+
+						temp = flowGraph.constructEdge(dv.getId(), v.getId(), "c", tempCost);
+						temp.setMatchId(vdvConnections.get(0).getMatchId());
+						temp.setCapacity(xij);
+						flowGraph.addEdge(temp);
+					}
+
+				}
+			}
+
+			//I don't know how to solve a min cost flow with no demands or supplies...we'll just push flow along all negative cycles
+			int[][] dist = new int[n+1][n+1];
+			int[][] path = new int[n+1][n+1];
+			int[][] edgePath = new int[n+1][n+1];
+			boolean foundImprovement = true;
+			int curr, end, next, cost;
+			HashMap<Integer, Arc> flowArcs = flowGraph.getInternalEdgeMap();
+			ArrayList<Arc> removeCandidates;
+			Arc changeDir;
+			WindyEdge replaceDir;
+			while(foundImprovement)
+			{
+				foundImprovement = false;
+				CommonAlgorithms.fwLeastCostPaths(flowGraph, dist, path, edgePath);
+				for(int i = 1; i <= n; i++)
+				{
+					if(dist[i][i] < 0)
+					{
+						foundImprovement = true;
+						//push flow along the negative cycle
+
+						curr = i;
+						end = i;
+						next = 0;
+						cost = 0;
+						DirectedVertex u1,u2;
+						do {
+							next = path[curr][end];
+							temp = flowArcs.get(edgePath[curr][next]);
+							cost = dist[curr][next];
+							u1 = ansVertices.get(curr);
+							u2 = ansVertices.get(next);
+
+							if(temp.getLabel().equals("a") || temp.getLabel().equals("b"))
+							{
+								//remove two copies of arc ji from ans
+								removeCandidates = u2.getNeighbors().get(u1);
+								ans.removeEdge(removeCandidates.get(0));
+								ans.removeEdge(removeCandidates.get(0));
+							}
+							else //c
+							{
+								//change the orientation of arc ji
+								removeCandidates = u2.getNeighbors().get(u1);
+								changeDir = removeCandidates.get(0);
+								replaceDir = windyReqEdges.get(changeDir.getMatchId());
+								if(changeDir.getCost() == replaceDir.getCost())
+									cost = replaceDir.getReverseCost();
+								else
+									cost = replaceDir.getCost();
+								ans.addEdge(changeDir.getHead().getId(), changeDir.getTail().getId(), "swapDir", cost, replaceDir.isRequired());
+								ans.removeEdge(removeCandidates.get(0));
+							}
+							//update flow
+							temp.setCapacity(temp.getCapacity()-1);
+							if(temp.getCapacity()==0)
+								flowGraph.removeEdge(temp);
+						} while ( (curr =next) != end);
+						break;
+					}
+				}
+
+			}
+
+			//now reconnect with MST
+			if(!CommonAlgorithms.isStronglyConnected(ans))
+			{
+				//create a windy graph out of the ans graph 
+				//each arc gets an edge; overdoing it, but should be okay
+				//then add windy edges from the original as not required
+				//call connectRequiredComponents
+				//then check for non-required edges, and add accordingly
+				WindyGraph connectMe = new WindyGraph();
+				for(int i = 1; i <= n; i++)
+				{
+					connectMe.addVertex(new WindyVertex("reconnection step"));
+				}
+				for(Arc a: ans.getEdges())
+				{
+					connectMe.addEdge(a.getTail().getId(), a.getHead().getId(), "connection step", a.getCost(), a.getCost(), true);
+				}
+				for(WindyEdge we: orig.getEdges())
+				{
+					connectMe.addEdge(we.getEndpoints().getFirst().getId(), we.getEndpoints().getSecond().getId(), "connection step", we.getCost(), we.getReverseCost(), we.isRequired());
+					;				}
+				WindyGraph windyReq2 = connectRequiredComponents(connectMe);
+				for(WindyEdge we: windyReq2.getEdges())
+				{
+					if(!we.isRequired())
+					{
+						ans.addEdge(we.getEndpoints().getFirst().getId(), we.getEndpoints().getSecond().getId(), "forward", we.getCost(), false);
+						ans.addEdge(we.getEndpoints().getSecond().getId(), we.getEndpoints().getFirst().getId(), "backward", we.getReverseCost(), false);
+					}
+				}
+			}
+
+			//Improvement Procedure 3
+			//compute an euler tour, and then replace non-req paths with shortest paths from the full graph
+			ArrayList<Integer> tour = CommonAlgorithms.tryHierholzer(ans);
+			HashMap<Integer, Arc> ansArcs = ans.getInternalEdgeMap();
+			HashMap<Integer, WindyEdge> origEdges = orig.getInternalEdgeMap();
+			int m = ans.getEdges().size();
+			int startId = -1;
+			int endId = -1;
+			boolean midPath = false;
+			int nextEdge;
+			WindyEdge origTemp;
+			dist = new int[n+1][n+1];
+			path = new int [n+1][n+1];
+			edgePath = new int[n+1][n+1];
+			CommonAlgorithms.fwLeastCostPaths(orig, dist, path, edgePath);
+
+			for(int i = 1; i<= m; i++)
+			{
+				temp = ansArcs.get(tour.get(i-1));
+				if(!temp.isRequired() && startId < 0) //start non-req path
+				{
+					startId = temp.getTail().getId();
+					midPath = true;
+
+					//remove the edge
+					ans.removeEdge(temp);
+				}
+				else if(temp.isRequired() && startId > 0 && endId < 0) //end non-req path
+				{
+					endId = temp.getTail().getId();
+					//add the shortest path from startId to endId
+					curr = startId;
+					end = endId;
+					do
+					{
+						next = path[curr][end];
+						nextEdge = edgePath[curr][end];
+						origTemp = origEdges.get(nextEdge);
+						if(origTemp.getEndpoints().getFirst().getId() == next)
+							cost = origTemp.getReverseCost();
+						else
+							cost = origTemp.getCost();
+						ans.addEdge(curr, next, "final", cost);
+
+					} while((curr = next) != end);
+
+
+					//reset
+					startId = -1;
+					endId = -1;
+					midPath = false;
+				}
+				else if(midPath)
+				{
+					//remove the edge
+					ans.removeEdge(temp);
+				}
+			}
+
+
+			//compute cost after improvement
+			HashSet<Arc> arcSet = ans.getEdges();
+			int cost2 = 0;
+			for(Arc a: arcSet)
+			{
+				cost2 += a.getCost();
+			}
+			System.out.println("Cost after improvement is: " + cost2);
+
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
 		}
 	}
 
@@ -234,6 +513,8 @@ public class WRPPSolver extends Solver{
 				{
 					temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getFirst().getId()), flowVertices.get(e.getEndpoints().getSecond().getId())), tempCost);
 					temp.setCapacity(2);
+					temp.setRequired(e.isRequired());
+					temp.setMatchId(e.getId());
 					flowGraph.addEdge(temp);
 					artID = temp.getId();
 				}
@@ -241,6 +522,8 @@ public class WRPPSolver extends Solver{
 				{
 					temp = new Arc("orig", new Pair<DirectedVertex>(flowVertices.get(e.getEndpoints().getSecond().getId()), flowVertices.get(e.getEndpoints().getFirst().getId())), tempCost);
 					temp.setCapacity(2);
+					temp.setRequired(e.isRequired());
+					temp.setMatchId(e.getId());
 					flowGraph.addEdge(temp);
 					artID = temp.getId();
 				}
@@ -263,11 +546,11 @@ public class WRPPSolver extends Solver{
 					//add an arc in the least cost direction
 					if(e.getCost() > e.getReverseCost())
 					{
-						ans.addEdge(e.getEndpoints().getSecond().getId(), e.getEndpoints().getFirst().getId(), "ans", e.getReverseCost());
+						ans.addEdge(e.getEndpoints().getSecond().getId(), e.getEndpoints().getFirst().getId(), "ans", e.getReverseCost(), e.getId(), e.isRequired());
 					}
 					else
 					{
-						ans.addEdge(e.getEndpoints().getFirst().getId(), e.getEndpoints().getSecond().getId(), "ans",e.getCost());
+						ans.addEdge(e.getEndpoints().getFirst().getId(), e.getEndpoints().getSecond().getId(), "ans",e.getCost(), e.getId(), e.isRequired());
 					}
 				}
 				//compute cost
@@ -306,14 +589,14 @@ public class WRPPSolver extends Solver{
 				{
 					for (int j =0; j <= flowanswer[i];j++)
 					{
-						ans.addEdge(temp.getTail().getId(),temp.getHead().getId(),"ans",temp.getCost()/2);
+						ans.addEdge(temp.getTail().getId(),temp.getHead().getId(),"ans",temp.getCost()/2, artificial.getMatchId(), artificial.isRequired());
 					}
 				}
 				else if(artificial.getHead().getId() == temp.getTail().getId() && flowanswer[temp.getMatchId()] == 0)
 				{
 					for(int j = 0; j <= flowanswer[i]; j++)
 					{
-						ans.addEdge(temp.getTail().getId(),temp.getHead().getId(),"ans",temp.getCost()/2);
+						ans.addEdge(temp.getTail().getId(),temp.getHead().getId(),"ans",temp.getCost()/2, artificial.getMatchId(), artificial.isRequired());
 					}
 				}
 			}
@@ -408,7 +691,7 @@ public class WRPPSolver extends Solver{
 					next = path[curr][end];
 					nextEdge = edgePath[curr][end];
 					temp = indexedEdges.get(nextEdge);
-					g.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "to make even", temp.getCost(), temp.getReverseCost() ,nextEdge);
+					g.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "to make even", temp.getCost(), temp.getReverseCost() ,nextEdge, temp.isRequired());
 				} while ( (curr = next) != end);
 			}
 
