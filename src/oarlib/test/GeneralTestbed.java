@@ -1,6 +1,7 @@
 package oarlib.test;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import gurobi.*;
 
@@ -38,6 +39,7 @@ import oarlib.solver.impl.ImprovedWRPPSolver;
 import oarlib.solver.impl.MCPPSolver;
 import oarlib.solver.impl.UCPPSolver;
 import oarlib.solver.impl.WPPSolver;
+import oarlib.solver.impl.WRPP2Solver;
 import oarlib.solver.impl.WRPPSolver;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
@@ -51,6 +53,7 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
+		//testConnectedComponents();
 		validateImprovedWRPPSolver();
 	}
 	private static void check(Link<?> a)
@@ -58,27 +61,62 @@ public class GeneralTestbed {
 		if (a.getClass() == Arc.class)
 			System.out.println("WEEEE");
 	}
+	private static void testConnectedComponents()
+	{
+		UndirectedGraph test = new UndirectedGraph();
+		test.addVertex(new UndirectedVertex(""));
+		test.addVertex(new UndirectedVertex(""));
+		int n = 3;
+		int m = 1;
+		int[] nodei = new int[2];
+		int[] nodej = new int[2];
+		nodei[1] = 1;
+		nodej[1] = 2;
+		int[] component= new int[4];
+		CommonAlgorithms.connectedComponents(n, m, nodei, nodej, component);
+		System.out.println(component[0]);
+	}
 	private static void testMST()
 	{
 		try
 		{
-			UndirectedGraph g = new UndirectedGraph();
-			for(int i = 1; i <= 4; i++)
-			{
-				g.addVertex(new UndirectedVertex("original"));
-			}
-			g.addEdge(1, 2, "", 3);
-			g.addEdge(1,3,"", 4);
-			g.addEdge(1,4,"",4);
-			g.addEdge(2,3,"",5);
-			g.addEdge(2,4,"",5);
-			g.addEdge(3,4,"",2);
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph g = (UndirectedGraph)ugg.generateGraph(300, 50, true);
 
 			int[] mst = CommonAlgorithms.minCostSpanningTree(g);
+			int n = g.getVertices().size();
+			int[] tree = new int[n+1];
+			int[][] dist = new int[n+1][n+1];
+			for(int i = 1; i <= n; i ++)
+			{
+				for(int j = 1; j <= n; j++)
+				{
+					dist[i][j] = Integer.MAX_VALUE;
+				}
+			}
+			for(Edge e: g.getEdges())
+			{
+				dist[e.getEndpoints().getFirst().getId()][e.getEndpoints().getSecond().getId()] = e.getCost();
+				dist[e.getEndpoints().getSecond().getId()][e.getEndpoints().getFirst().getId()] = e.getCost();
+			}
+
+			CommonAlgorithms.minimumSpanningTreePrim(g.getVertices().size(), dist, tree);
+
+			int cost1, cost2;
+			cost1 = 0; //mine
+			cost2 = 0; //theirs
+			HashMap<Integer, Edge> gEdges = g.getInternalEdgeMap();
 			for(int i = 1; i < mst.length; i++)
 			{
-				System.out.print(mst[i] + " ");
+				if(mst[i] > 0)
+					cost1 += gEdges.get(i).getCost();
 			}
+			for(int i = 1; i < n; i++)
+			{
+				cost2 += dist[i][tree[i]];
+			}
+			System.out.println("Mine: " + cost1);
+			System.out.println("Theirs: " + cost2);
 		} catch(Exception e)
 		{
 			e.printStackTrace();
@@ -238,6 +276,8 @@ public class GeneralTestbed {
 					start = System.nanoTime();
 					validAns = validSolver.trySolve();
 					end = System.nanoTime();
+					for(Route r : validAns)
+						System.out.println(r.getCost());
 					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
 
 				}
@@ -293,6 +333,8 @@ public class GeneralTestbed {
 					start = System.nanoTime();
 					validAns = validSolver.trySolve();
 					end = System.nanoTime();
+					for(Route r: validAns)
+						System.out.println(r.getCost());
 					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
 
 				}
@@ -346,30 +388,95 @@ public class GeneralTestbed {
 			WindyRPP validInstance;
 			WRPPSolver validSolver;
 			Collection<Route> validAns;
-			
+
 			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WRPP");
+			PrintWriter pw = new PrintWriter("/Users/oliverlum/Desktop/wrpp.txt", "UTF-8");
 			long start;
 			long end;
-			
+
 			for(final File testInstance: testInstanceFolder.listFiles())
 			{
-				String temp = testInstance.getName();
-				System.out.println(temp);
-				if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
-					continue;
-				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
-				
-				if(g.getClass() == WindyGraph.class)
+				int bestCost = Integer.MAX_VALUE;
+				for(int i = 0; i < 10; i++)
 				{
-					WindyGraph g2 = (WindyGraph)g;
-					validInstance = new WindyRPP(g2);
-					validSolver = new WRPPSolver(validInstance);
-					start = System.nanoTime();
-					validAns = validSolver.trySolve();
-					end = System.nanoTime();
-					System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
+					String temp = testInstance.getName();
+					System.out.println(temp);
+					if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
+						continue;
+					Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
+
+					if(g.getClass() == WindyGraph.class)
+					{
+						WindyGraph g2 = (WindyGraph)g;
+						validInstance = new WindyRPP(g2);
+						validSolver = new WRPPSolver(validInstance);
+						start = System.nanoTime();
+						validAns = validSolver.trySolve();
+						for(Route r: validAns)
+							if(r.getCost() < bestCost)
+								bestCost = r.getCost();
+						end = System.nanoTime();
+						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
+					}
 				}
+				if(bestCost == Integer.MAX_VALUE)
+					continue;
+				pw.println(bestCost + ";");
 			}
+			pw.close();
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
+	private static void validateWRPP2Solver()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		try
+		{
+			WindyRPP validInstance;
+			WRPP2Solver validSolver;
+			Collection<Route> validAns;
+
+			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WRPP");
+			PrintWriter pw = new PrintWriter("/Users/oliverlum/Desktop/wrpp2.txt", "UTF-8");
+			long start;
+			long end;
+
+			for(final File testInstance: testInstanceFolder.listFiles())
+			{
+				int bestCost = Integer.MAX_VALUE;
+				for(int i = 0; i < 10; i++)
+				{
+					String temp = testInstance.getName();
+					System.out.println(temp);
+					if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
+						continue;
+					Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
+
+					if(g.getClass() == WindyGraph.class)
+					{
+						WindyGraph g2 = (WindyGraph)g;
+						validInstance = new WindyRPP(g2);
+						validSolver = new WRPP2Solver(validInstance);
+						start = System.nanoTime();
+						validAns = validSolver.trySolve();
+						for(Route r: validAns)
+							if(r.getCost() < bestCost)
+							{
+								bestCost = r.getCost();
+								System.out.println("True cost: " + r.getCost());
+							}
+						end = System.nanoTime();
+						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
+					}
+				}
+				if(bestCost == Integer.MAX_VALUE)
+					continue;
+				pw.println(bestCost + ";");
+			}
+			pw.close();
 		} catch(Exception e)
 		{
 			e.printStackTrace();
@@ -384,30 +491,42 @@ public class GeneralTestbed {
 			WindyRPP validInstance;
 			ImprovedWRPPSolver validSolver;
 			Collection<Route> validAns;
-			
+
 			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WRPP");
+			PrintWriter pw = new PrintWriter("/Users/oliverlum/Desktop/improvedwrpp.txt", "UTF-8");
 			long start;
 			long end;
-			
+
 			for(final File testInstance: testInstanceFolder.listFiles())
 			{
-				String temp = testInstance.getName();
-				System.out.println(temp);
-				if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
-					continue;
-				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
-				
-				if(g.getClass() == WindyGraph.class)
+				int bestCost = Integer.MAX_VALUE;
+				for(int i = 0; i < 10; i++)
 				{
-					WindyGraph g2 = (WindyGraph)g;
-					validInstance = new WindyRPP(g2);
-					validSolver = new ImprovedWRPPSolver(validInstance);
-					start = System.nanoTime();
-					validAns = validSolver.trySolve();
-					end = System.nanoTime();
-					System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
+					String temp = testInstance.getName();
+					System.out.println(temp);
+					if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
+						continue;
+					Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
+
+					if(g.getClass() == WindyGraph.class)
+					{
+						WindyGraph g2 = (WindyGraph)g;
+						validInstance = new WindyRPP(g2);
+						validSolver = new ImprovedWRPPSolver(validInstance);
+						start = System.nanoTime();
+						validAns = validSolver.trySolve();
+						end = System.nanoTime();
+						for(Route r: validAns)
+							if(r.getCost() < bestCost)
+								bestCost = r.getCost();
+						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
+					}
 				}
+				if(bestCost == Integer.MAX_VALUE)
+					continue;
+				pw.println(bestCost + ";");
 			}
+			pw.close();
 		} catch(Exception e)
 		{
 			e.printStackTrace();

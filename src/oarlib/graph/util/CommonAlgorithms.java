@@ -180,7 +180,7 @@ public class CommonAlgorithms {
 			return false;
 		else if(orig.getVertices().size() != augmented.getVertices().size())
 			return false;
-		
+
 		int v1, v2;
 		HashMap<Integer, ? extends Vertex> origVertices = orig.getInternalVertexMap();
 		boolean foundCopy;
@@ -245,6 +245,25 @@ public class CommonAlgorithms {
 		if(component[0] == 1)
 			return true;
 		return false;
+	}
+	public static int[] stronglyConnectedComponents(DirectedGraph graph)
+	{
+		int n = graph.getVertices().size();
+		int m = graph.getEdges().size();
+		int[] component = new int[n+1];
+		int[] nodei = new int[m+1];
+		int[] nodej = new int[m+1];
+		int index = 1;
+		Iterator<? extends Arc> iter = graph.getEdges().iterator();
+		while (iter.hasNext())
+		{
+			Arc a = iter.next();
+			nodei[index] = a.getTail().getId();
+			nodej[index] = a.getHead().getId();
+			index++;
+		}
+		stronglyConnectedComponents(n,m,nodei,nodej,component);
+		return component;
 	}
 	/* 
 	 * Taken from Lau.  Returns the connected components of an undirected graph.  For the directed analog, see stronglyConnectedComponents
@@ -1375,7 +1394,7 @@ public class CommonAlgorithms {
 			{
 				temp = indexedWindyEdges.get(i);
 				g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
-				g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", temp.getCost(), i);
+				g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", temp.getReverseCost(), i);
 			}
 
 			//initialize dist and path
@@ -1460,7 +1479,7 @@ public class CommonAlgorithms {
 			{
 				temp = indexedWindyEdges.get(i);
 				g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
-				g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", temp.getCost(), i);
+				g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", temp.getReverseCost(), i);
 			}
 
 			//initialize dist and path
@@ -1607,6 +1626,34 @@ public class CommonAlgorithms {
 		}
 	}
 
+	public static void minimumSpanningTreePrim(int n, int dist[][], int tree[])
+	{
+	  int i,j,n1,d,mindist,node,k=0;
+
+	  n1 = n - 1;
+	  for (i=1; i<=n1; i++)
+	    tree[i] = -n;
+	  tree[n] = 0;
+	  for (i=1; i<=n1; i++) {
+	    mindist = Integer.MAX_VALUE;
+	    for (j=1; j<=n1; j++) {
+	      node = tree[j];
+	      if (node <= 0) {
+	        d = dist[-node][j];
+	        if (d < mindist) {
+	          mindist = d;
+	          k = j;
+	        }
+	      }
+	    }
+	    tree[k] = -tree[k];
+	    for (j=1; j<=n1; j++) {
+	      node = tree[j];
+	      if (node <= 0)
+	        if (dist[j][k] < dist[j][-node]) tree[j] = -k;
+	    }
+	  }
+	}
 	/**
 	 * Solves the min-cost spanning tree problem using Prim's algorithm
 	 * @param g - the undirected graph on which to solve the MST problem.
@@ -2044,7 +2091,8 @@ public class CommonAlgorithms {
 		//so we don't mess with the original
 		DirectedGraph copy = g.getDeepCopy();
 		int m = copy.getEdges().size(); //for trimming
-		int[] retArray = new int[m+1];
+		//int[] retArray = new int[m+1];
+		int[] retArray = new int[g.getEidCounter()];
 
 		//add a source a sink
 		DirectedVertex source = new DirectedVertex("source");
@@ -2088,7 +2136,7 @@ public class CommonAlgorithms {
 		int[] ans = new int[newm + 1]; //the answer
 
 		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
-		
+
 		//initialize
 		for(int i=1;i<newm+1;i++)
 		{
@@ -2232,12 +2280,18 @@ public class CommonAlgorithms {
 			return null;
 		}
 		//trim out artificial flows
-		for(int i=1; i<retArray.length; i++)
+		HashMap<Integer, Arc> gArcs = g.getInternalEdgeMap();
+		int realIndex = 1;
+		for(int i=1; i <= m; i++)
 		{
-			retArray[i] = ans[i];
+			while(!gArcs.containsKey(realIndex))
+				realIndex++;
+			retArray[realIndex] = ans[i];
+			realIndex++;
 		}
 		return retArray;
 	}
+
 	/**
 	 * Implements the cycle cancelling algorithm to calculate a min cost flow through the graph g with distance matrix given by dist.
 	 * NOTE: Currently does not support capacities; for that, use shortestSuccessivePaths.
@@ -2273,7 +2327,7 @@ public class CommonAlgorithms {
 			}
 		}
 
-		if(demand > supply || demand >= 0)
+		if(-demand > supply || demand > 0)
 			throw new IllegalArgumentException();
 
 		//greedily establish an initial feasible flow
@@ -2494,14 +2548,21 @@ public class CommonAlgorithms {
 		int arcsol[][]= new int[2][edges + 1];
 		int flowsol[] = new int[edges + 1]; 
 
-		for (Link<? extends Vertex> l : g.getEdges())
+		try
 		{
-			nodei[l.getId()] = l.getEndpoints().getFirst().getId();
-			nodej[l.getId()] = l.getEndpoints().getSecond().getId();
-			arccost[l.getId()] = l.getCost();
-			lowbound[l.getId()] = 0;
-			upbound[l.getId()] = 0;
+			for (Link<? extends Vertex> l : g.getEdges())
+			{
+				nodei[l.getId()] = l.getEndpoints().getFirst().getId();
+				nodej[l.getId()] = l.getEndpoints().getSecond().getId();
+				arccost[l.getId()] = l.getCost();
+				lowbound[l.getId()] = 0;
+				upbound[l.getId()] = l.isCapacitySet()?l.getCapacity():0;
 
+			}
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
 		}
 
 		int success = minCostNetworkFlow(nodes,edges,numdemand,nodedemand,nodei,nodej,arccost,upbound,lowbound,arcsol,flowsol);

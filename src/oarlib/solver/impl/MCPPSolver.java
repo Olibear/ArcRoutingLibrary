@@ -76,7 +76,6 @@ public class MCPPSolver extends Solver{
 			//End Mixed 2
 
 			//select the lower cost of the two
-			int origCost = 0;
 			int cost1 = 0;
 			int cost2 = 0;
 			for(MixedEdge temp: ans1.getEdges())
@@ -87,22 +86,6 @@ public class MCPPSolver extends Solver{
 			{
 				cost2+=temp.getCost();
 			}
-			MixedGraph orig = mInstance.getGraph();
-			for(MixedEdge temp: orig.getEdges())
-			{
-				origCost += temp.getCost();
-			}
-			
-			boolean ans1Okay = CommonAlgorithms.isValidAugmentation(orig, ans1);
-			boolean ans2Okay = CommonAlgorithms.isValidAugmentation(orig, ans2);
-			if(!ans1Okay || !ans2Okay || !CommonAlgorithms.isStronglyEulerian(ans1) || !CommonAlgorithms.isStronglyEulerian(ans2))
-				System.out.println("BADD");
-			System.out.println("Total cost (original): " + origCost);
-			System.out.println("Total cost (Mixed 1): " + cost1);
-			System.out.println("Cost Difference: " + (cost1 - origCost));
-			System.out.println("Total cost (Mixed 2): " + cost2);
-			System.out.println("Cost Difference: " + (cost2 - origCost));
-
 
 			ArrayList<Route> ret = new ArrayList<Route>();
 			ArrayList<Integer> tour;

@@ -21,6 +21,7 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.problem.impl.MixedCPP;
+import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -113,43 +114,6 @@ public class ImprovedMCPPSolver extends Solver {
 					CostMod1(Gij1, gEdgeContainers, Em, Am); //cost mod 1 on Gij1
 					CostMod2(Gij1, G, gEdgeContainers, i, j); //cost mod 2 on Gij1
 					CostMod2(Gij2, G, gEdgeContainers, i, j); //cost mod 2 on Gij2
-
-					/**
-					 * CHECK THE CONNECTEDNESS OF GIJ1 and GIJ2 FOR DEBUGGING
-					 */
-					/*int ndebug = Gij2.getVertices().size();
-					int mdebug = 0;
-					int[] componentdebug = new int[ndebug+1];
-					for(MixedEdge edebug: Gij2.getEdges())
-					{
-						if(edebug.isDirected())
-							mdebug++;
-						else
-							mdebug+=2;
-					}
-					int[] nodei = new int[mdebug+1];
-					int[] nodej = new int[mdebug+1];
-					int tempdebug = 1;
-					for(MixedEdge edebug: Gij2.getEdges())
-					{
-						if(edebug.isDirected())
-						{
-							nodei[tempdebug] = edebug.getTail().getId();
-							nodej[tempdebug] = edebug.getHead().getId();
-							tempdebug++;
-						}
-						else
-						{
-							nodei[tempdebug] = edebug.getEndpoints().getFirst().getId();
-							nodej[tempdebug] = edebug.getEndpoints().getSecond().getId();
-							tempdebug++;
-							nodei[tempdebug] = edebug.getEndpoints().getSecond().getId();
-							nodej[tempdebug] = edebug.getEndpoints().getFirst().getId();
-							tempdebug++;
-						}
-
-					}
-					CommonAlgorithms.stronglyConnectedComponents(ndebug, mdebug, nodei, nodej, componentdebug);*/
 
 					HashMap<Integer, MixedVertex> gij2Vertices = Gij2.getInternalVertexMap(); //indexed edges of Gij2 for calculating costs
 
@@ -390,26 +354,19 @@ public class ImprovedMCPPSolver extends Solver {
 					G.addEdge(new MixedEdge("final", e.getEndpoints(),e.getCost(), true));
 				}
 			}
-			if(CommonAlgorithms.isStronglyEulerian(G))
-				System.out.println("Halleleujah!!!");
-			int debugCost1 = 0;
-			int debugCost2 = 0;
-			for(MixedEdge debug: mInstance.getGraph().getEdges())
+			
+			ArrayList<Route> ret = new ArrayList<Route>();
+			ArrayList<Integer> tour;
+			tour = CommonAlgorithms.tryHierholzer(G);
+			Tour eulerTour = new Tour();
+			HashMap<Integer, MixedEdge> indexedEdges = G.getInternalEdgeMap();
+			for (int k=0;k<tour.size();k++)
 			{
-				debugCost1 += debug.getCost();
+				eulerTour.appendEdge(indexedEdges.get(tour.get(k)));
 			}
-			System.out.println("Original Cost is: " + debugCost1);
-			debugCost2 = 0;
-			for(MixedEdge debug: G.getEdges())
-			{
-				debugCost2 += debug.getCost();
-			}
-			if(!CommonAlgorithms.isValidAugmentation(mInstance.getGraph(), G) || !CommonAlgorithms.isStronglyEulerian(G))
-				System.out.println("BADD");
-			System.out.println("Final Cost is: " + debugCost2);
-			System.out.println("Cost difference is: " + (debugCost2-debugCost1));
+			ret.add(eulerTour);
 
-			return null;
+			return ret;
 		} catch(Exception ex)
 		{
 			ex.printStackTrace();

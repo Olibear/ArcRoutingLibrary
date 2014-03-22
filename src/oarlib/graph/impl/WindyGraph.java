@@ -49,16 +49,14 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 	}
 
 	public void addEdge(int i, int j, String desc, int cost, int reverseCost, boolean isRequired)
-			throws InvalidEndpointsException
-			{
+			throws InvalidEndpointsException {
 		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost, isRequired));
-			}
+	}
 
 	public void addEdge(int i, int j, String desc, int cost, int reverseCost, int matchId, boolean isRequired)
-			throws InvalidEndpointsException
-			{
+			throws InvalidEndpointsException {
 		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost, isRequired), matchId);
-			}
+	}
 
 	@Override
 	public void addEdge(WindyEdge e) throws InvalidEndpointsException{

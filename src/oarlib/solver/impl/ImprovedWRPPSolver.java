@@ -23,6 +23,7 @@ import oarlib.graph.util.Pair;
 import oarlib.problem.impl.DirectedRPP;
 import oarlib.problem.impl.WindyCPP;
 import oarlib.problem.impl.WindyRPP;
+import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
@@ -50,25 +51,42 @@ public class ImprovedWRPPSolver extends Solver{
 		try
 		{
 			WindyGraph copy = mInstance.getGraph().getDeepCopy();
+			
+			/*
+			 * Connect up the required components of the graph, just as in WRPP1.
+			 * Match ids in windyReq correspond to edge ids in copy after this.
+			 */
 			WindyGraph windyReq = WRPPSolver.connectRequiredComponents(copy);
 			
-			
-			//START REGULAR WINDY SOLVER
-			//calculate average cost
+			//calculate average cost of edges in Er', so add up (cij + cji)/2, and then divide by num edges of windyReq
 			double averageCost = calculateAverageCost(windyReq);
 
 			//construct E1 and E2
 			HashSet<Integer> E1 = new HashSet<Integer>();
 			HashSet<Integer> E2 = new HashSet<Integer>();
-			buildEdgeSets(E1, E2, windyReq, averageCost);
+			
+			/*
+			 * Build out the edge sets E1 and E2, which hold the particularly asymmetric edges from windyReq, and
+			 * the everyone else respectively. We do so by searching windyReq for asymmetric edges, and adding their
+			 * match ids (ids in copy) to E1.  Then we go through copy's edges, and add the rest to E2. 
+			 */
+			buildEdgeSets(E1, E2, windyReq, copy, averageCost);
 
-			// build Gdr
+			/*
+			 * Build Gdr, which is a graph that has only the edges in E1 in it as arcs directed in the cheap direction.
+			 * The purpose of doing so is to set demands for the flow problem we're about to solve.
+			 */
 			DirectedGraph Gdr = buildGdr(copy, E1);
 			HashSet<Integer> L = new HashSet<Integer>();
 			if(!CommonAlgorithms.isEulerian(Gdr))
 			{
 
-				//build Gaux
+				/*
+				 * Build Gaux, which is a graph that is the directed graph induced by copy, PLUS
+				 * an extra arc for each edge in E1 in the expensive direction, with cost = (cji - cij)/2.
+				 * The match ids here will be ids in copy for the inf. capacity arcs, and -1 for the 
+				 * artificial ones. 
+				 */
 				DirectedGraph Gaux = buildGaux(copy, E1);
 
 				//set up the flow problem on Gaux using demands from Gdr
@@ -82,15 +100,45 @@ public class ImprovedWRPPSolver extends Solver{
 				//solve the flow problem on Gaux with demands from Gdr
 				int flowanswer[] = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(Gaux);
 
-				//create L
-				L = buildL(Gaux, E1, E2, flowanswer);
+				/*
+				 * Create a list of ids L (in copy) which represent guys that are likely to appear in the min cost flow
+				 * solution we solve to construct the optimal windy tour. 
+				 */
+				L = buildL(Gaux, E1, E2, flowanswer); 
 			}
-
-			//euler augment
+			else
+			{
+				System.out.println("debug");
+			}
+			System.out.println(L);
+			/*
+			 * Perform the same euler augmentation process the same as in WRPP1, except that this time, 
+			 * when we solve the matching, we want the edges we marked in L to be of zero cost
+			 * to coerce the matching to use these.
+			 */
 			eulerAugment(copy, windyReq, L);
 			DirectedGraph ans = WRPPSolver.constructOptimalWindyTour(windyReq);
+
+			boolean okay = WRPPSolver.isValidAugmentation(copy, ans);
+
 			WRPPSolver.eliminateRedundantCycles(ans, windyReq, copy);
-			return null;
+
+			boolean okay2 = WRPPSolver.isValidAugmentation(copy, ans);
+
+			if(!okay || !okay2)
+				System.out.println("BAD");
+
+			ArrayList<Route> ret = new ArrayList<Route>();
+			ArrayList<Integer> tour;
+			tour = CommonAlgorithms.tryHierholzer(ans);
+			Tour eulerTour = new Tour();
+			HashMap<Integer, Arc> indexedEdges = ans.getInternalEdgeMap();
+			for (int i=0;i<tour.size();i++)
+			{
+				eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
+			}
+			ret.add(eulerTour);
+			return ret;
 		}
 		catch (Exception e)
 		{
@@ -104,32 +152,30 @@ public class ImprovedWRPPSolver extends Solver{
 
 		try
 		{
-			//the windy graph, but with edges that carry the average cost of each traversal.
-			UndirectedGraph averageGraph = new UndirectedGraph();
 			int n = fullGraph.getVertices().size();
 			int m = fullGraph.getEdges().size();
-			for (int i = 1; i < n+1; i++)
+
+			//alter the distances in fullGraph; setting the L guys to 0
+			WindyGraph fullGraphCopy = new WindyGraph();
+			for(int i = 1; i <= n; i++)
 			{
-				averageGraph.addVertex(new UndirectedVertex("orig"), i);
+				fullGraphCopy.addVertex(new WindyVertex("orig"));
 			}
-			HashMap<Integer, UndirectedVertex> averageVertices = averageGraph.getInternalVertexMap();
-			HashMap<Integer, WindyEdge> windyEdges = fullGraph.getInternalEdgeMap();
-			WindyEdge e;
-			//add the sum of the cost and reverse cost (so that it's still an integer).
-			for(int i = 1; i < m+1; i++)
+			HashMap<Integer, WindyEdge> fullGraphEdges = fullGraph.getInternalEdgeMap();
+			WindyEdge temp;
+			for(int i = 1; i <= m; i++)
 			{
-				e = windyEdges.get(i);
-				if(L.contains(e.getId()))
-					averageGraph.addEdge(new Edge("orig", new Pair<UndirectedVertex>(averageVertices.get(e.getEndpoints().getFirst().getId()), averageVertices.get(e.getEndpoints().getSecond().getId())), 0));
+				temp = fullGraphEdges.get(i);
+				if(L.contains(i)) //add with zero cost
+					fullGraphCopy.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "orig", 0, 0);
 				else
-					averageGraph.addEdge(new Edge("orig", new Pair<UndirectedVertex>(averageVertices.get(e.getEndpoints().getFirst().getId()), averageVertices.get(e.getEndpoints().getSecond().getId())), (e.getCost() + e.getReverseCost())/2));
+					fullGraphCopy.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "orig", temp.getCost(), temp.getReverseCost());
 			}
 
-			//solve shortest paths in averageGraph
 			int[][] dist = new int[n+1][n+1];
 			int[][] path = new int[n+1][n+1];
 			int[][] edgePath = new int[n+1][n+1];
-			CommonAlgorithms.fwLeastCostPaths(averageGraph, dist, path, edgePath);
+			CommonAlgorithms.fwLeastCostPaths(fullGraphCopy, dist, path, edgePath);
 
 			//setup the complete graph composed entirely of the unbalanced vertices
 			UndirectedGraph matchingGraph = new UndirectedGraph();
@@ -145,14 +191,28 @@ public class ImprovedWRPPSolver extends Solver{
 
 			//connect with least cost edges
 			Collection<UndirectedVertex> oddVertices = matchingGraph.getVertices();
+			HashMap<Pair<Integer>, Boolean> traverseIj = new HashMap<Pair<Integer>, Boolean>(); //key is (i,j) where i < j, and value is true if the shortest average path cost is i to j, false if it's j to i
+			double costCandidate1, costCandidate2;
 			for (UndirectedVertex v: oddVertices)
 			{
 				for (UndirectedVertex v2: oddVertices)
 				{
 					//only add one edge per pair of vertices
-					if(v.getId() <= v2.getId())
+					if(v.getId() >= v2.getId())
 						continue;
-					matchingGraph.addEdge(new Edge("matchingEdge",new Pair<UndirectedVertex>(v,v2), dist[v.getMatchId()][v2.getMatchId()]));
+
+					costCandidate1 = calculateAveragePathCost(fullGraphCopy, v.getMatchId(), v2.getMatchId(), path, edgePath);
+					costCandidate2 = calculateAveragePathCost(fullGraphCopy, v2.getMatchId(), v.getMatchId(), path, edgePath);
+					if(costCandidate1 <= costCandidate2)
+					{
+						matchingGraph.addEdge(new Edge("matchingEdge",new Pair<UndirectedVertex>(v,v2), (int)(2*costCandidate1)));
+						traverseIj.put(new Pair<Integer>(v.getId(), v2.getId()), true);
+					}
+					else
+					{
+						matchingGraph.addEdge(new Edge("matchingEdge", new Pair<UndirectedVertex>(v2,v), (int)(2*costCandidate2)));
+						traverseIj.put(new Pair<Integer>(v.getId(), v2.getId()), false);
+					}
 				}
 			}
 
@@ -161,18 +221,43 @@ public class ImprovedWRPPSolver extends Solver{
 			//now add the corresponding edges back in the windy graph
 			int curr, end, next, nextEdge;
 			HashMap<Integer, WindyEdge> indexedEdges = fullGraph.getInternalEdgeMap();
-			WindyEdge temp;
 			for(Pair<UndirectedVertex> p :matchingSolution)
 			{
-				curr = p.getFirst().getMatchId();
-				end = p.getSecond().getMatchId();
+				//minCostMatching doesn't discriminate between 1 - 2 and 2 - 1 so we need to
+				if(p.getFirst().getId() < p.getSecond().getId())
+				{
+					if(traverseIj.get(new Pair<Integer>(p.getFirst().getId(), p.getSecond().getId())))
+					{
+						curr = p.getFirst().getMatchId();
+						end = p.getSecond().getMatchId();
+					}
+					else
+					{
+						curr = p.getSecond().getMatchId();
+						end = p.getFirst().getMatchId();
+					}
+				}
+				else
+				{
+					if(traverseIj.get(new Pair<Integer>(p.getSecond().getId(), p.getFirst().getId())))
+					{
+						curr = p.getSecond().getMatchId();
+						end = p.getFirst().getMatchId();
+					}
+					else
+					{
+						curr = p.getFirst().getMatchId();
+						end = p.getSecond().getMatchId();
+					}
+				}
+				
 				next = 0;
 				nextEdge = 0;
 				do {
 					next = path[curr][end];
 					nextEdge = edgePath[curr][end];
 					temp = indexedEdges.get(nextEdge);
-					g.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "to make even", temp.getCost(), temp.getReverseCost() ,nextEdge);
+					g.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "to make even", temp.getCost(), temp.getReverseCost() ,nextEdge, temp.isRequired());
 				} while ( (curr = next) != end);
 			}
 
@@ -213,7 +298,7 @@ public class ImprovedWRPPSolver extends Solver{
 			DirectedGraph ans = new DirectedGraph();
 			//the vertex set is the same as g
 			int n = g.getVertices().size();
-			for(int i = 0; i < n; i++)
+			for(int i = 1; i <= n; i++)
 			{
 				ans.addVertex(new DirectedVertex("Gdr"));
 			}
@@ -245,7 +330,7 @@ public class ImprovedWRPPSolver extends Solver{
 		try {
 			DirectedGraph ans = new DirectedGraph();
 			int n = fullGraph.getVertices().size();
-			for(int i = 0; i < n; i++)
+			for(int i = 1; i <= n; i++)
 			{
 				ans.addVertex(new DirectedVertex("Gaux"));
 			}
@@ -297,31 +382,52 @@ public class ImprovedWRPPSolver extends Solver{
 	}
 
 
-	private static void buildEdgeSets(HashSet<Integer> e1, HashSet<Integer> e2, WindyGraph g, double averageCost)
+	private static void buildEdgeSets(HashSet<Integer> e1, HashSet<Integer> e2, WindyGraph windyReq, WindyGraph fullGraph, double averageCost)
 	{
 		double costDiff;
 		double threshold = K * averageCost;
-		for(WindyEdge e: g.getEdges())
+		for(WindyEdge e: windyReq.getEdges())
 		{
 			costDiff = Math.abs(e.getCost() - e.getReverseCost());
 			if(costDiff > threshold )
 				e1.add(e.getMatchId());
-			else
-				e2.add(e.getMatchId());
+		}
+		for(WindyEdge e: fullGraph.getEdges())
+		{
+			if(!e1.contains(e.getId()))
+				e2.add(e.getId());
 		}
 	}
 
 	private static double calculateAverageCost(WindyGraph g)
 	{
 		double ans = 0;
-		int m = 2 * g.getEdges().size();
+		double m = 2.0 * g.getEdges().size();
 		for(WindyEdge e: g.getEdges())
 		{
 			ans += (e.getCost() + e.getReverseCost());
 		}
 		return ans/m;
 	}
-	
+
+	private static double calculateAveragePathCost(WindyGraph g, int i, int j, int[][] path, int[][] edgePath)
+	{
+		int curr, end, next, ans;
+		curr = i;
+		end = j;
+		ans = 0;
+		WindyEdge temp;
+		HashMap<Integer, WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
+		do
+		{
+			next = path[curr][end];
+			temp = indexedWindyEdges.get(edgePath[curr][end]);
+			ans += temp.getCost() + temp.getReverseCost();
+
+		}while((curr = next) != end);
+		return ans/2.0;
+	}
+
 
 	@Override
 	public Type getProblemType() {
