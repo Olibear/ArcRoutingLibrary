@@ -9,10 +9,10 @@ package oarlib.graph.util;
  * @param weights - edge i has cost weights[i]
  * @return - say how this gets formatted.
  */
-public class CAlgorithms {
+public class BlossomV {
 	public native static int[] blossomV(int n, int m, int[] edges, int[] weights);
 	static {
-		System.loadLibrary("oarlib_graph_util_CAlgorithms");
+		System.loadLibrary("BlossomV");
 	}
 
 }
