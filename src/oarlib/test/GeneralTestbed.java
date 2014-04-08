@@ -26,6 +26,7 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.Format;
 import oarlib.graph.io.GraphReader;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
 import oarlib.problem.impl.DirectedCPP;
 import oarlib.problem.impl.MixedCPP;
@@ -53,13 +54,30 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		//testConnectedComponents();
+		//testMSArbor();
 		validateImprovedWRPPSolver();
 	}
 	private static void check(Link<?> a)
 	{
 		if (a.getClass() == Arc.class)
 			System.out.println("WEEEE");
+	}
+	private static void testMSArbor()
+	{
+		int n = 3;
+		int m = 6;
+		int[] weights = new int[n * (n-1)];
+		weights[0] = 1000; //0-0
+		weights[1] = 6; //0-1
+		weights[2] = 5; //1-0
+		weights[3] = 1000; //1-1
+		weights[4] = 2; //2-0
+		weights[5] = 3; //2-1
+		int[] ans = MSArbor.msArbor(n, m, weights);
+		for (int i = 0; i < ans.length; i ++)
+		{
+			System.out.println(ans[i]);
+		}
 	}
 	private static void testConnectedComponents()
 	{

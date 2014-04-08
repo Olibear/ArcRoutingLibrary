@@ -3416,7 +3416,7 @@ public class CommonAlgorithms {
 			edges[2*e.getId()-1] = e.getEndpoints().getSecond().getId() - 1;
 			weights[e.getId()-1] = e.getCost();
 		}
-		int[] ans = CAlgorithms.blossomV(n, m, edges, weights);
+		int[] ans = BlossomV.blossomV(n, m, edges, weights);
 
 		//to make sure we only report unique pairs, (and not, say 0-1 and 1-0).
 		ArrayList<Integer> matched = new ArrayList<Integer>();
