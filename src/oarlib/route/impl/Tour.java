@@ -3,7 +3,6 @@ package oarlib.route.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Route;
@@ -50,7 +49,7 @@ public class Tour extends Route {
 
 	@Override
 	public boolean checkRoutes(Graph<? extends Vertex, Link<? extends Vertex>> g) {
-		if(mRoute.get(0).getEndpoints().getFirst() == mRoute.get(mRoute.size()-1).getEndpoints().getSecond())
+		if(mRoute.get(0).getEndpoints().getFirst().getId() == mRoute.get(mRoute.size()-1).getEndpoints().getSecond().getId())
 			return true;
 		return false;
 		

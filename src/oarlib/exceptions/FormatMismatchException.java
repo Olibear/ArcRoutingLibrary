@@ -8,6 +8,10 @@ package oarlib.exceptions;
  *
  */
 public class FormatMismatchException extends Exception{
+	/**
+	 * Auto-generated serialVersionUID
+	 */
+	private static final long serialVersionUID = 320275301493290688L;
 	public FormatMismatchException() { super(); }
 	public FormatMismatchException(String message) { super(message); }
 	public FormatMismatchException(String message, Throwable cause) {super(message,cause);}

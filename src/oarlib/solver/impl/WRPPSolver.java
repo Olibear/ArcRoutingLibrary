@@ -9,7 +9,6 @@ import java.util.Set;
 
 import oarlib.core.Arc;
 import oarlib.core.Edge;
-import oarlib.core.MixedEdge;
 import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
 import oarlib.core.Route;
@@ -20,7 +19,6 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
-import oarlib.problem.impl.WindyCPP;
 import oarlib.problem.impl.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
@@ -209,8 +207,8 @@ public class WRPPSolver extends Solver{
 					realComponents.add(i);
 			}
 
-			int comp1, comp2, pathLength;
-			Double averagePathCost1, averagePathCost2;
+			int comp1, comp2;
+			Double averagePathCost1;
 			HashMap<Pair<Integer>, Integer> minCostPathVal = new HashMap<Pair<Integer>, Integer>(); //key is components being connected, value is best cost btw them.
 			HashMap<Pair<Integer>, Pair<Integer>> minCostPathNodes = new HashMap<Pair<Integer>, Pair<Integer>>();
 			Pair<Integer> tempKey;
@@ -410,7 +408,6 @@ public class WRPPSolver extends Solver{
 			}
 
 			int flowanswer[] = solvePseudoMinCostFlow(flowGraph);
-			int[][] lauFlow = CommonAlgorithms.minCostNetworkFlow(flowGraph);
 
 			int[][] dist = new int[n+1][n+1];
 			int[][] path = new int[n+1][n+1];
@@ -791,7 +788,6 @@ public class WRPPSolver extends Solver{
 		try
 		{
 			int n = fullGraph.getVertices().size(); //num vertices
-			int m = fullGraph.getEdges().size(); // num edges
 
 			//solve shortest paths in fullGraph
 			int[][] dist = new int[n+1][n+1];

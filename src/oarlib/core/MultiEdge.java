@@ -1,7 +1,5 @@
 package oarlib.core;
 
-import java.util.Stack;
-
 import oarlib.exceptions.WrongEdgeTypeException;
 
 /**

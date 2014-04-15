@@ -9,7 +9,8 @@ import oarlib.core.Vertex;
 import oarlib.exceptions.InvalidEndpointsException;
 
 /**
- * A mutable graph.  Perf will be worse than a finalized one, but allows for experimentation.
+ * A mutable graph.  In the future, plans are to optimize performance by writing a finalized one with
+ * immutable data structures that have faster access time.
  * @author Oliver
  *
  */

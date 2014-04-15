@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.graph.util.Pair;
 import oarlib.core.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;

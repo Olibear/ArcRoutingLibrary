@@ -8,8 +8,6 @@ import java.util.List;
 import oarlib.core.Arc;
 import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
-import oarlib.exceptions.NoCapacitySetException;
-import oarlib.exceptions.NoDemandSetException;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.DirectedVertex;
 /**
@@ -69,10 +67,17 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 		List<Arc> ret = new ArrayList<Arc>();
 		DirectedVertex first = endpoints.getFirst();
 		HashMap<DirectedVertex, ArrayList<Arc>> firstNeighbors = first.getNeighbors();
+		if(!firstNeighbors.containsKey(endpoints.getSecond()))
+			return new ArrayList<Arc>();
 		ret.addAll(firstNeighbors.get(endpoints.getSecond()));
-		DirectedVertex second = endpoints.getSecond();
-		HashMap<DirectedVertex, ArrayList<Arc>> secondNeighbors = second.getNeighbors();
-		ret.addAll(secondNeighbors.get(endpoints.getFirst()));
+		
+		
+		/*
+		 * THIS IS THE ONLY CASE WHERE WE IGNORE THIS, IN MIXED, WE ALSO DO BIDIRECTIONAL
+		 */
+		//DirectedVertex second = endpoints.getSecond();
+		//HashMap<DirectedVertex, ArrayList<Arc>> secondNeighbors = second.getNeighbors();
+		//ret.addAll(secondNeighbors.get(endpoints.getFirst()));
 		return ret;
 	}
 
@@ -111,7 +116,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 					a2.setCapacity(a.getCapacity());
 				a2.setRequired(a.isRequired());
 				a2.setMatchId(a.getId());
-				ans.addEdge(a2, a.getId());
+				ans.addEdge(a2);
 			}
 			return ans;
 		} catch(Exception e) {

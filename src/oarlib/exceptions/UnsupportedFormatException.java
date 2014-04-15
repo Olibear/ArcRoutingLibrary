@@ -8,6 +8,10 @@ package oarlib.exceptions;
  *
  */
 public class UnsupportedFormatException extends Exception{
+	/**
+	 * Auto-generated serialVersionUID
+	 */
+	private static final long serialVersionUID = 9205310880093097003L;
 	public UnsupportedFormatException() { super(); }
 	public UnsupportedFormatException(String message) { super(message); }
 	public UnsupportedFormatException(String message, Throwable cause) {super(message,cause);}

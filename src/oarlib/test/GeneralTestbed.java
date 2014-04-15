@@ -8,7 +8,6 @@ import gurobi.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Stack;
 
 import oarlib.core.Arc;
 import oarlib.core.Edge;
@@ -16,7 +15,6 @@ import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.MixedEdge;
 import oarlib.core.Route;
-import oarlib.core.WindyEdge;
 import oarlib.graph.graphgen.DirectedGraphGenerator;
 import oarlib.graph.graphgen.UndirectedGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
@@ -29,23 +27,20 @@ import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
 import oarlib.problem.impl.DirectedCPP;
+import oarlib.problem.impl.DirectedRPP;
 import oarlib.problem.impl.MixedCPP;
 import oarlib.problem.impl.UndirectedCPP;
-import oarlib.problem.impl.WindyCPP;
 import oarlib.problem.impl.WindyRPP;
 import oarlib.solver.impl.DCPPSolver;
+import oarlib.solver.impl.DRPPSolver;
 import oarlib.solver.impl.ImprovedMCPPSolver;
-import oarlib.solver.impl.ImprovedWPPSolver;
 import oarlib.solver.impl.ImprovedWRPPSolver;
 import oarlib.solver.impl.MCPPSolver;
 import oarlib.solver.impl.UCPPSolver;
-import oarlib.solver.impl.WPPSolver;
-import oarlib.solver.impl.WRPP2Solver;
 import oarlib.solver.impl.WRPPSolver;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
-import oarlib.vertex.impl.WindyVertex;
 
 public class GeneralTestbed {
 
@@ -54,31 +49,170 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
+		//validateSimplifyGraph();
+		//testDRPPSolver();
+		//testCamposGraphReader();
 		//testMSArbor();
-		validateImprovedWRPPSolver();
+		//validateImprovedWRPPSolver();
 	}
+	@SuppressWarnings("unused")
 	private static void check(Link<?> a)
 	{
 		if (a.getClass() == Arc.class)
 			System.out.println("WEEEE");
 	}
-	private static void testMSArbor()
+	@SuppressWarnings("unused")
+	private static void validateSimplifyGraph()
 	{
-		int n = 3;
-		int m = 6;
-		int[] weights = new int[n * (n-1)];
-		weights[0] = 1000; //0-0
-		weights[1] = 6; //0-1
-		weights[2] = 5; //1-0
-		weights[3] = 1000; //1-1
-		weights[4] = 2; //2-0
-		weights[5] = 3; //2-1
-		int[] ans = MSArbor.msArbor(n, m, weights);
-		for (int i = 0; i < ans.length; i ++)
+		try
 		{
-			System.out.println(ans[i]);
+			DirectedGraph test = new DirectedGraph();
+			for(int i = 0; i < 13; i ++)
+			{
+				test.addVertex(new DirectedVertex("test"));
+			}
+			test.addEdge(1, 2, "orig", 2, true);
+			test.addEdge(4, 5, "orig", 3, true);
+
+			test.addEdge(3, 1, "orig", 5, false);
+			test.addEdge(2, 3, "orig", 4, true);
+			test.addEdge(2, 13, "orig", 7, false);
+			test.addEdge(13, 4, "orig", 4, false);
+			test.addEdge(4, 7, "orig", 6, false);
+			test.addEdge(6, 4, "orig", 3, true);
+			test.addEdge(5, 6, "orig", 5, true);
+			test.addEdge(6, 5, "orig", 3, false);
+
+			test.addEdge(3, 8, "orig", 3, false);
+			test.addEdge(12, 3, "orig", 7, false);
+			test.addEdge(12, 13, "orig", 9, false);
+			test.addEdge(6, 7, "orig", 4, true);
+
+			test.addEdge(9, 12, "orig", 5, false);
+			test.addEdge(11, 12, "orig", 2, false);
+			test.addEdge(7, 11, "orig", 8, false);
+			test.addEdge(11, 7, "orig", 3, false);
+
+			test.addEdge(8, 9, "orig", 4, true);
+			test.addEdge(9, 10, "orig", 1, true);
+			test.addEdge(10, 11, "orig", 6, true);
+
+			test.addEdge(11, 10, "orig", 3, false);
+			test.addEdge(10, 9, "orig", 5, true);
+			test.addEdge(9, 8, "orig", 3, true);
+
+
+			DirectedRPP validInstance = new DirectedRPP(test);
+			DRPPSolver validSolver = new DRPPSolver(validInstance);
+			validSolver.trySolve();
+
+		} catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
+	private static void testDRPPSolver()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Campos);
+		try
+		{
+			DirectedRPP validInstance;
+			DRPPSolver validSolver;
+			Collection<Route> validAns;
+
+			File testInstanceFolder = new File("/Users/oliverlum/Downloads/Instances");
+			PrintWriter pw = new PrintWriter("/Users/oliverlum/Desktop/drpp.txt", "UTF-8");
+			long start;
+			long end;
+
+			for(final File testInstance: testInstanceFolder.listFiles())
+			{
+				int bestCost = Integer.MAX_VALUE;
+				for(int i = 0; i < 1; i++)
+				{
+					String temp = testInstance.getName();
+					System.out.println(temp);
+					if(!temp.endsWith(".0") && !temp.endsWith(".1") && !temp.endsWith(".1_3") && !temp.endsWith(".2_3") && !temp.endsWith(".3_3"))
+						continue;
+					Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/Instances/" + temp);
+
+					if(g.getClass() == DirectedGraph.class)
+					{
+						DirectedGraph g2 = (DirectedGraph)g;
+						validInstance = new DirectedRPP(g2);
+						validSolver = new DRPPSolver(validInstance);
+						start = System.nanoTime();
+						validAns = validSolver.trySolve();
+						end = System.nanoTime();
+						for(Route r: validAns)
+							if(r.getCost() < bestCost)
+								bestCost = r.getCost();
+						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
+					}
+				}
+				if(bestCost == Integer.MAX_VALUE)
+					continue;
+				System.out.println("bestCost: " + bestCost);
+				//pw.println(bestCost + ";");
+			}
+			pw.close();
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
+	@SuppressWarnings("unused")
+	private static void testMSArbor()
+	{
+		try
+		{
+			int n = 3;
+			int m = 6;
+			int[] weights = new int[n * (n-1)];
+			weights[0] = 1000; //0-0
+			weights[1] = 6; //0-1
+			weights[2] = 5; //1-0
+			weights[3] = 1000; //1-1
+			weights[4] = 2; //2-0
+			weights[5] = 10; //2-1
+			int[] ans = MSArbor.msArbor(n, m, weights);
+			//for (int i = 0; i < ans.length; i ++)
+			//{
+				//System.out.println(ans[i]);
+			//}
+
+			DirectedGraph test = new DirectedGraph();
+			test.addVertex(new DirectedVertex("orig"));
+			test.addVertex(new DirectedVertex("orig"));
+			test.addVertex(new DirectedVertex("orig"));
+
+			test.addEdge(1,2,"orig",6);
+			test.addEdge(2,1,"orig",5);
+			test.addEdge(3,1,"orig",2);
+			test.addEdge(3,2,"orig",3);
+			test.addEdge(1,3,"orig",1);
+			test.addEdge(2,3,"orig",4);
+			
+			HashMap<Integer, Arc> testArcs = test.getInternalEdgeMap();
+			test.removeEdge(testArcs.get(3));
+			test.removeEdge(testArcs.get(4));
+			test.removeEdge(testArcs.get(1));
+			test.removeEdge(testArcs.get(6));
+			
+			HashSet<Integer> msa = CommonAlgorithms.minSpanningArborescence(test, 2);
+			
+			for(Integer i : msa)
+				System.out.println(i);
+			
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	@SuppressWarnings("unused")
 	private static void testConnectedComponents()
 	{
 		UndirectedGraph test = new UndirectedGraph();
@@ -94,6 +228,7 @@ public class GeneralTestbed {
 		CommonAlgorithms.connectedComponents(n, m, nodei, nodej, component);
 		System.out.println(component[0]);
 	}
+	@SuppressWarnings("unused")
 	private static void testMST()
 	{
 		try
@@ -140,9 +275,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 			return;
 		}
-
-
 	}
+	@SuppressWarnings("unused")
 	private static void testDirectedGraphGenerator()
 	{
 		long start = System.currentTimeMillis();
@@ -150,8 +284,8 @@ public class GeneralTestbed {
 		DirectedGraph g = (DirectedGraph) dgg.generateGraph(1000, 10, true);
 		long end = System.currentTimeMillis();
 		System.out.println(end-start);
-		System.out.println("check things");
 	}
+	@SuppressWarnings("unused")
 	private static void testUndirectedGraphGenerator()
 	{
 		long start = System.currentTimeMillis();
@@ -159,9 +293,9 @@ public class GeneralTestbed {
 		UndirectedGraph g = (UndirectedGraph) ugg.generateGraph(1000, 10, true);
 		long end = System.currentTimeMillis();
 		System.out.println(end - start);
-		System.out.println("check things");
 	}
-	private static void testGraphReader()
+	@SuppressWarnings("unused")
+	private static void testSimpleGraphReader()
 	{
 		GraphReader gr = new GraphReader(Format.Name.Simple);
 		try 
@@ -177,6 +311,23 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	@SuppressWarnings("unused")
+	private static void testCamposGraphReader()
+	{
+		GraphReader gr = new GraphReader(Format.Name.Campos);
+		try
+		{
+			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/Instances/P80-10-1.0");
+			if(g.getClass() == DirectedGraph.class)
+			{
+				DirectedGraph g2 = (DirectedGraph)g;
+			}
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	@SuppressWarnings("unused")
 	private static void testCorberanGraphReader()
 	{
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
@@ -229,6 +380,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	@SuppressWarnings("unused")
 	private static void testFredericksons()
 	{
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
@@ -266,6 +418,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	@SuppressWarnings("unused")
 	private static void validateImprovedMCPPSolver()
 	{
 		GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
@@ -307,6 +460,7 @@ public class GeneralTestbed {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static void validateMCPPSolvers()
 	{
 		GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
@@ -363,6 +517,8 @@ public class GeneralTestbed {
 			return;
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void testYaoyuenyong()
 	{
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
@@ -398,6 +554,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void validateWRPPSolver()
 	{
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
@@ -448,59 +606,8 @@ public class GeneralTestbed {
 			return;
 		}
 	}
-	private static void validateWRPP2Solver()
-	{
-		GraphReader gr = new GraphReader(Format.Name.Corberan);
-		try
-		{
-			WindyRPP validInstance;
-			WRPP2Solver validSolver;
-			Collection<Route> validAns;
-
-			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WRPP");
-			PrintWriter pw = new PrintWriter("/Users/oliverlum/Desktop/wrpp2.txt", "UTF-8");
-			long start;
-			long end;
-
-			for(final File testInstance: testInstanceFolder.listFiles())
-			{
-				int bestCost = Integer.MAX_VALUE;
-				for(int i = 0; i < 10; i++)
-				{
-					String temp = testInstance.getName();
-					System.out.println(temp);
-					if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
-						continue;
-					Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
-
-					if(g.getClass() == WindyGraph.class)
-					{
-						WindyGraph g2 = (WindyGraph)g;
-						validInstance = new WindyRPP(g2);
-						validSolver = new WRPP2Solver(validInstance);
-						start = System.nanoTime();
-						validAns = validSolver.trySolve();
-						for(Route r: validAns)
-							if(r.getCost() < bestCost)
-							{
-								bestCost = r.getCost();
-								System.out.println("True cost: " + r.getCost());
-							}
-						end = System.nanoTime();
-						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
-					}
-				}
-				if(bestCost == Integer.MAX_VALUE)
-					continue;
-				pw.println(bestCost + ";");
-			}
-			pw.close();
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-			return;
-		}
-	}
+	
+	@SuppressWarnings("unused")
 	private static void validateImprovedWRPPSolver()
 	{
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
@@ -551,6 +658,8 @@ public class GeneralTestbed {
 			return;
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void validateEulerTour()
 	{
 		try{
@@ -657,6 +766,7 @@ public class GeneralTestbed {
 	/**
 	 * Compare solutions to the methods provided by Lau.
 	 */
+	@SuppressWarnings("unused")
 	private static void validateMinCostFlow()
 	{
 		try{
@@ -707,6 +817,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void timeMinCostFlow()
 	{
 		try{
@@ -754,6 +866,7 @@ public class GeneralTestbed {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static void validateMinCostFlow2()
 	{
 		try{
@@ -807,6 +920,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void timeMinCostFlow2(){
 		try{
 			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
@@ -849,6 +964,8 @@ public class GeneralTestbed {
 			return;
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void testMinCostFlow2()
 	{
 		DirectedGraph g = new DirectedGraph();
@@ -905,6 +1022,8 @@ public class GeneralTestbed {
 
 		System.out.println("example cost: " + cost);
 	}
+	
+	@SuppressWarnings("unused")
 	private static void validateAllPairsShortestPaths()
 	{
 		try{
@@ -1018,6 +1137,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void validateDijkstras()
 	{
 		try{
@@ -1079,6 +1200,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void validateBellmanFord()
 	{
 		try{
@@ -1156,6 +1279,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void timeAPSP()
 	{
 		try{
@@ -1189,6 +1314,8 @@ public class GeneralTestbed {
 			return;
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void validateMinCostMatching()
 	{
 		try{
@@ -1206,9 +1333,11 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
 	/**
 	 * Compare solutions to gurobi / cplex solvers
 	 */
+	@SuppressWarnings("unused")
 	private static void validateUCPPSolver()
 	{
 		try {
@@ -1342,6 +1471,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void timeUCPPSolver()
 	{
 		try {
@@ -1390,6 +1521,8 @@ public class GeneralTestbed {
 			return;
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void validateDCPPSolver()
 	{
 		try{
@@ -1509,6 +1642,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
 	private static void timeDCPPSolver()
 	{
 		try{
@@ -1560,9 +1695,11 @@ public class GeneralTestbed {
 			return;
 		}
 	}
+	
 	/**
 	 * make sure the machinery is working on toy problem.
 	 */
+	@SuppressWarnings("unused")
 	private static void testUCPPSolver()
 	{
 		try{
@@ -1601,78 +1738,8 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-	/**
-	 * make sure the machinery is working on toy problem.
-	 */
-	private static void testWPPSolver()
-	{
-		/*try
-		{
-			WindyCPP validInstance;
-			WPPSolver validSolver;
-			ImprovedWPPSolver validSolver2;
-			Collection<Route> validAns;
-
-			WindyGraph g = new WindyGraph();
-			g.addVertex(new WindyVertex("v1"));
-			g.addVertex(new WindyVertex("v2"));
-			g.addVertex(new WindyVertex("v3"));
-			g.addVertex(new WindyVertex("v4"));
-
-			g.addEdge(1,2,"orig",1,21);
-			g.addEdge(1,4,"orig",21,1);
-			g.addEdge(2,4,"orig",19,1);
-			g.addEdge(2,3,"orig",1,21);
-			g.addEdge(3,4,"orig",1,21);
-
-			validInstance = new WindyCPP(g);
-			validSolver = new WPPSolver(validInstance);
-			validSolver2 = new ImprovedWPPSolver(validInstance);
-			validAns = validSolver.trySolve();
-			validAns = validSolver2.trySolve();
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-			return;
-		}*/
-
-		GraphReader gr = new GraphReader(Format.Name.Corberan);
-		try
-		{
-			WindyCPP validInstance;
-			WPPSolver validSolver;
-			ImprovedWPPSolver validSolver2;
-			Collection<Route> validAns;
-
-			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WPP");
-			long start;
-			long end;
-
-			for(final File testInstance: testInstanceFolder.listFiles())
-			{
-				String temp = testInstance.getName();
-				System.out.println(temp);
-				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WPP/" + temp);
-				if(g.getClass() == WindyGraph.class)
-				{
-					WindyGraph g2 = (WindyGraph)g;
-					validInstance = new WindyCPP(g2);
-					validSolver = new WPPSolver(validInstance);
-					validSolver2 = new ImprovedWPPSolver(validInstance);
-					start = System.nanoTime();
-					validAns = validSolver.trySolve(); //my ans
-					validAns = validSolver2.trySolve();
-					end = System.nanoTime();
-					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
-
-				}
-			}
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-
+	
+	@SuppressWarnings("unused")
 	private static void testDCPPSolver()
 	{
 		try {

@@ -1,25 +1,17 @@
 package oarlib.graph.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 
-import oarlib.core.Arc;
-import oarlib.core.Edge;
 import oarlib.core.Graph;
-import oarlib.core.Link;
 import oarlib.core.MixedEdge;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
-import oarlib.graph.util.UnmatchedPair;
-import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
-import oarlib.vertex.impl.UndirectedVertex;
+
 
 /**
  * Representation of  Mixed Graph; that is, it can use both edges and arcs, in tandem with mixed vertices

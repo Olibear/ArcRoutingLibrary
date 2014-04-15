@@ -1,14 +1,8 @@
 package oarlib.core;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import oarlib.exceptions.NoCapacitySetException;
 import oarlib.exceptions.NoDemandSetException;
-import oarlib.vertex.impl.UndirectedVertex;
+
 
 /**
  * Vertex abstraction. Most general contract that Vertex must fulfill.

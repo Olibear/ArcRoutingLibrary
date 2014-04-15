@@ -3,14 +3,10 @@ package oarlib.graph.graphgen;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import oarlib.core.Edge;
-import oarlib.core.Graph;
 import oarlib.core.WindyEdge;
-import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
-import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
 public class WindyGraphGenerator extends GraphGenerator{

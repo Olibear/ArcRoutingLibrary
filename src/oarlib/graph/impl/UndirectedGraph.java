@@ -4,12 +4,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
-import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 /**
  * First attempts at an Undirected Graph.
@@ -85,7 +83,6 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		try {
 			UndirectedGraph ans = new UndirectedGraph();
 			HashMap<Integer, Edge> indexedEdges = this.getInternalEdgeMap();
-			HashMap<Integer, UndirectedVertex> indexedVertices = this.getInternalVertexMap();
 			UndirectedVertex temp;
 			int n = this.getVertices().size();
 			for(int i = 1; i <= n; i++)

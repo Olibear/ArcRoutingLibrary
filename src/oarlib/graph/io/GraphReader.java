@@ -46,20 +46,90 @@ public class GraphReader {
 		{
 		case Simple:
 			return readSimpleGraph(fileName);
-		case DIMACS_Modified:
-			return null;
 		case Corberan:
 			return readCorberanGraph(fileName);
 		case Yaoyuenyong:
 			return readYaoyuenyongGraph(fileName);
+		case Campos:
+			return readCamposGraph(fileName);
+		case DIMACS_Modified:
+			break;
 		}
 		throw new UnsupportedFormatException("While the format seems to have been added to the Format.Name type list,"
-				+ " there doesn't seem to be an appropriate reader method assigned to it.");
+				+ " there doesn't seem to be an appropriate reader method assigned to it.  Support is planned in the future," +
+				"but not currently available");
+	}
+	private Graph<?,?> readCamposGraph(String fileName) throws FormatMismatchException
+	{
+		try
+		{
+			//ans, so far I only know of directed graphs
+			DirectedGraph ans = new DirectedGraph();
+
+			//file reading vars
+			String line;
+			String[] temp;
+			File graphFile = new File(fileName);
+			BufferedReader br = new BufferedReader(new FileReader(graphFile));
+
+			//header info
+			int n = 0;
+			int m = 0;
+			line = br.readLine();
+			temp = line.split(",\\s+|:");
+			boolean isReq = false;
+			
+			n = Integer.parseInt(temp[0].trim()); //first line is number of vertices
+			
+			line = br.readLine(); //second line is number of vertices in the simplified graph
+			
+			line = br.readLine(); // third line is the number of arcs
+			
+			temp = line.split(",");
+			m = Integer.parseInt(temp[0].trim());
+			
+			line = br.readLine(); //fourth line is # of connected components of the simplified graph
+			
+			line = br.readLine(); //fifth line is number of vertices belonging to each of those connected components
+			
+			//construct the ans graph
+			for (int i = 0 ; i < n; i ++)
+			{
+				ans.addVertex(new DirectedVertex("orig"));
+			}
+			for( int i = 0 ; i < m ; i ++)
+			{
+				line = br.readLine();
+				if(line == null)
+				{
+					br.close();
+					throw new FormatMismatchException("Not enough lines to match the claimed number of arcs");
+				}
+				
+				temp = line.split(",");
+				if(temp.length < 4)
+				{
+					br.close();
+					throw new FormatMismatchException("This line doesn't have the required components.");
+				}
+				
+				isReq = Integer.parseInt(temp[3].trim()) == 1?true:false;
+				ans.addEdge(Integer.parseInt(temp[0].trim()), Integer.parseInt(temp[1].trim()), "orig", Integer.parseInt(temp[2].trim()), isReq);
+			}
+			br.close();
+			return ans;
+			
+			
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 	private Graph<?,?> readYaoyuenyongGraph(String fileName) throws FormatMismatchException
 	{
 		try
-		{
+		{	//file reading vars
 			String line;
 			String type="";
 			String[] temp;
@@ -137,15 +207,17 @@ public class GraphReader {
 				br.close();
 				return ans;
 			}
+			else
+			{
+				br.close();
+				throw new FormatMismatchException("Unrecognized Type.");
+			}
 
 		} catch(Exception e)
 		{
 			e.printStackTrace();
 			return null;
 		}
-
-
-		return null;
 	}
 	private Graph<?,?> readCorberanGraph(String fileName) throws FormatMismatchException
 	{
@@ -264,7 +336,6 @@ public class GraphReader {
 				{
 					ans.addVertex(new WindyVertex("original"));
 				}
-				HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
 				br.readLine();
 				br.readLine();
 				int index;
@@ -303,7 +374,6 @@ public class GraphReader {
 				{
 					ans.addVertex(new WindyVertex("original"));
 				}
-				HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
 				//	br.readLine();
 				//	br.readLine();
 				int index;

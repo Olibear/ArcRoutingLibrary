@@ -47,7 +47,6 @@ public class CommonAlgorithms {
 	public static ArrayList<Integer> tryHierholzer(DirectedGraph eulerianGraph) throws IllegalArgumentException{
 		if (!isEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
-		//TODO: Fleury's
 		return hierholzer(eulerianGraph, false);
 	}
 	/**
@@ -3384,13 +3383,125 @@ public class CommonAlgorithms {
 			pred[vertex1] = vertex2;
 		} while (true);
 	}
-	/* Performs a maximal weighted matching on the graph.
-	 * @param graph
-	 * @return a set containing pairs which are coupled in the maximal matching.
+	
+	/**
+	 * Finds the minimum cost spanning arborescence if one exists.
+	 * NOTE: Be careful about scale; this will only work with graphs
+	 * of vertex set size 255 or less I think.  Consider writing my own MSA.
+	 * @param g - the graph on which to compute the arborescence
+	 * @return - A set of integers, corresponding to the ids of the arcs
+	 * in the MSA. 
 	 */
-	public static Set<Pair<Vertex>> maxWeightedMatching(Graph<Vertex, Link<Vertex>> graph)
+	public static HashSet<Integer> minSpanningArborescence(DirectedGraph g, int root) throws IllegalArgumentException
 	{
-		return null;
+		try
+		{	
+			int n = g.getVertices().size();
+			int m = g.getEdges().size();
+			HashSet<Integer> ans = new HashSet<Integer>();
+			
+			//error checking
+			if(root > n)
+				throw new IllegalArgumentException();
+			
+			//inputs to MSArbor
+			int[] weights = new int[n*(n-1)];
+			
+			HashMap<Integer, DirectedVertex> gVertices = g.getInternalVertexMap();
+			DirectedVertex dv1, dv2;
+			List<Arc> tempConnections;
+			int tempMin, realI, realJ;
+			Arc kConnect;
+			for(int i = 1; i <= n; i++)
+			{
+				realI = i - 1; //the index as far as MSArbor is concerned
+				dv1 = gVertices.get(i);
+				for(int j = 1; j <= n; j++) //j <= n-1 since we assume the last guy is the root
+				{
+					if(j == root) //if it's to root, ignore it
+						continue;
+					else if (j == n) //if it's to the last node, swap it with the root 
+						realJ = root-1;
+					else // oth. normal
+						realJ = j - 1;
+					dv2 = gVertices.get(j);
+					tempConnections = g.findEdges(new Pair<DirectedVertex>(dv1, dv2));
+					if(tempConnections.size() > 0)
+					{
+						tempMin = tempConnections.get(0).getCost();
+						for(int k = 1; k < tempConnections.size(); k++)
+						{
+							kConnect = tempConnections.get(k);
+							if(kConnect.getCost() < tempMin)
+								tempMin = kConnect.getCost();
+						}
+						
+						//swap root and the last guy
+						if(i == root) // if it's from the root, move it to the last row
+							weights[(n-1)*(n-1) + realJ] = tempMin;
+						else if( i == n) // if it's from the last guy, move it to root
+							weights[(n-1)*(root-1)+realJ] = tempMin;
+						else // oth. normal
+							weights[(n-1)*realI + realJ] = tempMin;
+					}
+					else
+					{
+						//swap root and the last guy
+						if(i == root) // if it's from the root, move it to the last row
+							weights[(n-1)*(n-1) + realJ] = 32766;
+						else if( i == n) // if it's form the last guy, move it to the root
+							weights[(n-1)*(root-1)+realJ] = 32766;
+						else // oth. normal
+							weights[(n-1)*realI + realJ] = 32766;
+						// tells MSArbor there is no arc here
+					}
+				}
+			}
+			
+			int[] predArray = MSArbor.msArbor(n, m, weights);
+			//now figure out the ids of the arcs contained within.
+			int tempMinID;
+			for(int i = 0; i < predArray.length; i ++)
+			{
+				if(predArray[i] == root-1) // if the solution says the prev. guy is the root, it's really n
+					dv1 = gVertices.get(n);
+				else if (predArray[i] == n-1) // if the solution says the prev. guy is the nth vertex, it's really the root
+					dv1 = gVertices.get(root);
+				else // oth. normal
+					dv1 = gVertices.get(predArray[i]+1);
+				
+				if(i == root-1) // if we're inspecting the root position, we're really looking at the nth vertex
+					dv2 = gVertices.get(n);
+				else if(i == n-1) // if we're inspecting the nth position, we're really looking at the root vertex
+					dv2 = gVertices.get(root);
+				else // oth. normal
+					dv2 = gVertices.get(i+1);
+				
+				tempConnections = g.findEdges(new Pair<DirectedVertex>(dv1, dv2));
+				
+				if(tempConnections.size() == 0)
+					throw new Exception("Something went wrong in the MSArbor solver");
+				tempMin = tempConnections.get(0).getCost();
+				tempMinID = tempConnections.get(0).getId();
+				for(int k = 1; k < tempConnections.size(); k++)
+				{
+					kConnect = tempConnections.get(k);
+					if(kConnect.getCost() < tempMin)
+					{
+						tempMin = kConnect.getCost();
+						tempMinID = kConnect.getId();
+					}	
+				}
+				ans.add(tempMinID);
+				
+			}
+			return ans;
+			
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
 	}
 	/**
 	 * Performs  min-cost perfect matching using Kolmogorov's publicly available Blossom V C code.

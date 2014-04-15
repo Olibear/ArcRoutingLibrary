@@ -1,7 +1,6 @@
 package oarlib.core;
 
 import oarlib.graph.util.Pair;
-import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 /**
  * WindyEdge class, basic class for an undirected link with asymmetric costs.

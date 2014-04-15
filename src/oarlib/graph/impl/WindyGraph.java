@@ -5,12 +5,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.WindyEdge;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
-import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
 public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
@@ -101,7 +99,6 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 		try {
 			WindyGraph ans = new WindyGraph();
 			HashMap<Integer, WindyEdge> indexedEdges = this.getInternalEdgeMap();
-			HashMap<Integer, WindyVertex> indexedVertices = this.getInternalVertexMap();
 			WindyVertex temp;
 			int n = this.getVertices().size();
 			for(int i = 1; i <= n; i++)

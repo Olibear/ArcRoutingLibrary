@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import oarlib.core.Arc;
-import oarlib.core.Graph;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;

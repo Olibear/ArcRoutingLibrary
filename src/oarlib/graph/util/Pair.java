@@ -51,6 +51,7 @@ public class Pair<T> {
 			return false;
 		else
 		{
+			@SuppressWarnings("unchecked")
 			Pair<T> test = (Pair<T>)o;
 			return (test.getFirst().equals(mFirst) && test.getSecond().equals(mSecond));
 		}

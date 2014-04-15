@@ -77,7 +77,6 @@ public class ImprovedMCPPSolver extends Solver {
 			int[] edgePath, edgePath2, edgePath3;
 			int cost1, cost2;
 			MultiEdge<MixedEdge> toImprove;
-			HashMap<Integer, MixedVertex> gij1Vertices;
 			HashMap<Integer, MixedEdge> gij1Edges;
 			HashMap<Integer, MixedEdge> gij3Edges;
 			HashMap<Integer, MixedEdge> gij4Edges;
@@ -109,7 +108,6 @@ public class ImprovedMCPPSolver extends Solver {
 					//initialize
 					Gij1 = G.getDeepCopy();
 					Gij2 = G.getDeepCopy();
-					gij1Vertices = Gij1.getInternalVertexMap();
 					gij1Edges  = Gij1.getInternalEdgeMap();
 					CostMod1(Gij1, gEdgeContainers, Em, Am); //cost mod 1 on Gij1
 					CostMod2(Gij1, G, gEdgeContainers, i, j); //cost mod 2 on Gij1
