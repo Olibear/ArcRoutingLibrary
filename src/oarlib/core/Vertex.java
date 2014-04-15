@@ -10,7 +10,8 @@ import oarlib.exceptions.NoDemandSetException;
  *
  */
 public abstract class Vertex {
-	private static int counter = 1; //for assigning vertex ids
+	
+	private static int counter = 1; //for assigning global vertex ids
 	private String mLabel;
 	private int mId; //id in the graph, (1,2,3...)
 	private int guid; //global id, for identifying a specific node that may have copies in multiple graphs

@@ -34,20 +34,6 @@ public class Tour extends Route {
 	}
 
 	@Override
-	public void prependVertex(Link<? extends Vertex> l) {
-		mRoute.add(0, l);
-		mCost+=l.getCost();
-		
-	}
-
-	@Override
-	public void insertVertex(Link<? extends Vertex> l, int position)
-			throws IndexOutOfBoundsException {
-		mRoute.add(0, l);
-		mCost+=l.getCost();
-	}
-
-	@Override
 	public boolean checkRoutes(Graph<? extends Vertex, Link<? extends Vertex>> g) {
 		if(mRoute.get(0).getEndpoints().getFirst().getId() == mRoute.get(mRoute.size()-1).getEndpoints().getSecond().getId())
 			return true;

@@ -32,19 +32,6 @@ public class Path extends Route {
 	}
 
 	@Override
-	public void prependVertex(Link<? extends Vertex> l) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void insertVertex(Link<? extends Vertex> l, int position)
-			throws IndexOutOfBoundsException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public boolean checkRoutes(Graph<? extends Vertex, Link<? extends Vertex>> g) {
 		// TODO Auto-generated method stub
 		return false;

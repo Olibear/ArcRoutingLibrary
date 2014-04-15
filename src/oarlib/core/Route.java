@@ -9,7 +9,7 @@ import java.util.List;
  */
 public abstract class Route {
 	
-	protected int mCost;
+	protected int mCost; // cost of the route
 	
 	//constructor
 	protected Route(){
@@ -34,17 +34,6 @@ public abstract class Route {
 	 * @param l
 	 */
 	public abstract void appendEdge(Link<? extends Vertex> l);
-	/**
-	 * Add a edge to the beginning of this route.
-	 * @param l
-	 */
-	public abstract void prependVertex(Link<? extends Vertex> l);
-	/**
-	 * Insert a edge at a specified position in the route (0 is first)
-	 * @param l
-	 * @param position - where to insert the edge, (i.e. 0 will do the same as prependEdge)
-	 */
-	public abstract void insertVertex(Link<? extends Vertex> l, int position) throws IndexOutOfBoundsException;
 	/**
 	 * check to make sure that the route is feasible.
 	 * @return true if route is feasible in the provided graph

@@ -19,6 +19,13 @@ public class Edge extends Link<UndirectedVertex>{
 		super(label, endpoints, cost);
 		setDirected(false);
 	}
+	/**
+	 * Constructor for an Edge.
+	 * @param label - the String that can later be used for identification purposes, or to determine when an edge was added.
+	 * @param endpoints - the pair of vertices that this edge connects.  Since this is undirected, order does not matter.
+	 * @param cost - the cost of traversing the edge.
+	 * @param required - whether or not this edge must be traversed in the final solution
+	 */
 	public Edge(String label, Pair<UndirectedVertex> endpoints, int cost, boolean required)
 	{
 		super(label, endpoints, cost, required);

@@ -1624,35 +1624,6 @@ public class CommonAlgorithms {
 			}
 		}
 	}
-
-	public static void minimumSpanningTreePrim(int n, int dist[][], int tree[])
-	{
-	  int i,j,n1,d,mindist,node,k=0;
-
-	  n1 = n - 1;
-	  for (i=1; i<=n1; i++)
-	    tree[i] = -n;
-	  tree[n] = 0;
-	  for (i=1; i<=n1; i++) {
-	    mindist = Integer.MAX_VALUE;
-	    for (j=1; j<=n1; j++) {
-	      node = tree[j];
-	      if (node <= 0) {
-	        d = dist[-node][j];
-	        if (d < mindist) {
-	          mindist = d;
-	          k = j;
-	        }
-	      }
-	    }
-	    tree[k] = -tree[k];
-	    for (j=1; j<=n1; j++) {
-	      node = tree[j];
-	      if (node <= 0)
-	        if (dist[j][k] < dist[j][-node]) tree[j] = -k;
-	    }
-	  }
-	}
 	/**
 	 * Solves the min-cost spanning tree problem using Prim's algorithm
 	 * @param g - the undirected graph on which to solve the MST problem.

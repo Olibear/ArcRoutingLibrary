@@ -1,18 +1,14 @@
 package oarlib.test;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import gurobi.*;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-
 import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
-import oarlib.core.Link;
 import oarlib.core.MixedEdge;
 import oarlib.core.Route;
 import oarlib.graph.graphgen.DirectedGraphGenerator;
@@ -45,6 +41,8 @@ import oarlib.vertex.impl.UndirectedVertex;
 public class GeneralTestbed {
 
 	/**
+	 * The main method.  This class contains a bunch of test / validation methods, and is meant to give examples of
+	 * how to use the architecture.  
 	 * @param args
 	 */
 	public static void main(String[] args) 
@@ -55,17 +53,17 @@ public class GeneralTestbed {
 		//testMSArbor();
 		//validateImprovedWRPPSolver();
 	}
-	@SuppressWarnings("unused")
-	private static void check(Link<?> a)
-	{
-		if (a.getClass() == Arc.class)
-			System.out.println("WEEEE");
-	}
+	
+	/**
+	 * A method to validate our graph simplification in the DRPP Solver.  We construct the example given in the original
+	 * paper by Christofides, and ensure that the output matches with that displayed in the figures of the paper.
+	 */
 	@SuppressWarnings("unused")
 	private static void validateSimplifyGraph()
 	{
 		try
 		{
+			// Create the test instance
 			DirectedGraph test = new DirectedGraph();
 			for(int i = 0; i < 13; i ++)
 			{
@@ -101,7 +99,7 @@ public class GeneralTestbed {
 			test.addEdge(10, 9, "orig", 5, true);
 			test.addEdge(9, 8, "orig", 3, true);
 
-
+			// run the solver on it
 			DirectedRPP validInstance = new DirectedRPP(test);
 			DRPPSolver validSolver = new DRPPSolver(validInstance);
 			validSolver.trySolve();
@@ -112,6 +110,9 @@ public class GeneralTestbed {
 		}
 	}
 	
+	/**
+	 * A method to test / validate our implementation of Christofides' heuristic for DRPP Solver.
+	 */
 	@SuppressWarnings("unused")
 	private static void testDRPPSolver()
 	{
@@ -127,19 +128,25 @@ public class GeneralTestbed {
 			long start;
 			long end;
 
+			//run on all the instances in the folder
 			for(final File testInstance: testInstanceFolder.listFiles())
 			{
-				int bestCost = Integer.MAX_VALUE;
+				int bestCost = Integer.MAX_VALUE; // the running best cost over running the solver repeatedly on the same instance
 				for(int i = 0; i < 1; i++)
 				{
 					String temp = testInstance.getName();
-					System.out.println(temp);
+					System.out.println(temp); // print the file name
+					
+					//ensure that the problem is a valid instance
 					if(!temp.endsWith(".0") && !temp.endsWith(".1") && !temp.endsWith(".1_3") && !temp.endsWith(".2_3") && !temp.endsWith(".3_3"))
 						continue;
+					
+					// read the graph
 					Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/Instances/" + temp);
 
 					if(g.getClass() == DirectedGraph.class)
 					{
+						// run it and time it
 						DirectedGraph g2 = (DirectedGraph)g;
 						validInstance = new DirectedRPP(g2);
 						validSolver = new DRPPSolver(validInstance);
@@ -149,7 +156,7 @@ public class GeneralTestbed {
 						for(Route r: validAns)
 							if(r.getCost() < bestCost)
 								bestCost = r.getCost();
-						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
+						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our DRPP implementation on a graph with " + g2.getEdges().size() + " edges.");
 					}
 				}
 				if(bestCost == Integer.MAX_VALUE)
@@ -164,11 +171,17 @@ public class GeneralTestbed {
 			return;
 		}
 	}
+
+	/**
+	 * A method to test our JNI Wrapper for MSArbor's minimum spanning arborescence code.
+	 * We test on a toy instance, and make sure it's robust to edge removal.
+	 */
 	@SuppressWarnings("unused")
 	private static void testMSArbor()
 	{
 		try
 		{
+			// set up the toy instance
 			int n = 3;
 			int m = 6;
 			int[] weights = new int[n * (n-1)];
@@ -178,12 +191,11 @@ public class GeneralTestbed {
 			weights[3] = 1000; //1-1
 			weights[4] = 2; //2-0
 			weights[5] = 10; //2-1
+			
+			// run it directly
 			int[] ans = MSArbor.msArbor(n, m, weights);
-			//for (int i = 0; i < ans.length; i ++)
-			//{
-				//System.out.println(ans[i]);
-			//}
 
+			// run our wrapper that takes our graph structure
 			DirectedGraph test = new DirectedGraph();
 			test.addVertex(new DirectedVertex("orig"));
 			test.addVertex(new DirectedVertex("orig"));
@@ -204,96 +216,29 @@ public class GeneralTestbed {
 			
 			HashSet<Integer> msa = CommonAlgorithms.minSpanningArborescence(test, 2);
 			
-			for(Integer i : msa)
-				System.out.println(i);
-			
 		} catch(Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
-	@SuppressWarnings("unused")
-	private static void testConnectedComponents()
-	{
-		UndirectedGraph test = new UndirectedGraph();
-		test.addVertex(new UndirectedVertex(""));
-		test.addVertex(new UndirectedVertex(""));
-		int n = 3;
-		int m = 1;
-		int[] nodei = new int[2];
-		int[] nodej = new int[2];
-		nodei[1] = 1;
-		nodej[1] = 2;
-		int[] component= new int[4];
-		CommonAlgorithms.connectedComponents(n, m, nodei, nodej, component);
-		System.out.println(component[0]);
-	}
-	@SuppressWarnings("unused")
-	private static void testMST()
-	{
-		try
-		{
-			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-			UndirectedGraph g = (UndirectedGraph)ugg.generateGraph(300, 50, true);
-
-			int[] mst = CommonAlgorithms.minCostSpanningTree(g);
-			int n = g.getVertices().size();
-			int[] tree = new int[n+1];
-			int[][] dist = new int[n+1][n+1];
-			for(int i = 1; i <= n; i ++)
-			{
-				for(int j = 1; j <= n; j++)
-				{
-					dist[i][j] = Integer.MAX_VALUE;
-				}
-			}
-			for(Edge e: g.getEdges())
-			{
-				dist[e.getEndpoints().getFirst().getId()][e.getEndpoints().getSecond().getId()] = e.getCost();
-				dist[e.getEndpoints().getSecond().getId()][e.getEndpoints().getFirst().getId()] = e.getCost();
-			}
-
-			CommonAlgorithms.minimumSpanningTreePrim(g.getVertices().size(), dist, tree);
-
-			int cost1, cost2;
-			cost1 = 0; //mine
-			cost2 = 0; //theirs
-			HashMap<Integer, Edge> gEdges = g.getInternalEdgeMap();
-			for(int i = 1; i < mst.length; i++)
-			{
-				if(mst[i] > 0)
-					cost1 += gEdges.get(i).getCost();
-			}
-			for(int i = 1; i < n; i++)
-			{
-				cost2 += dist[i][tree[i]];
-			}
-			System.out.println("Mine: " + cost1);
-			System.out.println("Theirs: " + cost2);
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-			return;
-		}
-	}
-	@SuppressWarnings("unused")
-	private static void testDirectedGraphGenerator()
-	{
-		long start = System.currentTimeMillis();
-		DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-		DirectedGraph g = (DirectedGraph) dgg.generateGraph(1000, 10, true);
-		long end = System.currentTimeMillis();
-		System.out.println(end-start);
-	}
+	
+	/**
+	 * An example method which shows how to use our graph generators.
+	 */
 	@SuppressWarnings("unused")
 	private static void testUndirectedGraphGenerator()
 	{
-		long start = System.currentTimeMillis();
 		UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-		UndirectedGraph g = (UndirectedGraph) ugg.generateGraph(1000, 10, true);
-		long end = System.currentTimeMillis();
-		System.out.println(end - start);
+		/**
+		 * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
+		 * connected, and density roughly .5.
+		 */
+		UndirectedGraph g = (UndirectedGraph) ugg.generateGraph(1000, 10, true, .5);
 	}
+	
+	/**
+	 * An example method which shows how to use our graph readers.
+	 */
 	@SuppressWarnings("unused")
 	private static void testSimpleGraphReader()
 	{
@@ -311,75 +256,11 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-	@SuppressWarnings("unused")
-	private static void testCamposGraphReader()
-	{
-		GraphReader gr = new GraphReader(Format.Name.Campos);
-		try
-		{
-			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/Instances/P80-10-1.0");
-			if(g.getClass() == DirectedGraph.class)
-			{
-				DirectedGraph g2 = (DirectedGraph)g;
-			}
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	@SuppressWarnings("unused")
-	private static void testCorberanGraphReader()
-	{
-		GraphReader gr = new GraphReader(Format.Name.Corberan);
-		try
-		{
-			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/MA0532");
-			if(g.getClass() == MixedGraph.class)
-			{
-				MixedGraph g2 = (MixedGraph)g;
-
-				DirectedGraph g3 = new DirectedGraph();
-				for(int i = 0; i < g2.getVertices().size(); i ++)
-				{
-					g3.addVertex(new DirectedVertex("checking connectedness"));
-				}
-				HashMap<Integer, DirectedVertex> g3Vertices = g3.getInternalVertexMap();
-				HashMap<Integer, MixedEdge> g2Edges = g2.getInternalEdgeMap();
-				MixedEdge e;
-
-				for(int i = 1; i < g2.getEdges().size()+1; i++)
-				{
-					e = g2Edges.get(i);
-					if(e.isDirected())
-						g3.addEdge(new Arc("checking connectedness", new Pair<DirectedVertex>(g3Vertices.get(e.getTail().getId()), g3Vertices.get(e.getHead().getId())), e.getCost()));
-					else
-					{
-						g3.addEdge(new Arc("checking connectedness", new Pair<DirectedVertex>(g3Vertices.get(e.getEndpoints().getFirst().getId()), g3Vertices.get(e.getEndpoints().getSecond().getId())), e.getCost()));
-						g3.addEdge(new Arc("checking connectedness", new Pair<DirectedVertex>(g3Vertices.get(e.getEndpoints().getSecond().getId()), g3Vertices.get(e.getEndpoints().getFirst().getId())), e.getCost()));
-					}
-				}
-				int n = g3.getVertices().size();
-				int m = g3.getEdges().size();
-				int[] nodei = new int[m+1];
-				int[] nodej = new int[m+1];
-				int[] component = new int[n+1];
-				HashMap<Integer, Arc> g3Edges = g3.getInternalEdgeMap();
-				Arc a;
-				for(int i = 1; i < m+1; i++)
-				{
-					a = g3Edges.get(i);
-					nodei[i] = a.getTail().getId();
-					nodej[i] = a.getHead().getId();
-				}
-				CommonAlgorithms.stronglyConnectedComponents(n, m, nodei, nodej, component);
-
-				System.out.println("check things");
-			}
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
+	
+	/**
+	 * A method to test our implementation of Frederickson's algorithm on the instances
+	 * provided on Angel Corberan's website
+	 */
 	@SuppressWarnings("unused")
 	private static void testFredericksons()
 	{
@@ -394,12 +275,14 @@ public class GeneralTestbed {
 			long start;
 			long end;
 
+			// run on all instances in the folder
 			for(final File testInstance: testInstanceFolder.listFiles())
 			{
 				String temp = testInstance.getName();
 				System.out.println(temp);
-				if(temp.equals(".DS_Store"))
+				if(temp.equals(".DS_Store")) // ignore mac stuff
 					continue;
+				
 				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/" + temp);
 				if(g.getClass() == MixedGraph.class)
 				{
@@ -418,6 +301,12 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * A method to test / validate our implementation of Yaoyuenyong's algorithm on the instances
+	 * graciously provided by Yaoyuenyong; the results are compared against those given in
+	 * his paper.
+	 */
 	@SuppressWarnings("unused")
 	private static void validateImprovedMCPPSolver()
 	{
@@ -432,6 +321,7 @@ public class GeneralTestbed {
 			long start;
 			long end;
 
+			//run on all instances in the folder
 			for(final File testInstance: testInstanceFolder.listFiles())
 			{
 				String temp = testInstance.getName();
@@ -460,6 +350,11 @@ public class GeneralTestbed {
 		}
 	}
 
+	/**
+	 * A method to validate our implementation of Frederickson's algorithm on the instances
+	 * graciously provided by Yaoyuenyong; the results are compared against those given in
+	 * his paper.
+	 */
 	@SuppressWarnings("unused")
 	private static void validateMCPPSolvers()
 	{
@@ -518,43 +413,10 @@ public class GeneralTestbed {
 		}
 	}
 	
-	@SuppressWarnings("unused")
-	private static void testYaoyuenyong()
-	{
-		GraphReader gr = new GraphReader(Format.Name.Corberan);
-		try
-		{
-			MixedCPP validInstance;
-			ImprovedMCPPSolver validSolver;
-			Collection<Route> validAns;
-
-			File testInstanceFolder = new File("/Users/oliverlum/Downloads/MCPP");
-			long start;
-			long end;
-
-			for(final File testInstance: testInstanceFolder.listFiles())
-			{
-				String temp = testInstance.getName();
-				System.out.println(temp);
-				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/" + temp);
-				if(g.getClass() == MixedGraph.class)
-				{
-					MixedGraph g2 = (MixedGraph)g;
-					validInstance = new MixedCPP(g2);
-					validSolver = new ImprovedMCPPSolver(validInstance);
-					start = System.nanoTime();
-					validAns = validSolver.trySolve(); //my ans
-					end = System.nanoTime();
-					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
-
-				}
-			}
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
+	/**
+	 * A method to validate the WRPP Solver based on instances provided on 
+	 * Angel Corberan's website.
+	 */
 	@SuppressWarnings("unused")
 	private static void validateWRPPSolver()
 	{
@@ -570,6 +432,7 @@ public class GeneralTestbed {
 			long start;
 			long end;
 
+			// run the solver on the instances in the provided folder
 			for(final File testInstance: testInstanceFolder.listFiles())
 			{
 				int bestCost = Integer.MAX_VALUE;
@@ -607,6 +470,10 @@ public class GeneralTestbed {
 		}
 	}
 	
+	/**
+	 * A method to validate the improved WRPP Solver based on instances provided on 
+	 * Angel Corberan's website.
+	 */
 	@SuppressWarnings("unused")
 	private static void validateImprovedWRPPSolver()
 	{
@@ -659,6 +526,10 @@ public class GeneralTestbed {
 		}
 	}
 	
+	/**
+	 * A method to ensure that our implementation of Hierholzer's algorithm to find an euler tour on
+	 * an Eulerian graph.
+	 */
 	@SuppressWarnings("unused")
 	private static void validateEulerTour()
 	{
@@ -763,8 +634,10 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
+
 	/**
-	 * Compare solutions to the methods provided by Lau.
+	 * A method to ensure that we are getting a minimum cost flow solution to our flow problem;
+	 * we run our code against a solver available in Lau's Java Graph Algorithm's library.
 	 */
 	@SuppressWarnings("unused")
 	private static void validateMinCostFlow()
@@ -778,7 +651,7 @@ public class GeneralTestbed {
 			{
 				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
 
-				//min cost flow not fruitful?
+				//min cost flow not fruitful
 				if(CommonAlgorithms.isEulerian(g))
 					continue;
 
@@ -790,113 +663,10 @@ public class GeneralTestbed {
 				System.out.println("Generated directed graph with n = " + i);
 
 				//set up for using flow methods
-				int n = g.getVertices().size();
-				int dist[][] = new int[n+1][n+1];
-				int path[][] = new int[n+1][n+1];
-				CommonAlgorithms.fwLeastCostPaths(g, dist, path);
-				start = System.nanoTime();
-				HashMap<Pair<Integer>, Integer> myAns = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(g, dist); //mine
-				end = System.nanoTime();
-				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our cycle canceling min cost flow implementation on a graph with " + g.getEdges().size() + " edges.");
-
-				int[][] ans = CommonAlgorithms.minCostNetworkFlow(g); //Lau's
-
-				int cost = 0;
-				for(Pair<Integer> p: myAns.keySet())
-				{
-					cost += dist[p.getFirst()][p.getSecond()] * myAns.get(p);
-				}
-				//now check against ans
-				boolean costOK = true;
-				if(ans[0][0] != cost)
-					costOK = false;
-				System.out.println("costOK: " + costOK);
-			}
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	@SuppressWarnings("unused")
-	private static void timeMinCostFlow()
-	{
-		try{
-			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-			DirectedGraph g;
-			long start;
-			long end;
-			long duration;
-			double density;
-			for(int i=10;i<300; i+=10)
-			{
-				density = (2.0*i)/(i*i/2.0); // we want roughly 4n edges
-				g = (DirectedGraph)dgg.generateGraph(i, 10, true, density);
-
-				//min cost flow not fruitful?
-				if(CommonAlgorithms.isEulerian(g))
-					continue;
-
-				//set demands
-				for(DirectedVertex v:g.getVertices())
-				{
-					v.setDemand(v.getDelta());
-				}
-
-				//set up for using flow methods
-				int n = g.getVertices().size();
-
-				duration  = 0;
-				for(int j = 0; j < 10; j++) //time it out 100 times, and take average
-				{
-					int dist[][] = new int[n+1][n+1];
-					int path[][] = new int[n+1][n+1];
-					CommonAlgorithms.fwLeastCostPaths(g, dist, path);
-					start = System.nanoTime();
-					HashMap<Pair<Integer>, Integer> myAns = CommonAlgorithms.cycleCancelingMinCostNetworkFlow(g, dist); //mine
-					end = System.nanoTime();
-					duration += (end - start);
-				}
-				System.out.println(duration/(1e7) + "," + g.getEdges().size() + ";");
-			}
-		} catch(Exception ex)
-		{
-			ex.printStackTrace();
-			return;
-		}
-	}
-
-	@SuppressWarnings("unused")
-	private static void validateMinCostFlow2()
-	{
-		try{
-			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-			DirectedGraph g;
-			long start;
-			long end;
-			for(int i=10;i<150; i+=10)
-			{
-				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
-
-				//min cost flow not fruitful?
-				if(CommonAlgorithms.isEulerian(g))
-					continue;
-
-				//set demands
-				for(DirectedVertex v:g.getVertices())
-				{
-					v.setDemand(v.getDelta());
-				}
-				System.out.println("Generated directed graph with n = " + i);
-
-				//set up for using flow methods
-				int n = g.getVertices().size();
-				int dist[][] = new int[n+1][n+1];
-				int path[][] = new int[n+1][n+1];
-				CommonAlgorithms.fwLeastCostPaths(g, dist, path);
 				start = System.nanoTime();
 				int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
 				end = System.nanoTime();
+				
 				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our SSP min cost flow implementation on a graph with " + g.getEdges().size() + " edges.");
 
 				int[][] ans = CommonAlgorithms.minCostNetworkFlow(g); //Lau's
@@ -907,6 +677,7 @@ public class GeneralTestbed {
 				{
 					cost += myAns[j] * indexedArcs.get(j).getCost();
 				}
+				
 				//now check against ans
 				boolean costOK = true;
 				if(ans[0][0] != cost)
@@ -921,421 +692,9 @@ public class GeneralTestbed {
 		}
 	}
 	
-	@SuppressWarnings("unused")
-	private static void timeMinCostFlow2(){
-		try{
-			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-			DirectedGraph g;
-			long start;
-			long end;
-			long duration;
-			double density;
-			for(int i=10;i<1000; i+=10)
-			{
-				density = (2.0*i)/(i*i/2.0);
-				g = (DirectedGraph)dgg.generateGraph(i, 10, true, density);
-
-				//min cost flow not fruitful?
-				if(CommonAlgorithms.isEulerian(g))
-					continue;
-
-				//set demands
-				for(DirectedVertex v:g.getVertices())
-				{
-					v.setDemand(v.getDelta());
-				}
-
-				//set up for using flow methods
-				int n = g.getVertices().size();
-				duration =0;
-				int dist[][] = new int[n+1][n+1];
-				int path[][] = new int[n+1][n+1];
-				CommonAlgorithms.fwLeastCostPaths(g, dist, path);
-				start = System.nanoTime();
-				int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
-				end = System.nanoTime();
-				duration += (end-start);
-				System.out.println((duration)/(1e6) + "," + g.getEdges().size() + ";");
-
-			}
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-			return;
-		}
-	}
-	
-	@SuppressWarnings("unused")
-	private static void testMinCostFlow2()
-	{
-		DirectedGraph g = new DirectedGraph();
-		//set up graph
-		DirectedVertex v1 = new DirectedVertex("orig");
-		v1.setDemand(5);
-		DirectedVertex v2 = new DirectedVertex("orig");
-		DirectedVertex v3 = new DirectedVertex("orig");
-		DirectedVertex v4 = new DirectedVertex("orig");
-		v4.setDemand(-3);
-		DirectedVertex v5 = new DirectedVertex("orig");
-		v5.setDemand(-2);
-
-		Arc a1 = new Arc("orig", new Pair<DirectedVertex>(v1, v2), 1);
-		a1.setCapacity(7);
-		Arc a2 = new Arc("orig", new Pair<DirectedVertex>(v1, v3), 5);
-		a2.setCapacity(7);
-		Arc a3 = new Arc("orig", new Pair<DirectedVertex>(v2, v3), -2);
-		a3.setCapacity(2);
-		Arc a4 = new Arc("orig", new Pair<DirectedVertex>(v2, v4), 8);
-		a4.setCapacity(3);
-		Arc a5 = new Arc("orig", new Pair<DirectedVertex>(v3, v4), -3);
-		a1.setCapacity(3);
-		Arc a6 = new Arc("orig", new Pair<DirectedVertex>(v3, v5), 4);
-		a1.setCapacity(2);
-
-		g.addVertex(v1);
-		g.addVertex(v2);
-		g.addVertex(v3);
-		g.addVertex(v4);
-		g.addVertex(v5);
-		try
-		{
-			g.addEdge(a1);
-			g.addEdge(a2);
-			g.addEdge(a3);
-			g.addEdge(a4);
-			g.addEdge(a5);
-			g.addEdge(a6);
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-			return;
-		}
-		//solve
-		int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
-		//getcost
-		int cost = 0;
-		HashMap<Integer, Arc> indexedArcs = g.getInternalEdgeMap();
-		for(int j=1; j<myAns.length; j++)
-		{
-			cost += myAns[j] * indexedArcs.get(j).getCost();
-		}
-
-		System.out.println("example cost: " + cost);
-	}
-	
-	@SuppressWarnings("unused")
-	private static void validateAllPairsShortestPaths()
-	{
-		try{
-			//for undirected graphs
-			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-			UndirectedGraph g;
-			long start;
-			long end;
-			for(int i=2;i<150; i+=10)
-			{
-				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
-				System.out.println("Generated undirected graph with n = " + i);
-				int n = g.getVertices().size();
-				int mDist[][] = new int[n+1][n+1];
-				int mPath[][] = new int[n+1][n+1];
-				start = System.nanoTime();
-				CommonAlgorithms.fwLeastCostPaths(g, mDist, mPath); //mine
-				end = System.nanoTime();
-				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our APSP implementation on a graph with " + g.getEdges().size() + " edges.");
-
-
-				int dist[][] = new int[n+1][n+1];
-				int path[][] = new int[n+1][n+1];
-				for(int j=0;j<n+1;j++)
-					for(int k=0;k<n+1;k++)
-						dist[j][k] = Integer.MAX_VALUE;
-				int l;
-				int m;
-				for(Edge e: g.getEdges())
-				{
-					l = e.getEndpoints().getFirst().getId();
-					m = e.getEndpoints().getSecond().getId();
-					dist[l][m] = e.getCost();
-					dist[m][l] = e.getCost();
-				}
-				CommonAlgorithms.allPairsShortestPaths(n, dist, Integer.MAX_VALUE, 0, 0, null, path); //Lau's
-				boolean distOK = true;
-				boolean pathOK = true;
-				for(int j=1;j<=n;j++)
-				{
-					for(int k = 1; k<=n; k++)
-					{
-						if(dist[j][k] != mDist[j][k]) 
-							distOK = false;
-						if(path[j][k] != mPath[k][j]) 
-							pathOK = false;
-					}
-				}
-				System.out.println("distOK: " + distOK);
-				System.out.println("pathOK: " + pathOK);
-
-
-			}
-			//for directed graphs
-			DirectedGraph g2;
-			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-			for(int i=2;i<150; i+=10)
-			{
-				g2 = (DirectedGraph)dgg.generateGraph(i, 10, true);
-				System.out.println("Generated directed graph with n = " + i);
-				int n = g2.getVertices().size();
-				int[][] mDist = new int[n+1][n+1];
-				int[][] mPath = new int[n+1][n+1];
-				CommonAlgorithms.fwLeastCostPaths(g2, mDist, mPath); //mine
-
-				int[][] dist = new int[n+1][n+1];
-				int[][] path = new int[n+1][n+1];
-				for(int j=0;j<n+1;j++)
-					for(int k=0;k<n+1;k++)
-						dist[j][k] = Integer.MAX_VALUE;
-				int l;
-				int m;
-				for(Arc a: g2.getEdges())
-				{
-					l = a.getEndpoints().getFirst().getId();
-					m = a.getEndpoints().getSecond().getId();
-					if(a.getCost() < dist[l][m])
-						dist[l][m] = a.getCost();
-				}
-				CommonAlgorithms.allPairsShortestPaths(n, dist, Integer.MAX_VALUE, 0, 0, null, path); //Lau's
-				boolean distOK = true;
-				boolean pathOK = true;
-				int mCost = 0;
-				for(int j=1;j<=n;j++)
-				{
-					for(int k = 1; k<=n; k++)
-					{
-						if(dist[j][k] != mDist[j][k]) 
-							distOK = false;
-						//paths might be different, we want to make sure they have the same cost
-						if(j==k)
-							continue;
-						l = j;
-						m = k;
-						mCost = 0;
-						while(l != m)
-						{
-							mCost += mDist[l][mPath[l][m]];
-							l = mPath[l][m];
-						}
-						if(mCost != mDist[j][k])
-							pathOK = false;
-					}
-				}
-				System.out.println("distOK: " + distOK);
-				System.out.println("pathOK: " + pathOK);
-			}
-
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	@SuppressWarnings("unused")
-	private static void validateDijkstras()
-	{
-		try{
-			//for undirected graphs
-			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-			UndirectedGraph g;
-			long start;
-			long end;
-			for(int i=2;i<500; i+=10)
-			{
-				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
-				System.out.println("Generated undirected graph with n = " + i);
-				int n = g.getVertices().size();
-				int mDist[][] = new int[n+1][n+1];
-				int mPath[][] = new int[n+1][n+1];
-				start = System.nanoTime();
-				CommonAlgorithms.fwLeastCostPaths(g, mDist, mPath); //mine
-				end = System.nanoTime();
-				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our APSP implementation on a graph with " + g.getEdges().size() + " edges.");
-
-
-				int dist[] = new int[n+1];
-				int path[] = new int[n+1];
-				int edgePath[] = new int[n+1];
-				start = System.nanoTime();
-				CommonAlgorithms.dijkstrasAlgorithm(g, 1, dist, path, edgePath);
-				end = System.nanoTime();
-				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Dijkstras implementation on a graph with " + g.getEdges().size() + " edges.");
-
-			}
-			//for directed graphs
-			DirectedGraph g2;
-			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-			for(int i=2;i<150; i+=10)
-			{
-				g2 = (DirectedGraph)dgg.generateGraph(i, 10, true);
-				System.out.println("Generated directed graph with n = " + i);
-				int n = g2.getVertices().size();
-				int[][] mDist = new int[n+1][n+1];
-				int[][] mPath = new int[n+1][n+1];
-				CommonAlgorithms.fwLeastCostPaths(g2, mDist, mPath); //mine
-
-				int[] dist = new int[n+1];
-				int[] path = new int[n+1];
-				int[] edgePath = new int[n+1];
-				CommonAlgorithms.dijkstrasAlgorithm(g2, 1, dist, path, edgePath);
-				boolean distOK = true;
-				int mCost = 0;
-				for(int j=2;j<=n;j++)
-				{
-					if(dist[j] != mDist[1][j])
-						distOK = false;
-				}
-				System.out.println("distOK: " + distOK);
-			}
-
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	@SuppressWarnings("unused")
-	private static void validateBellmanFord()
-	{
-		try{
-			//for undirected graphs
-			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-			UndirectedGraph g;
-			long start;
-			long end;
-			for(int i=2;i<500; i+=10)
-			{
-				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
-				System.out.println("Generated undirected graph with n = " + i);
-				int n = g.getVertices().size();
-
-
-				int dist[] = new int[n+1];
-				int path[] = new int[n+1];
-				int edgePath[] = new int[n+1];
-				start = System.nanoTime();
-				CommonAlgorithms.slfShortestPaths(g, 1, dist, path, edgePath);
-				end = System.nanoTime();
-				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Bellman-Ford implementation on a graph with " + g.getEdges().size() + " edges.");
-
-				int dist2[] = new int[n+1];
-				int path2[] = new int[n+1];
-				int edgePath2[] = new int[n+1];
-				start = System.nanoTime();
-				CommonAlgorithms.dijkstrasAlgorithm(g, 1, dist2, path2, edgePath2);
-				end = System.nanoTime();
-				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Dijkstras implementation on a graph with " + g.getEdges().size() + " edges.");
-
-				boolean distOK = true;
-				for(int j=2;j<=n;j++)
-				{
-					if(dist2[j] != dist[j])
-						distOK = false;
-				}
-				System.out.println("distOK: " + distOK);
-
-			}
-			//for directed graphs
-			DirectedGraph g2;
-			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-			for(int i=2;i<150; i+=10)
-			{
-				g2 = (DirectedGraph)dgg.generateGraph(i, 10, true);
-				System.out.println("Generated directed graph with n = " + i);
-				int n = g2.getVertices().size();
-
-
-
-				int dist[] = new int[n+1];
-				int path[] = new int[n+1];
-				int edgePath[] = new int[n+1];
-				start = System.nanoTime();
-				CommonAlgorithms.slfShortestPaths(g2, 1, dist, path, edgePath);
-				end = System.nanoTime();
-				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Bellman-Ford implementation on a graph with " + g2.getEdges().size() + " edges.");
-
-				int[] dist2 = new int[n+1];
-				int[] path2 = new int[n+1];
-				int[] edgePath2 = new int[n+1];
-				CommonAlgorithms.dijkstrasAlgorithm(g2, 1, dist2, path2, edgePath2);
-				boolean distOK = true;
-				for(int j=2;j<=n;j++)
-				{
-					if(dist2[j] != dist[j])
-						distOK = false;
-				}
-				System.out.println("distOK: " + distOK);
-			}
-
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
-	@SuppressWarnings("unused")
-	private static void timeAPSP()
-	{
-		try{
-			//for undirected graphs
-			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-			UndirectedGraph g;
-			long start;
-			long end;
-			long duration;
-			double density;
-			for(int i=2;i<500; i+=10)
-			{
-				density = (4.0*i)/(i*i/2.0);
-				g = (UndirectedGraph)ugg.generateGraph(i, 10, true, density);
-				int n = g.getVertices().size();
-				duration = 0;
-				for(int j=0;j<10;j++)
-				{
-					int mDist[][] = new int[n+1][n+1];
-					int mPath[][] = new int[n+1][n+1];
-					start = System.nanoTime();
-					CommonAlgorithms.fwLeastCostPaths(g, mDist, mPath); //mine
-					end = System.nanoTime();
-					duration+=(end-start);
-				}
-				System.out.println(duration/(1e7) + "," + g.getEdges().size() + ";");
-			}
-		} catch(Exception ex)
-		{
-			ex.printStackTrace();
-			return;
-		}
-	}
-	
-	@SuppressWarnings("unused")
-	private static void validateMinCostMatching()
-	{
-		try{
-			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-			UndirectedGraph g;
-			for(int i=1;i<150; i+=10)
-			{
-				g = (UndirectedGraph)ugg.generateGraph(i, 10, true);
-				System.out.println("Generated undirected graph with n = " + i);
-				CommonAlgorithms.minCostMatching(g); //Kolmogorov's
-				//TODO: Lau's
-			}
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
 	/**
-	 * Compare solutions to gurobi / cplex solvers
+	 * A method to compare solutions from our UCPP solver to a gurobi solver.  Note
+	 * that in order to use this, you must have a valid gurobi license.
 	 */
 	@SuppressWarnings("unused")
 	private static void validateUCPPSolver()
@@ -1472,56 +831,10 @@ public class GeneralTestbed {
 		}
 	}
 	
-	@SuppressWarnings("unused")
-	private static void timeUCPPSolver()
-	{
-		try {
-			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-			UndirectedGraph g;
-			UndirectedGraph g2;
-			UndirectedCPP validInstance;
-			UCPPSolver validSolver;
-			Collection<Route> validAns;
-
-			//timing stuff
-			long start;
-			long end;
-			double density;
-
-			//Gurobi stuff
-			GRBEnv env = new GRBEnv("miplog.log");
-			GRBModel  model;
-			GRBLinExpr expr;
-			GRBVar[][] varArray;
-			ArrayList<Integer> oddVertices;
-
-			//the answers
-			int l;
-			int myCost;
-			int trueCost;
-
-			for(int i=2;i<150; i+=10)
-			{
-				myCost = 0;
-				trueCost = 0;
-				density = (4.0*i)/(i*i/2.0);
-				g = (UndirectedGraph)ugg.generateGraph(i, 10, true, density);
-				if(CommonAlgorithms.isEulerian(g))
-					continue;
-				validInstance = new UndirectedCPP(g);
-				validSolver = new UCPPSolver(validInstance);
-				start = System.nanoTime();
-				validAns = validSolver.trySolve(); //my ans
-				end = System.nanoTime();
-				System.out.println((end-start)/(1e6) + "," + g.getEdges().size() + ";");
-			}
-		} catch(Exception ex)
-		{
-			ex.printStackTrace();
-			return;
-		}
-	}
-	
+	/**
+	 * A method to compare solutions from our DCPP solver to a gurobi solver.  Note
+	 * that in order to use this, you must have a valid gurobi license.
+	 */
 	@SuppressWarnings("unused")
 	private static void validateDCPPSolver()
 	{
@@ -1643,83 +956,36 @@ public class GeneralTestbed {
 		}
 	}
 	
-	@SuppressWarnings("unused")
-	private static void timeDCPPSolver()
-	{
-		try{
-			DirectedGraph g;
-			DirectedGraph g2;
-			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-			DirectedCPP validInstance;
-			DCPPSolver validSolver;
-			Collection<Route> validAns;
-
-			//timing stuff
-			long start;
-			long end;
-
-			//Gurobi stuff
-			GRBEnv env = new GRBEnv("miplog.log");
-			GRBModel  model;
-			GRBLinExpr expr;
-			GRBVar[][] varArray;
-			ArrayList<Integer> Dplus;
-			ArrayList<Integer> Dminus;
-			int l;
-			int m;
-			int myCost;
-			double trueCost;
-			double density;
-			for(int i=2;i<150; i+=10)
-			{
-				myCost=0;
-				trueCost=0;
-				density = (2.0*i)/(i*i/2.0);
-				g = (DirectedGraph)dgg.generateGraph(i, 10, true, density);
-				if(CommonAlgorithms.isEulerian(g))
-					continue;
-				//copy for gurobi to run on
-				g2 = g.getDeepCopy();
-				HashMap<Integer, DirectedVertex> indexedVertices = g2.getInternalVertexMap();
-
-				validInstance = new DirectedCPP(g);
-				validSolver = new DCPPSolver(validInstance);
-				start = System.nanoTime();
-				validAns = validSolver.trySolve(); //my ans
-				end = System.nanoTime();
-				System.out.println((end-start)/(1e6) + "," + g.getEdges().size() + ";");
-			}
-		} catch(Exception ex)
-		{
-			ex.printStackTrace();
-			return;
-		}
-	}
-	
+		
 	/**
-	 * make sure the machinery is working on toy problem.
+	 * An example method of how to setup a graph and use a solver.
 	 */
 	@SuppressWarnings("unused")
 	private static void testUCPPSolver()
 	{
 		try{
-			long start = System.currentTimeMillis();
-			UndirectedGraph test = new UndirectedGraph();
+			
+			long start = System.currentTimeMillis(); // for timing
+			UndirectedGraph test = new UndirectedGraph(); // initialize the graph
 
+			// vertices
 			UndirectedVertex v1 = new UndirectedVertex("dummy");
 			UndirectedVertex v2 = new UndirectedVertex("dummy2");
 			UndirectedVertex v3 = new UndirectedVertex("dummy3");
 
+			// endpoints for the edges
 			Pair<UndirectedVertex> ep = new Pair<UndirectedVertex>(v1, v2);
 			Pair<UndirectedVertex> ep2 = new Pair<UndirectedVertex>(v2, v1);
 			Pair<UndirectedVertex> ep3 = new Pair<UndirectedVertex>(v2, v3);
 			Pair<UndirectedVertex> ep4 = new Pair<UndirectedVertex>(v3,v1);
 
+			// initialize the edges
 			Edge e = new Edge("stuff", ep, 10);
 			Edge e2 = new Edge("more stuff", ep2, 20);
 			Edge e3 = new Edge("third stuff", ep3, 5);
 			Edge e4 = new Edge("fourth stuff", ep4, 7);
 
+			// add all the elements to the graph
 			test.addVertex(v1);
 			test.addVertex(v2);
 			test.addVertex(v3);
@@ -1728,6 +994,7 @@ public class GeneralTestbed {
 			test.addEdge(e3);
 			test.addEdge(e4);
 
+			// set up the instance, and solve it
 			UndirectedCPP testInstance = new UndirectedCPP(test);
 			UCPPSolver testSolver = new UCPPSolver(testInstance);
 			Collection<Route> testAns = testSolver.trySolve();
@@ -1735,48 +1002,6 @@ public class GeneralTestbed {
 			System.out.println(end - start);
 		} catch(Exception e)
 		{
-			e.printStackTrace();
-		}
-	}
-	
-	@SuppressWarnings("unused")
-	private static void testDCPPSolver()
-	{
-		try {
-			long start = System.currentTimeMillis();
-			DirectedGraph test = new DirectedGraph();
-
-			DirectedVertex v1 = new DirectedVertex("dummy");
-			DirectedVertex v2 = new DirectedVertex("dummy2");
-			DirectedVertex v3 = new DirectedVertex("dummy3");
-
-			Pair<DirectedVertex> ep = new Pair<DirectedVertex>(v1, v2);
-			Pair<DirectedVertex> ep2 = new Pair<DirectedVertex>(v2, v1);
-			Pair<DirectedVertex> ep3 = new Pair<DirectedVertex>(v2, v3);
-			Pair<DirectedVertex> ep4 = new Pair<DirectedVertex>(v3, v1);
-
-			Arc a = new Arc("stuff", ep, 10);
-			Arc a2 = new Arc("more stuff", ep2, 20);
-			Arc a3 = new Arc("third stuff", ep3, 5);
-			Arc a4 = new Arc("fourth stuff", ep4, 7);
-			Arc a5 = new Arc("fifth stuff", ep3,  8);
-
-
-			test.addVertex(v1);
-			test.addVertex(v2);
-			test.addVertex(v3);
-			test.addEdge(a);
-			test.addEdge(a2);
-			test.addEdge(a3);
-			test.addEdge(a4);
-			test.addEdge(a5);
-
-			DirectedCPP testInstance = new DirectedCPP(test);
-			DCPPSolver testSolver = new DCPPSolver(testInstance);
-			Collection<Route> testAns = testSolver.trySolve();
-			long end = System.currentTimeMillis();
-			System.out.println(end - start);
-		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -10,14 +10,28 @@ import oarlib.exceptions.WrongEdgeTypeException;
  */
 public class MultiEdge<E extends Link<? extends Vertex>> {
 
-	private int numCopies;
-	private E first;
-	private EDGETYPE myType;
-	private boolean directedForward;
-	private boolean directedBackward;
+	private int numCopies; // how many copies does this edge represent (if this is zero, we still have the original)
+	private E first; // the original edge / arc that this multi-edge represents
+	private EDGETYPE myType; // the type of the multi-edge
+	private boolean directedForward; // if the copies are directed from endpoint 1 to endpoint 2, this is true (D is the exception; it has both flags set to false)
+	private boolean directedBackward; // if the copies are directed from endpoint 2 to endpoint 1, this is true (D is the exception; it has both flags set to false)
+	
 	public enum EDGETYPE{
+		/**
+		 * A = undirected edge
+		 * B = directed edge
+		 * C = directed edge + n copies (n > 0)
+		 * D = edge that has become two, opposite direction arcs
+		 * E = directed arc
+		 * F = directed arc + n copies (n > 0)
+		 */
 		A,B,C,D,E,F;
 	}
+	
+	/**
+	 * Default constructor for the multi-edge.
+	 * @param e - the base edge.  We set numCopies to 0 initially.
+	 */
 	public MultiEdge(E e)
 	{
 		numCopies = 0;
@@ -34,6 +48,11 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 		first = e;
 		directedBackward = false;
 	}
+	
+	/**
+	 * @return - a deep copy of the multi-edge (i.e. it's a completely different object where all fields are
+	 * set to this multi-edge's)
+	 */
 	public MultiEdge<E> getCopy()
 	{
 		try {
@@ -68,10 +87,20 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 			return null;
 		}
 	}
+	/**
+	 * @return - current number of copies that this multi-edge represents 
+	 */
 	public int getNumCopies()
 	{
 		return numCopies;
 	}
+	
+	/**
+	 * A setter to change the orientation of future copies to forward. 
+	 * Note that the edge must be of type A or D, or else we cannot change
+	 * the orientation.
+	 * @throws WrongEdgeTypeException - if this multi-edge is not of type A or type D.
+	 */
 	public void directForward() throws WrongEdgeTypeException
 	{
 		if(myType == EDGETYPE.A)
@@ -90,6 +119,12 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 		else
 			throw new WrongEdgeTypeException("You may only direct a type A or type D edge.");
 	}
+	/**
+	 * A setter to changet he orientation of future copies to backward.
+	 * Note that the edge must be of type A or type D, or else we cannot
+	 * change the orientation.
+	 * @throws WrongEdgeTypeException - if this multi-edge is not of type A or type D
+	 */
 	public void directBackward() throws WrongEdgeTypeException
 	{
 		if(myType == EDGETYPE.A)
@@ -109,6 +144,10 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 			throw new WrongEdgeTypeException("You may only direct a type A or type D edge.");
 
 	}
+	/**
+	 * Adds to numCopies so long as the edge type is acceptable.
+	 * @throws WrongEdgeTypeException - if this edge is of type A, or D an exception is thrown (since we don't know what direction to add the copy
+	 */
 	public void addCopy() throws WrongEdgeTypeException
 	{
 		if(myType == EDGETYPE.A)
@@ -122,6 +161,10 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 			myType = EDGETYPE.F;
 		numCopies++;
 	}
+	/**
+	 * Adds a reverse copy to a type B edge to turn it into a type D edge
+	 * @throws WrongEdgeTypeException - if the edge type is not B, then this operation is invalid
+	 */
 	public void addReverseCopy() throws WrongEdgeTypeException
 	{
 		if(myType != EDGETYPE.B)
@@ -132,6 +175,11 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 		directedBackward = false;
 		myType = EDGETYPE.D;
 	}
+	/**
+	 * A setter that decrements the numCopies appropriately, and handles
+	 * the state transitions that accompany this operation.
+	 * @return - false if the number of copies is non-positive, true oth.
+	 */
 	public boolean tryRemoveCopy()
 	{
 		if(numCopies < 1)
@@ -146,18 +194,32 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
 		}
 		return true;
 	}
+	/**
+	 * Getter for the base edge that defines this multi-edge.
+	 * @return - the base edge.
+	 */
 	public E getFirst()
 	{
 		return first;
 	}
+	/**
+	 * Getter for the edge type of this multi-edge.
+	 * @return - the edge type
+	 */
 	public EDGETYPE getType()
 	{
 		return myType;
 	}
+	/**
+	 * @return - true if this multi-edge is directed forward, false oth.
+	 */
 	public boolean isDirectedForward()
 	{
 		return directedForward;
 	}
+	/**
+	 * @return - true if this multie-edge is directed backward, false oth.
+	 */
 	public boolean isDirectedBackward()
 	{
 		return directedBackward;
