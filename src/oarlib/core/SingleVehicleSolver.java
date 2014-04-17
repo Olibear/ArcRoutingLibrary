@@ -1,19 +1,17 @@
 package oarlib.core;
 
-import java.util.Collection;
-
 
 /**
  * Solver abstraction. Most general contract that Solvers must fulfill.
  * @author oliverlum
  *
  */
-public abstract class Solver {
+public abstract class SingleVehicleSolver {
 	/**
 	 * Default constructor; must set problem instance.
 	 * @param instance - instance for which this is a solver
 	 */
-	public Solver(Problem instance) throws IllegalArgumentException{
+	public SingleVehicleSolver(Problem instance) throws IllegalArgumentException{
 		//make sure I'm a valid problem instance
 		if(!(instance.getType() == getProblemType()))
 		{
@@ -24,7 +22,7 @@ public abstract class Solver {
 	 * Attempts to solve the instance assigned to this problem.  
 	 * @return null if problem instance is not assigned.
 	 */
-	public Collection<Route> trySolve(){
+	public Route trySolve(){
 		return solve();
 	}
 	/**
@@ -35,7 +33,7 @@ public abstract class Solver {
 	 * Actually solves the instance, (first checking for feasibility), returning a Collection of routes.
 	 * @return The set of routes the solver has concluded is best.
 	 */
-	protected abstract Collection<Route> solve();
+	protected abstract Route solve();
 	/**
 	 * Specifies what type of problem this is a solver for.
 	 * @return

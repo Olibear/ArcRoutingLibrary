@@ -11,7 +11,7 @@ import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
 import oarlib.core.Edge;
 import oarlib.core.Route;
-import oarlib.core.Solver;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.core.WindyEdge;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -24,7 +24,7 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
-public class ImprovedWRPPSolver extends Solver{
+public class ImprovedWRPPSolver extends SingleVehicleSolver{
 
 	WindyRPP mInstance;
 	private static final double K = .2; //parameter fixed by computational experiments done by Benavent
@@ -40,7 +40,7 @@ public class ImprovedWRPPSolver extends Solver{
 	}
 
 	@Override
-	protected Collection<Route> solve(){
+	protected Route solve(){
 		/**
 		 * TODO: Is the beginning of this guy supposed to be done on copy or windyReq
 		 */
@@ -124,7 +124,6 @@ public class ImprovedWRPPSolver extends Solver{
 			if(!okay || !okay2)
 				System.out.println("BAD");
 
-			ArrayList<Route> ret = new ArrayList<Route>();
 			ArrayList<Integer> tour;
 			tour = CommonAlgorithms.tryHierholzer(ans);
 			Tour eulerTour = new Tour();
@@ -133,8 +132,8 @@ public class ImprovedWRPPSolver extends Solver{
 			{
 				eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
 			}
-			ret.add(eulerTour);
-			return ret;
+			
+			return eulerTour;
 		}
 		catch (Exception e)
 		{

@@ -1,7 +1,6 @@
 package oarlib.solver.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.Set;
 import oarlib.core.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.core.Solver;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
@@ -18,7 +17,7 @@ import oarlib.problem.impl.DirectedRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
-public class DRPPSolver extends Solver{
+public class DRPPSolver extends SingleVehicleSolver{
 
 	DirectedRPP mInstance;
 
@@ -28,7 +27,7 @@ public class DRPPSolver extends Solver{
 	}
 
 	@Override
-	protected Collection<Route> solve() {
+	protected Route solve() {
 
 		try
 		{
@@ -93,7 +92,6 @@ public class DRPPSolver extends Solver{
 
 			//now reproduce the solution in the original graph
 			Tour eulerTour = new Tour();
-			ArrayList<Route> ans = new ArrayList<Route>();
 			Arc temp;
 			DirectedVertex dv1, dv2;
 			HashMap<Integer, DirectedVertex> gc1Vertices = Gc1.getInternalVertexMap();
@@ -176,8 +174,7 @@ public class DRPPSolver extends Solver{
 			if(!reqIds.isEmpty())
 				System.out.println("You didn't include all the required arcs!");
 			
-			ans.add(eulerTour);
-			return ans;
+			return eulerTour;
 
 		} catch(Exception e)
 		{

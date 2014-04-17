@@ -8,7 +8,7 @@ import java.util.Set;
 import oarlib.core.Edge;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.core.Solver;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
@@ -16,7 +16,7 @@ import oarlib.problem.impl.UndirectedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.UndirectedVertex;
 
-public class UCPPSolver extends Solver{
+public class UCPPSolver extends SingleVehicleSolver{
 
 	UndirectedCPP mInstance;
 
@@ -26,7 +26,7 @@ public class UCPPSolver extends Solver{
 	}
 
 	@Override
-	protected Collection<Route> solve() {
+	protected Route solve() {
 
 		try {
 
@@ -41,9 +41,7 @@ public class UCPPSolver extends Solver{
 			{
 				eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
 			}
-			ArrayList<Route> ret = new ArrayList<Route>();
-			ret.add(eulerTour);
-			return ret;
+			return eulerTour;
 		} catch (Exception e)
 		{
 			e.printStackTrace();

@@ -11,7 +11,7 @@ import oarlib.core.Edge;
 import oarlib.core.MixedEdge;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.core.Solver;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -23,7 +23,7 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
-public class MCPPSolver extends Solver{
+public class MCPPSolver extends SingleVehicleSolver{
 
 	MixedCPP mInstance;
 
@@ -36,7 +36,7 @@ public class MCPPSolver extends Solver{
 	 * Implements Frederickson's heuristic for the mixed CPP.
 	 */
 	@Override
-	protected Collection<Route> solve() {
+	protected Route solve() {
 		try {
 
 			MixedGraph ans1 = mInstance.getGraph().getDeepCopy(); //starting point for Mixed1
@@ -87,31 +87,27 @@ public class MCPPSolver extends Solver{
 				cost2+=temp.getCost();
 			}
 
-			ArrayList<Route> ret = new ArrayList<Route>();
 			ArrayList<Integer> tour;
+			Tour eulerTour = new Tour();
 			if(cost1 <= cost2)
 			{
 				tour = CommonAlgorithms.tryHierholzer(ans1);
-				Tour eulerTour = new Tour();
 				HashMap<Integer, MixedEdge> indexedEdges = ans1.getInternalEdgeMap();
 				for (int i=0;i<tour.size();i++)
 				{
 					eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
 				}
-				ret.add(eulerTour);
 			}
 			else
 			{
 				tour = CommonAlgorithms.tryHierholzer(ans2);
-				Tour eulerTour = new Tour();
 				HashMap<Integer, MixedEdge> indexedEdges = ans2.getInternalEdgeMap();
 				for (int i=0;i<tour.size();i++)
 				{
 					eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
 				}
-				ret.add(eulerTour);
 			}
-			return ret;
+			return eulerTour;
 
 		} catch(Exception e )
 		{

@@ -12,7 +12,7 @@ import oarlib.core.Edge;
 import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
 import oarlib.core.Route;
-import oarlib.core.Solver;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.core.WindyEdge;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -25,7 +25,7 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
-public class WRPPSolver extends Solver{
+public class WRPPSolver extends SingleVehicleSolver{
 
 	WindyRPP mInstance;
 
@@ -43,7 +43,7 @@ public class WRPPSolver extends Solver{
 	/**
 	 * Implements the WRPP1 heuristic from Benavent's paper
 	 */
-	protected Collection<Route> solve() {
+	protected Route solve() {
 		try
 		{
 
@@ -73,7 +73,6 @@ public class WRPPSolver extends Solver{
 
 
 			//return the answer
-			ArrayList<Route> ret = new ArrayList<Route>();
 			ArrayList<Integer> tour;
 			tour = CommonAlgorithms.tryHierholzer(ans);
 			Tour eulerTour = new Tour();
@@ -82,8 +81,7 @@ public class WRPPSolver extends Solver{
 			{
 				eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
 			}
-			ret.add(eulerTour);
-			return ret;
+			return eulerTour;
 		} catch(Exception e)
 		{
 			e.printStackTrace();

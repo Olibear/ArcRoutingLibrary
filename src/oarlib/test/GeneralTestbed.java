@@ -3,7 +3,6 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import gurobi.*;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import oarlib.core.Arc;
@@ -64,7 +63,7 @@ public class GeneralTestbed {
 		//testMSArbor();
 		//testDRPPSolver("/Users/oliverlum/Downloads/Instances", "/Users/oliverlum/Desktop/drpp.txt");
 	}
-	
+
 	/**
 	 * A method to validate our graph simplification in the DRPP Solver.  We construct the example given in the original
 	 * paper by Christofides, and ensure that the output matches with that displayed in the figures of the paper.
@@ -120,7 +119,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * A method to test / validate our implementation of Christofides' heuristic for DRPP Solver.
 	 */
@@ -132,7 +131,7 @@ public class GeneralTestbed {
 		{
 			DirectedRPP validInstance;
 			DRPPSolver validSolver;
-			Collection<Route> validAns;
+			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
 			PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
@@ -147,11 +146,11 @@ public class GeneralTestbed {
 				{
 					String temp = testInstance.getName();
 					System.out.println(temp); // print the file name
-					
+
 					//ensure that the problem is a valid instance
 					if(!temp.endsWith(".0") && !temp.endsWith(".1") && !temp.endsWith(".1_3") && !temp.endsWith(".2_3") && !temp.endsWith(".3_3"))
 						continue;
-					
+
 					// read the graph
 					Graph<?,?> g = gr.readGraph(instanceFolder + "/" + temp);
 
@@ -164,9 +163,8 @@ public class GeneralTestbed {
 						start = System.nanoTime();
 						validAns = validSolver.trySolve();
 						end = System.nanoTime();
-						for(Route r: validAns)
-							if(r.getCost() < bestCost)
-								bestCost = r.getCost();
+						if(validAns.getCost() < bestCost)
+							bestCost = validAns.getCost();
 						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our DRPP implementation on a graph with " + g2.getEdges().size() + " edges.");
 					}
 				}
@@ -202,7 +200,7 @@ public class GeneralTestbed {
 			weights[3] = 1000; //1-1
 			weights[4] = 2; //2-0
 			weights[5] = 10; //2-1
-			
+
 			// run it directly
 			int[] ans = MSArbor.msArbor(n, m, weights);
 
@@ -218,21 +216,21 @@ public class GeneralTestbed {
 			test.addEdge(3,2,"orig",3);
 			test.addEdge(1,3,"orig",1);
 			test.addEdge(2,3,"orig",4);
-			
+
 			HashMap<Integer, Arc> testArcs = test.getInternalEdgeMap();
 			test.removeEdge(testArcs.get(3));
 			test.removeEdge(testArcs.get(4));
 			test.removeEdge(testArcs.get(1));
 			test.removeEdge(testArcs.get(6));
-			
+
 			HashSet<Integer> msa = CommonAlgorithms.minSpanningArborescence(test, 2);
-			
+
 		} catch(Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * An example method which shows how to use our graph generators.
 	 */
@@ -246,7 +244,7 @@ public class GeneralTestbed {
 		 */
 		UndirectedGraph g = (UndirectedGraph) ugg.generateGraph(1000, 10, true, .5);
 	}
-	
+
 	/**
 	 * An example method which shows how to use our graph readers.
 	 */
@@ -267,7 +265,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * A method to test our implementation of Frederickson's algorithm on the instances
 	 * provided on Angel Corberan's website
@@ -280,7 +278,7 @@ public class GeneralTestbed {
 		{
 			MixedCPP validInstance;
 			MCPPSolver validSolver;
-			Collection<Route> validAns;
+			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
 			long start;
@@ -293,7 +291,7 @@ public class GeneralTestbed {
 				System.out.println(temp);
 				if(temp.equals(".DS_Store")) // ignore mac stuff
 					continue;
-				
+
 				Graph<?,?> g = gr.readGraph(instanceFolder + "/" + temp);
 				if(g.getClass() == MixedGraph.class)
 				{
@@ -312,7 +310,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * A method to test / validate our implementation of Yaoyuenyong's algorithm on the instances
 	 * graciously provided by Yaoyuenyong; the results are compared against those given in
@@ -326,7 +324,7 @@ public class GeneralTestbed {
 		{
 			MixedCPP validInstance;
 			ImprovedMCPPSolver validSolver;
-			Collection<Route> validAns;
+			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
 			long start;
@@ -348,8 +346,7 @@ public class GeneralTestbed {
 					start = System.nanoTime();
 					validAns = validSolver.trySolve();
 					end = System.nanoTime();
-					for(Route r : validAns)
-						System.out.println(r.getCost());
+					System.out.println(validAns.getCost());
 					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
 
 				}
@@ -374,7 +371,7 @@ public class GeneralTestbed {
 		{
 			MixedCPP validInstance;
 			MCPPSolver validSolver;
-			Collection<Route> validAns;
+			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
 			long start;
@@ -411,8 +408,7 @@ public class GeneralTestbed {
 					start = System.nanoTime();
 					validAns = validSolver.trySolve();
 					end = System.nanoTime();
-					for(Route r: validAns)
-						System.out.println(r.getCost());
+					System.out.println(validAns.getCost());
 					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
 
 				}
@@ -423,7 +419,7 @@ public class GeneralTestbed {
 			return;
 		}
 	}
-	
+
 	/**
 	 * A method to validate the WRPP Solver based on instances provided on 
 	 * Angel Corberan's website.
@@ -436,7 +432,7 @@ public class GeneralTestbed {
 		{
 			WindyRPP validInstance;
 			WRPPSolver validSolver;
-			Collection<Route> validAns;
+			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
 			PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
@@ -462,9 +458,8 @@ public class GeneralTestbed {
 						validSolver = new WRPPSolver(validInstance);
 						start = System.nanoTime();
 						validAns = validSolver.trySolve();
-						for(Route r: validAns)
-							if(r.getCost() < bestCost)
-								bestCost = r.getCost();
+						if(validAns.getCost() < bestCost)
+							bestCost = validAns.getCost();
 						end = System.nanoTime();
 						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
 					}
@@ -480,7 +475,7 @@ public class GeneralTestbed {
 			return;
 		}
 	}
-	
+
 	/**
 	 * A method to validate the improved WRPP Solver based on instances provided on 
 	 * Angel Corberan's website.
@@ -493,7 +488,7 @@ public class GeneralTestbed {
 		{
 			WindyRPP validInstance;
 			ImprovedWRPPSolver validSolver;
-			Collection<Route> validAns;
+			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
 			PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
@@ -519,9 +514,8 @@ public class GeneralTestbed {
 						start = System.nanoTime();
 						validAns = validSolver.trySolve();
 						end = System.nanoTime();
-						for(Route r: validAns)
-							if(r.getCost() < bestCost)
-								bestCost = r.getCost();
+						if(validAns.getCost() < bestCost)
+							bestCost = validAns.getCost();
 						System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WRPP1 implementation on a graph with " + g2.getEdges().size() + " edges.");
 					}
 				}
@@ -536,7 +530,7 @@ public class GeneralTestbed {
 			return;
 		}
 	}
-	
+
 	/**
 	 * A method to ensure that our implementation of Hierholzer's algorithm to find an euler tour on
 	 * an Eulerian graph.
@@ -677,7 +671,7 @@ public class GeneralTestbed {
 				start = System.nanoTime();
 				int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
 				end = System.nanoTime();
-				
+
 				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our SSP min cost flow implementation on a graph with " + g.getEdges().size() + " edges.");
 
 				int[][] ans = CommonAlgorithms.minCostNetworkFlow(g); //Lau's
@@ -688,7 +682,7 @@ public class GeneralTestbed {
 				{
 					cost += myAns[j] * indexedArcs.get(j).getCost();
 				}
-				
+
 				//now check against ans
 				boolean costOK = true;
 				if(ans[0][0] != cost)
@@ -702,7 +696,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * A method to compare solutions from our UCPP solver to a gurobi solver.  Note
 	 * that in order to use this, you must have a valid gurobi license.
@@ -716,7 +710,7 @@ public class GeneralTestbed {
 			UndirectedGraph g2;
 			UndirectedCPP validInstance;
 			UCPPSolver validSolver;
-			Collection<Route> validAns;
+			Route validAns;
 
 			//timing stuff
 			long start;
@@ -751,10 +745,7 @@ public class GeneralTestbed {
 				end = System.nanoTime();
 				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our UCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
 
-				for(Route r: validAns)
-				{
-					myCost += r.getCost();
-				}
+				myCost += validAns.getCost();
 
 				int n = g2.getVertices().size();
 				int[][] dist = new int[n+1][n+1];
@@ -841,7 +832,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * A method to compare solutions from our DCPP solver to a gurobi solver.  Note
 	 * that in order to use this, you must have a valid gurobi license.
@@ -855,7 +846,7 @@ public class GeneralTestbed {
 			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
 			DirectedCPP validInstance;
 			DCPPSolver validSolver;
-			Collection<Route> validAns;
+			Route validAns;
 
 			//timing stuff
 			long start;
@@ -890,11 +881,8 @@ public class GeneralTestbed {
 				validAns = validSolver.trySolve(); //my ans
 				end = System.nanoTime();
 				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our DCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
-
-				for(Route r: validAns)
-				{
-					myCost += r.getCost();
-				}
+				
+				myCost += validAns.getCost();
 
 				int n = g2.getVertices().size();
 				int[][] dist = new int[n+1][n+1];
@@ -966,7 +954,7 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-		
+
 	/**
 	 * An example method of how to setup a graph and use a solver.
 	 */
@@ -974,7 +962,7 @@ public class GeneralTestbed {
 	private static void testUCPPSolver()
 	{
 		try{
-			
+
 			long start = System.currentTimeMillis(); // for timing
 			UndirectedGraph test = new UndirectedGraph(); // initialize the graph
 
@@ -1007,7 +995,7 @@ public class GeneralTestbed {
 			// set up the instance, and solve it
 			UndirectedCPP testInstance = new UndirectedCPP(test);
 			UCPPSolver testSolver = new UCPPSolver(testInstance);
-			Collection<Route> testAns = testSolver.trySolve();
+			Route testAns = testSolver.trySolve();
 			long end = System.currentTimeMillis();
 			System.out.println(end - start);
 		} catch(Exception e)

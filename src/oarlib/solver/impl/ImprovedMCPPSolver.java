@@ -14,7 +14,7 @@ import oarlib.core.MultiEdge.EDGETYPE;
 import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
 import oarlib.core.Route;
-import oarlib.core.Solver;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -26,7 +26,7 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
-public class ImprovedMCPPSolver extends Solver {
+public class ImprovedMCPPSolver extends SingleVehicleSolver {
 
 	MixedCPP mInstance;
 	public ImprovedMCPPSolver(MixedCPP instance) throws IllegalArgumentException {
@@ -36,7 +36,7 @@ public class ImprovedMCPPSolver extends Solver {
 
 
 	@Override
-	protected Collection<Route> solve() {
+	protected Route solve() {
 		try{
 			//Compute the inputs G, Gm and G star
 			MixedGraph G = mInstance.getGraph().getDeepCopy(); //original
@@ -353,7 +353,6 @@ public class ImprovedMCPPSolver extends Solver {
 				}
 			}
 			
-			ArrayList<Route> ret = new ArrayList<Route>();
 			ArrayList<Integer> tour;
 			tour = CommonAlgorithms.tryHierholzer(G);
 			Tour eulerTour = new Tour();
@@ -362,9 +361,8 @@ public class ImprovedMCPPSolver extends Solver {
 			{
 				eulerTour.appendEdge(indexedEdges.get(tour.get(k)));
 			}
-			ret.add(eulerTour);
 
-			return ret;
+			return eulerTour;
 		} catch(Exception ex)
 		{
 			ex.printStackTrace();

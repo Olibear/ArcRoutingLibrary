@@ -1,20 +1,19 @@
 package oarlib.solver.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.core.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.core.Solver;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.problem.impl.DirectedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
-public class DCPPSolver extends Solver{
+public class DCPPSolver extends SingleVehicleSolver{
 
 	DirectedCPP mInstance;
 
@@ -24,7 +23,7 @@ public class DCPPSolver extends Solver{
 	}
 
 	@Override
-	protected Collection<Route> solve() {
+	protected Route solve() {
 
 		DirectedGraph copy = mInstance.getGraph().getDeepCopy();
 		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
@@ -38,9 +37,7 @@ public class DCPPSolver extends Solver{
 		{
 			eulerTour.appendEdge(indexedArcs.get(ans.get(i)));
 		}
-		ArrayList<Route> ret = new ArrayList<Route>();
-		ret.add(eulerTour);
-		return ret;
+		return eulerTour;
 	}
 
 	private static void eulerAugment(DirectedGraph input)
