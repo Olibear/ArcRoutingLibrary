@@ -124,35 +124,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 			return null;
 		}
 	}
-	@Override
-	public void addEdge(int i, int j, String desc, int cost)
-			throws InvalidEndpointsException {
-		if(i > this.getVertices().size() || j > this.getVertices().size())
-			throw new InvalidEndpointsException();
-		this.addEdge(new Arc(desc, new Pair<DirectedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)),cost));
-		
-	}
 	
-	public void addEdge(int i, int j, String desc, int cost, boolean isReq)
-			throws InvalidEndpointsException {
-		if(i > this.getVertices().size() || j > this.getVertices().size())
-			throw new InvalidEndpointsException();
-		Arc temp = this.constructEdge(i, j, desc, cost);
-		temp.setRequired(isReq);
-		this.addEdge(temp);
-		
-	}
-	
-	public void addEdge(int i, int j, String desc, int cost, int matchId, boolean isReq)
-			throws InvalidEndpointsException {
-		if(i > this.getVertices().size() || j > this.getVertices().size())
-			throw new InvalidEndpointsException();
-		Arc temp = this.constructEdge(i, j, desc, cost);
-		temp.setRequired(isReq);
-		temp.setMatchId(matchId);
-		this.addEdge(temp);
-		
-	}
 
 	@Override
 	public Arc constructEdge(int i, int j, String desc, int cost)

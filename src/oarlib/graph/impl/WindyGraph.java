@@ -36,26 +36,6 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 		return Graph.Type.WINDY;
 	}
 
-	public void addEdge(int i, int j, String desc, int cost, int reverseCost)
-			throws InvalidEndpointsException {
-		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost));
-	}
-
-	public void addEdge(int i, int j, String desc, int cost, int reverseCost, int matchId)
-			throws InvalidEndpointsException {
-		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost), matchId);
-	}
-
-	public void addEdge(int i, int j, String desc, int cost, int reverseCost, boolean isRequired)
-			throws InvalidEndpointsException {
-		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost, isRequired));
-	}
-
-	public void addEdge(int i, int j, String desc, int cost, int reverseCost, int matchId, boolean isRequired)
-			throws InvalidEndpointsException {
-		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost, isRequired), matchId);
-	}
-
 	@Override
 	public void addEdge(WindyEdge e) throws InvalidEndpointsException{
 		Pair<WindyVertex> endpoints = e.getEndpoints();
@@ -134,6 +114,37 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 
 	}
 
+	@Override
+	public WindyVertex constructVertex(String desc) {
+		return new WindyVertex(desc);
+	}
+	
+	//====================================================
+	//
+	// Adders and Factory methods that take reverse cost
+	//
+	//====================================================
+	
+	public void addEdge(int i, int j, String desc, int cost, int reverseCost)
+			throws InvalidEndpointsException {
+		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost));
+	}
+
+	public void addEdge(int i, int j, String desc, int cost, int reverseCost, int matchId)
+			throws InvalidEndpointsException {
+		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost), matchId);
+	}
+
+	public void addEdge(int i, int j, String desc, int cost, int reverseCost, boolean isRequired)
+			throws InvalidEndpointsException {
+		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost, isRequired));
+	}
+
+	public void addEdge(int i, int j, String desc, int cost, int reverseCost, int matchId, boolean isRequired)
+			throws InvalidEndpointsException {
+		this.addEdge(this.constructEdge(i, j, desc, cost, reverseCost, isRequired), matchId);
+	}
+	
 	public WindyEdge constructEdge(int i, int j, String desc, int cost, int reverseCost)
 			throws InvalidEndpointsException {
 		if(i > this.getVertices().size() || j > this.getVertices().size())
@@ -148,11 +159,6 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 			throw new InvalidEndpointsException();
 		return new WindyEdge(desc, new Pair<WindyVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, reverseCost, isRequired);
 
-	}
-
-	@Override
-	public WindyVertex constructVertex(String desc) {
-		return new WindyVertex(desc);
 	}
 
 

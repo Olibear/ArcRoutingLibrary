@@ -47,11 +47,22 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		//validateSimplifyGraph();
-		//testDRPPSolver();
+		//validateMinCostFlow();
+		//testSimpleGraphReader("/Users/oliverlum/Downloads/blossom5-v2.04.src/GRAPH1.TXT");
+		//testUndirectedGraphGenerator();
+		//validateEulerTour();
+		//testUCPPSolver();
+		//validateUCPPSolver();
+		//validateDCPPSolver();
+		//testFredericksons("/Users/oliverlum/Downloads/MCPP");
+		//validateMCPPSolver("/Users/oliverlum/Downloads/YaoyuenyongInstances");
+		//validateImprovedMCPPSolver("/Users/oliverlum/Downloads/YaoyuenyongInstances");
+		//validateWRPPSolver("/Users/oliverlum/Downloads/WRPP", "/Users/oliverlum/Desktop/wrpp.txt");
+		//validateImprovedWRPPSolver("/Users/oliverlum/Downloads/WRPP", "/Users/oliverlum/Desktop/improvedwrpp.txt");
 		//testCamposGraphReader();
+		//validateSimplifyGraph();
 		//testMSArbor();
-		//validateImprovedWRPPSolver();
+		//testDRPPSolver("/Users/oliverlum/Downloads/Instances", "/Users/oliverlum/Desktop/drpp.txt");
 	}
 	
 	/**
@@ -114,7 +125,7 @@ public class GeneralTestbed {
 	 * A method to test / validate our implementation of Christofides' heuristic for DRPP Solver.
 	 */
 	@SuppressWarnings("unused")
-	private static void testDRPPSolver()
+	private static void testDRPPSolver(String instanceFolder, String outputFile)
 	{
 		GraphReader gr = new GraphReader(Format.Name.Campos);
 		try
@@ -123,8 +134,8 @@ public class GeneralTestbed {
 			DRPPSolver validSolver;
 			Collection<Route> validAns;
 
-			File testInstanceFolder = new File("/Users/oliverlum/Downloads/Instances");
-			PrintWriter pw = new PrintWriter("/Users/oliverlum/Desktop/drpp.txt", "UTF-8");
+			File testInstanceFolder = new File(instanceFolder);
+			PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
 			long start;
 			long end;
 
@@ -142,7 +153,7 @@ public class GeneralTestbed {
 						continue;
 					
 					// read the graph
-					Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/Instances/" + temp);
+					Graph<?,?> g = gr.readGraph(instanceFolder + "/" + temp);
 
 					if(g.getClass() == DirectedGraph.class)
 					{
@@ -240,12 +251,12 @@ public class GeneralTestbed {
 	 * An example method which shows how to use our graph readers.
 	 */
 	@SuppressWarnings("unused")
-	private static void testSimpleGraphReader()
+	private static void testSimpleGraphReader(String instancePath)
 	{
 		GraphReader gr = new GraphReader(Format.Name.Simple);
 		try 
 		{
-			Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/blossom5-v2.04.src/GRAPH1.TXT");
+			Graph<?,?> g = gr.readGraph(instancePath);
 			if(g.getClass() == DirectedGraph.class)
 			{
 				DirectedGraph g2 = (DirectedGraph)g;
@@ -262,7 +273,7 @@ public class GeneralTestbed {
 	 * provided on Angel Corberan's website
 	 */
 	@SuppressWarnings("unused")
-	private static void testFredericksons()
+	private static void testFredericksons(String instanceFolder)
 	{
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
 		try
@@ -271,7 +282,7 @@ public class GeneralTestbed {
 			MCPPSolver validSolver;
 			Collection<Route> validAns;
 
-			File testInstanceFolder = new File("/Users/oliverlum/Downloads/MCPP");
+			File testInstanceFolder = new File(instanceFolder);
 			long start;
 			long end;
 
@@ -283,7 +294,7 @@ public class GeneralTestbed {
 				if(temp.equals(".DS_Store")) // ignore mac stuff
 					continue;
 				
-				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/MCPP/" + temp);
+				Graph<?,?> g = gr.readGraph(instanceFolder + "/" + temp);
 				if(g.getClass() == MixedGraph.class)
 				{
 					MixedGraph g2 = (MixedGraph)g;
@@ -308,7 +319,7 @@ public class GeneralTestbed {
 	 * his paper.
 	 */
 	@SuppressWarnings("unused")
-	private static void validateImprovedMCPPSolver()
+	private static void validateImprovedMCPPSolver(String instanceFolder)
 	{
 		GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
 		try
@@ -317,7 +328,7 @@ public class GeneralTestbed {
 			ImprovedMCPPSolver validSolver;
 			Collection<Route> validAns;
 
-			File testInstanceFolder = new File("/Users/oliverlum/Downloads/YaoyuenyongInstances");
+			File testInstanceFolder = new File(instanceFolder);
 			long start;
 			long end;
 
@@ -328,7 +339,7 @@ public class GeneralTestbed {
 				System.out.println(temp);
 				if(temp.equals(".DS_Store"))
 					continue;
-				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/YaoyuenyongInstances/" + temp);
+				Graph<?,?> g = gr.readGraph(instanceFolder + "/" + temp);
 				if(g.getClass() == MixedGraph.class)
 				{
 					MixedGraph g2 = (MixedGraph)g;
@@ -356,7 +367,7 @@ public class GeneralTestbed {
 	 * his paper.
 	 */
 	@SuppressWarnings("unused")
-	private static void validateMCPPSolvers()
+	private static void validateMCPPSolver(String instanceFolder)
 	{
 		GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
 		try
@@ -365,7 +376,7 @@ public class GeneralTestbed {
 			MCPPSolver validSolver;
 			Collection<Route> validAns;
 
-			File testInstanceFolder = new File("/Users/oliverlum/Downloads/YaoyuenyongInstances");
+			File testInstanceFolder = new File(instanceFolder);
 			long start;
 			long end;
 
@@ -375,7 +386,7 @@ public class GeneralTestbed {
 				System.out.println(temp);
 				if(temp.equals(".DS_Store"))
 					continue;
-				Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/YaoyuenyongInstances/" + temp);
+				Graph<?,?> g = gr.readGraph(instanceFolder + "/" + temp);
 				int arcCount = 0;
 				int edgeCount = 0;
 				int oddDegreeCount = 0;
@@ -418,7 +429,7 @@ public class GeneralTestbed {
 	 * Angel Corberan's website.
 	 */
 	@SuppressWarnings("unused")
-	private static void validateWRPPSolver()
+	private static void validateWRPPSolver(String instanceFolder, String outputFile)
 	{
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
 		try
@@ -427,8 +438,8 @@ public class GeneralTestbed {
 			WRPPSolver validSolver;
 			Collection<Route> validAns;
 
-			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WRPP");
-			PrintWriter pw = new PrintWriter("/Users/oliverlum/Desktop/wrpp.txt", "UTF-8");
+			File testInstanceFolder = new File(instanceFolder);
+			PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
 			long start;
 			long end;
 
@@ -442,7 +453,7 @@ public class GeneralTestbed {
 					System.out.println(temp);
 					if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
 						continue;
-					Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
+					Graph<?,?> g = gr.readGraph(instanceFolder + "/" + temp);
 
 					if(g.getClass() == WindyGraph.class)
 					{
@@ -475,7 +486,7 @@ public class GeneralTestbed {
 	 * Angel Corberan's website.
 	 */
 	@SuppressWarnings("unused")
-	private static void validateImprovedWRPPSolver()
+	private static void validateImprovedWRPPSolver(String instanceFolder, String outputFile)
 	{
 		GraphReader gr = new GraphReader(Format.Name.Corberan);
 		try
@@ -484,8 +495,8 @@ public class GeneralTestbed {
 			ImprovedWRPPSolver validSolver;
 			Collection<Route> validAns;
 
-			File testInstanceFolder = new File("/Users/oliverlum/Downloads/WRPP");
-			PrintWriter pw = new PrintWriter("/Users/oliverlum/Desktop/improvedwrpp.txt", "UTF-8");
+			File testInstanceFolder = new File(instanceFolder);
+			PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
 			long start;
 			long end;
 
@@ -498,7 +509,7 @@ public class GeneralTestbed {
 					System.out.println(temp);
 					if(!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
 						continue;
-					Graph<?,?> g = gr.readGraph("/Users/oliverlum/Downloads/WRPP/" + temp);
+					Graph<?,?> g = gr.readGraph(instanceFolder + "/" + temp);
 
 					if(g.getClass() == WindyGraph.class)
 					{
@@ -955,7 +966,6 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-	
 		
 	/**
 	 * An example method of how to setup a graph and use a solver.

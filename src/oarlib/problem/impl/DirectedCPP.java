@@ -1,8 +1,6 @@
 package oarlib.problem.impl;
 
 import java.util.Collection;
-
-import oarlib.core.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.DirectedGraph;

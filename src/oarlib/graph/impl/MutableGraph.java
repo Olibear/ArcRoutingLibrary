@@ -2,7 +2,6 @@ package oarlib.graph.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
-
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;
@@ -30,10 +29,58 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		mInternalVertexMap = new HashMap<Integer, V>();
 		mGlobalEdgeMap = new HashMap<Integer, E>();
 		mInternalEdgeMap = new HashMap<Integer, E>();
+		this.assignGraphId();
+	}
+	
+	//=====================================
+	//
+	// Graph Overrides With Match Ids
+	//
+	//=====================================
+	public void addEdge(E e, int matchId) throws InvalidEndpointsException
+	{
+		this.addEdge(e);
+		e.setMatchId(matchId);
+	}
+	
+	public void addEdge(int i, int j, String desc, int cost, int matchId) throws InvalidEndpointsException
+	{
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		E temp = this.constructEdge(i, j, desc, cost);
+		temp.setMatchId(matchId);
+		this.addEdge(temp);
+	}
+	
+	public void addEdge(int i, int j, String desc, int cost, int matchId, boolean isReq)
+			throws InvalidEndpointsException {
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		E temp = this.constructEdge(i, j, desc, cost);
+		temp.setRequired(isReq);
+		temp.setMatchId(matchId);
+		this.addEdge(temp);	
+	}
+	
+	public void addEdge(int i, int j, int cost, int matchId) throws InvalidEndpointsException
+	{
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		E temp = this.constructEdge(i, j, "", cost);
+		temp.setMatchId(matchId);
+		this.addEdge(temp);
+	}
+	
+	public void addVertex(V v, int matchId)
+	{
+		this.addVertex(v);
+		v.setMatchId(matchId);
 	}
 	
 	//==============================
-	//Graph overrides
+	//
+	// Graph overrides
+	//
 	//==============================
 	
 	@Override
@@ -57,17 +104,11 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		if (!mVertices.contains(e.getEndpoints().getFirst()) || !mVertices.contains(e.getEndpoints().getSecond()))
 			throw new InvalidEndpointsException();
 		e.setId(this.assignEdgeId());
+		e.setGraphId(this.getGraphId());
 		mEdges.add(e);
 		mGlobalEdgeMap.put(e.getGuid(), e);
 		mInternalEdgeMap.put(e.getId(), e);
 	}
-	
-	public void addEdge(E e, int matchId) throws InvalidEndpointsException
-	{
-		this.addEdge(e);
-		e.setMatchId(matchId);
-	}
-	
 	@Override
 	public void addEdge(int i, int j, int cost) throws InvalidEndpointsException
 	{
@@ -75,7 +116,6 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 			throw new InvalidEndpointsException();
 		this.addEdge(this.constructEdge(i, j, "", cost));	
 	}
-	
 	@Override
 	public void addEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException
 	{
@@ -83,33 +123,24 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 			throw new InvalidEndpointsException();
 		this.addEdge(this.constructEdge(i, j, desc, cost));
 	}
-	public void addEdge(int i, int j, int cost, int matchId) throws InvalidEndpointsException
-	{
-		if(i > this.getVertices().size() || j > this.getVertices().size())
-			throw new InvalidEndpointsException();
-		E temp = this.constructEdge(i, j, "", cost);
-		temp.setMatchId(matchId);
-		this.addEdge(temp);
-	}
-	public void addEdge(int i, int j, String desc, int cost, int matchId) throws InvalidEndpointsException
-	{
+
+	@Override
+	public void addEdge(int i, int j, String desc, int cost, boolean isReq)
+			throws InvalidEndpointsException {
 		if(i > this.getVertices().size() || j > this.getVertices().size())
 			throw new InvalidEndpointsException();
 		E temp = this.constructEdge(i, j, desc, cost);
-		temp.setMatchId(matchId);
+		temp.setRequired(isReq);
 		this.addEdge(temp);
 	}
+	
 	@Override
 	public void addVertex(V v) {
 		v.setId(this.assignVertexId());
+		v.setGraphId(this.getGraphId());
 		mVertices.add(v);
 		mGlobalVertexMap.put(v.getGuid(), v);
 		mInternalVertexMap.put(v.getId(), v);
-	}
-	public void addVertex(V v, int matchId)
-	{
-		this.addVertex(v);
-		v.setMatchId(matchId);
 	}
 	@Override
 	public void removeEdge(E e)

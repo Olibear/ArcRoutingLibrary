@@ -1,13 +1,8 @@
 package oarlib.problem.impl;
 
 import java.util.Collection;
-
-import oarlib.core.Graph;
-import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.core.Vertex;
-import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 
 public class MixedCPP extends Problem{

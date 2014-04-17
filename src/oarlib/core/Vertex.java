@@ -13,6 +13,7 @@ public abstract class Vertex {
 	
 	private static int counter = 1; //for assigning global vertex ids
 	private String mLabel;
+	private int mGraphId;
 	private int mId; //id in the graph, (1,2,3...)
 	private int guid; //global id, for identifying a specific node that may have copies in multiple graphs
 	private int matchId; //id for finding matching guys in different graphs, so that they can have different internal labels (so numbering is still from 1 - n) but we can still locate companions
@@ -22,6 +23,7 @@ public abstract class Vertex {
 	public Vertex(String label)
 	{
 		setId(-1);
+		setGraphId(-1);
 		setMatchId(-1);
 		setLabel(label);
 		setGuid(counter);
@@ -88,5 +90,13 @@ public abstract class Vertex {
 
 	public void setMatchId(int matchId) {
 		this.matchId = matchId;
+	}
+
+	public int getGraphId() {
+		return mGraphId;
+	}
+
+	public void setGraphId(int graphId) {
+		this.mGraphId = graphId;
 	}
 }

@@ -16,6 +16,8 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 
 	private int vidCounter = 1; //for assigning internal ids of vertices
 	private int eidCounter = 1;
+	private int graphId;
+	private static int graphIdCounter = 1;
 	public enum Type{
 		DIRECTED,
 		UNDIRECTED,
@@ -32,6 +34,11 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 		eidCounter++;
 		return eidCounter - 1;
 	}
+	protected int assignGraphId()
+	{
+		graphIdCounter++;
+		return graphIdCounter - 1;
+	}
 	public int getEidCounter()
 	{
 		return eidCounter;
@@ -39,6 +46,10 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	public int getVidCounter()
 	{
 		return vidCounter;
+	}
+	public int getGraphId()
+	{
+		return graphId;
 	}
 	/**
 	 * Getter for the vertices.
@@ -93,6 +104,18 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * @param cost - cost of traversing the edge
 	 */
 	public abstract void addEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException;
+	/**
+	 * A more notationally elegant way of adding an edge to a graph, it will create a new edge from vertex i to vertex j,
+	 * with the appropriate cost and description.  If this is a mixed graph, it will default to adding an edge, but look for
+	 * a version that takes directedness as an argument
+	 * @param i - add edge from vertex i
+	 * @param j - add edge to vertex j
+	 * @param desc - description for the edge
+	 * @param cost - cost of traversing the edge
+	 * @param isRequired - whether or not this edge is required in the solution
+	 */
+	public abstract void addEdge(int i, int j, String desc, int cost, boolean isRequired) throws InvalidEndpointsException;
+	
 	/**
 	 * To remove an edge from the graph.  This updates the degrees of the vertices, and throws to the specific implementation of the graph.
 	 * Throws an IllegalArgumentException if the edge isn't a member of the edge collection belonging to the graph.

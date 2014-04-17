@@ -14,6 +14,7 @@ public abstract class Link<V extends Vertex> {
 	private String mLabel;
 	private int guid; //the idea is that this will be unique for all links, even between graphs
 	private int mId; //while this will help us identify the 'same' link in different graphs (graph copies for instance)
+	private int mGraphId;
 	private int matchId;
 	private Pair<V> mEndpoints;
 	private int mCost;
@@ -29,6 +30,7 @@ public abstract class Link<V extends Vertex> {
 	public Link(String label, Pair<V> endpoints, int cost, boolean required)
 	{
 		setId(-1);
+		setGraphId(-1);
 		setMatchId(-1);
 		setLabel(label);
 		setGuid(counter);
@@ -129,6 +131,12 @@ public abstract class Link<V extends Vertex> {
 	}
 	public void setRequired(boolean isRequired) {
 		this.isRequired = isRequired;
+	}
+	public int getGraphId() {
+		return mGraphId;
+	}
+	public void setGraphId(int mGraphId) {
+		this.mGraphId = mGraphId;
 	}
 
 }

@@ -160,7 +160,7 @@ public class MixedGraphGenerator extends GraphGenerator{
 						iplus++;
 				}
 				
-				//evendegree (make eulerian in the undirected sense
+				//evendegree (make eulerian in the undirected sense)
 				MixedVertex temp = null;
 				boolean lookingForPartner = false;
 				for(MixedVertex v: g.getVertices())

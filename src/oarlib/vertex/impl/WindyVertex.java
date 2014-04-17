@@ -2,6 +2,7 @@ package oarlib.vertex.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import oarlib.core.Vertex;
 import oarlib.core.WindyEdge;
 /**
@@ -28,25 +29,41 @@ public class WindyVertex extends Vertex{
 		this.degree = degree;
 	}
 	
-	@Override
-	public HashMap<WindyVertex, ArrayList<WindyEdge>> getNeighbors()
+	/**
+	 * Adds an arc joining this vertex with v.
+	 * @param v - the other endpoint of the arc.
+	 * @param a - the arc to be added.
+	 * @throws IllegalArgumentException - if the vertex isn't the other endpoint of the arc provided.
+	 */
+	public void addToNeighbors(WindyVertex v, WindyEdge e) throws IllegalArgumentException
 	{
-		return neighbors;
-	}
-	public void addToNeighbors(WindyVertex v, WindyEdge e)
-	{
+		if((e.getEndpoints().getFirst() != this && e.getEndpoints().getSecond() != this) || (e.getEndpoints().getFirst() != v && e.getEndpoints().getSecond() != v) || this.getGraphId() != v.getGraphId())
+			throw new IllegalArgumentException();
 		if(!neighbors.containsKey(v))
 			neighbors.put(v, new ArrayList<WindyEdge>());
 		neighbors.get(v).add(e);
 		return;
 	}
-
-	public void removeFromNeighbors(WindyVertex v, WindyEdge e) throws IllegalArgumentException
+	/**
+	 * Removes an arc joining this vertex with v.
+	 * @param v - the other endpoint of the arc.
+	 * @param a - the arc to be removed.
+	 * @return true if operation successful, false if the arguments were invalid.
+	 */
+	public boolean removeFromNeighbors(WindyVertex v, WindyEdge a) 
 	{
-		neighbors.get(v).remove(e);
+		if(!neighbors.containsKey(v) || !neighbors.get(v).contains(a))
+			return false;
+		neighbors.get(v).remove(a);
 		if(neighbors.get(v).size()==0)
 			neighbors.remove(v);
-		return;
+		return true;
+	}
+	
+	@Override
+	public HashMap<WindyVertex, ArrayList<WindyEdge>> getNeighbors()
+	{
+		return neighbors;
 	}
 
 	@Override

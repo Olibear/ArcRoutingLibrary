@@ -17,6 +17,7 @@ public class DirectedGraphGenerator extends GraphGenerator{
 	public DirectedGraph generateGraph(int n, int maxCost, boolean connected,
 			double density) {
 		try {
+			
 			//ans graph
 			DirectedGraph ans = new DirectedGraph();
 
@@ -25,7 +26,6 @@ public class DirectedGraphGenerator extends GraphGenerator{
 			{
 				ans.addVertex(new DirectedVertex("Original"));
 			}
-
 			HashMap<Integer,DirectedVertex> indexedVertices = ans.getInternalVertexMap();
 
 			//figure out what is set

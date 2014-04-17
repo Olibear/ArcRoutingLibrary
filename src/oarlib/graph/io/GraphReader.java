@@ -22,7 +22,7 @@ import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
 /**
- * Reader to accept various file formats, and store them as a graph object.  Plans to use Gephi.
+ * Reader to accept various file formats, and store them as a graph object.
  * @author Oliver
  *
  */

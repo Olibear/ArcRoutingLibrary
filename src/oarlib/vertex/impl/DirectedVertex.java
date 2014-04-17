@@ -22,7 +22,43 @@ public class DirectedVertex extends Vertex{
 		setOutDegree(0);
 		neighbors = new HashMap<DirectedVertex,ArrayList<Arc>>();
 	}
+	
+	/**
+	 * Adds an arc joining this vertex with v.
+	 * @param v - the other endpoint of the arc.
+	 * @param a - the arc to be added.
+	 * @throws IllegalArgumentException - if the vertex isn't the other endpoint of the arc provided.
+	 */
+	public void addToNeighbors(DirectedVertex v, Arc a) throws IllegalArgumentException
+	{
+		if(a.getTail() != this || a.getHead() != v || this.getGraphId() != v.getGraphId())
+			throw new IllegalArgumentException();
+		if(!neighbors.containsKey(v))
+			neighbors.put(v, new ArrayList<Arc>());
+		neighbors.get(v).add(a);
+		return;
+	}
+	/**
+	 * Removes an arc joining this vertex with v.
+	 * @param v - the other endpoint of the arc.
+	 * @param a - the arc to be removed.
+	 * @return true if operation successful, false if the arguments were invalid.
+	 */
+	public boolean removeFromNeighbors(DirectedVertex v, Arc a) 
+	{
+		if(!neighbors.containsKey(v) || !neighbors.get(v).contains(a))
+			return false;
+		neighbors.get(v).remove(a);
+		if(neighbors.get(v).size()==0)
+			neighbors.remove(v);
+		return true;
+	}
 
+	//=================================
+	//
+	// Getters and Setters
+	//
+	//=================================
 	public int getInDegree() {
 		return inDegree;
 	}
@@ -44,24 +80,16 @@ public class DirectedVertex extends Vertex{
 		return inDegree - outDegree;
 	}
 	
+	//====================================
+	//
+	// Graph Overrides
+	//
+	//====================================
+	
 	@Override
 	public HashMap<DirectedVertex, ArrayList<Arc>> getNeighbors()
 	{
 		return neighbors;
-	}
-	public void addToNeighbors(DirectedVertex v, Arc a)
-	{
-		if(!neighbors.containsKey(v))
-			neighbors.put(v, new ArrayList<Arc>());
-		neighbors.get(v).add(a);
-		return;
-	}
-	public void removeFromNeighbors(DirectedVertex v, Arc a) throws IllegalArgumentException
-	{
-		neighbors.get(v).remove(a);
-		if(neighbors.get(v).size()==0)
-			neighbors.remove(v);
-		return;
 	}
 
 	@Override

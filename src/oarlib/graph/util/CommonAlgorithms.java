@@ -1,7 +1,6 @@
 package oarlib.graph.util;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Set;
 
 import oarlib.core.Arc;
@@ -23,7 +21,6 @@ import oarlib.core.Vertex;
 import oarlib.core.WindyEdge;
 import oarlib.exceptions.GraphInfeasibleException;
 import oarlib.exceptions.InvalidEndpointsException;
-import oarlib.exceptions.NoCapacitySetException;
 import oarlib.exceptions.NoDemandSetException;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;
@@ -2052,11 +2049,6 @@ public class CommonAlgorithms {
 	 */
 	public static int[] shortestSuccessivePathsMinCostNetworkFlow(DirectedGraph g) throws IllegalArgumentException
 	{
-		//timing stuff
-		long start;
-		long end;
-		long duration=0;
-		int iterations = 0;
 
 		//so we don't mess with the original
 		DirectedGraph copy = g.getDeepCopy();
@@ -2149,7 +2141,6 @@ public class CommonAlgorithms {
 		try{
 			while(dijkstraDist[sinkId] < Integer.MAX_VALUE) //while a path from source to sink exists
 			{
-				iterations++;
 				//push as much flow as possible along the shortest path from source to sink
 				prev = sinkId;
 				augmentingPath = new ArrayList<Integer>();
