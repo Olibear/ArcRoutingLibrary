@@ -23,11 +23,17 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 		super();
 	}
 
+	//====================================================
+	//
+	// Graph Overrides
+	//
+	//====================================================
+
 	@Override
 	public void addVertex(DirectedVertex v) {
 		super.addVertex(v);
 	}
-	
+
 	@Override
 	public void clearEdges()
 	{
@@ -70,8 +76,8 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 		if(!firstNeighbors.containsKey(endpoints.getSecond()))
 			return new ArrayList<Arc>();
 		ret.addAll(firstNeighbors.get(endpoints.getSecond()));
-		
-		
+
+
 		/*
 		 * THIS IS THE ONLY CASE WHERE WE IGNORE THIS, IN MIXED, WE ALSO DO BIDIRECTIONAL
 		 */
@@ -107,7 +113,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 			ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedArcs.keySet());
 			Collections.sort(forSorting);
 			m = forSorting.size();
-			
+
 			for(int i = 0; i < m; i++)
 			{
 				a = indexedArcs.get(forSorting.get(i));
@@ -124,7 +130,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 			return null;
 		}
 	}
-	
+
 
 	@Override
 	public Arc constructEdge(int i, int j, String desc, int cost)

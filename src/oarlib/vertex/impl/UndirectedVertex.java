@@ -21,13 +21,7 @@ public class UndirectedVertex extends Vertex{
 		setDegree(0);
 	}
 
-	public int getDegree() {
-		return degree;
-	}
 
-	public void setDegree(int degree) {
-		this.degree = degree;
-	}
 	
 	/**
 	 * Adds an arc joining this vertex with v.
@@ -59,6 +53,26 @@ public class UndirectedVertex extends Vertex{
 			neighbors.remove(v);
 		return true;
 	}
+	
+	//=================================
+	//
+	// Getters and Setters
+	//
+	//=================================
+	
+	public int getDegree() {
+		return degree;
+	}
+
+	public void setDegree(int degree) {
+		this.degree = degree;
+	}
+	
+	//=================================
+	//
+	// Graph Overrides
+	//
+	//=================================
 	
 	@Override
 	public HashMap<UndirectedVertex, ArrayList<Edge>> getNeighbors()

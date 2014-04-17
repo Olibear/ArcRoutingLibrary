@@ -21,14 +21,6 @@ public class WindyVertex extends Vertex{
 		setDegree(0);
 	}
 
-	public int getDegree() {
-		return degree;
-	}
-
-	public void setDegree(int degree) {
-		this.degree = degree;
-	}
-	
 	/**
 	 * Adds an arc joining this vertex with v.
 	 * @param v - the other endpoint of the arc.
@@ -59,6 +51,26 @@ public class WindyVertex extends Vertex{
 			neighbors.remove(v);
 		return true;
 	}
+	
+	//=================================
+	//
+	// Getters and Setters
+	//
+	//=================================
+	
+	public int getDegree() {
+		return degree;
+	}
+
+	public void setDegree(int degree) {
+		this.degree = degree;
+	}
+	
+	//=================================
+	//
+	// Graph Override
+	//
+	//=================================
 	
 	@Override
 	public HashMap<WindyVertex, ArrayList<WindyEdge>> getNeighbors()

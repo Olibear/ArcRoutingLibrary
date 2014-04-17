@@ -22,6 +22,11 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		super();
 	}
 
+	//====================================================
+	//
+	// Graph Override
+	//
+	//====================================================
 
 	@Override
 	public void addVertex(UndirectedVertex v) {
@@ -39,7 +44,7 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		toUpdate.setDegree(toUpdate.getDegree()+1);
 		super.addEdge(e);
 	}
-	
+
 	@Override
 	public void clearEdges()
 	{
@@ -50,7 +55,7 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 			v.clearNeighbors();
 		}
 	}
-	
+
 	@Override
 	public void removeEdge(Edge e) throws IllegalArgumentException
 	{
@@ -65,19 +70,19 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		toUpdate.setDegree(toUpdate.getDegree() - 1);
 		super.removeEdge(e);
 	}
-	
+
 	@Override
 	public List<Edge> findEdges(Pair<UndirectedVertex> endpoints) {
 		UndirectedVertex first = endpoints.getFirst();
 		HashMap<UndirectedVertex, ArrayList<Edge>> firstNeighbors = first.getNeighbors();
 		return firstNeighbors.get(endpoints.getSecond());
 	}
-	
+
 	@Override
 	public oarlib.core.Graph.Type getType() {
 		return Graph.Type.UNDIRECTED;
 	}
-	
+
 	@Override
 	public UndirectedGraph getDeepCopy() {
 		try {
@@ -109,7 +114,7 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 			return null;
 		}
 	}
-	
+
 	@Override
 	public Edge constructEdge(int i, int j, String desc, int cost)
 			throws InvalidEndpointsException {
@@ -117,7 +122,7 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 			throw new InvalidEndpointsException();
 		return new Edge(desc, new Pair<UndirectedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost);
 	}
-	
+
 	@Override
 	public UndirectedVertex constructVertex(String desc) {
 		return new UndirectedVertex(desc);

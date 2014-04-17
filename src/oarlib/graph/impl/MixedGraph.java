@@ -25,6 +25,33 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 	public MixedGraph(){
 		super();
 	}
+	
+	//===============================================
+	//
+	// Adders and Factory methods with isDirected
+	//
+	//===============================================
+	
+	public void addEdge(int i, int j, String desc, int cost, boolean isDirected) throws InvalidEndpointsException
+	{
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		this.addEdge(this.constructEdge(i, j, desc, cost, isDirected));
+	}
+	
+	public MixedEdge constructEdge(int i, int j, String desc, int cost, boolean isDirected)
+			throws InvalidEndpointsException {
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		return new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, isDirected);
+
+	}
+	
+	//===============================================
+	//
+	// Graph Overrides
+	//
+	//===============================================
 
 	@Override
 	public void addVertex(MixedVertex v) {
@@ -170,27 +197,6 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 		if(i > this.getVertices().size() || j > this.getVertices().size())
 			throw new InvalidEndpointsException();
 		return new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost);
-
-	}
-
-	//===============================================
-	//
-	// Adders and Factory methods with isDirected
-	//
-	//===============================================
-	
-	public void addEdge(int i, int j, String desc, int cost, boolean isDirected) throws InvalidEndpointsException
-	{
-		if(i > this.getVertices().size() || j > this.getVertices().size())
-			throw new InvalidEndpointsException();
-		this.addEdge(this.constructEdge(i, j, desc, cost, isDirected));
-	}
-	
-	public MixedEdge constructEdge(int i, int j, String desc, int cost, boolean isDirected)
-			throws InvalidEndpointsException {
-		if(i > this.getVertices().size() || j > this.getVertices().size())
-			throw new InvalidEndpointsException();
-		return new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, isDirected);
 
 	}
 

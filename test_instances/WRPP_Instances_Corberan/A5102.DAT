@@ -1,0 +1,182 @@
+NOMBRE : A5102
+COMENTARIO : 18 componentes
+VERTICES :116
+RISTAS_REQ : 99
+RISTAS_NOREQ : 75
+LISTA_ARISTAS_REQ :
+(  1,  2)   coste   62    63
+(  2,  3)   coste   65    65
+(  3, 10)   coste  125   133
+(  4,  5)   coste   60    59
+(  5,  6)   coste   15    19
+(  5,  8)   coste   28    29
+(  6,  7)   coste   16    15
+(  6,  9)   coste   35    33
+(  9, 14)   coste   43    43
+( 10, 15)   coste   24    32
+( 11, 17)   coste   38    41
+( 11, 18)   coste   73    68
+( 12, 30)   coste  315   317
+( 13, 14)   coste   28    25
+( 15, 19)   coste   40    39
+( 16, 17)   coste   13    10
+( 17, 21)   coste   43    38
+( 18, 21)   coste   82    82
+( 20, 21)   coste   23    24
+( 20, 22)   coste   63    65
+( 22, 23)   coste   24    28
+( 24, 28)   coste   52    49
+( 25, 26)   coste   79    71
+( 25, 32)   coste   32    41
+( 27, 29)   coste   83    81
+( 28, 39)   coste  139   146
+( 29, 33)   coste   40    37
+( 30, 36)   coste   85    77
+( 30, 40)   coste  105   109
+( 31, 32)   coste   48    44
+( 33, 34)   coste   89    86
+( 35, 39)   coste   94    93
+( 36, 37)   coste  139   136
+( 36, 41)   coste   79    81
+( 37, 38)   coste   76    79
+( 37, 44)   coste   85    77
+( 38, 45)   coste  109   110
+( 38, 46)   coste   99   105
+( 40, 56)   coste  215   212
+( 41, 42)   coste   76    72
+( 42, 43)   coste   48    46
+( 44, 49)   coste  102   103
+( 47, 48)   coste   69    76
+( 48, 87)   coste   84    89
+( 49, 88)   coste   95    97
+( 50, 51)   coste   50    53
+( 50, 56)   coste  224   223
+( 50, 58)   coste   97   100
+( 51, 52)   coste   28    27
+( 51, 59)   coste   48    48
+( 52, 53)   coste   32    29
+( 52, 60)   coste   52    47
+( 53, 54)   coste   56    49
+( 53, 61)   coste   57    51
+( 54, 55)   coste   35    36
+( 56, 57)   coste   62    60
+( 57, 84)   coste  114   113
+( 61, 62)   coste   52    51
+( 63, 64)   coste   31    31
+( 63, 65)   coste   48    48
+( 65, 71)   coste   49    47
+( 66, 72)   coste   49    40
+( 67, 68)   coste  100   105
+( 67, 97)   coste  139   149
+( 67,102)   coste   55    62
+( 68,107)   coste   42    38
+( 69,106)   coste  182   181
+( 70, 71)   coste   38    39
+( 70, 75)   coste   85    81
+( 70, 80)   coste   79    75
+( 71, 72)   coste   32    31
+( 72, 73)   coste   37    41
+( 74, 75)   coste  124   124
+( 76, 77)   coste   56    58
+( 78, 81)   coste   55    60
+( 79, 80)   coste   52    49
+( 82, 83)   coste   94    98
+( 83, 94)   coste  269   277
+( 84, 85)   coste   94   101
+( 84, 94)   coste  131   131
+( 86, 87)   coste   32    36
+( 87, 90)   coste   47    48
+( 88, 91)   coste   55    48
+( 89, 90)   coste   32    39
+( 89, 96)   coste   41    36
+( 90, 91)   coste   48    56
+( 91, 92)   coste   38    35
+( 93, 94)   coste   92    88
+( 95, 97)   coste   49    48
+( 98, 99)   coste   22    29
+(100,101)   coste   53    59
+(100,103)   coste  172   171
+(104,105)   coste   41    40
+(105,108)   coste   97   100
+(108,109)   coste   63    65
+(110,111)   coste   24    28
+(112,113)   coste   52    47
+(112,114)   coste   60    55
+(115,116)   coste   27    31
+LISTA_ARISTAS_NOREQ :
+(  3, 12)   coste  236   236
+(  4,  7)   coste   46    39
+(  7, 10)   coste   35    37
+(  8,  9)   coste   14    15
+(  8, 13)   coste   38    34
+(  9, 10)   coste   23    28
+( 10, 11)   coste   29    27
+( 10, 16)   coste   41    32
+( 12, 13)   coste  117   109
+( 14, 15)   coste   22    17
+( 15, 16)   coste   25    20
+( 16, 20)   coste   36    45
+( 17, 18)   coste   44    37
+( 19, 20)   coste   35    35
+( 19, 25)   coste  205   204
+( 22, 27)   coste   60    63
+( 24, 27)   coste  143   144
+( 25, 31)   coste   60    69
+( 26, 29)   coste   17    14
+( 27, 34)   coste   45    45
+( 31, 36)   coste   46    45
+( 32, 33)   coste   52    51
+( 34, 37)   coste   88    84
+( 38, 39)   coste   26    32
+( 39, 46)   coste  123   120
+( 40, 41)   coste   64    59
+( 41, 84)   coste  229   220
+( 42, 47)   coste   91    95
+( 43, 44)   coste   45    39
+( 44, 48)   coste   97   104
+( 45, 46)   coste   29    31
+( 46, 49)   coste   56    64
+( 47, 85)   coste   88    86
+( 48, 49)   coste   60    57
+( 54, 62)   coste   38    35
+( 55, 62)   coste   38    40
+( 55, 63)   coste   38    37
+( 56, 63)   coste   57    56
+( 57, 66)   coste  104   104
+( 58, 63)   coste  159   168
+( 59, 60)   coste   29    32
+( 60, 61)   coste   37    36
+( 65, 66)   coste   28    30
+( 69, 94)   coste  111   107
+( 71, 76)   coste   32    40
+( 73, 77)   coste   44    46
+( 75, 79)   coste   44    43
+( 76, 81)   coste   52    54
+( 79, 82)   coste  132   136
+( 80, 81)   coste   47    48
+( 81, 82)   coste   46    39
+( 83,106)   coste  383   384
+( 84, 93)   coste  106   112
+( 85, 86)   coste   42    38
+( 85, 93)   coste   89    87
+( 86, 89)   coste   34    35
+( 87, 88)   coste   57    54
+( 88, 92)   coste  120   122
+( 90,100)   coste   95   101
+( 91,100)   coste  104   104
+( 93, 95)   coste   40    45
+( 95, 96)   coste   26    20
+( 96, 98)   coste   47    49
+( 96, 99)   coste   53    54
+( 97, 98)   coste   12    15
+( 99,100)   coste   46    45
+(102,103)   coste   45    44
+(102,104)   coste   39    36
+(103,105)   coste   53    47
+(106,107)   coste   65    60
+(107,108)   coste   51    54
+(108,110)   coste  228   233
+(110,112)   coste   89    92
+(112,116)   coste   87    87
+(114,115)   coste   45    42
+

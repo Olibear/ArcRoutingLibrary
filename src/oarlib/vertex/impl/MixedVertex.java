@@ -26,36 +26,7 @@ public class MixedVertex extends Vertex {
 		neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
 
 	}
-
-	public int getInDegree() {
-		return inDegree;
-	}
-
-	public void setInDegree(int inDegree) {
-		this.inDegree = inDegree;
-	}
-
-	public int getOutDegree() {
-		return outDegree;
-	}
-
-	public void setOutDegree(int outDegree) {
-		this.outDegree = outDegree;
-	}
-
-	public int getDegree() {
-		return degree;
-	}
-
-	public void setDegree(int degree) {
-		this.degree = degree;
-	}
-
-	public int getDelta()
-	{
-		return inDegree - outDegree;
-	}
-
+	
 	/**
 	 * Adds an edge joining this vertex with v.
 	 * @param v - the other endpoint of the arc.
@@ -101,6 +72,47 @@ public class MixedVertex extends Vertex {
 			neighbors.remove(v);
 		return true;
 	}	
+
+	//=================================
+	//
+	// Getters and Setters
+	//
+	//=================================
+
+	public int getInDegree() {
+		return inDegree;
+	}
+
+	public void setInDegree(int inDegree) {
+		this.inDegree = inDegree;
+	}
+
+	public int getOutDegree() {
+		return outDegree;
+	}
+
+	public void setOutDegree(int outDegree) {
+		this.outDegree = outDegree;
+	}
+
+	public int getDegree() {
+		return degree;
+	}
+
+	public void setDegree(int degree) {
+		this.degree = degree;
+	}
+
+	public int getDelta()
+	{
+		return inDegree - outDegree;
+	}
+
+	//=================================
+	//
+	// Graph Overrides
+	//
+	//=================================
 
 	@Override
 	public HashMap<MixedVertex, ArrayList<MixedEdge>> getNeighbors()
