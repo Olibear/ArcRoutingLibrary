@@ -23,11 +23,11 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
-public class MCPPSolver extends SingleVehicleSolver{
+public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 
 	MixedCPP mInstance;
 
-	public MCPPSolver(MixedCPP instance) throws IllegalArgumentException {
+	public MCPPSolver_Frederickson(MixedCPP instance) throws IllegalArgumentException {
 		super(instance);
 		mInstance = instance;
 	}

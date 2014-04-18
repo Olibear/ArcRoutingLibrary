@@ -76,14 +76,6 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 		if(!firstNeighbors.containsKey(endpoints.getSecond()))
 			return new ArrayList<Arc>();
 		ret.addAll(firstNeighbors.get(endpoints.getSecond()));
-
-
-		/*
-		 * THIS IS THE ONLY CASE WHERE WE IGNORE THIS, IN MIXED, WE ALSO DO BIDIRECTIONAL
-		 */
-		//DirectedVertex second = endpoints.getSecond();
-		//HashMap<DirectedVertex, ArrayList<Arc>> secondNeighbors = second.getNeighbors();
-		//ret.addAll(secondNeighbors.get(endpoints.getFirst()));
 		return ret;
 	}
 

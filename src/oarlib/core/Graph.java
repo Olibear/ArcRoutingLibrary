@@ -124,8 +124,19 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 */
 	public abstract void removeEdge(E e) throws IllegalArgumentException;
 	/**
-	 * Provides a means of getting a by value copy of this graph
-	 * @return a deep copy of the graph
+	 * Provides a means of getting a by value copy of this graph.  The conventions used to produce this 
+	 * copy are slightly idiosyncratic in order to make this method slightly more useful:
+	 * 
+	 * -The vertices are copied in a straight-forward manner.  That is, vertex i in the original graph
+	 * ends up as vertex i in the copy.  The match id of the vertex in the copy will be i also.  If demands
+	 * are set, they are also copied.
+	 * 
+	 * -The edges are collapsed to produce consecutive ids.  Thus, if the original graph had edges with ids
+	 * 1, 3, and 6, the copy will have three edges, with ids 1, 2, 3 respectively.  The new match ids are set to
+	 * 1, 3, and 6 to retain information about where they originated from.  Properties (required-ness, and 
+	 * capacity) also transfer.
+	 *  
+	 * @return - a deep copy of the graph
 	 */
 	public abstract Graph<V, E> getDeepCopy();
 	/**

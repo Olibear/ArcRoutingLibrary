@@ -32,6 +32,12 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		this.assignGraphId();
 	}
 	
+	protected MutableGraph(int n){
+		this();
+		for(int i = 0; i < n; i++)
+			this.addVertex(this.constructVertex("from constructor"));
+	}
+	
 	//=====================================
 	//
 	// Graph Overrides With Match Ids

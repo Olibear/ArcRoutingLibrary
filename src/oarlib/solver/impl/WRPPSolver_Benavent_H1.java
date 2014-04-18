@@ -24,12 +24,12 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
-public class ImprovedWRPPSolver extends SingleVehicleSolver{
+public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver{
 
 	WindyRPP mInstance;
 	private static final double K = .2; //parameter fixed by computational experiments done by Benavent
 
-	public ImprovedWRPPSolver(WindyRPP instance) throws IllegalArgumentException {
+	public WRPPSolver_Benavent_H1(WindyRPP instance) throws IllegalArgumentException {
 		super(instance);
 		mInstance=instance;
 	}
@@ -52,7 +52,7 @@ public class ImprovedWRPPSolver extends SingleVehicleSolver{
 			 * Connect up the required components of the graph, just as in WRPP1.
 			 * Match ids in windyReq correspond to edge ids in copy after this.
 			 */
-			WindyGraph windyReq = WRPPSolver.connectRequiredComponents(copy);
+			WindyGraph windyReq = WRPPSolver_Win.connectRequiredComponents(copy);
 			
 			//calculate average cost of edges in Er', so add up (cij + cji)/2, and then divide by num edges of windyReq
 			double averageCost = calculateAverageCost(windyReq);
@@ -113,13 +113,13 @@ public class ImprovedWRPPSolver extends SingleVehicleSolver{
 			 * to coerce the matching to use these.
 			 */
 			eulerAugment(copy, windyReq, L);
-			DirectedGraph ans = WRPPSolver.constructOptimalWindyTour(windyReq);
+			DirectedGraph ans = WRPPSolver_Win.constructOptimalWindyTour(windyReq);
 
-			boolean okay = WRPPSolver.isValidAugmentation(copy, ans);
+			boolean okay = WRPPSolver_Win.isValidAugmentation(copy, ans);
 
-			WRPPSolver.eliminateRedundantCycles(ans, windyReq, copy);
+			WRPPSolver_Win.eliminateRedundantCycles(ans, windyReq, copy);
 
-			boolean okay2 = WRPPSolver.isValidAugmentation(copy, ans);
+			boolean okay2 = WRPPSolver_Win.isValidAugmentation(copy, ans);
 
 			if(!okay || !okay2)
 				System.out.println("BAD");

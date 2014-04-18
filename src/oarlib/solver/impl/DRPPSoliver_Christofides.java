@@ -17,11 +17,11 @@ import oarlib.problem.impl.DirectedRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
-public class DRPPSolver extends SingleVehicleSolver{
+public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 
 	DirectedRPP mInstance;
 
-	public DRPPSolver(DirectedRPP instance) throws IllegalArgumentException {
+	public DRPPSoliver_Christofides(DirectedRPP instance) throws IllegalArgumentException {
 		super(instance);
 		mInstance = instance;
 	}

@@ -13,11 +13,11 @@ import oarlib.problem.impl.DirectedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
-public class DCPPSolver extends SingleVehicleSolver{
+public class DCPPSolver_Edmonds extends SingleVehicleSolver{
 
 	DirectedCPP mInstance;
 
-	public DCPPSolver(DirectedCPP instance) throws IllegalArgumentException {
+	public DCPPSolver_Edmonds(DirectedCPP instance) throws IllegalArgumentException {
 		super(instance);
 		mInstance = instance;
 	}

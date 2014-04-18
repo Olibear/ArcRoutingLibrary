@@ -144,7 +144,11 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 		MixedVertex second = endpoints.getSecond();
 		HashMap<MixedVertex, ArrayList<MixedEdge>> secondNeighbors = second.getNeighbors();
 		if(secondNeighbors.get(first) != null)
-			temp.addAll(secondNeighbors.get(first));
+		{
+			for(MixedEdge me: secondNeighbors.get(first))
+				if(!me.isDirected())
+					temp.add(me);
+		}
 		ret.addAll(temp);
 		return ret;
 	}

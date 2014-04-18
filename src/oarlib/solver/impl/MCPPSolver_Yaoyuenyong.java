@@ -26,10 +26,10 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
-public class ImprovedMCPPSolver extends SingleVehicleSolver {
+public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
 
 	MixedCPP mInstance;
-	public ImprovedMCPPSolver(MixedCPP instance) throws IllegalArgumentException {
+	public MCPPSolver_Yaoyuenyong(MixedCPP instance) throws IllegalArgumentException {
 		super(instance);
 		mInstance = instance;
 	}

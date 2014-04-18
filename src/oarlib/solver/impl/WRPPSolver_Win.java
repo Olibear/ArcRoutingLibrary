@@ -25,11 +25,11 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
-public class WRPPSolver extends SingleVehicleSolver{
+public class WRPPSolver_Win extends SingleVehicleSolver{
 
 	WindyRPP mInstance;
 
-	public WRPPSolver(WindyRPP instance) throws IllegalArgumentException {
+	public WRPPSolver_Win(WindyRPP instance) throws IllegalArgumentException {
 		super(instance);
 		mInstance = instance;
 	}

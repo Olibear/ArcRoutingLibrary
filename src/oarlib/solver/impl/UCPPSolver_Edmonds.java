@@ -16,11 +16,11 @@ import oarlib.problem.impl.UndirectedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.UndirectedVertex;
 
-public class UCPPSolver extends SingleVehicleSolver{
+public class UCPPSolver_Edmonds extends SingleVehicleSolver{
 
 	UndirectedCPP mInstance;
 
-	public UCPPSolver(UndirectedCPP instance) throws IllegalArgumentException {
+	public UCPPSolver_Edmonds(UndirectedCPP instance) throws IllegalArgumentException {
 		super(instance);
 		mInstance = instance;
 	}

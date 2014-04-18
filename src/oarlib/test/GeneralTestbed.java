@@ -26,13 +26,13 @@ import oarlib.problem.impl.DirectedRPP;
 import oarlib.problem.impl.MixedCPP;
 import oarlib.problem.impl.UndirectedCPP;
 import oarlib.problem.impl.WindyRPP;
-import oarlib.solver.impl.DCPPSolver;
-import oarlib.solver.impl.DRPPSolver;
-import oarlib.solver.impl.ImprovedMCPPSolver;
-import oarlib.solver.impl.ImprovedWRPPSolver;
-import oarlib.solver.impl.MCPPSolver;
-import oarlib.solver.impl.UCPPSolver;
-import oarlib.solver.impl.WRPPSolver;
+import oarlib.solver.impl.DCPPSolver_Edmonds;
+import oarlib.solver.impl.DRPPSoliver_Christofides;
+import oarlib.solver.impl.MCPPSolver_Yaoyuenyong;
+import oarlib.solver.impl.WRPPSolver_Benavent_H1;
+import oarlib.solver.impl.MCPPSolver_Frederickson;
+import oarlib.solver.impl.UCPPSolver_Edmonds;
+import oarlib.solver.impl.WRPPSolver_Win;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -111,7 +111,7 @@ public class GeneralTestbed {
 
 			// run the solver on it
 			DirectedRPP validInstance = new DirectedRPP(test);
-			DRPPSolver validSolver = new DRPPSolver(validInstance);
+			DRPPSoliver_Christofides validSolver = new DRPPSoliver_Christofides(validInstance);
 			validSolver.trySolve();
 
 		} catch(Exception e)
@@ -130,7 +130,7 @@ public class GeneralTestbed {
 		try
 		{
 			DirectedRPP validInstance;
-			DRPPSolver validSolver;
+			DRPPSoliver_Christofides validSolver;
 			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
@@ -159,7 +159,7 @@ public class GeneralTestbed {
 						// run it and time it
 						DirectedGraph g2 = (DirectedGraph)g;
 						validInstance = new DirectedRPP(g2);
-						validSolver = new DRPPSolver(validInstance);
+						validSolver = new DRPPSoliver_Christofides(validInstance);
 						start = System.nanoTime();
 						validAns = validSolver.trySolve();
 						end = System.nanoTime();
@@ -277,7 +277,7 @@ public class GeneralTestbed {
 		try
 		{
 			MixedCPP validInstance;
-			MCPPSolver validSolver;
+			MCPPSolver_Frederickson validSolver;
 			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
@@ -297,7 +297,7 @@ public class GeneralTestbed {
 				{
 					MixedGraph g2 = (MixedGraph)g;
 					validInstance = new MixedCPP(g2);
-					validSolver = new MCPPSolver(validInstance);
+					validSolver = new MCPPSolver_Frederickson(validInstance);
 					start = System.nanoTime();
 					validAns = validSolver.trySolve(); //my ans
 					end = System.nanoTime();
@@ -323,7 +323,7 @@ public class GeneralTestbed {
 		try
 		{
 			MixedCPP validInstance;
-			ImprovedMCPPSolver validSolver;
+			MCPPSolver_Yaoyuenyong validSolver;
 			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
@@ -342,7 +342,7 @@ public class GeneralTestbed {
 				{
 					MixedGraph g2 = (MixedGraph)g;
 					validInstance = new MixedCPP(g2);
-					validSolver = new ImprovedMCPPSolver(validInstance);
+					validSolver = new MCPPSolver_Yaoyuenyong(validInstance);
 					start = System.nanoTime();
 					validAns = validSolver.trySolve();
 					end = System.nanoTime();
@@ -370,7 +370,7 @@ public class GeneralTestbed {
 		try
 		{
 			MixedCPP validInstance;
-			MCPPSolver validSolver;
+			MCPPSolver_Frederickson validSolver;
 			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
@@ -404,7 +404,7 @@ public class GeneralTestbed {
 					}
 					System.out.println("This graph has " + g2.getVertices().size() + " vertices," + arcCount + " arcs, and " + edgeCount + " edges.  " + oddDegreeCount + " of the vertices are odd.");
 					validInstance = new MixedCPP(g2);
-					validSolver = new MCPPSolver(validInstance);
+					validSolver = new MCPPSolver_Frederickson(validInstance);
 					start = System.nanoTime();
 					validAns = validSolver.trySolve();
 					end = System.nanoTime();
@@ -431,7 +431,7 @@ public class GeneralTestbed {
 		try
 		{
 			WindyRPP validInstance;
-			WRPPSolver validSolver;
+			WRPPSolver_Win validSolver;
 			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
@@ -455,7 +455,7 @@ public class GeneralTestbed {
 					{
 						WindyGraph g2 = (WindyGraph)g;
 						validInstance = new WindyRPP(g2);
-						validSolver = new WRPPSolver(validInstance);
+						validSolver = new WRPPSolver_Win(validInstance);
 						start = System.nanoTime();
 						validAns = validSolver.trySolve();
 						if(validAns.getCost() < bestCost)
@@ -487,7 +487,7 @@ public class GeneralTestbed {
 		try
 		{
 			WindyRPP validInstance;
-			ImprovedWRPPSolver validSolver;
+			WRPPSolver_Benavent_H1 validSolver;
 			Route validAns;
 
 			File testInstanceFolder = new File(instanceFolder);
@@ -510,7 +510,7 @@ public class GeneralTestbed {
 					{
 						WindyGraph g2 = (WindyGraph)g;
 						validInstance = new WindyRPP(g2);
-						validSolver = new ImprovedWRPPSolver(validInstance);
+						validSolver = new WRPPSolver_Benavent_H1(validInstance);
 						start = System.nanoTime();
 						validAns = validSolver.trySolve();
 						end = System.nanoTime();
@@ -709,7 +709,7 @@ public class GeneralTestbed {
 			UndirectedGraph g;
 			UndirectedGraph g2;
 			UndirectedCPP validInstance;
-			UCPPSolver validSolver;
+			UCPPSolver_Edmonds validSolver;
 			Route validAns;
 
 			//timing stuff
@@ -739,7 +739,7 @@ public class GeneralTestbed {
 				//copy for Gurobi to work on
 				g2 = g.getDeepCopy();
 				validInstance = new UndirectedCPP(g);
-				validSolver = new UCPPSolver(validInstance);
+				validSolver = new UCPPSolver_Edmonds(validInstance);
 				start = System.nanoTime();
 				validAns = validSolver.trySolve(); //my ans
 				end = System.nanoTime();
@@ -845,7 +845,7 @@ public class GeneralTestbed {
 			DirectedGraph g2;
 			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
 			DirectedCPP validInstance;
-			DCPPSolver validSolver;
+			DCPPSolver_Edmonds validSolver;
 			Route validAns;
 
 			//timing stuff
@@ -876,7 +876,7 @@ public class GeneralTestbed {
 				System.out.println("Generated directed graph with n = " + i);
 
 				validInstance = new DirectedCPP(g);
-				validSolver = new DCPPSolver(validInstance);
+				validSolver = new DCPPSolver_Edmonds(validInstance);
 				start = System.nanoTime();
 				validAns = validSolver.trySolve(); //my ans
 				end = System.nanoTime();
@@ -994,7 +994,7 @@ public class GeneralTestbed {
 
 			// set up the instance, and solve it
 			UndirectedCPP testInstance = new UndirectedCPP(test);
-			UCPPSolver testSolver = new UCPPSolver(testInstance);
+			UCPPSolver_Edmonds testSolver = new UCPPSolver_Edmonds(testInstance);
 			Route testAns = testSolver.trySolve();
 			long end = System.currentTimeMillis();
 			System.out.println(end - start);
