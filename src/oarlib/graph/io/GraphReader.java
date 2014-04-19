@@ -54,9 +54,12 @@ public class GraphReader {
 			return readCamposGraph(fileName);
 		case DIMACS_Modified:
 			break;
+		case OARLib:
+			//TODO: I should probably write a reader for my own format
+			break;
 		}
 		throw new UnsupportedFormatException("While the format seems to have been added to the Format.Name type list,"
-				+ " there doesn't seem to be an appropriate reader method assigned to it.  Support is planned in the future," +
+				+ " there doesn't seem to be an appropriate read method assigned to it.  Support is planned in the future," +
 				"but not currently available");
 	}
 	private Graph<?,?> readCamposGraph(String fileName) throws FormatMismatchException

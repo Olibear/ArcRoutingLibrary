@@ -35,7 +35,9 @@ public abstract class Route {
 	 */
 	public abstract void appendEdge(Link<? extends Vertex> l);
 	/**
-	 * check to make sure that the route is feasible.
+	 * check to make sure that the route is actually a route, (i.e. that consecutive 
+	 * links in the list are adjacent, and any other checks that different types
+	 * of routes may wish to perform).
 	 * @return true if route is feasible in the provided graph
 	 */
 	public abstract boolean checkRoutes(Graph<? extends Vertex, Link<? extends Vertex>> g);

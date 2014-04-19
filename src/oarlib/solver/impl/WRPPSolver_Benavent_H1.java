@@ -41,9 +41,6 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver{
 
 	@Override
 	protected Route solve(){
-		/**
-		 * TODO: Is the beginning of this guy supposed to be done on copy or windyReq
-		 */
 		try
 		{
 			WindyGraph copy = mInstance.getGraph().getDeepCopy();

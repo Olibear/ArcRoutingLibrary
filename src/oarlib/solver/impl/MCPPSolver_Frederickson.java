@@ -236,7 +236,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 		//first figure out the odd degree vertices relative to the output of inoutdegree
 		try {
 			MixedGraph temp = new MixedGraph();
-			for(int i = 1; i < input.getVertices().size() + 1; i++)
+			for(int i = 1; i <= input.getVertices().size(); i++)
 			{
 				temp.addVertex(new MixedVertex("parity graph"), i);
 			}
@@ -260,7 +260,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 
 			MixedGraph temp2 = new MixedGraph();
 			HashMap<Integer, MixedVertex> temp2Vertices = temp2.getInternalVertexMap();
-			for(int i = 1; i < input.getVertices().size() + 1; i++)
+			for(int i = 1; i <= input.getVertices().size(); i++)
 			{
 				temp2.addVertex(new MixedVertex("parity graph"), i);
 			}

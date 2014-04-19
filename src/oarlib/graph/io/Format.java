@@ -12,6 +12,7 @@ public class Format {
 		DIMACS_Modified, //not supported
 		Simple, // format of the Blossom V test instances
 		Yaoyuenyong, // format of the instances used to test Yaoyuenyong's SAPH
-		Campos // format of the instances used in the paper "A Computational Study of Several Heuristics for the DRPP"
+		Campos, // format of the instances used in the paper "A Computational Study of Several Heuristics for the DRPP"
+		OARLib
 	}
 }

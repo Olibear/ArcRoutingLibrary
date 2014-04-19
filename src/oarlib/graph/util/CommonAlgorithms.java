@@ -16,7 +16,6 @@ import oarlib.core.Edge;
 import oarlib.core.Link;
 import oarlib.core.Graph;
 import oarlib.core.MixedEdge;
-import oarlib.core.Route;
 import oarlib.core.Vertex;
 import oarlib.core.WindyEdge;
 import oarlib.exceptions.GraphInfeasibleException;
@@ -200,22 +199,6 @@ public class CommonAlgorithms {
 				return false;
 		}
 		return true;
-	}
-	/**
-	 * FindRoute algorithm (alternative to Fleury's given in Dussault et al. Plowing with Precedence
-	 * @return the Eulerian cycle
-	 */
-	public static Route findRoute(Graph<? extends Vertex,? extends Link<? extends Vertex>> graph)
-	{
-		return null;
-	}
-	/**
-	 * Checks to see if the directed graph is weakly connected
-	 * @return true if the graph is  weakly connected, false oth.
-	 */
-	public static boolean isWeaklyConnected(DirectedGraph graph) 
-	{
-		return false;
 	}
 	/**
 	 * Checks to see if the directed graph is strongly connected
@@ -660,57 +643,6 @@ public class CommonAlgorithms {
 			}
 		}
 		return true;
-	}
-	/**
-	 * Computes / encodes the shortest paths between all pairs of nodes in the network.  Taken from Lau:
-	 * @param n - number of nodes in the graph.
-	 * @param dist - a matrix where entry i,j is the cost of the edge between node i and node j, 0 if i = j, and big if there is no connecting link.
-	 * After the conclusion of the algorithm, it holds shortest path costs.
-	 * @param big - a number greater than the sum of all the edge costs.
-	 * @param startnode - if a specific path is requested to be stored in path, this is the start node.  Send 0 for no request.
-	 * @param endnode - if a specific path is requested to be stored in path, this is the end node
-	 * @param path - holds the path if it is requested from startnode to endnode
-	 * @param next - holds the matrix which encodes the information to reconstruct the shortest path between any two nodes.
-	 * @return path will hold the requested path, if one is requested
-	 *  next will hold the matrix from which it is possible to reconstruct the shortest path between any two nodes
-	 *  
-	 */
-	public static void allPairsShortestPaths(int n, int dist[][], int big,
-			int startnode, int endnode,int[] path, int[][] next)
-	{
-		int i,j,k,d,num,node;
-		int order[] = new int[n+1];
-
-		// compute the shortest path distance matrix
-		for (i=1; i<=n; i++)
-			for (j=1; j<=n; j++)
-				next[i][j] = i;
-		for (i=1; i<=n; i++)
-			for (j=1; j<=n; j++)
-				if (dist[j][i] < big)
-					for (k=1; k<=n; k++)
-						if (dist[i][k] < big) {
-							d = dist[j][i] + dist[i][k];
-							if (d < dist[j][k]) {
-								dist[j][k] = d;
-								next[j][k] = next[i][k];
-							}
-						}
-		// find the shortest path from startnode to endnode
-		if (startnode == 0) return;
-		j = endnode;
-		num = 1;
-		order[num] = endnode;
-		while (true) {
-			node = next[startnode][j];
-			num++;
-			order[num] = node;
-			if (node == startnode) break;
-			j = node;
-		}
-		for (i=1; i<=num; i++)
-			path[i] = order[num-i+1];
-		path[0] = num;
 	}
 	/**
 	 * Implements the Bellman-Ford single-source shortest paths algorithm, (useful if facing negative edge weights, but only need a single-source algorithm). 
