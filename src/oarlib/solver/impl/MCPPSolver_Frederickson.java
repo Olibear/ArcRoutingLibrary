@@ -128,7 +128,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 
 			int maxCost = 0;
 			int inputN = input.getVertices().size();
-			
+
 			for(int i = 1; i < inputN + 1; i++)
 			{
 				G1.addVertex(new UndirectedVertex("symmetric setup graph"), i);
@@ -612,6 +612,20 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 	@Override
 	protected MixedCPP getInstance() {
 		return mInstance;
+	}
+
+	@Override
+	protected boolean checkGraphRequirements() {
+		// make sure the graph is connected
+		if(mInstance.getGraph() == null)
+			return false;
+		else
+		{
+			MixedGraph mGraph = mInstance.getGraph();
+			if(!CommonAlgorithms.isStronglyConnected(mGraph))
+				return false;
+		}
+		return true;
 	}
 
 }

@@ -1,6 +1,7 @@
 package oarlib.solver.impl;
 
 import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
@@ -74,10 +75,10 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver{
 			int[][] path = new int[n+1][n+1];
 			int[][] edgePath = new int[n+1][n+1];
 			CommonAlgorithms.fwLeastCostPaths(input, dist, path, edgePath);
-			
+
 			//setup the complete graph composed entirely of the unbalanced vertices
 			UndirectedGraph matchingGraph = new UndirectedGraph();
-			
+
 			//setup our graph of unbalanced vertices
 			for (UndirectedVertex v: input.getVertices())
 			{
@@ -86,7 +87,7 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver{
 					matchingGraph.addVertex(new UndirectedVertex("oddVertex"), v.getId());
 				}
 			}
-			
+
 			//connect with least cost edges
 			Collection<UndirectedVertex> oddVertices = matchingGraph.getVertices();
 			for (UndirectedVertex v: oddVertices)
@@ -99,9 +100,9 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver{
 					matchingGraph.addEdge(new Edge("matchingEdge",new Pair<UndirectedVertex>(v,v2), dist[v.getMatchId()][v2.getMatchId()]));
 				}
 			}
-			
+
 			Set<Pair<UndirectedVertex>> matchingSolution = CommonAlgorithms.minCostMatching(matchingGraph);
-			
+
 			//add the paths to the graph
 			for (Pair<UndirectedVertex> p: matchingSolution)
 			{
@@ -113,5 +114,19 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver{
 			e.printStackTrace();
 			return;
 		}
+	}
+
+	@Override
+	protected boolean checkGraphRequirements() {
+		// make sure the graph is connected
+		if(mInstance.getGraph() == null)
+			return false;
+		else
+		{
+			UndirectedGraph mGraph = mInstance.getGraph();
+			if(!CommonAlgorithms.isConnected(mGraph))
+				return false;
+		}
+		return true;
 	}
 }

@@ -46,11 +46,10 @@ public class GeneralTestbed {
 	 */
 	public static void main(String[] args) 
 	{
-		//validateMinCostFlow();
 		//testSimpleGraphReader("/Users/oliverlum/Downloads/blossom5-v2.04.src/GRAPH1.TXT");
 		//testUndirectedGraphGenerator();
 		//validateEulerTour();
-		//testUCPPSolver();
+		testUCPPSolver();
 		//validateUCPPSolver();
 		//validateDCPPSolver();
 		//testFredericksons("/Users/oliverlum/Downloads/MCPP");
@@ -639,64 +638,6 @@ public class GeneralTestbed {
 			e.printStackTrace();
 		}
 	}
-
-	/**
-	 * A method to ensure that we are getting a minimum cost flow solution to our flow problem;
-	 * we run our code against a solver available in Lau's Java Graph Algorithm's library.
-	 */
-	@SuppressWarnings("unused")
-	private static void validateMinCostFlow()
-	{
-		try{
-			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-			DirectedGraph g;
-			long start;
-			long end;
-			for(int i=10;i<150; i+=10)
-			{
-				g = (DirectedGraph)dgg.generateGraph(i, 10, true);
-
-				//min cost flow not fruitful
-				if(CommonAlgorithms.isEulerian(g))
-					continue;
-
-				//set demands
-				for(DirectedVertex v:g.getVertices())
-				{
-					v.setDemand(v.getDelta());
-				}
-				System.out.println("Generated directed graph with n = " + i);
-
-				//set up for using flow methods
-				start = System.nanoTime();
-				int[] myAns = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(g); //mine
-				end = System.nanoTime();
-
-				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our SSP min cost flow implementation on a graph with " + g.getEdges().size() + " edges.");
-
-				int[][] ans = CommonAlgorithms.minCostNetworkFlow(g); //Lau's
-
-				int cost = 0;
-				HashMap<Integer, Arc> indexedArcs = g.getInternalEdgeMap();
-				for(int j=1; j<myAns.length; j++)
-				{
-					cost += myAns[j] * indexedArcs.get(j).getCost();
-				}
-
-				//now check against ans
-				boolean costOK = true;
-				if(ans[0][0] != cost)
-					costOK = false;
-				System.out.println("true cost: " + ans[0][0]);
-				System.out.println("my cost: " + cost);
-				System.out.println("costOK: " + costOK);
-			}
-		} catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-
 	/**
 	 * A method to compare solutions from our UCPP solver to a gurobi solver.  Note
 	 * that in order to use this, you must have a valid gurobi license.

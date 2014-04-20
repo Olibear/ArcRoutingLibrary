@@ -24,7 +24,6 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver{
 
 	@Override
 	protected Route solve() {
-
 		DirectedGraph copy = mInstance.getGraph().getDeepCopy();
 		HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
 
@@ -83,6 +82,20 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver{
 	@Override
 	protected DirectedCPP getInstance() {
 		return mInstance;
+	}
+
+	@Override
+	protected boolean checkGraphRequirements() {
+		// make sure the graph is connected
+		if(mInstance.getGraph() == null)
+			return false;
+		else
+		{
+			DirectedGraph mGraph = mInstance.getGraph();
+			if(!CommonAlgorithms.isStronglyConnected(mGraph))
+				return false;
+		}
+		return true;
 	}
 
 }

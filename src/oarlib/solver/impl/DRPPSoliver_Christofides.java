@@ -80,7 +80,7 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 				tempCost = 0;
 				for(Arc a: Gfinal.getEdges())
 					if(!a.isRequired())
-					tempCost+=a.getCost();
+						tempCost+=a.getCost();
 				if(tempCost < bestCost)
 				{
 					bestCost = tempCost;
@@ -107,7 +107,7 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 
 			int curr, end, next;
 			boolean foundConnection = false;
-			
+
 			/*
 			 * FOR DEBUGGING
 			 */
@@ -115,7 +115,7 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 			for(Arc a : copy.getEdges())
 				if(a.isRequired())
 					reqIds.add(a.getId());
-			
+
 			for(int i = 0; i < bestTour.size();i++)
 			{
 				temp = bestArcs.get(bestTour.get(i));
@@ -170,10 +170,10 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 					}while((curr = next) != end);
 				}
 			}
-			
+
 			if(!reqIds.isEmpty())
 				System.out.println("You didn't include all the required arcs!");
-			
+
 			return eulerTour;
 
 		} catch(Exception e)
@@ -223,7 +223,7 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 			return null;
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	private static DirectedGraph connectAndExpandWithShortestPaths(DirectedGraph gCollapsed, DirectedGraph gOrig, int[] component, int root, HashMap<Pair<Integer>, Pair<Integer>> bestConnections)
 	{
@@ -466,7 +466,7 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 			return null;
 		}
 	}
-	
+
 	@SuppressWarnings("unused")
 	private static DirectedGraph collapseGraphWithShortestPaths(DirectedGraph g, int[] component, HashMap<Pair<Integer>, Pair<Integer>> bestConnections) throws IllegalArgumentException
 	{
@@ -508,7 +508,7 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 			{
 				ans.addVertex(new DirectedVertex("collapsed"));
 			}
-			
+
 			//shortest paths for costs
 			int[][] dist = new int[n+1][n+1];
 			int[][] path = new int[n+1][n+1];
@@ -558,6 +558,20 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 	@Override
 	protected Problem getInstance() {
 		return mInstance;
+	}
+
+	@Override
+	protected boolean checkGraphRequirements() {
+		// make sure the graph is connected
+		if(mInstance.getGraph() == null)
+			return false;
+		else
+		{
+			DirectedGraph mGraph = mInstance.getGraph();
+			if(!CommonAlgorithms.isStronglyConnected(mGraph))
+				return false;
+		}
+		return true;
 	}
 
 }

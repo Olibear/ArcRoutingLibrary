@@ -44,20 +44,20 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver{
 		try
 		{
 			WindyGraph copy = mInstance.getGraph().getDeepCopy();
-			
+
 			/*
 			 * Connect up the required components of the graph, just as in WRPP1.
 			 * Match ids in windyReq correspond to edge ids in copy after this.
 			 */
 			WindyGraph windyReq = WRPPSolver_Win.connectRequiredComponents(copy);
-			
+
 			//calculate average cost of edges in Er', so add up (cij + cji)/2, and then divide by num edges of windyReq
 			double averageCost = calculateAverageCost(windyReq);
 
 			//construct E1 and E2
 			HashSet<Integer> E1 = new HashSet<Integer>();
 			HashSet<Integer> E2 = new HashSet<Integer>();
-			
+
 			/*
 			 * Build out the edge sets E1 and E2, which hold the particularly asymmetric edges from windyReq, and
 			 * the everyone else respectively. We do so by searching windyReq for asymmetric edges, and adding their
@@ -129,7 +129,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver{
 			{
 				eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
 			}
-			
+
 			return eulerTour;
 		}
 		catch (Exception e)
@@ -242,7 +242,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver{
 						end = p.getSecond().getMatchId();
 					}
 				}
-				
+
 				next = 0;
 				nextEdge = 0;
 				do {
@@ -424,6 +424,20 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver{
 	@Override
 	public Type getProblemType() {
 		return Problem.Type.WINDY_RURAL_POSTMAN;
+	}
+
+	@Override
+	protected boolean checkGraphRequirements() {
+		// make sure the graph is connected
+		if(mInstance.getGraph() == null)
+			return false;
+		else
+		{
+			WindyGraph mGraph = mInstance.getGraph();
+			if(!CommonAlgorithms.isConnected(mGraph))
+				return false;
+		}
+		return true;
 	}
 
 

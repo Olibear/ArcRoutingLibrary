@@ -334,7 +334,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver{
 								toRemove = xij-1;
 							else
 								toRemove = Math.min(xij, xji);
-							
+
 							//remove toRemove arcs in each direction
 							for(int j = 0; j < toRemove; j++)
 							{
@@ -373,7 +373,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver{
 					isReq = vdvConnections.get(0).isRequired();
 					xij = vdvConnections.size();
 					tempCost = vdvConnections.get(0).getCost();
-					
+
 					if(xij >= 3 && isReq) //a
 					{
 						temp = flowGraph.constructEdge(dv.getId(), v.getId(), "a", -2 * tempCost);
@@ -507,7 +507,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver{
 			path = new int [n+1][n+1];
 			edgePath = new int[n+1][n+1];
 			CommonAlgorithms.fwLeastCostPaths(orig, dist, path, edgePath);
-			
+
 			/**
 			 * Go through and make repeats of the required guys non-required
 			 */
@@ -867,7 +867,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver{
 						end = p.getSecond().getMatchId();
 					}
 				}
-				
+
 				next = 0;
 				nextEdge = 0;
 				do {
@@ -1086,5 +1086,19 @@ public class WRPPSolver_Win extends SingleVehicleSolver{
 			ans += temp.getCost() + temp.getReverseCost();
 		}while((curr = next) != end);
 		return ans/2.0;
+	}
+
+	@Override
+	protected boolean checkGraphRequirements() {
+		// make sure the graph is connected
+		if(mInstance.getGraph() == null)
+			return false;
+		else
+		{
+			WindyGraph mGraph = mInstance.getGraph();
+			if(!CommonAlgorithms.isConnected(mGraph))
+				return false;
+		}
+		return true;
 	}
 }

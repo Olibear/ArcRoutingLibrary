@@ -352,7 +352,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
 					G.addEdge(new MixedEdge("final", e.getEndpoints(),e.getCost(), true));
 				}
 			}
-			
+
 			ArrayList<Integer> tour;
 			tour = CommonAlgorithms.tryHierholzer(G);
 			Tour eulerTour = new Tour();
@@ -897,5 +897,20 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
 	@Override
 	public Type getProblemType() {
 		return Problem.Type.MIXED_CHINESE_POSTMAN;
+	}
+
+
+	@Override
+	protected boolean checkGraphRequirements() {
+		// make sure the graph is connected
+		if(mInstance.getGraph() == null)
+			return false;
+		else
+		{
+			MixedGraph mGraph = mInstance.getGraph();
+			if(!CommonAlgorithms.isStronglyConnected(mGraph))
+				return false;
+		}
+		return true;
 	}
 }

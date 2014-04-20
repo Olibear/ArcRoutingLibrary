@@ -1,5 +1,7 @@
 package oarlib.core;
 
+import oarlib.exceptions.GraphInfeasibleException;
+
 
 /**
  * Solver abstraction. Most general contract that Solvers must fulfill.
@@ -22,9 +24,16 @@ public abstract class SingleVehicleSolver {
 	 * Attempts to solve the instance assigned to this problem.  
 	 * @return null if problem instance is not assigned.
 	 */
-	public Route trySolve(){
+	public Route trySolve() throws GraphInfeasibleException{
+		if(!checkGraphRequirements())
+			throw new GraphInfeasibleException();
 		return solve();
 	}
+	/**
+	 * Determines if the graph meets theoretical requirements for this solver to be run on it.
+	 * @return - true if the graph meets pre-requisites (usually connectivity-related), false oth.
+	 */
+	protected abstract boolean checkGraphRequirements();
 	/**
 	 * @return - the problem instance
 	 */
