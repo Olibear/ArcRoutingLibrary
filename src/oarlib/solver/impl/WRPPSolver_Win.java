@@ -58,18 +58,9 @@ public class WRPPSolver_Win extends SingleVehicleSolver{
 
 			//solve the min-cost flow problem to produce the optimal tour on the resultant windy graph
 			DirectedGraph ans = constructOptimalWindyTour(windyReq);
-
-			//for debugging
-			boolean okay = isValidAugmentation(copy, ans);
-
+			
 			//go through the improvement procedures described in Benavent that eliminate added cycles
 			eliminateRedundantCycles(ans, windyReq, copy);
-
-			//for debugging
-			boolean okay2 = isValidAugmentation(copy, ans);
-
-			if(!okay || !okay2)
-				System.out.println("BAD");
 
 
 			//return the answer
@@ -614,15 +605,6 @@ public class WRPPSolver_Win extends SingleVehicleSolver{
 					ans.removeEdge(temp);
 				}
 			}
-
-			//compute cost after improvement
-			HashSet<Arc> arcSet = ans.getEdges();
-			int cost2 = 0;
-			for(Arc a: arcSet)
-			{
-				cost2 += a.getCost();
-			}
-			System.out.println("Cost after improvement is: " + cost2);
 
 		}
 		catch(Exception e)

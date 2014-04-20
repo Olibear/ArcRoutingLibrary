@@ -88,7 +88,6 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 					bestArcs = Gfinal.getInternalEdgeMap();
 				}
 			}
-			System.out.println("Final cost: " + bestCost);
 
 			//now reproduce the solution in the original graph
 			Tour eulerTour = new Tour();
@@ -108,14 +107,6 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 			int curr, end, next;
 			boolean foundConnection = false;
 
-			/*
-			 * FOR DEBUGGING
-			 */
-			HashSet<Integer> reqIds = new HashSet<Integer>();
-			for(Arc a : copy.getEdges())
-				if(a.isRequired())
-					reqIds.add(a.getId());
-
 			for(int i = 0; i < bestTour.size();i++)
 			{
 				temp = bestArcs.get(bestTour.get(i));
@@ -131,7 +122,6 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 						if(a.getCost() == temp.getCost() && a.isRequired())
 						{
 							eulerTour.appendEdge(a);
-							reqIds.remove(a.getId());
 							break;
 						}
 					}
@@ -170,9 +160,6 @@ public class DRPPSoliver_Christofides extends SingleVehicleSolver{
 					}while((curr = next) != end);
 				}
 			}
-
-			if(!reqIds.isEmpty())
-				System.out.println("You didn't include all the required arcs!");
 
 			return eulerTour;
 

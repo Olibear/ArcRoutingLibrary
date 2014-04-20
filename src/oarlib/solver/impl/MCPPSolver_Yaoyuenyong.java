@@ -316,8 +316,6 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
 			for(int k=1;k<gEdgeContainers.size(); k++)
 			{
 				toImprove = gEdgeContainers.get(k);
-				if(toImprove == null)
-					System.out.println("Debug");
 				if(toImprove.getType() == EDGETYPE.A)
 				{
 					toImprove.directForward();

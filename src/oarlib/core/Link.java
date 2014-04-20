@@ -22,6 +22,7 @@ public abstract class Link<V extends Vertex> {
 	private boolean isDirected;
 	private boolean isRequired;
 	private boolean capacitySet;
+	private boolean isFinalized; // helps handle id safety
 
 	public Link(String label, Pair<V> endpoints, int cost)
 	{

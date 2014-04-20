@@ -99,11 +99,6 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver{
 				 */
 				L = buildL(Gaux, E1, E2, flowanswer); 
 			}
-			else
-			{
-				System.out.println("debug");
-			}
-			System.out.println(L);
 			/*
 			 * Perform the same euler augmentation process the same as in WRPP1, except that this time, 
 			 * when we solve the matching, we want the edges we marked in L to be of zero cost
@@ -111,15 +106,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver{
 			 */
 			eulerAugment(copy, windyReq, L);
 			DirectedGraph ans = WRPPSolver_Win.constructOptimalWindyTour(windyReq);
-
-			boolean okay = WRPPSolver_Win.isValidAugmentation(copy, ans);
-
 			WRPPSolver_Win.eliminateRedundantCycles(ans, windyReq, copy);
-
-			boolean okay2 = WRPPSolver_Win.isValidAugmentation(copy, ans);
-
-			if(!okay || !okay2)
-				System.out.println("BAD");
 
 			ArrayList<Integer> tour;
 			tour = CommonAlgorithms.tryHierholzer(ans);
@@ -252,10 +239,6 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver{
 					g.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "to make even", temp.getCost(), temp.getReverseCost() ,nextEdge, temp.isRequired());
 				} while ( (curr = next) != end);
 			}
-
-			//should be Eulerian now
-			if(!CommonAlgorithms.isEulerian(g))
-				System.out.println("The UCPP augmentation failed.");
 		} catch(Exception e)
 		{
 			e.printStackTrace();
