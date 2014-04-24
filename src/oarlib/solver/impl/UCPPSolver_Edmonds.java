@@ -28,9 +28,7 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver{
 
 	@Override
 	protected Route solve() {
-
 		try {
-
 			UndirectedGraph copy = mInstance.getGraph();
 			eulerAugment(copy);
 

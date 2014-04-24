@@ -43,33 +43,57 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 			MixedGraph ans2 = mInstance.getGraph().getDeepCopy(); //starting point for Mixed2
 
 			//Vars for bookkeeping
-			ArrayList<MixedEdge> U = new ArrayList<MixedEdge>();
-			ArrayList<MixedEdge> M = new ArrayList<MixedEdge>();
-			ArrayList<Boolean> inMdubPrime =  new ArrayList<Boolean>();
+			ArrayList<MixedEdge> U = new ArrayList<MixedEdge>(); //will hold the list of edges that are still undirected after inOutDegree
+			ArrayList<MixedEdge> M = new ArrayList<MixedEdge>(); //will hold the list of directed edges after inOutDegree
+			ArrayList<Boolean> inMdubPrime =  new ArrayList<Boolean>(); // will hold the list of copies of directed edges after inOutDegree
 
 			//Start Mixed 1
-			//Even
+			/*
+			 * This procedure aims to make the mixed graph even; that is, for each vertex v, v.getDegree() % 2 == 0.
+			 */
 			evenDegree(ans1);
 
-			//Symmetric
+			/*
+			 * This procedure aims to make the mixed graph symmetric; that is, for each vertex v, v.getInDegree() == v.getOutDegree().
+			 * Note that this may disrupt the property of every vertex being even.
+			 */
 			inOutDegree(ans1, U, M, inMdubPrime);
 
-			//Even
+			/*
+			 * This procedure restores evenness to the graph, without disturbing the symmetric property of the graph.
+			 */
 			evenParity(ans1, U, M, inMdubPrime);
 			//End Mixed 1
 
 			//Start Mixed 2
+			
+			//Vars for bookkeeping
 			U = new ArrayList<MixedEdge>();
 			M = new ArrayList<MixedEdge>();
 			inMdubPrime =  new ArrayList<Boolean>();
+			
+			/*
+			 * This procedure aims to make the mixed graph symmetric; that is, for each vertex v, v.getInDegree() == v.getOutDegree().
+			 * Note that this may disrupt the property of every vertex being even.
+			 */
 			inOutDegree(ans2, U, M, inMdubPrime);
+			
+			/*
+			 * This procedure aims to restore evenness to the graph by performing a matching on the graph induced
+			 * by the edges left undirected after inOutDegree
+			 */
 			largeCycles(ans2, U);
 			ans2.clearEdges();
-			for(int i = 0;i < M.size(); i++)
+			
+			
+			int mSize, uSize;
+			mSize = M.size();
+			uSize = U.size();
+			for(int i = 0;i < mSize; i++)
 			{
 				ans2.addEdge(M.get(i));
 			}
-			for(int i = 0; i < U.size(); i++)
+			for(int i = 0; i < uSize; i++)
 			{
 				ans2.addEdge(U.get(i));
 			}
@@ -91,18 +115,22 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 			Tour eulerTour = new Tour();
 			if(cost1 <= cost2)
 			{
+				System.out.println("ans1 chosen: " + CommonAlgorithms.isStronglyConnected(ans1));
 				tour = CommonAlgorithms.tryHierholzer(ans1);
 				HashMap<Integer, MixedEdge> indexedEdges = ans1.getInternalEdgeMap();
-				for (int i=0;i<tour.size();i++)
+				int tourSize = tour.size();
+				for (int i=0;i<tourSize;i++)
 				{
 					eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
 				}
 			}
 			else
 			{
+				System.out.println("ans2 chosen: " + CommonAlgorithms.isStronglyConnected(ans2));
 				tour = CommonAlgorithms.tryHierholzer(ans2);
 				HashMap<Integer, MixedEdge> indexedEdges = ans2.getInternalEdgeMap();
-				for (int i=0;i<tour.size();i++)
+				int tourSize = tour.size();
+				for (int i=0;i<tourSize;i++)
 				{
 					eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
 				}
@@ -117,6 +145,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 	}
 	/**
 	 * As described in Frederickson, we solve a min cost perfect matching on the odd vertices, and then 
+	 * adds the paths to create an even graph.
 	 * @param input
 	 * @param U
 	 */
@@ -129,7 +158,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 			int maxCost = 0;
 			int inputN = input.getVertices().size();
 
-			for(int i = 1; i < inputN + 1; i++)
+			for(int i = 1; i <= inputN; i++)
 			{
 				G1.addVertex(new UndirectedVertex("symmetric setup graph"), i);
 				G2.addVertex(new UndirectedVertex("symmetric setup graph"), i);
@@ -139,14 +168,16 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 
 			//add edges in U to G1
 			MixedEdge e;
-			for(int i = 0; i < U.size(); i++)
+			int uSize = U.size();
+			for(int i = 0; i < uSize; i++)
 			{
 				e = U.get(i);
 				G1.addEdge(new Edge("final", new Pair<UndirectedVertex>(g1Vertices.get(e.getEndpoints().getFirst().getId()), g1Vertices.get(e.getEndpoints().getSecond().getId())), e.getCost()));
 			}
 			//add edges in E to G2
 			HashMap<Integer, MixedEdge> inputEdges = input.getInternalEdgeMap();
-			for(int i = 1; i < input.getEdges().size()+1; i ++)
+			int edgesSize = input.getEdges().size();
+			for(int i = 1; i <= edgesSize; i++)
 			{
 				e = inputEdges.get(i);
 				if(e.isDirected())

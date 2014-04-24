@@ -18,7 +18,6 @@ import oarlib.core.Graph;
 import oarlib.core.MixedEdge;
 import oarlib.core.Vertex;
 import oarlib.core.WindyEdge;
-import oarlib.exceptions.GraphInfeasibleException;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.exceptions.NoDemandSetException;
 import oarlib.exceptions.UnsupportedFormatException;
@@ -66,6 +65,8 @@ public class CommonAlgorithms {
 		if(!isStronglyEulerian(eulerianGraph))
 			throw new IllegalArgumentException();
 		DirectedGraph ans = CommonAlgorithms.directUndirectedCycles(eulerianGraph); 
+		if(!isStronglyConnected(ans))
+			throw new IllegalArgumentException();
 		return hierholzer(ans, true);
 	}
 	/**
@@ -74,12 +75,11 @@ public class CommonAlgorithms {
 	 */
 	private static ArrayList<Integer> hierholzer(Graph<? extends Vertex,? extends Link<? extends Vertex>> orig, boolean useMatchIds)
 	{
-		Graph graph = orig.getDeepCopy();
+		Graph<? extends Vertex, ? extends Link<? extends Vertex>> graph = orig.getDeepCopy();
 		ArrayList<Integer> edgeTrail = new ArrayList<Integer>();
 		ArrayList<Integer> edgeCycle = new ArrayList<Integer>();
 		ArrayList<Vertex> visitedVertices = new ArrayList<Vertex>();
 		ArrayList<Vertex> simpleCycle = new ArrayList<Vertex>();
-		int m = graph.getEdges().size();
 
 		//pick an arbitrary start vertex
 		Iterator<? extends Vertex> iter = graph.getVertices().iterator();
@@ -248,6 +248,7 @@ public class CommonAlgorithms {
 			nodej[index] = e.getEndpoints().getSecond().getId();
 			if(!e.isDirected())
 			{
+				index++;
 				nodei[index] = e.getEndpoints().getSecond().getId();
 				nodej[index] = e.getEndpoints().getFirst().getId();
 			}
@@ -590,6 +591,8 @@ public class CommonAlgorithms {
 		vertices.addAll(graph.getVertices());
 		
 		HashSet<UndirectedVertex> nextUp = new HashSet<UndirectedVertex>();
+		HashSet<UndirectedVertex> toAdd = new HashSet<UndirectedVertex>();
+		HashSet<Integer> visited = new HashSet<Integer>();
 		if(vertices.size() <= 1)
 			return true; //trivially connected
 		nextUp.add(vertices.iterator().next());
@@ -603,8 +606,16 @@ public class CommonAlgorithms {
 			{
 				UndirectedVertex v = iter.next();
 				vertices.remove(v);
-				nextUp.addAll(v.getNeighbors().keySet());
+				for(UndirectedVertex uv: v.getNeighbors().keySet())
+				{
+					if(!visited.contains(uv.getId()))
+					{
+						toAdd.add(uv);
+						visited.add(uv.getId());
+					}
+				}
 			}
+			nextUp.addAll(toAdd);
 		}
 		if(vertices.size() == 0)
 		{
@@ -623,6 +634,8 @@ public class CommonAlgorithms {
 		vertices.addAll(graph.getVertices());
 		
 		HashSet<WindyVertex> nextUp = new HashSet<WindyVertex>();
+		HashSet<WindyVertex> toAdd = new HashSet<WindyVertex>();
+		HashSet<Integer> visited = new HashSet<Integer>();
 		if(vertices.size() <= 1)
 			return true; //trivially connected
 		nextUp.add(vertices.iterator().next());
@@ -636,8 +649,16 @@ public class CommonAlgorithms {
 			{
 				WindyVertex v = iter.next();
 				vertices.remove(v);
-				nextUp.addAll(v.getNeighbors().keySet());
+				for(WindyVertex wv: v.getNeighbors().keySet())
+				{
+					if(!visited.contains(wv.getId()))
+					{
+						toAdd.add(wv);
+						visited.add(wv.getId());
+					}
+				}
 			}
+			nextUp.addAll(toAdd);
 		}
 		if(vertices.size() == 0)
 		{
@@ -1767,7 +1788,7 @@ public class CommonAlgorithms {
 				{
 					e2 = indexedEdges.get(edgeIds.get(i));
 					temp.removeEdge(e2);
-					ans.addEdge(vertexIds.get(i), vertexIds.get(i+1), "directing cycle", e2.getCost(), e2.getId());
+					ans.addEdge(vertexIds.get(i), vertexIds.get(i+1), "directing cycle", e2.getCost(), e2.getMatchId());
 				}
 
 			} 
@@ -1979,7 +2000,6 @@ public class CommonAlgorithms {
 			do {
 				next = path[curr][end];
 				nextEdge = edgePath[curr][end];
-				System.out.println("next edge: " + nextEdge);
 				toRemove = indexedEdges.get(nextEdge);
 				g.removeEdge(toRemove);
 			} while ( (curr =next) != end);
@@ -2216,11 +2236,6 @@ public class CommonAlgorithms {
 							}
 						}
 					}
-					else
-					{
-						System.out.println("BADDD");
-					}
-
 				}
 
 				//reduce costs

@@ -49,11 +49,11 @@ public class GeneralTestbed {
 		//testSimpleGraphReader("/Users/oliverlum/Downloads/blossom5-v2.04.src/GRAPH1.TXT");
 		//testUndirectedGraphGenerator();
 		//validateEulerTour();
-		testUCPPSolver();
+		//testUCPPSolver();
 		//validateUCPPSolver();
 		//validateDCPPSolver();
 		//testFredericksons("/Users/oliverlum/Downloads/MCPP");
-		//validateMCPPSolver("/Users/oliverlum/Downloads/YaoyuenyongInstances");
+		validateMCPPSolver("/Users/oliverlum/Downloads/YaoyuenyongInstances");
 		//validateImprovedMCPPSolver("/Users/oliverlum/Downloads/YaoyuenyongInstances");
 		//validateWRPPSolver("/Users/oliverlum/Downloads/WRPP", "/Users/oliverlum/Desktop/wrpp.txt");
 		//validateImprovedWRPPSolver("/Users/oliverlum/Downloads/WRPP", "/Users/oliverlum/Desktop/improvedwrpp.txt");
@@ -347,7 +347,6 @@ public class GeneralTestbed {
 					end = System.nanoTime();
 					System.out.println(validAns.getCost());
 					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
-
 				}
 			}
 		} catch (Exception e)
@@ -389,19 +388,6 @@ public class GeneralTestbed {
 				if(g.getClass() == MixedGraph.class)
 				{
 					MixedGraph g2 = (MixedGraph)g;
-					for(MixedEdge e: g2.getEdges())
-					{
-						if(e.isDirected())
-							arcCount++;
-						else
-							edgeCount++;
-					}
-					for(MixedVertex v: g2.getVertices())
-					{
-						if(v.getDegree() % 2 == 1)
-							oddDegreeCount++;
-					}
-					System.out.println("This graph has " + g2.getVertices().size() + " vertices," + arcCount + " arcs, and " + edgeCount + " edges.  " + oddDegreeCount + " of the vertices are odd.");
 					validInstance = new MixedCPP(g2);
 					validSolver = new MCPPSolver_Frederickson(validInstance);
 					start = System.nanoTime();
@@ -409,7 +395,7 @@ public class GeneralTestbed {
 					end = System.nanoTime();
 					System.out.println(validAns.getCost());
 					System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
-
+					System.out.println(validAns.toString());
 				}
 			}
 		} catch (Exception e)
@@ -685,7 +671,7 @@ public class GeneralTestbed {
 				validAns = validSolver.trySolve(); //my ans
 				end = System.nanoTime();
 				System.out.println("It took " + (end-start)/(1e6) + " milliseconds to run our UCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
-
+				
 				myCost += validAns.getCost();
 
 				int n = g2.getVertices().size();

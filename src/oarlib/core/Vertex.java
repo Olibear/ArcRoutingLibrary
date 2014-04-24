@@ -19,9 +19,11 @@ public abstract class Vertex {
 	private int matchId; //id for finding matching guys in different graphs, so that they can have different internal labels (so numbering is still from 1 - n) but we can still locate companions
 	private int myDemand;
 	private boolean demandSet;
+	protected boolean isFinalized; // should be true if in a graph, false oth.
 	
 	public Vertex(String label)
 	{
+
 		setId(-1);
 		setGraphId(-1);
 		setMatchId(-1);
@@ -98,5 +100,13 @@ public abstract class Vertex {
 
 	public void setGraphId(int graphId) {
 		this.mGraphId = graphId;
+	}
+	
+	public boolean isFinalized() {
+		return isFinalized;
+	}
+	
+	public void setFinalized(boolean isFinalized) {
+		this.isFinalized = isFinalized;
 	}
 }

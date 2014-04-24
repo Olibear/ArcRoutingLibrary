@@ -22,7 +22,7 @@ public abstract class Link<V extends Vertex> {
 	private boolean isDirected;
 	private boolean isRequired;
 	private boolean capacitySet;
-	private boolean isFinalized; // helps handle id safety
+	protected boolean isFinalized; // should be true if in a graph, false oth.
 
 	public Link(String label, Pair<V> endpoints, int cost)
 	{
@@ -30,6 +30,7 @@ public abstract class Link<V extends Vertex> {
 	}
 	public Link(String label, Pair<V> endpoints, int cost, boolean required)
 	{
+		setFinalized(false);
 		setId(-1);
 		setGraphId(-1);
 		setMatchId(-1);
@@ -85,8 +86,13 @@ public abstract class Link<V extends Vertex> {
 	public int getId() {
 		return mId;
 	}
-	public void setId(int mId) {
-		this.mId = mId;
+	public boolean setId(int mId) {
+		if(!isFinalized)
+		{
+			this.mId = mId;
+			return true;
+		}
+		return false;
 	}
 
 	public boolean isDirected() {
@@ -138,6 +144,12 @@ public abstract class Link<V extends Vertex> {
 	}
 	public void setGraphId(int mGraphId) {
 		this.mGraphId = mGraphId;
+	}
+	public boolean isFinalized() {
+		return isFinalized;
+	}
+	public void setFinalized(boolean isFinalized) {
+		this.isFinalized = isFinalized;
 	}
 
 }

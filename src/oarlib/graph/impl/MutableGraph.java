@@ -81,6 +81,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	{
 		this.addVertex(v);
 		v.setMatchId(matchId);
+		v.setFinalized(true);
 	}
 	
 	//==============================
@@ -114,6 +115,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		mEdges.add(e);
 		mGlobalEdgeMap.put(e.getGuid(), e);
 		mInternalEdgeMap.put(e.getId(), e);
+		e.setFinalized(true);
 	}
 	@Override
 	public void addEdge(int i, int j, int cost) throws InvalidEndpointsException
@@ -141,6 +143,21 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	}
 	
 	@Override
+	public void changeLinkId(int oldId, int newId) throws IllegalArgumentException
+	{
+		if(!mInternalEdgeMap.containsKey(oldId))
+			throw new IllegalArgumentException("No link with the oldId specified exists in this graph.");
+		if(mInternalEdgeMap.containsKey(newId))
+			throw new IllegalArgumentException("A link with newId already exists in this graph.");
+		
+		E temp = mInternalEdgeMap.get(oldId);
+		mInternalEdgeMap.remove(oldId);
+		temp.setId(newId);
+		mInternalEdgeMap.put(newId, temp);
+		
+	}
+	
+	@Override
 	public void addVertex(V v) {
 		v.setId(this.assignVertexId());
 		v.setGraphId(this.getGraphId());
@@ -148,12 +165,28 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		mGlobalVertexMap.put(v.getGuid(), v);
 		mInternalVertexMap.put(v.getId(), v);
 	}
+	
+	@Override
+	public void changeVertexId(int oldId, int newId) throws IllegalArgumentException
+	{
+		if(!mInternalVertexMap.containsKey(oldId))
+			throw new IllegalArgumentException("No vertex with the oldId specified exists in this graph.");
+		if(mInternalVertexMap.containsKey(newId))
+			throw new IllegalArgumentException("A vertex with newId already exists in this graph.");
+		
+		V temp = mInternalVertexMap.get(oldId);
+		mInternalVertexMap.remove(oldId);
+		temp.setId(newId);
+		mInternalVertexMap.put(newId, temp);
+	}
+	
 	@Override
 	public void removeEdge(E e)
 	{
 		mEdges.remove(e);
 		mGlobalEdgeMap.remove(e.getGuid());
 		mInternalEdgeMap.remove(e.getId());
+		e.setFinalized(false);
 	}
 	@Override
 	public HashMap<Integer, V> getGlobalVertexMap()

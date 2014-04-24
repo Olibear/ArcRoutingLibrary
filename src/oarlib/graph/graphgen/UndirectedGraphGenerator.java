@@ -75,8 +75,9 @@ public class UndirectedGraphGenerator extends GraphGenerator{
 					//(the last guy we connected) to currcandidate (whichever vertex belongs to a CC we haven't connected yet.
 					HashSet<Integer> alreadyIntegrated = new HashSet<Integer>();
 					UndirectedVertex lastCandidate = indexedVertices.get(1);
+					alreadyIntegrated.add(component[1]);
 					UndirectedVertex currCandidate;
-					for (int i=1; i<component.length;i++)
+					for (int i=2; i<component.length;i++)
 					{
 						if(alreadyIntegrated.contains(component[i]))
 							continue;

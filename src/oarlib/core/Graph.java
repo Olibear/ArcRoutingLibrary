@@ -124,6 +124,20 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 */
 	public abstract void removeEdge(E e) throws IllegalArgumentException;
 	/**
+	 * To change the id of a link in the graph
+	 * @param oldId - the old id of the link
+	 * @param newId - the new id of the link
+	 * @throws IllegalArgumentException - if no link with oldId exists in the graph, or if there is already a link with newId
+	 */
+	public abstract void changeLinkId(int oldId, int newId) throws IllegalArgumentException;
+	/**
+	 * To change the id of a vertex in the graph
+	 * @param oldId - the old id of the vertex
+	 * @param newId - the new id of the vertex
+	 * @throws IllegalArgumentException - if no vertex with oldId exists in the graph, or if there is already a vertex with newId
+	 */
+	public abstract void changeVertexId(int oldId, int newId) throws IllegalArgumentException;
+	/**
 	 * Provides a means of getting a by value copy of this graph.  The conventions used to produce this 
 	 * copy are slightly idiosyncratic in order to make this method slightly more useful:
 	 * 
