@@ -125,6 +125,13 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		this.addEdge(this.constructEdge(i, j, "", cost));	
 	}
 	@Override
+	public void addEdge(int i, int j, int cost, boolean isReq) throws InvalidEndpointsException
+	{
+		if(i > this.getVertices().size() || j > this.getVertices().size())
+			throw new InvalidEndpointsException();
+		this.addEdge(i,j,"",cost,isReq);	
+	}
+	@Override
 	public void addEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException
 	{
 		if(i > this.getVertices().size() || j > this.getVertices().size())

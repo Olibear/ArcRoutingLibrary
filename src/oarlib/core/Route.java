@@ -55,6 +55,8 @@ public abstract class Route {
 		boolean firstToSecond = false;
 
 		//edge case
+		if (n == 0)
+			return ans;
 		if(n == 1)
 		{
 			tempL = list.get(0);

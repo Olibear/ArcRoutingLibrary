@@ -153,6 +153,9 @@ public class WRPPSolver_Win extends SingleVehicleSolver{
 			}
 
 			CommonAlgorithms.connectedComponents(n, mreq, nodei, nodej, component);
+			
+			if(component[0] == 1)
+				return g;
 
 			/**
 			 * We need to keep track of vertices in the graph that have no incident required edges.

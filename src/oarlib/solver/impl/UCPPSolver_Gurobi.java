@@ -65,8 +65,6 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver{
 			
 			//the answers
 			int l;
-			int myCost = 0;
-			int trueCost = 0;
 			
 			int n = copy.getVertices().size();
 			int[][] dist = new int[n+1][n+1];
@@ -84,9 +82,6 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver{
 
 			//Now set up the model in Gurobi and solve it, and see if you get the right answer
 			model = new GRBModel(env);
-			//put in the base cost of all the edges that we'll add to the objective
-			for(Edge a: copy.getEdges())
-				trueCost+=a.getCost();
 
 			//create variables
 			//after this snippet, element[j][k] contains the variable x_jk which represents the
@@ -146,18 +141,17 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver{
 				model.addConstr(expr, GRB.EQUAL, 0, "cj"+j);
 			}
 			model.optimize();
-			trueCost+=model.get(GRB.DoubleAttr.ObjVal)/2;
 			
 			for(int j = 0; j < l; j++)
 			{
-				for(int k = 0; k < l; k++)
+				for(int k = 0; k < j; k++)
 				{
 					if(varArray[j][k].get(GRB.DoubleAttr.X) > 0)
+					{
 						CommonAlgorithms.addShortestPath(copy, dist, path, edgePath, new Pair<Integer>(oddVertices.get(j), oddVertices.get(k)));
+					}
 				}
 			}
-			
-			System.out.println("myCost = " + myCost + ", trueCost = " + trueCost);
 			
 			//return the answer
 			HashMap<Integer, Edge> indexedEdges = copy.getInternalEdgeMap();

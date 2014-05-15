@@ -26,6 +26,10 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 		super();
 	}
 	
+	public MixedGraph(int n) {
+		super(n);
+	}
+	
 	//===============================================
 	//
 	// Adders and Factory methods with isDirected

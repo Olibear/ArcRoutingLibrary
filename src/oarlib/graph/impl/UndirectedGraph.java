@@ -21,6 +21,10 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 	public UndirectedGraph(){
 		super();
 	}
+	
+	public UndirectedGraph(int n) {
+		super(n);
+	}
 
 	//====================================================
 	//

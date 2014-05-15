@@ -66,8 +66,6 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver{
 			ArrayList<Integer> Dminus;
 			int l;
 			int m;
-			int myCost = 0;
-			double trueCost = 0;
 			
 		
 			int n = copy.getVertices().size();
@@ -89,9 +87,6 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver{
 
 			//Now set up the model in Gurobi and solve it, and see if you get the right answer
 			model = new GRBModel(env);
-			//put in the base cost of all the edges that we'll add to the objective
-			for(Arc a: copy.getEdges())
-				trueCost+=a.getCost();
 
 			//create variables
 			//after this snippet, element[j][k] contains the variable x_jk which represents the
@@ -132,18 +127,20 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver{
 				model.addConstr(expr, GRB.EQUAL, -1 * indexedVertices.get(Dminus.get(k)).getDelta(), "ck"+k);
 			}
 			model.optimize();
-			trueCost+=model.get(GRB.DoubleAttr.ObjVal);
 			
+			int temp;
 			for(int j = 0; j < l; j++)
 			{
 				for(int k = 0; k < m; k++)
 				{
-					if(varArray[j][k].get(GRB.DoubleAttr.X) > 0)
-						CommonAlgorithms.addShortestPath(copy, dist, path, edgePath, new Pair<Integer>(Dplus.get(j), Dminus.get(k)));
+					temp = (int)varArray[j][k].get(GRB.DoubleAttr.X);  
+					if(temp > 0)
+					{
+						for(int i = 0; i < temp; i++)
+							CommonAlgorithms.addShortestPath(copy, dist, path, edgePath, new Pair<Integer>(Dplus.get(j), Dminus.get(k)));
+					}
 				}
 			}
-			
-			System.out.println("myCost = " + myCost + ", trueCost = " + trueCost);
 			
 			//return the answer
 			HashMap<Integer, Arc> indexedEdges = copy.getInternalEdgeMap();

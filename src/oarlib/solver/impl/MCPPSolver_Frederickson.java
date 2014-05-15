@@ -23,6 +23,16 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
+/**
+ * 
+ * @author oliverlum
+ *
+ *
+ * Implements Frederickson's heuristic for the mixed CPP.  This heuristic is in fact a combination of two heuristics that
+ * whereby we choose the better-performing of the two.  Both heuristics are decompositional in nature; they find an optimal way
+ * of achieving evenness and symmetry, and then combine the two procedures to ensure that the resulting augmentation
+ * has both properties.
+ */
 public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 
 	MixedCPP mInstance;
@@ -32,9 +42,6 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 		mInstance = instance;
 	}
 
-	/**
-	 * Implements Frederickson's heuristic for the mixed CPP.
-	 */
 	@Override
 	protected Route solve() {
 		try {
@@ -66,26 +73,26 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver{
 			//End Mixed 1
 
 			//Start Mixed 2
-			
+
 			//Vars for bookkeeping
 			U = new ArrayList<MixedEdge>();
 			M = new ArrayList<MixedEdge>();
 			inMdubPrime =  new ArrayList<Boolean>();
-			
+
 			/*
 			 * This procedure aims to make the mixed graph symmetric; that is, for each vertex v, v.getInDegree() == v.getOutDegree().
 			 * Note that this may disrupt the property of every vertex being even.
 			 */
 			inOutDegree(ans2, U, M, inMdubPrime);
-			
+
 			/*
 			 * This procedure aims to restore evenness to the graph by performing a matching on the graph induced
 			 * by the edges left undirected after inOutDegree
 			 */
 			largeCycles(ans2, U);
 			ans2.clearEdges();
-			
-			
+
+
 			int mSize, uSize;
 			mSize = M.size();
 			uSize = U.size();

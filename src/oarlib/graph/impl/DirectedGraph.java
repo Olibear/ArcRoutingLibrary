@@ -22,6 +22,10 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	public DirectedGraph(){
 		super();
 	}
+	
+	public DirectedGraph(int n) {
+		super(n);
+	}
 
 	//====================================================
 	//

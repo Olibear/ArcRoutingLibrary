@@ -102,6 +102,18 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * @param j - add edge to vertex j
 	 * @param desc - description for the edge
 	 * @param cost - cost of traversing the edge
+	 * @param isRequired - whether or not this edge is required in the solution
+	 */
+	public abstract void addEdge(int i, int j, int cost, boolean isRequired) throws InvalidEndpointsException;
+	
+	/**
+	 * A more notationally elegant way of adding an edge to a graph, it will create a new edge from vertex i to vertex j,
+	 * with the appropriate cost and description.  If this is a mixed graph, it will default to adding an edge, but look for
+	 * a version that takes directedness as an argument
+	 * @param i - add edge from vertex i
+	 * @param j - add edge to vertex j
+	 * @param desc - description for the edge
+	 * @param cost - cost of traversing the edge
 	 */
 	public abstract void addEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException;
 	/**
