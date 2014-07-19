@@ -27,16 +27,16 @@ import oarlib.vertex.impl.WindyVertex;
  *
  */
 public class GraphReader {
-	private Format.Name mFormat;
-	public GraphReader(Format.Name format)
+	private GraphFormat.Name mFormat;
+	public GraphReader(GraphFormat.Name format)
 	{
 		mFormat = format;
 	}
-	public void setFormat(Format.Name newFormat)
+	public void setFormat(GraphFormat.Name newFormat)
 	{
 		mFormat = newFormat;
 	}
-	public Format.Name getFormat()
+	public GraphFormat.Name getFormat()
 	{
 		return mFormat;
 	}
@@ -54,6 +54,8 @@ public class GraphReader {
 			return readCamposGraph(fileName);
 		case DIMACS_Modified:
 			break;
+		case METIS:
+			return readMETISGraph(fileName);
 		case OARLib:
 			//TODO: I should probably write a reader for my own format
 			break;
@@ -62,11 +64,126 @@ public class GraphReader {
 				+ " there doesn't seem to be an appropriate read method assigned to it.  Support is planned in the future," +
 				"but not currently available");
 	}
+	private Graph<?,?> readMETISGraph(String fileName) throws FormatMismatchException
+	{
+		try
+		{
+			//ans, so far I only know of undirected graphs for this type
+			UndirectedGraph ans = new UndirectedGraph();
+			
+			//file reading vars
+			String line;
+			String[] temp;
+			File graphFile = new File(fileName);
+			BufferedReader br = new BufferedReader(new FileReader(graphFile));
+			
+			//header info
+			int n = 0;
+			int numWeightsPerVertex = 1;
+
+			boolean hasEdgeWeights = false;
+			boolean hasVertexWeights = false;
+			boolean hasVertexSizes = false;
+			
+			line = br.readLine();
+			
+			//skip any header
+			while(line.startsWith("%"))
+				line = br.readLine();
+			temp = line.split(",\\s+|:");
+			
+			if(temp.length == 2)
+			{
+				//n, and m
+				n = Integer.parseInt(temp[0]);
+			}
+			if(temp.length > 2)
+			{
+				//fmt	
+				if(temp[2].charAt(2) == '0')
+				{
+					hasEdgeWeights = false;
+					System.out.println("This file does not contain information about edge weights.  The graph will attempt to be read, but this seems strange, as this is an Arc-Routing Library");
+				}
+				if(temp[2].charAt(1) == '0')
+					hasVertexWeights = false;
+				if(temp[2].charAt(0) == '0')
+					hasVertexSizes = false;
+			}
+			if (temp.length > 3)
+			{
+				//nconn
+				numWeightsPerVertex = Integer.parseInt(temp[3]);
+				if(numWeightsPerVertex > 1)
+					System.out.println("The graph specified in this file has multiple weights per vertex.  Currently, there is no support for multiple vertex weights, so only the first will be used.");
+			}
+			if (temp.length > 4)
+			{
+				br.close();
+				throw new FormatMismatchException("This does not appear to be a METIS graph file.  The header is malformed.");
+			}
+				
+			//vertices
+			for(int i = 0; i < n; i++)
+			{
+				ans.addVertex(new UndirectedVertex(""));
+			}
+			
+			HashMap<Integer, UndirectedVertex> indexedVertices = ans.getInternalVertexMap();
+			
+			//now read the rest
+			for(int i = 1; i <= n; i ++)
+			{
+				if((line = br.readLine()) == null)
+				{
+					br.close();
+					throw new FormatMismatchException("This does not appear to be a valid METIS graph file.  There are not as many lines as vertices specified in the header.");
+				}
+				
+				temp = line.split(",\\s+|:");
+				//if there's a vertex size, read it
+				if(hasVertexSizes)
+				{
+					indexedVertices.get(i).setMySize(Integer.parseInt(temp[0]));
+				}
+				if(hasVertexWeights)
+				{
+					if(hasVertexSizes)
+						indexedVertices.get(i).setMyCost(Integer.parseInt(temp[1]));
+					else
+						indexedVertices.get(i).setMyCost(Integer.parseInt(temp[0]));
+				}
+				if(hasEdgeWeights)
+				{
+					int start = 0;
+					if(hasVertexSizes)
+						start++;
+					if(hasVertexWeights)
+						start+=numWeightsPerVertex;
+					int end = temp.length;
+					for(int j = start; j < end; j+=2)
+					{
+						//to avoid redundancy in the file
+						if(i < Integer.parseInt(temp[j]))
+							ans.addEdge(i, Integer.parseInt(temp[j]), Integer.parseInt(temp[j+1]));
+					}
+				}
+			}
+			
+			br.close();
+			return ans;
+			
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
 	private Graph<?,?> readCamposGraph(String fileName) throws FormatMismatchException
 	{
 		try
 		{
-			//ans, so far I only know of directed graphs
+			//ans, so far I only know of directed graphs for this type
 			DirectedGraph ans = new DirectedGraph();
 
 			//file reading vars

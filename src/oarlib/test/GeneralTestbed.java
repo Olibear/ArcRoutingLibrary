@@ -15,7 +15,7 @@ import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
-import oarlib.graph.io.Format;
+import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphReader;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.MSArbor;
@@ -164,7 +164,7 @@ public class GeneralTestbed {
 	@SuppressWarnings("unused")
 	private static void testDRPPSolver(String instanceFolder, String outputFile)
 	{
-		GraphReader gr = new GraphReader(Format.Name.Campos);
+		GraphReader gr = new GraphReader(GraphFormat.Name.Campos);
 		try
 		{
 			DirectedRPP validInstance;
@@ -290,7 +290,7 @@ public class GeneralTestbed {
 	@SuppressWarnings("unused")
 	private static void testSimpleGraphReader(String instancePath)
 	{
-		GraphReader gr = new GraphReader(Format.Name.Simple);
+		GraphReader gr = new GraphReader(GraphFormat.Name.Simple);
 		try 
 		{
 			Graph<?,?> g = gr.readGraph(instancePath);
@@ -312,7 +312,7 @@ public class GeneralTestbed {
 	@SuppressWarnings("unused")
 	private static void testFredericksons(String instanceFolder)
 	{
-		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
 		try
 		{
 			MixedCPP validInstance;
@@ -358,7 +358,7 @@ public class GeneralTestbed {
 	@SuppressWarnings("unused")
 	private static void validateImprovedMCPPSolver(String instanceFolder)
 	{
-		GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
+		GraphReader gr = new GraphReader(GraphFormat.Name.Yaoyuenyong);
 		try
 		{
 			MixedCPP validInstance;
@@ -405,7 +405,7 @@ public class GeneralTestbed {
 	@SuppressWarnings("unused")
 	private static void validateMCPPSolver(String instanceFolder)
 	{
-		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
 		//GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
 		try
 		{
@@ -454,7 +454,7 @@ public class GeneralTestbed {
 	@SuppressWarnings("unused")
 	private static void validateWRPPSolver(String instanceFolder, String outputFile)
 	{
-		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
 		try
 		{
 			WindyRPP validInstance;
@@ -512,7 +512,7 @@ public class GeneralTestbed {
 	@SuppressWarnings("unused")
 	private static void validateImprovedWRPPSolver(String instanceFolder, String outputFile)
 	{
-		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
 		try
 		{
 			WindyRPP validInstance;
@@ -565,7 +565,7 @@ public class GeneralTestbed {
 	@SuppressWarnings("unused")
 	private static void validateWPPIPSolvers(String instanceFolder, String outputFile)
 	{
-		GraphReader gr = new GraphReader(Format.Name.Corberan);
+		GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
 		try
 		{
 			WindyCPP validInstance;

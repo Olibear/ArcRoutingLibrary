@@ -19,6 +19,8 @@ public abstract class Vertex {
 	private int matchId; //id for finding matching guys in different graphs, so that they can have different internal labels (so numbering is still from 1 - n) but we can still locate companions
 	private int myDemand;
 	private boolean demandSet;
+	private int myCost;
+	private int mySize;
 	protected boolean isFinalized; // should be true if in a graph, false oth.
 	
 	public Vertex(String label)
@@ -27,6 +29,8 @@ public abstract class Vertex {
 		setId(-1);
 		setGraphId(-1);
 		setMatchId(-1);
+		setMyCost(0);
+		setMySize(0);
 		setLabel(label);
 		setGuid(counter);
 		counter++;
@@ -108,5 +112,21 @@ public abstract class Vertex {
 	
 	public void setFinalized(boolean isFinalized) {
 		this.isFinalized = isFinalized;
+	}
+
+	public int getMyCost() {
+		return myCost;
+	}
+
+	public void setMyCost(int myCost) {
+		this.myCost = myCost;
+	}
+
+	public int getMySize() {
+		return mySize;
+	}
+
+	public void setMySize(int mySize) {
+		this.mySize = mySize;
 	}
 }
