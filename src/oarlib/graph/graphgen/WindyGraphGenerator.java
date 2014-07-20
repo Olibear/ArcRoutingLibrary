@@ -3,10 +3,12 @@ package oarlib.graph.graphgen;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import oarlib.core.Edge;
 import oarlib.core.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
+import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
 public class WindyGraphGenerator extends GraphGenerator{
@@ -14,15 +16,15 @@ public class WindyGraphGenerator extends GraphGenerator{
 	public WindyGraphGenerator(){super();}
 	@Override
 	public WindyGraph generateGraph(int n, int maxCost, boolean connected,
-			double density) throws IllegalArgumentException{
+			double density, boolean positiveCosts) throws IllegalArgumentException{
 
-		
+
 		//edge cases
 		if(n < 0)
 			throw new IllegalArgumentException();
 		if(n == 0)
 			return new WindyGraph();
-		
+
 		try {
 			//ans graph
 			WindyGraph ans = new WindyGraph();
@@ -35,7 +37,7 @@ public class WindyGraphGenerator extends GraphGenerator{
 
 			if(n == 1)
 				return ans;
-			
+
 			HashMap<Integer,WindyVertex> indexedVertices = ans.getInternalVertexMap();
 
 			//figure out what is set
@@ -52,8 +54,16 @@ public class WindyGraphGenerator extends GraphGenerator{
 					//add the arc with probability density
 					if(Math.random() < density)
 					{
-						cost = (int)Math.round(maxCost * Math.random());
-						reverseCost = (int)Math.round(maxCost * Math.random());
+						if(positiveCosts)
+						{
+							cost = 1 + (int)Math.round((maxCost-1) * Math.random());
+							reverseCost = 1 + (int)Math.round((maxCost-1) * Math.random());
+						}
+						else
+						{
+							cost = (int)Math.round(maxCost * Math.random());
+							reverseCost = (int)Math.round(maxCost * Math.random());
+						}
 						ans.addEdge(new WindyEdge("Original", new Pair<WindyVertex>(indexedVertices.get(k), indexedVertices.get(j)), cost, reverseCost));
 					}
 				}
@@ -104,7 +114,7 @@ public class WindyGraphGenerator extends GraphGenerator{
 	public WindyGraph generateEulerianGraph(int n, int maxCost,
 			boolean connected, double density) {
 		try {
-			WindyGraph g = this.generateGraph(n, maxCost, connected, density);
+			WindyGraph g = this.generateGraph(n, maxCost, connected, density, false);
 			//make Eulerian
 			WindyVertex temp = null;
 			boolean lookingForPartner = false;
@@ -128,7 +138,7 @@ public class WindyGraphGenerator extends GraphGenerator{
 						lookingForPartner = true;
 					}
 				}
-					
+
 			}
 			return g;
 		} catch(Exception e)

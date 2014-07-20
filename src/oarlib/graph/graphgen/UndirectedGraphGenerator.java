@@ -14,7 +14,7 @@ public class UndirectedGraphGenerator extends GraphGenerator{
 	public UndirectedGraphGenerator(){super();}
 	@Override
 	public UndirectedGraph generateGraph(int n, int maxCost, boolean connected,
-			double density) throws IllegalArgumentException{
+			double density, boolean positiveCosts) throws IllegalArgumentException{
 
 		
 		//edge cases
@@ -42,7 +42,6 @@ public class UndirectedGraphGenerator extends GraphGenerator{
 			maxCost = (maxCost<0)?Integer.MAX_VALUE:maxCost;
 			density = (density > 0 && density < 1)? density:Math.random();
 
-
 			//randomly add edges
 			for(int j = 2; j <= n; j++)
 			{
@@ -50,7 +49,12 @@ public class UndirectedGraphGenerator extends GraphGenerator{
 				{
 					//add the arc with probability density
 					if(Math.random() < density)
-						ans.addEdge(new Edge("Original", new Pair<UndirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), (int)Math.round(maxCost * Math.random())));
+					{
+						if(positiveCosts)
+							ans.addEdge(new Edge("Original", new Pair<UndirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), 1 + (int)Math.round((maxCost-1) * Math.random())));
+						else
+							ans.addEdge(new Edge("Original", new Pair<UndirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), (int)Math.round(maxCost * Math.random())));
+					}
 				}
 			}
 
@@ -98,7 +102,7 @@ public class UndirectedGraphGenerator extends GraphGenerator{
 	public UndirectedGraph generateEulerianGraph(int n, int maxCost,
 			boolean connected, double density) {
 		try {
-			UndirectedGraph g = this.generateGraph(n, maxCost, connected, density);
+			UndirectedGraph g = this.generateGraph(n, maxCost, connected, density, false);
 			//make Eulerian
 			UndirectedVertex temp = null;
 			boolean lookingForPartner = false;

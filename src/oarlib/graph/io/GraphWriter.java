@@ -74,7 +74,7 @@ public class GraphWriter {
 			int n = g.getVertices().size();
 			int m = g.getEdges().size();
 			String header = "";
-			header = header + n + " " + m + " " + "001" + " 1";
+			header = header + n + " " + m + " " + "001" + " 0";
 			pw.println(header);
 			
 			HashMap<Integer, UndirectedVertex> indexedVertices = g2.getInternalVertexMap();

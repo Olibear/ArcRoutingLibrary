@@ -4,18 +4,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import oarlib.core.Edge;
 import oarlib.core.MixedEdge;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.MixedVertex;
+import oarlib.vertex.impl.UndirectedVertex;
 
 public class MixedGraphGenerator extends GraphGenerator{
 
 	public MixedGraphGenerator(){super();}
 	@Override
 	public MixedGraph generateGraph(int n, int maxCost, boolean connected,
-			double density) {
+			double density, boolean positiveCosts) {
 
 		//edge cases
 		if(n < 0)
@@ -55,7 +57,12 @@ public class MixedGraphGenerator extends GraphGenerator{
 					m = isDirected? m+1: m+2;
 					//add the arc with probability density
 					if(rand < density)
-						ans.addEdge(new MixedEdge("Original", new Pair<MixedVertex>(indexedVertices.get(k), indexedVertices.get(j)), (int)Math.round(maxCost * rand), isDirected));
+					{
+						if(positiveCosts)
+							ans.addEdge(new MixedEdge("Original", new Pair<MixedVertex>(indexedVertices.get(k), indexedVertices.get(j)), 1 + (int)Math.round((maxCost-1) * Math.random())));
+						else
+							ans.addEdge(new MixedEdge("Original", new Pair<MixedVertex>(indexedVertices.get(k), indexedVertices.get(j)), (int)Math.round(maxCost * rand), isDirected));
+					}
 				}
 			}
 
@@ -109,7 +116,7 @@ public class MixedGraphGenerator extends GraphGenerator{
 	public MixedGraph generateEulerianGraph(int n, int maxCost,
 			boolean connected, double density) {
 		try{
-			MixedGraph g = this.generateGraph(n, maxCost, connected, density);
+			MixedGraph g = this.generateGraph(n, maxCost, connected, density, false);
 
 			//make balance (indegree = outdegree
 			ArrayList<MixedVertex> Dplus = new ArrayList<MixedVertex>();

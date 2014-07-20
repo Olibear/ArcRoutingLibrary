@@ -17,6 +17,9 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphReader;
+import oarlib.graph.io.GraphWriter;
+import oarlib.graph.io.PartitionFormat;
+import oarlib.graph.io.PartitionReader;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
@@ -63,8 +66,58 @@ public class GeneralTestbed {
 		//testMSArbor();
 		//testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
 		//POMSexample();
+		WriteMETISGraph();
 	}
-	
+	@SuppressWarnings("unused")
+	private static void WriteMETISGraph()
+	{
+		try
+		{
+			//generate the graph randomly
+			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+			UndirectedGraph test = (UndirectedGraph)ugg.generateGraph(100, 10, true, .5, true);
+
+			String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
+
+			//write it to a file
+			GraphWriter gw = new GraphWriter(GraphFormat.Name.METIS);
+			gw.writeGraph(test, filename);
+			
+			//num parts to partition into
+			int numParts = 5;
+			
+			//run gpmetis
+            String[] args1 = {"/Users/oliverlum/Downloads/metis-5.1.0/build/Darwin-x86_64/programs/gpmetis", filename, "" + numParts, "-contig", "-minconn", "-niter=1000", "-ncuts=1000", "-ufactor=1"};
+			Runtime r = Runtime.getRuntime();
+			System.out.println("Start");
+			Process p = r.exec(args1);
+			p.waitFor();
+			int exitVal = p.exitValue();
+			System.out.println("Stop " + exitVal);
+			
+            
+			//now read the partition
+			PartitionReader pr = new PartitionReader(PartitionFormat.Name.METIS);
+			HashMap<Integer, HashSet<Integer>> sol = pr.readPartition(filename + ".part." + numParts);
+			
+			for(Integer i : sol.keySet())
+			{
+				System.out.println("Key:" + i);
+				for(Integer i2 : sol.get(i))
+				{
+					System.out.print(i2 + ",");
+				}
+				System.out.println();
+			}
+			
+			return;
+			
+		} catch(Exception e)
+		{
+			e.printStackTrace();
+			return;
+		}
+	}
 	@SuppressWarnings("unused")
 	private static void POMSexample()
 	{
@@ -94,12 +147,12 @@ public class GeneralTestbed {
 			neighborhood.addEdge(13, 14, 3, 3, false);
 			neighborhood.addEdge(14, 15, 3, 3, true);
 			neighborhood.addEdge(15, 16, 2, 2, false);
-			
+
 			WindyRPP testProblem = new WindyRPP(neighborhood);
 			WRPPSolver_Win testSolver = new WRPPSolver_Win(testProblem);
 			Route ans = testSolver.trySolve();
 			System.out.println(ans.toString());
-			
+
 		} catch(Exception e)
 		{
 			e.printStackTrace();

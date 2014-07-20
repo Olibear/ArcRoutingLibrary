@@ -5,17 +5,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import oarlib.core.Arc;
+import oarlib.core.Edge;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.DirectedVertex;
+import oarlib.vertex.impl.UndirectedVertex;
 
 public class DirectedGraphGenerator extends GraphGenerator{
 
 	public DirectedGraphGenerator(){ super(); }
 	@Override
 	public DirectedGraph generateGraph(int n, int maxCost, boolean connected,
-			double density) {
+			double density, boolean positiveCosts) {
 		try {
 			
 			//ans graph
@@ -41,7 +43,12 @@ public class DirectedGraphGenerator extends GraphGenerator{
 						continue;
 					//add the arc with probability density
 					if(Math.random() < density)
-						ans.addEdge(new Arc("Original", new Pair<DirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), (int)Math.round(maxCost * Math.random())));
+					{
+						if(positiveCosts)
+							ans.addEdge(new Arc("Original", new Pair<DirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), 1 + (int)Math.round((maxCost-1) * Math.random())));
+						else
+							ans.addEdge(new Arc("Original", new Pair<DirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), (int)Math.round(maxCost * Math.random())));
+					}
 				}
 			}
 
@@ -90,7 +97,7 @@ public class DirectedGraphGenerator extends GraphGenerator{
 	public DirectedGraph generateEulerianGraph(int n, int maxCost,
 			boolean connected, double density) {
 		try{
-			DirectedGraph g = this.generateGraph(n, maxCost, connected, density);
+			DirectedGraph g = this.generateGraph(n, maxCost, connected, density, false);
 			
 			//make Eulerian
 			ArrayList<DirectedVertex> Dplus = new ArrayList<DirectedVertex>();
