@@ -144,14 +144,14 @@ public class GraphReader {
 				//if there's a vertex size, read it
 				if(hasVertexSizes)
 				{
-					indexedVertices.get(i).setMySize(Integer.parseInt(temp[0]));
+					indexedVertices.get(i).setSize(Integer.parseInt(temp[0]));
 				}
 				if(hasVertexWeights)
 				{
 					if(hasVertexSizes)
-						indexedVertices.get(i).setMyCost(Integer.parseInt(temp[1]));
+						indexedVertices.get(i).setCost(Integer.parseInt(temp[1]));
 					else
-						indexedVertices.get(i).setMyCost(Integer.parseInt(temp[0]));
+						indexedVertices.get(i).setCost(Integer.parseInt(temp[0]));
 				}
 				if(hasEdgeWeights)
 				{

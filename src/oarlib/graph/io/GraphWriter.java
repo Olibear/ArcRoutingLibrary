@@ -74,7 +74,7 @@ public class GraphWriter {
 			int n = g.getVertices().size();
 			int m = g.getEdges().size();
 			String header = "";
-			header = header + n + " " + m + " " + "001" + " 0";
+			header = header + n + " " + m + " " + "011" + " 1";
 			pw.println(header);
 			
 			HashMap<Integer, UndirectedVertex> indexedVertices = g2.getInternalVertexMap();
@@ -84,6 +84,8 @@ public class GraphWriter {
 			{
 				String line = "";
 				temp = indexedVertices.get(i);
+				
+				line += temp.getCost() + " ";
 				tempNeighbors = temp.getNeighbors();
 				for(UndirectedVertex neighbor : tempNeighbors.keySet())
 				{

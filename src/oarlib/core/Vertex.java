@@ -29,8 +29,8 @@ public abstract class Vertex {
 		setId(-1);
 		setGraphId(-1);
 		setMatchId(-1);
-		setMyCost(0);
-		setMySize(0);
+		setCost(0);
+		setSize(0);
 		setLabel(label);
 		setGuid(counter);
 		counter++;
@@ -114,19 +114,19 @@ public abstract class Vertex {
 		this.isFinalized = isFinalized;
 	}
 
-	public int getMyCost() {
+	public int getCost() {
 		return myCost;
 	}
 
-	public void setMyCost(int myCost) {
+	public void setCost(int myCost) {
 		this.myCost = myCost;
 	}
 
-	public int getMySize() {
+	public int getSize() {
 		return mySize;
 	}
 
-	public void setMySize(int mySize) {
+	public void setSize(int mySize) {
 		this.mySize = mySize;
 	}
 }

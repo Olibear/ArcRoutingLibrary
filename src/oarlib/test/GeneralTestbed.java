@@ -20,6 +20,7 @@ import oarlib.graph.io.GraphReader;
 import oarlib.graph.io.GraphWriter;
 import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
+import oarlib.graph.transform.impl.UndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
@@ -68,20 +69,24 @@ public class GeneralTestbed {
 		//POMSexample();
 		WriteMETISGraph();
 	}
+	
 	@SuppressWarnings("unused")
 	private static void WriteMETISGraph()
-	{
+	{	
 		try
 		{
 			//generate the graph randomly
 			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
 			UndirectedGraph test = (UndirectedGraph)ugg.generateGraph(100, 10, true, .5, true);
+			
+			UndirectedKWayPartitionTransform transformer = new UndirectedKWayPartitionTransform(test);
+			UndirectedGraph vWeightedTest = transformer.transformGraph();
 
 			String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
 
 			//write it to a file
 			GraphWriter gw = new GraphWriter(GraphFormat.Name.METIS);
-			gw.writeGraph(test, filename);
+			gw.writeGraph(vWeightedTest, filename);
 			
 			//num parts to partition into
 			int numParts = 5;

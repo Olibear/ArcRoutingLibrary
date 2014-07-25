@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import oarlib.core.Edge;
 import oarlib.core.MixedEdge;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.MixedVertex;
-import oarlib.vertex.impl.UndirectedVertex;
 
 public class MixedGraphGenerator extends GraphGenerator{
 

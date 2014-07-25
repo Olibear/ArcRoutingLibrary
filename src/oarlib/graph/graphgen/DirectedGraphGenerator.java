@@ -5,12 +5,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import oarlib.core.Arc;
-import oarlib.core.Edge;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.DirectedVertex;
-import oarlib.vertex.impl.UndirectedVertex;
 
 public class DirectedGraphGenerator extends GraphGenerator{
 

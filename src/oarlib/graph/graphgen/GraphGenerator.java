@@ -5,7 +5,8 @@ import oarlib.core.Graph;
 public abstract class GraphGenerator {
 	public GraphGenerator(){};
 	/**
-	 * Randomly generates a graph with n vertices.
+	 * Randomly generates an Erdos-Renyi like graph with n vertices (if connectedness or Eulerianness is enforced
+	 * then the process is not necessarily exactly according to Erdos-Renyi).
 	 * @param n - number of vertices in the graph
 	 * @return - a graph with n vertices.
 	 */
