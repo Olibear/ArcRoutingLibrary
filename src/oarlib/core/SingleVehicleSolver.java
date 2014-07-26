@@ -4,7 +4,7 @@ import oarlib.exceptions.GraphInfeasibleException;
 
 
 /**
- * Solver abstraction. Most general contract that Solvers must fulfill.
+ * Solver abstraction. Most general contract that Single Vehicle Solvers must fulfill.
  * @author oliverlum
  *
  */
@@ -13,16 +13,16 @@ public abstract class SingleVehicleSolver {
 	 * Default constructor; must set problem instance.
 	 * @param instance - instance for which this is a solver
 	 */
-	public SingleVehicleSolver(Problem instance) throws IllegalArgumentException{
+	protected SingleVehicleSolver(Problem instance) throws IllegalArgumentException{
 		//make sure I'm a valid problem instance
 		if(!(instance.getType() == getProblemType()))
 		{
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("It appears that this problem does not match the problem type handled by this solver.");
 		}
 	}
 	/**
 	 * Attempts to solve the instance assigned to this problem.  
-	 * @return null if problem instance is not assigned.
+	 * @return null if problem instance is not assigned, or solver failed.
 	 */
 	public Route trySolve() throws GraphInfeasibleException{
 		if(!checkGraphRequirements())

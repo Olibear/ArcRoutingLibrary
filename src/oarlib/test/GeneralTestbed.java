@@ -79,42 +79,6 @@ public class GeneralTestbed {
 			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
 			UndirectedGraph test = (UndirectedGraph)ugg.generateGraph(100, 10, true, .5, true);
 			
-			UndirectedKWayPartitionTransform transformer = new UndirectedKWayPartitionTransform(test);
-			UndirectedGraph vWeightedTest = transformer.transformGraph();
-
-			String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
-
-			//write it to a file
-			GraphWriter gw = new GraphWriter(GraphFormat.Name.METIS);
-			gw.writeGraph(vWeightedTest, filename);
-			
-			//num parts to partition into
-			int numParts = 5;
-			
-			//run gpmetis
-            String[] args1 = {"/Users/oliverlum/Downloads/metis-5.1.0/build/Darwin-x86_64/programs/gpmetis", filename, "" + numParts, "-contig", "-minconn", "-niter=1000", "-ncuts=1000", "-ufactor=1"};
-			Runtime r = Runtime.getRuntime();
-			System.out.println("Start");
-			Process p = r.exec(args1);
-			p.waitFor();
-			int exitVal = p.exitValue();
-			System.out.println("Stop " + exitVal);
-			
-            
-			//now read the partition
-			PartitionReader pr = new PartitionReader(PartitionFormat.Name.METIS);
-			HashMap<Integer, HashSet<Integer>> sol = pr.readPartition(filename + ".part." + numParts);
-			
-			for(Integer i : sol.keySet())
-			{
-				System.out.println("Key:" + i);
-				for(Integer i2 : sol.get(i))
-				{
-					System.out.print(i2 + ",");
-				}
-				System.out.println();
-			}
-			
 			return;
 			
 		} catch(Exception e)

@@ -12,10 +12,10 @@ import oarlib.graph.util.Pair;
  * @author oliverlum
  *
  */
-public abstract class Graph<V extends Vertex,E extends Link<V>> {
+public abstract class Graph<V extends Vertex,E extends Link<V>>{
 
-	private int vidCounter = 1; //for assigning internal ids of vertices
-	private int eidCounter = 1;
+	private int vidCounter; //for assigning internal ids of vertices
+	private int eidCounter;
 	private int graphId;
 	private static int graphIdCounter = 1;
 	public enum Type{
@@ -24,6 +24,11 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 		MIXED,
 		WINDY
 	}
+    public Graph(){
+        vidCounter = 1;
+        eidCounter = 1;
+        assignGraphId();
+    }
 	protected int assignVertexId() //returns the current vidCounter, and increments 
 	{
 		vidCounter++;
@@ -77,6 +82,11 @@ public abstract class Graph<V extends Vertex,E extends Link<V>> {
 	 * @param v - vertex to be added
 	 */
 	public abstract void addVertex(V v);
+
+    /**
+     * To add a vertex to the graph.
+     */
+    public abstract void addVertex();
 	/**
 	 * To add an edge to the graph.  This updates the degrees of the vertices, and throws to the specific implementation of the graph.
 	 * Throws an InvalidEndpointsException if the endpoints haven't yet been added to the graph.

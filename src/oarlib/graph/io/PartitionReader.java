@@ -28,7 +28,7 @@ public class PartitionReader {
 	{
 		return mFormat;
 	}
-	public HashMap<Integer, HashSet<Integer>> readPartition(String fileName) throws UnsupportedFormatException
+	public HashMap<Integer, Integer> readPartition(String fileName) throws UnsupportedFormatException
 	{
 		try
 		{
@@ -46,12 +46,12 @@ public class PartitionReader {
 
 		}
 	}
-	private HashMap<Integer, HashSet<Integer>> readMETISPartition(String fileName) throws FormatMismatchException
+	private HashMap<Integer, Integer> readMETISPartition(String fileName) throws FormatMismatchException
 	{
 		try
 		{
 			//ans
-			HashMap<Integer, HashSet<Integer>> ans = new HashMap<Integer, HashSet<Integer>>();
+			HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
 
 			//file reading vars
 			String line;
@@ -65,11 +65,8 @@ public class PartitionReader {
 			{
 				temp = line.split(",\\s+|:");
 				part = Integer.parseInt(temp[0]);
-				
-				if(!ans.containsKey(part))
-					ans.put(part, new HashSet<Integer>());
-				
-				ans.get(part).add(counter);
+
+                ans.put(counter, part);
 				counter++;
 			}
 

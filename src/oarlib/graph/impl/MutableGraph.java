@@ -23,6 +23,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 	private HashMap<Integer, E> mInternalEdgeMap; 
 	
 	protected MutableGraph(){
+        super();
 		mVertices = new HashSet<V>();
 		mEdges = new HashSet<E>();
 		mGlobalVertexMap = new HashMap<Integer, V>();
@@ -83,6 +84,11 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		v.setMatchId(matchId);
 		v.setFinalized(true);
 	}
+
+    public void addVertex(int matchId)
+    {
+        this.addVertex(this.constructVertex(""), matchId);
+    }
 	
 	//==============================
 	//
@@ -172,6 +178,12 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		mGlobalVertexMap.put(v.getGuid(), v);
 		mInternalVertexMap.put(v.getId(), v);
 	}
+
+    @Override
+    public void addVertex() {
+        this.addVertex(this.constructVertex(""));
+    }
+
 	
 	@Override
 	public void changeVertexId(int oldId, int newId) throws IllegalArgumentException

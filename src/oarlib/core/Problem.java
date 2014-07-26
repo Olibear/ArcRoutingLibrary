@@ -4,10 +4,13 @@ import java.util.Collection;
 
 /**
  * Problem abstraction.  Most general contract that Problem objects must fulfill.
+ * If you wish to solve a capacitated problem, please see CapacitatedProblem.
+ *
  * @author oliverlum
  *
  */
 public abstract class Problem {
+
 	public enum Type{
 		DIRECTED_CHINESE_POSTMAN, 
 		UNDIRECTED_CHINESE_POSTMAN, 
@@ -30,5 +33,4 @@ public abstract class Problem {
 	 * @return - The type of problem that this represents.
 	 */
 	public abstract Type getType();
-
 }
