@@ -9,6 +9,7 @@ import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.impl.UndirectedKWayPartitionTransform;
+import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedUCPP;
 import oarlib.problem.impl.UndirectedCPP;
 
@@ -34,7 +35,17 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
 
     @Override
     protected boolean checkGraphRequirements() {
-        return false;
+
+        // make sure the graph is connected
+        if(mInstance.getGraph() == null)
+            return false;
+        else
+        {
+            UndirectedGraph mGraph = mInstance.getGraph();
+            if(!CommonAlgorithms.isConnected(mGraph))
+                return false;
+        }
+        return true;
     }
 
     @Override
