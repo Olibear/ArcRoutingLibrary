@@ -1,13 +1,16 @@
 package oarlib.solver.impl;
 
 import oarlib.core.*;
+import oarlib.graph.factory.impl.UndirectedGraphFactory;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphWriter;
 import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
+import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.impl.UndirectedKWayPartitionTransform;
 import oarlib.problem.impl.CapacitatedUCPP;
+import oarlib.problem.impl.UndirectedCPP;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,7 +27,7 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
      *
      * @param instance - instance for which this is a solver
      */
-    protected CapacitatedUCPPSolver(CapacitatedUCPP instance) throws IllegalArgumentException {
+    public CapacitatedUCPPSolver(CapacitatedUCPP instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
     }
@@ -70,6 +73,12 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
             int firstId, secondId;
             HashMap<Integer, Integer> edgeSol = new HashMap<Integer, Integer>();
             double prob;
+            HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
+            HashSet<Integer> valueSet = new HashSet<Integer>(sol.values());
+            for(Integer part: valueSet)
+            {
+                partitions.put(part, new HashSet<Integer>());
+            }
 
             //for each edge, figure out if it's internal, or part of the cut induced by the partition
             for (int i = 1; i <= m; i++) {
@@ -80,23 +89,43 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
                 //if it's internal, just
                 if(sol.get(firstId) == sol.get(secondId)) {
                     edgeSol.put(i, sol.get(firstId));
+                    partitions.get(sol.get(firstId)).add(i);
                 }
                 //oth. with 50% probability, stick it in either one
                 else {
                     prob = Math.random();
-                    if(prob > .5)
+                    if(prob > .5) {
                         edgeSol.put(i, sol.get(firstId));
-                    else
+                        partitions.get(sol.get(firstId)).add(i);
+                    }
+                    else {
                         edgeSol.put(i, sol.get(secondId));
+                        partitions.get(sol.get(secondId)).add(i);
+                    }
                 }
             }
 
+            UndirectedGraphFactory ugf = new UndirectedGraphFactory();
+            EdgeInducedSubgraphTransform<UndirectedGraph> subgraphTransform = new EdgeInducedSubgraphTransform<UndirectedGraph>(mGraph,ugf,null);
+            HashSet<Route> ans = new HashSet<Route>();
             //now create the subgraphs
+            for(Integer part: partitions.keySet())
+            {
+                subgraphTransform.setEdges(partitions.get(part));
+                UndirectedGraph subgraph = subgraphTransform.transformGraph();
 
-            return null;
+                //TODO: repair any connectivity benefits we might have lost.
+
+                //now solve the UCPP on it
+                UndirectedCPP subInstance = new UndirectedCPP(subgraph);
+                UCPPSolver_Edmonds solver = new UCPPSolver_Edmonds(subInstance);
+                ans.add(solver.solve());
+            }
+
+            return ans;
         } catch (Exception e)
         {
-            e.printStackTrace();;
+            e.printStackTrace();
             return null;
         }
     }

@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import gurobi.*;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import oarlib.core.Arc;
@@ -24,21 +26,8 @@ import oarlib.graph.transform.impl.UndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
-import oarlib.problem.impl.DirectedCPP;
-import oarlib.problem.impl.DirectedRPP;
-import oarlib.problem.impl.MixedCPP;
-import oarlib.problem.impl.UndirectedCPP;
-import oarlib.problem.impl.WindyCPP;
-import oarlib.problem.impl.WindyRPP;
-import oarlib.solver.impl.DCPPSolver_Edmonds;
-import oarlib.solver.impl.DRPPSolver_Christofides;
-import oarlib.solver.impl.MCPPSolver_Yaoyuenyong;
-import oarlib.solver.impl.WPPSolver_Gurobi;
-import oarlib.solver.impl.WPPSolver_Gurobi_CuttingPlane;
-import oarlib.solver.impl.WRPPSolver_Benavent_H1;
-import oarlib.solver.impl.MCPPSolver_Frederickson;
-import oarlib.solver.impl.UCPPSolver_Edmonds;
-import oarlib.solver.impl.WRPPSolver_Win;
+import oarlib.problem.impl.*;
+import oarlib.solver.impl.*;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
@@ -78,6 +67,13 @@ public class GeneralTestbed {
 			//generate the graph randomly
 			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
 			UndirectedGraph test = (UndirectedGraph)ugg.generateGraph(100, 10, true, .5, true);
+
+            CapacitatedUCPP testProblem = new CapacitatedUCPP(test, 5);
+            CapacitatedUCPPSolver testSolver = new CapacitatedUCPPSolver(testProblem);
+            Collection<Route> ans = testSolver.trySolve();
+
+            for(Route r: ans)
+                System.out.println(r.toString());
 			
 			return;
 			
