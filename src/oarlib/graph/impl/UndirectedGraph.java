@@ -26,6 +26,8 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 		super(n);
 	}
 
+
+
 	//====================================================
 	//
 	// Graph Override
@@ -90,7 +92,10 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex,Edge>{
 	@Override
 	public UndirectedGraph getDeepCopy() {
 		try {
+
 			UndirectedGraph ans = new UndirectedGraph();
+            ans.setDepotId(getDepotId());
+
 			HashMap<Integer, Edge> indexedEdges = this.getInternalEdgeMap();
 			UndirectedVertex temp;
 			int n = this.getVertices().size();

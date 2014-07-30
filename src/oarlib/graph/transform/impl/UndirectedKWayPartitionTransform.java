@@ -53,6 +53,10 @@ public class UndirectedKWayPartitionTransform implements GraphTransformer<Undire
 
 				ans.addEdge(firstId, secondId, 1);
 			}
+
+            //now set the depot cost to be 0 so that it doesn't affect the partition
+            ansVertices.get(mGraph.getDepotId()).setCost(0);
+
 			return ans;
 		} catch(Exception e)
 		{

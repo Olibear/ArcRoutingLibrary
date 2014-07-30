@@ -18,8 +18,8 @@ public class CapacitatedUCPP extends CapacitatedProblem {
 
     UndirectedGraph mGraph;
 
-    public CapacitatedUCPP(UndirectedGraph graph, int numVehicles) {
-        super(numVehicles);
+    public CapacitatedUCPP(UndirectedGraph graph, int numVehicles, int depotId) {
+        super(numVehicles, depotId);
         mGraph = graph;
     }
 

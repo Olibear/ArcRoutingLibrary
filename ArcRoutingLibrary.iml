@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
   <component name="EclipseModuleManager">
-    <libelement value="file:///Users/oliverlum/Desktop/gurobi.jar" />
+    <libelement value="file://$USER_HOME$/Desktop/gurobi.jar" />
     <src_description expected_position="0">
       <src_folder value="file://$MODULE_DIR$/src" expected_position="0" />
     </src_description>
@@ -15,18 +15,10 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://C:/gurobi560/win64/lib/gurobi.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="gurobi.jar">
         <CLASSES>
-          <root url="file:///Users/oliverlum/Desktop/gurobi.jar" />
+          <root url="file://$USER_HOME$/Desktop/gurobi.jar" />
+          <root url="jar://$USER_HOME$/Desktop/gurobi.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

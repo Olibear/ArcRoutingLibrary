@@ -40,7 +40,7 @@ public abstract class Route {
 	 * of routes may wish to perform).
 	 * @return true if route is feasible in the provided graph
 	 */
-	public abstract boolean checkRoutes(Graph<? extends Vertex, Link<? extends Vertex>> g);
+	public abstract boolean checkRoutes(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g);
 	/**
 	 * Outputs a string representation of the route.
 	 */

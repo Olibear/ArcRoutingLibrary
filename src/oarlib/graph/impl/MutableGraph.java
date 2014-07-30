@@ -38,6 +38,11 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 		for(int i = 0; i < n; i++)
 			this.addVertex(this.constructVertex("from constructor"));
 	}
+
+    protected MutableGraph(int n, int depotId){
+        this(n);
+        this.setDepotId(depotId);
+    }
 	
 	//=====================================
 	//

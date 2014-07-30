@@ -58,8 +58,11 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
 
         try {
 
+            //initialize transformer for turning edge-weighted graph into vertex-weighted graph
             UndirectedGraph mGraph = mInstance.getGraph();
             UndirectedKWayPartitionTransform transformer = new UndirectedKWayPartitionTransform(mGraph);
+
+            //transform the graph
             UndirectedGraph vWeightedTest = transformer.transformGraph();
 
             String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
@@ -78,14 +81,16 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
             PartitionReader pr = new PartitionReader(PartitionFormat.Name.METIS);
             HashMap<Integer, Integer> sol = pr.readPartition(filename + ".part." + numParts);
 
-            int m = vWeightedTest.getEdges().size();
-            HashMap<Integer, Edge> mGraphEdges = mGraph.getInternalEdgeMap();
-            Edge temp;
+            //initialize vars
             int firstId, secondId;
-            HashMap<Integer, Integer> edgeSol = new HashMap<Integer, Integer>();
+            int m = vWeightedTest.getEdges().size();
             double prob;
+            Edge temp;
+            HashMap<Integer, Edge> mGraphEdges = mGraph.getInternalEdgeMap();
+            HashMap<Integer, Integer> edgeSol = new HashMap<Integer, Integer>();
             HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
             HashSet<Integer> valueSet = new HashSet<Integer>(sol.values());
+
             for(Integer part: valueSet)
             {
                 partitions.put(part, new HashSet<Integer>());
@@ -97,8 +102,8 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
                 firstId = temp.getEndpoints().getFirst().getId();
                 secondId = temp.getEndpoints().getSecond().getId();
 
-                //if it's internal, just
-                if(sol.get(firstId) == sol.get(secondId)) {
+                //if it's internal or to the depot, just log the edge in the appropriate partition
+                if(sol.get(firstId) == sol.get(secondId)  || firstId == mGraph.getDepotId() || secondId == mGraph.getDepotId()) {
                     edgeSol.put(i, sol.get(firstId));
                     partitions.get(sol.get(firstId)).add(i);
                 }
@@ -117,13 +122,16 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
             }
 
             UndirectedGraphFactory ugf = new UndirectedGraphFactory();
-            EdgeInducedSubgraphTransform<UndirectedGraph> subgraphTransform = new EdgeInducedSubgraphTransform<UndirectedGraph>(mGraph,ugf,null);
+            EdgeInducedSubgraphTransform<UndirectedGraph> subgraphTransform = new EdgeInducedSubgraphTransform<UndirectedGraph>(mGraph,ugf,null, true);
             HashSet<Route> ans = new HashSet<Route>();
+
             //now create the subgraphs
             for(Integer part: partitions.keySet())
             {
                 subgraphTransform.setEdges(partitions.get(part));
                 UndirectedGraph subgraph = subgraphTransform.transformGraph();
+
+                //Now add the depot and some artificial edges to the graph to connect each partition to the depot
 
                 //TODO: repair any connectivity benefits we might have lost.
 

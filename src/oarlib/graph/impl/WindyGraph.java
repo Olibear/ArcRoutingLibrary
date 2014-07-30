@@ -23,6 +23,8 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 		super(n);
 	}
 
+    public WindyGraph(int n, int depotId) { super(n, depotId); }
+
 	//====================================================
 	//
 	// Adders and Factory methods that take reverse cost
@@ -140,6 +142,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge>{
 	public WindyGraph getDeepCopy() {
 		try {
 			WindyGraph ans = new WindyGraph();
+            ans.setDepotId(getDepotId());
 			HashMap<Integer, WindyEdge> indexedEdges = this.getInternalEdgeMap();
 			WindyVertex temp;
 			int n = this.getVertices().size();

@@ -29,6 +29,8 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 	public MixedGraph(int n) {
 		super(n);
 	}
+
+    public MixedGraph(int n, int depotId) { super(n, depotId); }
 	
 	//===============================================
 	//
@@ -166,6 +168,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge>{
 	public MixedGraph getDeepCopy() {
 		try {
 			MixedGraph ans = new MixedGraph();
+            ans.setDepotId(getDepotId());
 			HashMap<Integer, MixedEdge> indexedEdges = this.getInternalEdgeMap();
 			HashMap<Integer, MixedVertex> indexedVertices = this.getInternalVertexMap();
 			MixedVertex temp, temp2;

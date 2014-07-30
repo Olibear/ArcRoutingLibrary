@@ -68,12 +68,18 @@ public class GeneralTestbed {
 			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
 			UndirectedGraph test = (UndirectedGraph)ugg.generateGraph(100, 10, true, .5, true);
 
-            CapacitatedUCPP testProblem = new CapacitatedUCPP(test, 5);
+            CapacitatedUCPP testProblem = new CapacitatedUCPP(test, 5, 1);
             CapacitatedUCPPSolver testSolver = new CapacitatedUCPPSolver(testProblem);
             Collection<Route> ans = testSolver.trySolve();
 
-            for(Route r: ans)
+
+            int routeCounter = 1;
+            for(Route r: ans) {
+                System.out.println("Now displaying route " + routeCounter++);
                 System.out.println(r.toString());
+                System.out.println("This route costs " + r.getCost());
+                System.out.println();
+            }
 			
 			return;
 			

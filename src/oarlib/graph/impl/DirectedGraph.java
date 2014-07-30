@@ -27,6 +27,8 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 		super(n);
 	}
 
+    public DirectedGraph(int n, int depotId) { super(n, depotId); }
+
 	//====================================================
 	//
 	// Graph Overrides
@@ -92,6 +94,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 	public DirectedGraph getDeepCopy() {
 		try {
 			DirectedGraph ans = new DirectedGraph();
+            ans.setDepotId(getDepotId());
 			DirectedVertex temp, temp2;
 			Arc a, a2;
 			HashMap<Integer, DirectedVertex> indexedVertices = this.getInternalVertexMap();

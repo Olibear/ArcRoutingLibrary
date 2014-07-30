@@ -34,7 +34,7 @@ public class Tour extends Route {
 	}
 
 	@Override
-	public boolean checkRoutes(Graph<? extends Vertex, Link<? extends Vertex>> g) {
+	public boolean checkRoutes(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g) {
 		if(mRoute.get(0).getEndpoints().getFirst().getId() == mRoute.get(mRoute.size()-1).getEndpoints().getSecond().getId())
 			return true;
 		return false;

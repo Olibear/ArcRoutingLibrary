@@ -83,7 +83,7 @@ public class CommonAlgorithms {
 
 		//pick an arbitrary start vertex
 		Iterator<? extends Vertex> iter = graph.getVertices().iterator();
-		Vertex start = iter.next();
+		Vertex start = graph.getInternalVertexMap().get(graph.getDepotId());
 		visitedVertices.add(start);
 		simpleCycle.add(start);
 		//initialize current position variables

@@ -17,6 +17,7 @@ public abstract class Graph<V extends Vertex,E extends Link<V>>{
 	private int vidCounter; //for assigning internal ids of vertices
 	private int eidCounter;
 	private int graphId;
+    private int depotId;
 	private static int graphIdCounter = 1;
 	public enum Type{
 		DIRECTED,
@@ -27,6 +28,7 @@ public abstract class Graph<V extends Vertex,E extends Link<V>>{
     public Graph(){
         vidCounter = 1;
         eidCounter = 1;
+        depotId = 1; //default
         assignGraphId();
     }
 	protected int assignVertexId() //returns the current vidCounter, and increments 
@@ -56,6 +58,8 @@ public abstract class Graph<V extends Vertex,E extends Link<V>>{
 	{
 		return graphId;
 	}
+    public int getDepotId() { return depotId; }
+    public void setDepotId( int newDepotId ) { depotId = newDepotId; }
 	/**
 	 * Getter for the vertices.
 	 * @return a Collection of vertices belonging to this graph

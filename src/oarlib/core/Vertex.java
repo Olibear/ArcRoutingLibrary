@@ -38,6 +38,8 @@ public abstract class Vertex {
 	}
 	
 	public abstract Map<? extends Vertex, ? extends List<? extends Link<? extends Vertex>>> getNeighbors();
+
+
 	public abstract void clearNeighbors();
 
 	//==================================
