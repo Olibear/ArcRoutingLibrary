@@ -88,7 +88,6 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?,?>> implements Graph
                     blankVertices.get(newVertexCounter).setMatchId(firstId);
                     if(firstId == depotId) {
                         blankGraph.setDepotId(newVertexCounter);
-                        System.out.println("In this partition, the depot has id: " + newVertexCounter);
                     }
                     first.setMatchId(newVertexCounter++);
 
@@ -105,7 +104,6 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?,?>> implements Graph
                     blankVertices.get(newVertexCounter).setMatchId(secondId);
                     if(secondId == depotId) {
                         blankGraph.setDepotId(newVertexCounter);
-                        System.out.println("In this partition, the depot has id: " + newVertexCounter);
                     }
                     second.setMatchId(newVertexCounter++);
 
@@ -123,7 +121,6 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?,?>> implements Graph
                 Vertex depot  = indexedVertices.get(depotId);
                 blankVertices.get(newVertexCounter).setMatchId(depotId);
                 depot.setMatchId(newVertexCounter);
-                System.out.println("In this partition, the depot has id: " + newVertexCounter);
                 blankGraph.setDepotId(newVertexCounter);
 
                 //connect depot to partition

@@ -203,5 +203,169 @@ public abstract class Route {
 		return ans;
 	}
 
+    /**
+     * Outputs a string representation of the route.
+     */
+    public String toStringWithMatchIds()
+    {
+        String ans = "";
+        List<? extends Link<? extends Vertex>> list = this.getRoute();
+        int n = list.size();
+        Link<? extends Vertex> tempL, tempL2;
+        int prevId1, prevId2, prevMatchId1, prevMatchId2, prevIdReal, beginningCycleLength;
+        Vertex tempV1, tempV2, tempV12, tempV22;
+        boolean firstToSecond = false;
+
+        //edge case
+        if (n == 0)
+            return ans;
+        if(n == 1)
+        {
+            tempL = list.get(0);
+            ans += tempL.getEndpoints().getFirst().getMatchId() + "-";
+            ans += tempL.getEndpoints().getSecond().getMatchId();
+            return ans;
+        }
+
+
+        tempL = list.get(0);
+        tempV1 = tempL.getEndpoints().getFirst();
+        tempV2 = tempL.getEndpoints().getSecond();
+        prevId1 = tempV1.getId();
+        prevId2 = tempV2.getId();
+        prevMatchId1 = tempV1.getMatchId();
+        prevMatchId2 = tempV2.getMatchId();
+
+        //first vertex
+        tempL = list.get(1);
+        tempV1 = tempL.getEndpoints().getFirst();
+        tempV2 = tempL.getEndpoints().getSecond();
+
+        //special case where the first n edges form consecutive 2-cycles and everybody is undirected, we have to look forward to decide how to orient
+        if(tempV1.getId() == prevId1 && tempV2.getId() == prevId2 || tempV1.getId() == prevId2 && tempV2.getId() == prevId1)
+        {
+            beginningCycleLength = 2;
+            for(int i = 2; i < n; i++)
+            {
+                tempL2 = list.get(i);
+                tempV12 = tempL2.getEndpoints().getFirst();
+                tempV22 = tempL2.getEndpoints().getSecond();
+                if(tempV12.getId() == prevId1 && tempV22.getId() == prevId2 || tempV12.getId() == prevId2 && tempV22.getId() == prevId1)
+                    beginningCycleLength++;
+                else
+                {
+                    //figure out the launch point; was it prevId1, or prevId2
+                    if(tempV12.getId() == prevId1)
+                    {
+                        if(beginningCycleLength % 2 == 0) //we need to start at prevId1 - prevId2 - prevId1 - ...
+                            firstToSecond = true;
+                        else
+                            firstToSecond = false;
+                    }
+                    else if(tempV12.getId() == prevId2)
+                    {
+                        if(beginningCycleLength % 2 == 0) //we need to start at prevId2 - prevId1 - prevId2 - ...
+                            firstToSecond = false;
+                        else
+                            firstToSecond = true;
+                    }
+                    else
+                    {
+                        ans = "Adjacent links in this route didn't share a common vertex.  Please try running checkRoutes to verify the integrity of the route.";
+                        return ans;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if(tempV1.getId() == prevId1)
+        {
+            if(tempV2.getId() == prevId2)
+            {
+                if(firstToSecond)
+                {
+                    ans += prevMatchId1 + "-" + prevMatchId2 + "-";
+                    prevIdReal = prevId1;
+                }
+                else
+                {
+                    ans += prevMatchId2 + "-" + prevMatchId1 + "-";
+                    prevIdReal = prevId2;
+                }
+            }
+            else
+            {
+                ans += prevMatchId2 + "-" + prevMatchId1 + "-";
+                prevIdReal = tempV2.getId();
+            }
+        }
+        else if(tempV2.getId() == prevId1)
+        {
+            if(tempV1.getId() == prevId2)
+            {
+                if(firstToSecond)
+                {
+                    ans += prevMatchId1 + "-" + prevMatchId2 + "-";
+                    prevIdReal = prevId1;
+                }
+                else
+                {
+                    ans += prevMatchId2 + "-" + prevMatchId1 + "-";
+                    prevIdReal = prevId2;
+                }
+            }
+            else
+            {
+                ans += prevMatchId2 + "-" + prevMatchId1 + "-";
+                prevIdReal = tempV1.getId();
+            }
+        }
+        else if(tempV1.getId() == prevId2)
+        {
+            ans += prevMatchId1 + "-" + prevMatchId2 + "-";
+            prevIdReal = tempV2.getId();
+        }
+        else if(tempV2.getId() == prevId2)
+        {
+            ans += prevMatchId1 + "-" + prevMatchId2 + "-";
+            prevIdReal = tempV1.getId();
+        }
+        else
+        {
+            ans = "Adjacent links in this route didn't share a common vertex.  Please try running checkRoutes to verify the integrity of the route.";
+            return ans;
+        }
+
+        for(int i = 2; i < n; i++)
+        {
+            tempL = list.get(i);
+            tempV1 = tempL.getEndpoints().getFirst();
+            tempV2 = tempL.getEndpoints().getSecond();
+
+            if(tempV1.getId() == prevIdReal)
+            {
+                ans += tempV1.getMatchId() + "-";
+                prevIdReal = tempV2.getId();
+            }
+            else if(tempV2.getId() == prevIdReal)
+            {
+                ans += tempV2.getMatchId() + "-";
+                prevIdReal = tempV1.getId();
+            }
+            else
+            {
+                ans = "Adjacent links in this route didn't share a common vertex.  Please try running checkRoutes to verify the integrity of the route.";
+                return ans;
+            }
+        }
+
+        if(n >= 2)
+        {
+            ans += prevIdReal;
+        }
+        return ans;
+    }
+
 
 }

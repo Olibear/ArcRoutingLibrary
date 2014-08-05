@@ -76,7 +76,7 @@ public class GeneralTestbed {
             int routeCounter = 1;
             for(Route r: ans) {
                 System.out.println("Now displaying route " + routeCounter++);
-                System.out.println(r.toString());
+                System.out.println(r.toStringWithMatchIds());
                 System.out.println("This route costs " + r.getCost());
                 System.out.println();
             }
