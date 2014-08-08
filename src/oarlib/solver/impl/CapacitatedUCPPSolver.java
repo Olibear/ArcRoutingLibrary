@@ -12,6 +12,7 @@ import oarlib.graph.transform.impl.UndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedUCPP;
 import oarlib.problem.impl.UndirectedCPP;
+import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -58,32 +59,13 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
 
         try {
 
-            //initialize transformer for turning edge-weighted graph into vertex-weighted graph
+            //partition
             UndirectedGraph mGraph = mInstance.getGraph();
-            UndirectedKWayPartitionTransform transformer = new UndirectedKWayPartitionTransform(mGraph);
-
-            //transform the graph
-            UndirectedGraph vWeightedTest = transformer.transformGraph();
-
-            String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
-
-            //write it to a file
-            GraphWriter gw = new GraphWriter(GraphFormat.Name.METIS);
-            gw.writeGraph(vWeightedTest, filename);
-
-            //num parts to partition into
-            int numParts = mInstance.getmNumVehicles();
-
-            //partition the graph
-            runMetis(numParts, filename);
-
-            //now read the partition and reconstruct the induced subgraphs on which we solve the UCPP on to get our final solution.
-            PartitionReader pr = new PartitionReader(PartitionFormat.Name.METIS);
-            HashMap<Integer, Integer> sol = pr.readPartition(filename + ".part." + numParts);
+            HashMap<Integer, Integer> sol = partition();
 
             //initialize vars
             int firstId, secondId;
-            int m = vWeightedTest.getEdges().size();
+            int m = mGraph.getEdges().size();
             double prob;
             Edge temp;
             HashMap<Integer, Edge> mGraphEdges = mGraph.getInternalEdgeMap();
@@ -121,24 +103,11 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
                 }
             }
 
-            UndirectedGraphFactory ugf = new UndirectedGraphFactory();
-            EdgeInducedSubgraphTransform<UndirectedGraph> subgraphTransform = new EdgeInducedSubgraphTransform<UndirectedGraph>(mGraph,ugf,null, true);
             HashSet<Route> ans = new HashSet<Route>();
-
             //now create the subgraphs
             for(Integer part: partitions.keySet())
             {
-                subgraphTransform.setEdges(partitions.get(part));
-                UndirectedGraph subgraph = subgraphTransform.transformGraph();
-
-                //Now add the depot and some artificial edges to the graph to connect each partition to the depot
-
-                //TODO: repair any connectivity benefits we might have lost.
-
-                //now solve the UCPP on it
-                UndirectedCPP subInstance = new UndirectedCPP(subgraph);
-                UCPPSolver_Edmonds solver = new UCPPSolver_Edmonds(subInstance);
-                ans.add(solver.solve());
+                ans.add(route(partitions.get(part)));
             }
 
             return ans;
@@ -152,5 +121,71 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
     @Override
     public Problem.Type getProblemType() {
         return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
+    }
+
+    @Override
+    protected HashMap<Integer, Integer> partition() {
+        try {
+
+            //initialize transformer for turning edge-weighted graph into vertex-weighted graph
+            UndirectedGraph mGraph = mInstance.getGraph();
+            UndirectedKWayPartitionTransform transformer = new UndirectedKWayPartitionTransform(mGraph);
+
+            //transform the graph
+            UndirectedGraph vWeightedTest = transformer.transformGraph();
+
+            String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
+
+            //write it to a file
+            GraphWriter gw = new GraphWriter(GraphFormat.Name.METIS);
+            gw.writeGraph(vWeightedTest, filename);
+
+            //num parts to partition into
+            int numParts = mInstance.getmNumVehicles();
+
+            //partition the graph
+            runMetis(numParts, filename);
+
+            //now read the partition and reconstruct the induced subgraphs on which we solve the UCPP on to get our final solution.
+            PartitionReader pr = new PartitionReader(PartitionFormat.Name.METIS);
+            //TODO: Make this just an array; no need to have HashMap
+            return pr.readPartition(filename + ".part." + numParts);
+
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    @Override
+    protected Route route(HashSet<Integer> ids) {
+
+        UndirectedGraph mGraph = mInstance.getGraph();
+
+        UndirectedGraphFactory ugf = new UndirectedGraphFactory();
+        EdgeInducedSubgraphTransform<UndirectedGraph> subgraphTransform = new EdgeInducedSubgraphTransform<UndirectedGraph>(mGraph,ugf,null, true);
+
+        subgraphTransform.setEdges(ids);
+        UndirectedGraph subgraph = subgraphTransform.transformGraph();
+
+        //now solve the UCPP on it
+        UndirectedCPP subInstance = new UndirectedCPP(subgraph);
+        UCPPSolver_Edmonds solver = new UCPPSolver_Edmonds(subInstance);
+
+        Route ret = solver.solve();
+
+        //set the id map for the route
+        int n = subgraph.getVertices().size();
+        HashMap<Integer, UndirectedVertex> indexedVertices = subgraph.getInternalVertexMap();
+        HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
+        for(int i = 1; i <= n; i++)
+        {
+            customIDMap.put(i, indexedVertices.get(i).getMatchId());
+        }
+        ret.setMapping(customIDMap);
+
+        return ret;
     }
 }

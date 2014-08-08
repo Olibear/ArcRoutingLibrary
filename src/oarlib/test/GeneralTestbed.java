@@ -65,18 +65,19 @@ public class GeneralTestbed {
 		try
 		{
 			//generate the graph randomly
-			UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-			UndirectedGraph test = (UndirectedGraph)ugg.generateGraph(100, 10, true, .5, true);
+			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+			DirectedGraph test = (DirectedGraph)dgg.generateGraph(100, 10, true, .5, true);
 
-            CapacitatedUCPP testProblem = new CapacitatedUCPP(test, 5, 1);
-            CapacitatedUCPPSolver testSolver = new CapacitatedUCPPSolver(testProblem);
+            CapacitatedDCPP testProblem = new CapacitatedDCPP(test, 5, 1);
+            CapacitatedDCPPSolver testSolver = new CapacitatedDCPPSolver(testProblem);
             Collection<Route> ans = testSolver.trySolve();
 
 
             int routeCounter = 1;
+
             for(Route r: ans) {
                 System.out.println("Now displaying route " + routeCounter++);
-                System.out.println(r.toStringWithMatchIds());
+                System.out.println(r.toString());
                 System.out.println("This route costs " + r.getCost());
                 System.out.println();
             }

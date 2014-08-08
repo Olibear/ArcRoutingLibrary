@@ -3,6 +3,8 @@ package oarlib.core;
 import oarlib.exceptions.GraphInfeasibleException;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Solver abstraction.  Most general contract that Capacitated Solvers must fulfill.
@@ -72,4 +74,15 @@ public abstract class CapacitatedVehicleSolver {
         }
 
     }
+
+    /**
+     * Partitions the graph into the specified number of parts.  This is essentially the setup / wrapper for a
+     * runMetis call, and for the naive solvers will precede a call to route().
+     */
+    protected abstract HashMap<Integer, Integer> partition();
+
+    /**
+     * Solves the routing problem over a subgraph, or group of subgraphs.
+     */
+    protected abstract Route route(HashSet<Integer> ids);
 }

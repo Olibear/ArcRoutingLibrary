@@ -29,7 +29,7 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver{
 	@Override
 	protected Route solve() {
 		try {
-			UndirectedGraph copy = mInstance.getGraph();
+			UndirectedGraph copy = mInstance.getGraph().getDeepCopy();
 			eulerAugment(copy);
 
 			HashMap<Integer, Edge> indexedEdges = copy.getInternalEdgeMap();

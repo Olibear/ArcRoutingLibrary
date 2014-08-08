@@ -16,10 +16,10 @@ import oarlib.vertex.impl.DirectedVertex;
  * @author oliverlum
  *
  */
-public class DirectedKWayPartitionTransform implements GraphTransformer<DirectedGraph, DirectedGraph>{
+public class  DirectedKWayPartitionTransform implements GraphTransformer<DirectedGraph, DirectedGraph>{
 
 	private DirectedGraph mGraph;
-	DirectedKWayPartitionTransform (DirectedGraph input)
+	public DirectedKWayPartitionTransform (DirectedGraph input)
 	{
 		mGraph = input;
 	}

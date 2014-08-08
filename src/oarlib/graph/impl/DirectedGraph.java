@@ -107,7 +107,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex,Arc> {
 				temp2 = indexedVertices.get(i); //the old guy
 				if(temp2.isDemandSet())
 					temp.setDemand(temp2.getDemand());
-				ans.addVertex(temp);
+				ans.addVertex(temp, i);
 			}
 			ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedArcs.keySet());
 			Collections.sort(forSorting);

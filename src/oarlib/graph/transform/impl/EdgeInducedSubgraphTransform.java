@@ -4,8 +4,11 @@ import oarlib.core.Factory;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;
+import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.transform.GraphTransformer;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.graph.util.Pair;
+import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -153,6 +156,10 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?,?>> implements Graph
 
             }
 
+            System.out.println("blankGraph has: " + blankGraph.getEdges().size() + " links before.");
+            repairConnectivity(blankGraph);
+            System.out.println("blankGraph has: " + blankGraph.getEdges().size() + " links after.");
+
             return blankGraph;
         } catch(Exception e)
         {
@@ -167,5 +174,131 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?,?>> implements Graph
 
     public void setEdges(HashSet<Integer> newEdges) {
         mEdges = newEdges;
+    }
+
+    /**
+     * Function to repair the subgraph if it's no longer connected after
+     * the partition.  It repairs the graph in the following way:
+     *
+     * The strongly connected components of the graph are computed, and then connected
+     * with the shortest link to and from each of them to another component
+     *
+     * @param subgraph
+     */
+    private void repairConnectivity(S subgraph)
+    {
+        /**
+         * Here we exploit the fact that the graph must be completely connected,
+         * but not necessarily strongly connected.  Thus, any two SCC's only require
+         * unidirectional repair.
+         */
+        try {
+
+            int sccN = subgraph.getVertices().size();
+            int mainN = mGraph.getVertices().size();
+            int totalCost = 0;
+
+            DirectedGraph sccGraph = new DirectedGraph(subgraph.getVertices().size());
+            for (Link<? extends Vertex> l : subgraph.getEdges()) {
+                if (l.isDirected())
+                    sccGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), 1);
+                else {
+                    sccGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), 1);
+                    sccGraph.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), 1);
+                }
+                totalCost += l.getCost();
+            }
+
+            //compute sccs
+            int[] ans = CommonAlgorithms.stronglyConnectedComponents(sccGraph);
+            int nScc = ans[0];
+            System.out.println("blankGraph (unrepaired) has: " + nScc + " SCCs.");
+
+            if(nScc == 1)
+                return; //no repair necessary
+
+            //compute the shortest paths
+            int[][] sccDist = new int[sccN+1][sccN+1];
+            int[][] sccPath = new int[sccN+1][sccN+1];
+            CommonAlgorithms.fwLeastCostPaths(sccGraph, sccDist, sccPath);
+
+            int[][] mainDist = new int[mainN+1][mainN+1];
+            int[][] mainPath = new int[mainN+1][mainN+1];
+            CommonAlgorithms.fwLeastCostPaths(mGraph, mainDist, mainPath);
+
+            //connect the sccs of the partition
+            int connCost;
+            Pair<Integer> candidateKey;
+            HashMap<Integer, ? extends Vertex> subgraphVertices = subgraph.getInternalVertexMap();
+            HashMap<Pair<Integer>, Pair<Integer>> idConn = new HashMap<Pair<Integer>, Pair<Integer>>();
+            HashMap<Pair<Integer>, Integer> costMap = new HashMap<Pair<Integer>, Integer>();
+            for(int i = 1; i <= sccN; i++)
+            {
+                for(int j = 1; j <= sccN; j++)
+                {
+                    //don't worry about internal paths
+                    if(ans[i] == ans[j])
+                        continue;
+
+                    //if the dist is inf. then it's not actually connected
+                    if(sccDist[i][j] < totalCost)
+                        continue;
+
+                    connCost = mainDist[subgraphVertices.get(i).getMatchId()][subgraphVertices.get(j).getMatchId()];
+
+                    candidateKey = new Pair<Integer>(ans[i], ans[j]);
+                    if(!idConn.containsKey(candidateKey))
+                    {
+                        idConn.put(candidateKey, new Pair<Integer>(i,j));
+                        costMap.put(candidateKey, connCost);
+                    }
+                    else if(connCost < costMap.get(candidateKey))
+                    {
+                        idConn.put(candidateKey, new Pair<Integer>(i,j));
+                        costMap.put(candidateKey, connCost);
+                    }
+                }
+            }
+
+            //now connect
+            HashSet<Integer> connected = new HashSet<Integer>();
+            for(Pair<Integer> key: idConn.keySet())
+            {
+                /*
+                if(connected.contains(key.getFirst()) && connected.contains(key.getSecond())) {
+                    continue;
+                }*/
+
+                subgraph.addEdge(idConn.get(key).getFirst(), idConn.get(key).getSecond(), costMap.get(key));
+                connected.add(key.getFirst());
+                connected.add(key.getSecond());
+            }
+
+            /**
+             * DEBUG CHECK IF CONNECTIVITY REPAIR WORKED
+             */
+            System.out.println("Debug Start");
+            DirectedGraph debugGraph = new DirectedGraph(subgraph.getVertices().size());
+            for (Link<? extends Vertex> l : subgraph.getEdges()) {
+                if (l.isDirected())
+                    debugGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), 1);
+                else {
+                    debugGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), 1);
+                    debugGraph.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), 1);
+                }
+                totalCost += l.getCost();
+            }
+
+            int[] resultSCC = CommonAlgorithms.stronglyConnectedComponents(debugGraph);
+            System.out.println("numSCCs after repair: " + resultSCC[0] + ".");
+            System.out.println("Debug Stop");
+
+            return;
+
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return;
+        }
     }
 }

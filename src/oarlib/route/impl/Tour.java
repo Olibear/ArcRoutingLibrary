@@ -9,7 +9,7 @@ import oarlib.core.Route;
 import oarlib.core.Vertex;
 
 /**
- * A tour must begin and end at the same node.  For convenience, this is always maintained, so there is no need to add the starting vertex at the end again.
+ * A tour is a route that must begin and end at the same node.
  * @author Oliver
  *
  */
