@@ -1,8 +1,6 @@
 package oarlib.problem.impl;
 
 import oarlib.core.CapacitatedProblem;
-import oarlib.core.Graph;
-import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.UndirectedGraph;
 
@@ -18,8 +16,8 @@ public class CapacitatedUCPP extends CapacitatedProblem {
 
     UndirectedGraph mGraph;
 
-    public CapacitatedUCPP(UndirectedGraph graph, int numVehicles, int depotId) {
-        super(numVehicles, depotId);
+    public CapacitatedUCPP(UndirectedGraph graph, int numVehicles) {
+        super(numVehicles);
         mGraph = graph;
     }
 

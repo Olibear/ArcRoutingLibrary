@@ -1,4 +1,4 @@
-package oarlib.graph.transform.impl;
+package oarlib.graph.transform.partition.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,6 +6,7 @@ import java.util.HashSet;
 import oarlib.core.MixedEdge;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.transform.GraphTransformer;
+import oarlib.graph.transform.partition.PartitionTransformer;
 import oarlib.vertex.impl.MixedVertex;
 
 /**
@@ -16,7 +17,7 @@ import oarlib.vertex.impl.MixedVertex;
  * @author oliverlum
  *
  */
-public class MixedKWayPartitionTransform implements GraphTransformer<MixedGraph, MixedGraph>{
+public class MixedKWayPartitionTransform implements PartitionTransformer<MixedGraph> {
 
 	private MixedGraph mGraph;
 	public MixedKWayPartitionTransform(MixedGraph input)

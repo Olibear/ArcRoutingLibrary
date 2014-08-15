@@ -1,4 +1,4 @@
-package oarlib.graph.transform.impl;
+package oarlib.graph.transform.partition.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,6 +6,7 @@ import java.util.HashSet;
 import oarlib.core.Arc;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.transform.GraphTransformer;
+import oarlib.graph.transform.partition.PartitionTransformer;
 import oarlib.vertex.impl.DirectedVertex;
 
 /**
@@ -16,7 +17,7 @@ import oarlib.vertex.impl.DirectedVertex;
  * @author oliverlum
  *
  */
-public class  DirectedKWayPartitionTransform implements GraphTransformer<DirectedGraph, DirectedGraph>{
+public class  DirectedKWayPartitionTransform implements PartitionTransformer<DirectedGraph> {
 
 	private DirectedGraph mGraph;
 	public DirectedKWayPartitionTransform (DirectedGraph input)

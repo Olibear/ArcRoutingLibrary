@@ -1,9 +1,6 @@
 package oarlib.graph.transform.impl;
 
-import oarlib.core.Factory;
-import oarlib.core.Graph;
-import oarlib.core.Link;
-import oarlib.core.Vertex;
+import oarlib.core.*;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.transform.GraphTransformer;
 import oarlib.graph.util.CommonAlgorithms;
@@ -155,10 +152,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?,?>> implements Graph
                 blankGraph.addEdge(bestConnectMatchId, depot.getMatchId(), dijkstraDist[depotId]);
 
             }
-
-            System.out.println("blankGraph has: " + blankGraph.getEdges().size() + " links before.");
             repairConnectivity(blankGraph);
-            System.out.println("blankGraph has: " + blankGraph.getEdges().size() + " links after.");
 
             return blankGraph;
         } catch(Exception e)
@@ -212,7 +206,6 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?,?>> implements Graph
             //compute sccs
             int[] ans = CommonAlgorithms.stronglyConnectedComponents(sccGraph);
             int nScc = ans[0];
-            System.out.println("blankGraph (unrepaired) has: " + nScc + " SCCs.");
 
             if(nScc == 1)
                 return; //no repair necessary
@@ -227,22 +220,57 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?,?>> implements Graph
             CommonAlgorithms.fwLeastCostPaths(mGraph, mainDist, mainPath);
 
             //connect the sccs of the partition
+
+            //first figure out which connections we could add
             int connCost;
             Pair<Integer> candidateKey;
             HashMap<Integer, ? extends Vertex> subgraphVertices = subgraph.getInternalVertexMap();
             HashMap<Pair<Integer>, Pair<Integer>> idConn = new HashMap<Pair<Integer>, Pair<Integer>>();
             HashMap<Pair<Integer>, Integer> costMap = new HashMap<Pair<Integer>, Integer>();
+
+            DirectedGraph completeSccGraph = new DirectedGraph(nScc);
+            HashMap<Integer, DirectedVertex> completeVertices = completeSccGraph.getInternalVertexMap();
+            ArrayList<Boolean> realEdge = new ArrayList<Boolean>();
+            //entry 0 useless
+            realEdge.add(true);
+            int tempI, tempJ;
+            DirectedVertex vi, vj;
+            HashSet<Pair<Integer>> alreadyAdded = new HashSet<Pair<Integer>>();
+            Pair<Integer> tempKey;
+
             for(int i = 1; i <= sccN; i++)
             {
+                tempI = ans[i];
                 for(int j = 1; j <= sccN; j++)
                 {
+                    tempJ = ans[j];
                     //don't worry about internal paths
-                    if(ans[i] == ans[j])
+                    if(tempI == tempJ)
                         continue;
 
                     //if the dist is inf. then it's not actually connected
-                    if(sccDist[i][j] < totalCost)
+                    if(sccDist[i][j] < totalCost) {
+                        completeSccGraph.addEdge(tempI,tempJ,sccDist[i][j]);
+                        realEdge.add(true);
+                        tempKey = new Pair<Integer>(tempI, tempJ);
+
+                        if(!alreadyAdded.contains(tempKey)) {
+                            vi = completeVertices.get(tempI);
+                            vj = completeVertices.get(tempJ);
+                            if (vi.isDemandSet())
+                                vi.setDemand(vi.getDemand() - 1);
+                            else
+                                vi.setDemand(-1);
+                            if (vj.isDemandSet())
+                                vj.setDemand(vj.getDemand() + 1);
+                            else
+                                vj.setDemand(1);
+
+                            System.out.println("Originally, component " + ans[i] + " was connected to component " + ans[j]);
+                            alreadyAdded.add(tempKey);
+                        }
                         continue;
+                    }
 
                     connCost = mainDist[subgraphVertices.get(i).getMatchId()][subgraphVertices.get(j).getMatchId()];
 
@@ -251,47 +279,37 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?,?>> implements Graph
                     {
                         idConn.put(candidateKey, new Pair<Integer>(i,j));
                         costMap.put(candidateKey, connCost);
+                        completeSccGraph.addEdge(ans[i], ans[j], connCost);
+                        realEdge.add(false);
                     }
                     else if(connCost < costMap.get(candidateKey))
                     {
                         idConn.put(candidateKey, new Pair<Integer>(i,j));
                         costMap.put(candidateKey, connCost);
+                        completeSccGraph.addEdge(ans[i], ans[j], connCost);
+                        realEdge.add(false);
                     }
                 }
             }
 
-            //now connect
-            HashSet<Integer> connected = new HashSet<Integer>();
-            for(Pair<Integer> key: idConn.keySet())
-            {
-                /*
-                if(connected.contains(key.getFirst()) && connected.contains(key.getSecond())) {
-                    continue;
-                }*/
-
-                subgraph.addEdge(idConn.get(key).getFirst(), idConn.get(key).getSecond(), costMap.get(key));
-                connected.add(key.getFirst());
-                connected.add(key.getSecond());
-            }
-
-            /**
-             * DEBUG CHECK IF CONNECTIVITY REPAIR WORKED
+            /*
+            Debug
              */
-            System.out.println("Debug Start");
-            DirectedGraph debugGraph = new DirectedGraph(subgraph.getVertices().size());
-            for (Link<? extends Vertex> l : subgraph.getEdges()) {
-                if (l.isDirected())
-                    debugGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), 1);
-                else {
-                    debugGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), 1);
-                    debugGraph.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), 1);
-                }
-                totalCost += l.getCost();
-            }
+            for(int i = 1; i <= nScc; i++)
+                System.out.println("The demand of vertex" + i + " is " + completeVertices.get(i).getDemand());
 
-            int[] resultSCC = CommonAlgorithms.stronglyConnectedComponents(debugGraph);
-            System.out.println("numSCCs after repair: " + resultSCC[0] + ".");
-            System.out.println("Debug Stop");
+            //solve the min cost flow
+            int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(completeSccGraph);
+            HashMap<Integer, Arc> completeArcs = completeSccGraph.getInternalEdgeMap();
+            int numEdges = completeSccGraph.getEdges().size();
+            for(int i = 1; i <= numEdges; i++)
+            {
+                if(!realEdge.get(i) && flowanswer[i] > 0) {
+                    tempKey = new Pair<Integer>(completeArcs.get(i).getTail().getId(), completeArcs.get(i).getHead().getId());
+                    subgraph.addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), costMap.get(tempKey));
+                    System.out.println("We're connecting component " + tempKey.getFirst() + " was connected to component " + tempKey.getSecond() );
+                }
+            }
 
             return;
 

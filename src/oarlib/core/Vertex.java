@@ -25,7 +25,6 @@ public abstract class Vertex {
 	
 	public Vertex(String label)
 	{
-
 		setId(-1);
 		setGraphId(-1);
 		setMatchId(-1);
@@ -70,8 +69,6 @@ public abstract class Vertex {
 	
 	public void setDemand(int newDemand) {
 		//we only care about nonzero demands anyways
-		if(newDemand==0)
-			return;
 		demandSet = true;
 		myDemand = newDemand;
 	}

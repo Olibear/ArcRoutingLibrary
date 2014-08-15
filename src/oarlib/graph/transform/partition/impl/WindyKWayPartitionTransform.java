@@ -1,4 +1,4 @@
-package oarlib.graph.transform.impl;
+package oarlib.graph.transform.partition.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,6 +6,7 @@ import java.util.HashSet;
 import oarlib.core.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.GraphTransformer;
+import oarlib.graph.transform.partition.PartitionTransformer;
 import oarlib.vertex.impl.WindyVertex;
 
 /**
@@ -16,7 +17,7 @@ import oarlib.vertex.impl.WindyVertex;
  * @author oliverlum
  *
  */
-public class WindyKWayPartitionTransform implements GraphTransformer<WindyGraph, WindyGraph>{
+public class WindyKWayPartitionTransform implements PartitionTransformer<WindyGraph> {
 
 	private WindyGraph mGraph;
 	public WindyKWayPartitionTransform(WindyGraph input)

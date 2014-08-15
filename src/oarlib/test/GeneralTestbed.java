@@ -19,10 +19,6 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphReader;
-import oarlib.graph.io.GraphWriter;
-import oarlib.graph.io.PartitionFormat;
-import oarlib.graph.io.PartitionReader;
-import oarlib.graph.transform.impl.UndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
@@ -68,7 +64,7 @@ public class GeneralTestbed {
 			DirectedGraphGenerator dgg = new DirectedGraphGenerator();
 			DirectedGraph test = (DirectedGraph)dgg.generateGraph(100, 10, true, .5, true);
 
-            CapacitatedDCPP testProblem = new CapacitatedDCPP(test, 5, 1);
+            CapacitatedDCPP testProblem = new CapacitatedDCPP(test, 5);
             CapacitatedDCPPSolver testSolver = new CapacitatedDCPPSolver(testProblem);
             Collection<Route> ans = testSolver.trySolve();
 

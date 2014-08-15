@@ -2,20 +2,25 @@ package oarlib.problem.impl;
 
 import oarlib.core.CapacitatedProblem;
 import oarlib.core.Route;
-import oarlib.graph.impl.DirectedGraph;
+import oarlib.graph.impl.MixedGraph;
 
 import java.util.Collection;
 
 /**
- * Created by oliverlum on 8/5/14.
+ * Problem class to represent the Capacitated Mixed Chinese Postman Problem.
+ * Currently, this only supports a bound on the number of vehicles, and not a capacity constraint.
+ *
+ * Created by oliverlum on 8/12/14.
  */
-public class CapacitatedDCPP extends CapacitatedProblem {
+public class CapacitatedMCPP extends CapacitatedProblem {
 
-    DirectedGraph mGraph;
+    MixedGraph mGraph;
 
-    public CapacitatedDCPP(DirectedGraph graph, int numVehicles) {
+    protected CapacitatedMCPP( MixedGraph graph, int numVehicles) {
+
         super(numVehicles);
         mGraph = graph;
+
     }
 
     @Override
@@ -25,21 +30,20 @@ public class CapacitatedDCPP extends CapacitatedProblem {
 
     @Override
     public boolean isFeasible(Collection<Route> routes) {
-
         if(routes.size() > getmNumVehicles())
             return false;
 
-        //TODO: Now check for real
+        //TODO: Now check for real.
         return false;
     }
 
     @Override
-    public DirectedGraph getGraph() {
+    public MixedGraph getGraph() {
         return mGraph;
     }
 
     @Override
     public Type getType() {
-        return Type.DIRECTED_CHINESE_POSTMAN;
+        return Type.MIXED_CHINESE_POSTMAN;
     }
 }

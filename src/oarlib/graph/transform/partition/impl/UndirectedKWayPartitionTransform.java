@@ -1,4 +1,4 @@
-package oarlib.graph.transform.impl;
+package oarlib.graph.transform.partition.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,6 +6,7 @@ import java.util.HashSet;
 import oarlib.core.Edge;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.transform.GraphTransformer;
+import oarlib.graph.transform.partition.PartitionTransformer;
 import oarlib.vertex.impl.UndirectedVertex;
 
 /**
@@ -16,7 +17,7 @@ import oarlib.vertex.impl.UndirectedVertex;
  * @author oliverlum
  *
  */
-public class UndirectedKWayPartitionTransform implements GraphTransformer<UndirectedGraph, UndirectedGraph>{
+public class UndirectedKWayPartitionTransform implements PartitionTransformer<UndirectedGraph> {
 
 	private UndirectedGraph mGraph;
 	

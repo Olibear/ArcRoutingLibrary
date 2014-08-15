@@ -8,7 +8,7 @@ import oarlib.graph.io.GraphWriter;
 import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
-import oarlib.graph.transform.impl.UndirectedKWayPartitionTransform;
+import oarlib.graph.transform.partition.impl.UndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedUCPP;
 import oarlib.problem.impl.UndirectedCPP;
@@ -84,10 +84,14 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
                 firstId = temp.getEndpoints().getFirst().getId();
                 secondId = temp.getEndpoints().getSecond().getId();
 
-                //if it's internal or to the depot, just log the edge in the appropriate partition
-                if(sol.get(firstId) == sol.get(secondId)  || firstId == mGraph.getDepotId() || secondId == mGraph.getDepotId()) {
+                //if it's internal, just log the edge in the appropriate partition
+                if(sol.get(firstId) == sol.get(secondId)  || secondId == mGraph.getDepotId()) {
                     edgeSol.put(i, sol.get(firstId));
                     partitions.get(sol.get(firstId)).add(i);
+                }
+                else if(firstId == mGraph.getDepotId()) {
+                    edgeSol.put(i, sol.get(secondId));
+                    partitions.get(sol.get(secondId)).add(i);
                 }
                 //oth. with 50% probability, stick it in either one
                 else {
