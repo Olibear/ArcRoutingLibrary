@@ -8,7 +8,9 @@ import oarlib.graph.impl.WindyGraph;
  * Created by Oliver Lum on 7/26/2014.
  */
 public class WindyGraphFactory implements Factory<WindyGraph> {
-    public WindyGraphFactory(){};
+    public WindyGraphFactory() {
+    }
+
     @Override
     public WindyGraph instantiate() {
         return new WindyGraph();

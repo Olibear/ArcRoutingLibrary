@@ -4,15 +4,15 @@ import oarlib.problem.impl.ObjectiveFunction;
 
 /**
  * Objective function that is easier to evaluate directly from a route.
- * @author oliverlum
  *
+ * @author oliverlum
  */
-public class RouteObjective extends ObjectiveFunction{
+public class RouteObjective extends ObjectiveFunction {
 
-	@Override
-	public double evaluateObjective() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public double evaluateObjective() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
 }

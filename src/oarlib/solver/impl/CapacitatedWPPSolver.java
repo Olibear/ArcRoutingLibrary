@@ -1,36 +1,36 @@
 package oarlib.solver.impl;
 
 import oarlib.core.*;
-import oarlib.graph.factory.impl.MixedGraphFactory;
-import oarlib.graph.impl.MixedGraph;
+import oarlib.graph.factory.impl.WindyGraphFactory;
+import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphWriter;
 import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
-import oarlib.graph.transform.partition.impl.MixedKWayPartitionTransform;
+import oarlib.graph.transform.partition.impl.WindyKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.CapacitatedMCPP;
-import oarlib.problem.impl.MixedCPP;
-import oarlib.vertex.impl.MixedVertex;
+import oarlib.problem.impl.CapacitatedWPP;
+import oarlib.problem.impl.WindyRPP;
+import oarlib.vertex.impl.WindyVertex;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
 /**
- * Created by oliverlum on 8/12/14.
+ * Created by oliverlum on 8/14/14.
  */
-public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
+public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
 
-    CapacitatedMCPP mInstance;
+    CapacitatedWPP mInstance;
 
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    public CapacitatedMCPPSolver(CapacitatedMCPP instance) throws IllegalArgumentException {
+    protected CapacitatedWPPSolver(CapacitatedWPP instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
     }
@@ -41,8 +41,8 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
         if (mInstance.getGraph() == null)
             return false;
         else {
-            MixedGraph mixedGraph = mInstance.getGraph();
-            if (!CommonAlgorithms.isStronglyConnected(mixedGraph))
+            WindyGraph mGraph = mInstance.getGraph();
+            if (!CommonAlgorithms.isConnected(mGraph))
                 return false;
         }
         return true;
@@ -59,21 +59,22 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
         try {
 
             //partition
-            MixedGraph mGraph = mInstance.getGraph();
+            WindyGraph mGraph = mInstance.getGraph();
             HashMap<Integer, Integer> sol = partition();
 
             //initialize vars
             int firstId, secondId;
             int m = mGraph.getEdges().size();
             double prob;
-            MixedEdge temp;
-            HashMap<Integer, MixedEdge> mGraphEdges = mGraph.getInternalEdgeMap();
+            WindyEdge temp;
+            HashMap<Integer, WindyEdge> mGraphEdges = mGraph.getInternalEdgeMap();
             HashMap<Integer, Integer> edgeSol = new HashMap<Integer, Integer>();
             HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
             HashSet<Integer> valueSet = new HashSet<Integer>(sol.values());
 
-            for (Integer part : valueSet)
+            for (Integer part : valueSet) {
                 partitions.put(part, new HashSet<Integer>());
+            }
 
             //for each edge, figure out if it's internal, or part of the cut induced by the partition
             for (int i = 1; i <= m; i++) {
@@ -81,7 +82,7 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
                 firstId = temp.getEndpoints().getFirst().getId();
                 secondId = temp.getEndpoints().getSecond().getId();
 
-                //if it's internal, just log the link in the appropriate partition
+                //if it's internal, just log the edge in the appropriate partition
                 if (sol.get(firstId).equals(sol.get(secondId)) || secondId == mGraph.getDepotId()) {
                     edgeSol.put(i, sol.get(firstId));
                     partitions.get(sol.get(firstId)).add(i);
@@ -100,7 +101,6 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
                         partitions.get(sol.get(secondId)).add(i);
                     }
                 }
-
             }
 
             //now create the subgraphs
@@ -110,8 +110,6 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
             }
 
             return ans;
-
-
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -120,7 +118,7 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
 
     @Override
     public Problem.Type getProblemType() {
-        return Problem.Type.MIXED_CHINESE_POSTMAN;
+        return Problem.Type.WINDY_CHINESE_POSTMAN;
     }
 
     @Override
@@ -128,12 +126,12 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
 
         try {
 
-            //initialize transformer for turning edge-weighted graph into vertex-weighted graph
-            MixedGraph mGraph = mInstance.getGraph();
-            MixedKWayPartitionTransform transformer = new MixedKWayPartitionTransform(mGraph);
+            //initialize transformer for turning edge-weighted grpah into vertex-weighted graph
+            WindyGraph mGraph = mInstance.getGraph();
+            WindyKWayPartitionTransform transformer = new WindyKWayPartitionTransform(mGraph);
 
             //transform the graph
-            MixedGraph vWeightedTest = transformer.transformGraph();
+            WindyGraph vWeightedTest = transformer.transformGraph();
 
             String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
 
@@ -147,7 +145,7 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
             //partition the graph
             runMetis(numParts, filename);
 
-            //now read the partition and reconstruct the induced subgraphs on which we solve the MCPP to get our final solution
+            //now read the partition and reconstruct the induced subrgraphs on which we solve the WPP to get our final solution
             PartitionReader pr = new PartitionReader(PartitionFormat.Name.METIS);
 
             return pr.readPartition(filename + ".part." + numParts);
@@ -156,35 +154,33 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
             e.printStackTrace();
             return null;
         }
+
     }
 
     @Override
     protected Route route(HashSet<Integer> ids) {
 
-        MixedGraph mGraph = mInstance.getGraph();
+        WindyGraph mGraph = mInstance.getGraph();
 
-        MixedGraphFactory mgf = new MixedGraphFactory();
-        EdgeInducedSubgraphTransform<MixedGraph> subgraphTransform = new EdgeInducedSubgraphTransform<MixedGraph>(mGraph, mgf, null, true);
+        WindyGraphFactory wgf = new WindyGraphFactory();
+        EdgeInducedSubgraphTransform<WindyGraph> subgraphTransform = new EdgeInducedSubgraphTransform<WindyGraph>(mGraph, wgf, null, true);
 
         subgraphTransform.setEdges(ids);
-        MixedGraph subgraph = subgraphTransform.transformGraph();
+        WindyGraph subgraph = subgraphTransform.transformGraph();
 
-        //now solve the MCPP on it
-        MixedCPP subInstance = new MixedCPP(subgraph);
-        MCPPSolver_Frederickson solver = new MCPPSolver_Frederickson(subInstance);
+        //now solve the WPP on it
+        WindyRPP subInstance = new WindyRPP(subgraph);
+        WRPPSolver_Benavent_H1 solver = new WRPPSolver_Benavent_H1(subInstance);
         Route ret = solver.solve();
 
         //set the id map for the route
         int n = subgraph.getVertices().size();
-        HashMap<Integer, MixedVertex> indexedVertices = subgraph.getInternalVertexMap();
+        HashMap<Integer, WindyVertex> indexedVertices = subgraph.getInternalVertexMap();
         HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
-
-        /*for(int i = 1; i<= n; i++)
-        {
+        for (int i = 1; i <= n; i++) {
             customIDMap.put(i, indexedVertices.get(i).getMatchId());
         }
-        ret.setMapping(customIDMap);*/
-
+        ret.setMapping(customIDMap);
         return ret;
     }
 }

@@ -13,10 +13,10 @@ import java.util.HashMap;
 /**
  * Naive first attempt at rebalance step for the k-Vehicle solvers; this just takes the distance from
  * the depot to the closest vertex in the partition, and divides the cost up equally among members of the partition.
- *
+ * <p/>
  * Created by oliverlum on 8/9/14.
  */
-public class SimpleDistanceRebalancer<S extends Graph<?,?>> extends RebalanceTransformer<S>{
+public class SimpleDistanceRebalancer<S extends Graph<?, ?>> extends RebalanceTransformer<S> {
 
     protected SimpleDistanceRebalancer(S input, ArrayList<Integer> partition) throws FormatMismatchException {
         super(input, partition);
@@ -37,29 +37,27 @@ public class SimpleDistanceRebalancer<S extends Graph<?,?>> extends RebalanceTra
     public S transformGraph() {
         //calculate shortest paths
         int n = mGraph.getVertices().size();
-        int[] dist = new int[n+1];
-        int[] path = new int[n+1];
-        CommonAlgorithms.dijkstrasAlgorithm(mGraph,mGraph.getDepotId(),dist,path);
+        int[] dist = new int[n + 1];
+        int[] path = new int[n + 1];
+        CommonAlgorithms.dijkstrasAlgorithm(mGraph, mGraph.getDepotId(), dist, path);
 
         //figure out the shortest distance from depot to each part
         HashMap<Integer, Pair<Integer>> minDist = new HashMap<Integer, Pair<Integer>>();
         HashMap<Integer, Integer> numVerticesPerPart = new HashMap<Integer, Integer>();
         int partNumber;
-        for(int i = 1; i <= n; i ++)
-        {
+        for (int i = 1; i <= n; i++) {
             partNumber = mPartition.get(i);
-            if(!minDist.containsKey(partNumber) || minDist.get(partNumber).getSecond() > dist[i])
+            if (!minDist.containsKey(partNumber) || minDist.get(partNumber).getSecond() > dist[i])
                 minDist.put(partNumber, new Pair<Integer>(i, dist[i]));
-            if(!numVerticesPerPart.containsKey(partNumber))
+            if (!numVerticesPerPart.containsKey(partNumber))
                 numVerticesPerPart.put(partNumber, 1);
             else
-                numVerticesPerPart.put(partNumber, numVerticesPerPart.get(partNumber)+1);
+                numVerticesPerPart.put(partNumber, numVerticesPerPart.get(partNumber) + 1);
         }
 
         //update the vertex weights for each
         HashMap<Integer, ? extends Vertex> indexedVertices = mGraph.getInternalVertexMap();
-        for(int i = 1; i <= n; i++)
-        {
+        for (int i = 1; i <= n; i++) {
             partNumber = mPartition.get(i);
             indexedVertices.get(i).setCost(indexedVertices.get(i).getCost() + minDist.get(partNumber).getSecond() / numVerticesPerPart.get(partNumber));
         }

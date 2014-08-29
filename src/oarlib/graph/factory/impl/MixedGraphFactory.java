@@ -8,7 +8,9 @@ import oarlib.graph.impl.MixedGraph;
  * Created by Oliver Lum on 7/26/2014.
  */
 public class MixedGraphFactory implements Factory<MixedGraph> {
-    public MixedGraphFactory(){};
+    public MixedGraphFactory() {
+    }
+
     @Override
     public MixedGraph instantiate() {
         return new MixedGraph();

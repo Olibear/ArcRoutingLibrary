@@ -1,11 +1,9 @@
 package oarlib.core;
 
-import java.util.Collection;
-
 /**
  * Problem abstraction for capacitated problems.  This includes support for number of vehicles, or for vehicle capacity.
  * Currently, this does not include support for heterogeneous fleets.
- *
+ * <p/>
  * Created by Oliver Lum on 7/25/2014.
  */
 public abstract class CapacitatedProblem extends Problem {
@@ -27,8 +25,7 @@ public abstract class CapacitatedProblem extends Problem {
      *
      * @param numVehicles - the number of routes allowed to exist in the final solution.
      */
-    protected CapacitatedProblem(int numVehicles)
-    {
+    protected CapacitatedProblem(int numVehicles) {
         mNumVehicles = numVehicles;
         numVehiclesSet = true;
         capSet = false;
@@ -41,17 +38,15 @@ public abstract class CapacitatedProblem extends Problem {
      * If you only wish to enforce capacity, pass in a value <= 0 for numVehicles.
      *
      * @param numVehicles - the number of routes allowed to exist in the final solution.
-     * @param capacity - the max capacity that a route in the solution is allowed to have
+     * @param capacity    - the max capacity that a route in the solution is allowed to have
      */
-    protected CapacitatedProblem(int numVehicles, int capacity)
-    {
+    protected CapacitatedProblem(int numVehicles, int capacity) {
         mCapacity = capacity;
         capSet = true;
-        if(numVehicles > 0) {
+        if (numVehicles > 0) {
             mNumVehicles = numVehicles;
             numVehiclesSet = true;
-        }
-        else
+        } else
             numVehiclesSet = false;
     }
 
@@ -61,9 +56,8 @@ public abstract class CapacitatedProblem extends Problem {
      *
      * @return - the capacity bound on a route, or -1 if this constraint is no limit set.
      */
-    public int getCapacity()
-    {
-        if(!capSet)
+    public int getCapacity() {
+        if (!capSet)
             return -1;
         return mCapacity;
     }
@@ -75,12 +69,11 @@ public abstract class CapacitatedProblem extends Problem {
      * @return - the max number of routes allowed to exist in a feasible solution, or -1 if there is
      * no limit set.
      */
-    public int getmNumVehicles()
-    {
-        if(!numVehiclesSet)
+    public int getmNumVehicles() {
+        if (!numVehiclesSet)
             return -1;
         return mNumVehicles;
     }
 
     public abstract CapacitatedObjective getObjectiveType();
- }
+}

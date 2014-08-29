@@ -7,8 +7,8 @@ import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphWriter;
 import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
-import oarlib.graph.transform.partition.impl.DirectedKWayPartitionTransform;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
+import oarlib.graph.transform.partition.impl.DirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedDCPP;
 import oarlib.problem.impl.DirectedCPP;
@@ -24,6 +24,7 @@ import java.util.HashSet;
 public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
 
     CapacitatedDCPP mInstance;
+
     /**
      * Default constructor; must set problem instance.
      *
@@ -37,12 +38,11 @@ public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
     @Override
     protected boolean checkGraphRequirements() {
         // make sure the graph is connected
-        if(mInstance.getGraph() == null)
+        if (mInstance.getGraph() == null)
             return false;
-        else
-        {
+        else {
             DirectedGraph mGraph = mInstance.getGraph();
-            if(!CommonAlgorithms.isStronglyConnected(mGraph))
+            if (!CommonAlgorithms.isStronglyConnected(mGraph))
                 return false;
         }
         return true;
@@ -72,35 +72,31 @@ public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
             HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
             HashSet<Integer> valueSet = new HashSet<Integer>(sol.values());
 
-            for(Integer part: valueSet)
-            {
+            for (Integer part : valueSet) {
                 partitions.put(part, new HashSet<Integer>());
             }
 
             //for each arc, figure out if it's internal, or part of the cut induced by the partition
-            for(int i = 1; i <= m; i++) {
+            for (int i = 1; i <= m; i++) {
                 temp = mGraphArcs.get(i);
                 firstId = temp.getTail().getId();
                 secondId = temp.getHead().getId();
 
                 //if it's internal, just log the arc in the appropriate partition
-                if(sol.get(firstId) == sol.get(secondId) || secondId == mGraph.getDepotId())
-                {
+                if (sol.get(firstId).equals(sol.get(secondId)) || secondId == mGraph.getDepotId()) {
                     arcSol.put(i, sol.get(firstId));
                     partitions.get(sol.get(firstId)).add(i);
-                }
-                else if(firstId == mGraph.getDepotId()) {
+                } else if (firstId == mGraph.getDepotId()) {
                     arcSol.put(i, sol.get(secondId));
                     partitions.get(sol.get(secondId)).add(i);
                 }
                 //oth. with 50% probability, stick it in either one
                 else {
                     prob = Math.random();
-                    if(prob > .5) {
+                    if (prob > .5) {
                         arcSol.put(i, sol.get(firstId));
                         partitions.get(sol.get(firstId)).add(i);
-                    }
-                    else {
+                    } else {
                         arcSol.put(i, sol.get(secondId));
                         partitions.get(sol.get(secondId)).add(i);
                     }
@@ -110,14 +106,12 @@ public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
 
             //now create the subgraphs
             HashSet<Route> ans = new HashSet<Route>();
-            for(Integer part: partitions.keySet())
-            {
+            for (Integer part : partitions.keySet()) {
                 ans.add(route(partitions.get(part)));
             }
 
             return ans;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -185,8 +179,7 @@ public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
         int n = subgraph.getVertices().size();
         HashMap<Integer, DirectedVertex> indexedVertices = subgraph.getInternalVertexMap();
         HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
-        for(int i = 1; i <= n; i++)
-        {
+        for (int i = 1; i <= n; i++) {
             customIDMap.put(i, indexedVertices.get(i).getMatchId());
         }
         ret.setMapping(customIDMap);

@@ -8,7 +8,9 @@ import oarlib.graph.impl.UndirectedGraph;
  * Created by Oliver Lum on 7/26/2014.
  */
 public class UndirectedGraphFactory implements Factory<UndirectedGraph> {
-    public UndirectedGraphFactory(){};
+    public UndirectedGraphFactory() {
+    }
+
     @Override
     public UndirectedGraph instantiate() {
         return new UndirectedGraph();

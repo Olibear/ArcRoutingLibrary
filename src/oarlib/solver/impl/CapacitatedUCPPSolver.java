@@ -1,6 +1,9 @@
 package oarlib.solver.impl;
 
-import oarlib.core.*;
+import oarlib.core.CapacitatedVehicleSolver;
+import oarlib.core.Edge;
+import oarlib.core.Problem;
+import oarlib.core.Route;
 import oarlib.graph.factory.impl.UndirectedGraphFactory;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.io.GraphFormat;
@@ -24,6 +27,7 @@ import java.util.HashSet;
 public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
 
     CapacitatedUCPP mInstance;
+
     /**
      * Default constructor; must set problem instance.
      *
@@ -38,12 +42,11 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
     protected boolean checkGraphRequirements() {
 
         // make sure the graph is connected
-        if(mInstance.getGraph() == null)
+        if (mInstance.getGraph() == null)
             return false;
-        else
-        {
+        else {
             UndirectedGraph mGraph = mInstance.getGraph();
-            if(!CommonAlgorithms.isConnected(mGraph))
+            if (!CommonAlgorithms.isConnected(mGraph))
                 return false;
         }
         return true;
@@ -73,8 +76,7 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
             HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
             HashSet<Integer> valueSet = new HashSet<Integer>(sol.values());
 
-            for(Integer part: valueSet)
-            {
+            for (Integer part : valueSet) {
                 partitions.put(part, new HashSet<Integer>());
             }
 
@@ -85,22 +87,20 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
                 secondId = temp.getEndpoints().getSecond().getId();
 
                 //if it's internal, just log the edge in the appropriate partition
-                if(sol.get(firstId) == sol.get(secondId)  || secondId == mGraph.getDepotId()) {
+                if (sol.get(firstId).equals(sol.get(secondId)) || secondId == mGraph.getDepotId()) {
                     edgeSol.put(i, sol.get(firstId));
                     partitions.get(sol.get(firstId)).add(i);
-                }
-                else if(firstId == mGraph.getDepotId()) {
+                } else if (firstId == mGraph.getDepotId()) {
                     edgeSol.put(i, sol.get(secondId));
                     partitions.get(sol.get(secondId)).add(i);
                 }
                 //oth. with 50% probability, stick it in either one
                 else {
                     prob = Math.random();
-                    if(prob > .5) {
+                    if (prob > .5) {
                         edgeSol.put(i, sol.get(firstId));
                         partitions.get(sol.get(firstId)).add(i);
-                    }
-                    else {
+                    } else {
                         edgeSol.put(i, sol.get(secondId));
                         partitions.get(sol.get(secondId)).add(i);
                     }
@@ -109,14 +109,12 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
 
             HashSet<Route> ans = new HashSet<Route>();
             //now create the subgraphs
-            for(Integer part: partitions.keySet())
-            {
+            for (Integer part : partitions.keySet()) {
                 ans.add(route(partitions.get(part)));
             }
 
             return ans;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -155,8 +153,7 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
             //TODO: Make this just an array; no need to have HashMap
             return pr.readPartition(filename + ".part." + numParts);
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -169,7 +166,7 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
         UndirectedGraph mGraph = mInstance.getGraph();
 
         UndirectedGraphFactory ugf = new UndirectedGraphFactory();
-        EdgeInducedSubgraphTransform<UndirectedGraph> subgraphTransform = new EdgeInducedSubgraphTransform<UndirectedGraph>(mGraph,ugf,null, true);
+        EdgeInducedSubgraphTransform<UndirectedGraph> subgraphTransform = new EdgeInducedSubgraphTransform<UndirectedGraph>(mGraph, ugf, null, true);
 
         subgraphTransform.setEdges(ids);
         UndirectedGraph subgraph = subgraphTransform.transformGraph();
@@ -184,8 +181,7 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
         int n = subgraph.getVertices().size();
         HashMap<Integer, UndirectedVertex> indexedVertices = subgraph.getInternalVertexMap();
         HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
-        for(int i = 1; i <= n; i++)
-        {
+        for (int i = 1; i <= n; i++) {
             customIDMap.put(i, indexedVertices.get(i).getMatchId());
         }
         ret.setMapping(customIDMap);

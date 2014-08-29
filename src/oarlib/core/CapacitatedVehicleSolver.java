@@ -13,46 +13,57 @@ import java.util.HashSet;
 public abstract class CapacitatedVehicleSolver {
     /**
      * Default constructor; must set problem instance.
+     *
      * @param instance - instance for which this is a solver
      */
-    protected CapacitatedVehicleSolver(CapacitatedProblem instance) throws IllegalArgumentException{
+    protected CapacitatedVehicleSolver(CapacitatedProblem instance) throws IllegalArgumentException {
         //make sure I'm a valid problem instance
-        if(!(instance.getType() == getProblemType() ))
-        {
+        if (!(instance.getType() == getProblemType())) {
             throw new IllegalArgumentException("It appears that this problem does not match the problem type handled by this solver.");
         }
 
     }
+
     /**
      * Attempts to solve the instance assigned to this problem.
+     *
      * @return null if problem instance is not assigned, or solver failed.
      */
-    public Collection<Route> trySolve() throws GraphInfeasibleException{
-        if(!checkGraphRequirements())
+    public Collection<Route> trySolve() throws GraphInfeasibleException {
+        if (!checkGraphRequirements())
             throw new GraphInfeasibleException();
         return solve();
     }
+
     /**
      * Determines if the graph meets theoretical requirements for this solver to be run on it.
+     *
      * @return - true if the graph meets pre-requisites (usually connectivity-related), false oth.
      */
     protected abstract boolean checkGraphRequirements();
+
     /**
      * @return - the problem instance
      */
-    protected  abstract CapacitatedProblem getInstance();    /**
+    protected abstract CapacitatedProblem getInstance();
+
+    /**
      * Actually solves the instance, (first checking for feasibility), returning a Collection of routes.
+     *
      * @return The set of routes the solver has concluded is best.
      */
     protected abstract Collection<Route> solve();
+
     /**
      * Specifies what type of problem this is a solver for.
+     *
      * @return
      */
     public abstract Problem.Type getProblemType();
 
     /**
      * Runs the vertex-weighted partitioning code from the METIS library, (the gpmetis program) on the graph file provided.
+     *
      * @param numParts - the number of parts to partition the graph into, (e.g. 4 means the vertices will be partitioned
      *                 4 parts.
      * @param filename - the file path to the location of the graph file.  In order to work properly, this file must be in the
@@ -70,7 +81,6 @@ public abstract class CapacitatedVehicleSolver {
             System.out.println("Stop " + exitVal);
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
 
     }

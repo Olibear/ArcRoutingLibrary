@@ -1,32 +1,33 @@
 package oarlib.problem.impl;
 
-import java.util.Collection;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
 
-public class WindyCPP extends Problem{
-	
-	WindyGraph mGraph;
+import java.util.Collection;
 
-	public WindyCPP(WindyGraph g) {
-		mGraph = g;
-	}
+public class WindyCPP extends Problem {
 
-	@Override
-	public boolean isFeasible(Collection<Route> routes) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    WindyGraph mGraph;
 
-	@Override
-	public Type getType() {
-		return Problem.Type.WINDY_CHINESE_POSTMAN;
-	}
+    public WindyCPP(WindyGraph g) {
+        mGraph = g;
+    }
 
-	@Override
-	public WindyGraph getGraph() {
-		return mGraph;
-	}
+    @Override
+    public boolean isFeasible(Collection<Route> routes) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public Type getType() {
+        return Problem.Type.WINDY_CHINESE_POSTMAN;
+    }
+
+    @Override
+    public WindyGraph getGraph() {
+        return mGraph;
+    }
 
 }

@@ -6,4 +6,5 @@ import oarlib.graph.transform.GraphTransformer;
 /**
  * Created by oliverlum on 8/9/14.
  */
-public interface PartitionTransformer<S extends Graph<?,?>> extends GraphTransformer<S,S> {}
+public interface PartitionTransformer<S extends Graph<?, ?>> extends GraphTransformer<S, S> {
+}

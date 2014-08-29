@@ -4,15 +4,15 @@ import oarlib.problem.impl.ObjectiveFunction;
 
 /**
  * Meant to encompass objective functions for integer program formulations.
- * @author oliverlum
  *
+ * @author oliverlum
  */
-public class IPObjective extends ObjectiveFunction{
+public class IPObjective extends ObjectiveFunction {
 
-	@Override
-	public double evaluateObjective() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public double evaluateObjective() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
 }

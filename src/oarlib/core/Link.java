@@ -5,151 +5,158 @@ import oarlib.graph.util.Pair;
 
 /**
  * Link abstraction. Provides most general contract for all Link objects.
- * @author oliverlum
  *
+ * @author oliverlum
  */
 public abstract class Link<V extends Vertex> {
 
-	private static int counter = 1; //for assigning edge ids
-	private String mLabel;
-	private int guid; //the idea is that this will be unique for all links, even between graphs
-	private int mId; //while this will help us identify the 'same' link in different graphs (graph copies for instance)
-	private int mGraphId;
-	private int matchId;
-	private Pair<V> mEndpoints;
-	private int mCost;
-	private int mCapacity;
-	private boolean isDirected;
-	private boolean isRequired;
-	private boolean capacitySet;
-	protected boolean isFinalized; // should be true if in a graph, false oth.
+    private static int counter = 1; //for assigning edge ids
+    private String mLabel;
+    private int guid; //the idea is that this will be unique for all links, even between graphs
+    private int mId; //while this will help us identify the 'same' link in different graphs (graph copies for instance)
+    private int mGraphId;
+    private int matchId;
+    private Pair<V> mEndpoints;
+    private int mCost;
+    private int mCapacity;
+    private boolean isDirected;
+    private boolean isRequired;
+    private boolean capacitySet;
+    protected boolean isFinalized; // should be true if in a graph, false oth.
 
-	public Link(String label, Pair<V> endpoints, int cost)
-	{
-		this(label, endpoints, cost, true);
-	}
-	public Link(String label, Pair<V> endpoints, int cost, boolean required)
-	{
-		setFinalized(false);
-		setId(-1);
-		setGraphId(-1);
-		setMatchId(-1);
-		setLabel(label);
-		setGuid(counter);
-		setEndpoints(endpoints);
-		setCost(cost);
-		setRequired(required);
-		capacitySet = false;
-		counter++;
-	}
-	/**
-	 * Gets a copy of the edge.
-	 * @return - a copy of the edge
-	 */
-	public abstract Link<V> getCopy();
+    public Link(String label, Pair<V> endpoints, int cost) {
+        this(label, endpoints, cost, true);
+    }
 
-	//==================================
-	// Getters and Setters
-	//==================================
+    public Link(String label, Pair<V> endpoints, int cost, boolean required) {
+        setFinalized(false);
+        setId(-1);
+        setGraphId(-1);
+        setMatchId(-1);
+        setLabel(label);
+        setGuid(counter);
+        setEndpoints(endpoints);
+        setCost(cost);
+        setRequired(required);
+        capacitySet = false;
+        counter++;
+    }
 
-	public String getLabel() {
-		return mLabel;
-	}
+    /**
+     * Gets a copy of the edge.
+     *
+     * @return - a copy of the edge
+     */
+    public abstract Link<V> getCopy();
 
-	public void setLabel(String mLabel) {
-		this.mLabel = mLabel;
-	}
+    //==================================
+    // Getters and Setters
+    //==================================
 
-	public int getGuid() {
-		return guid;
-	}
+    public String getLabel() {
+        return mLabel;
+    }
 
-	public void setGuid(int mId) {
-		this.guid = mId;
-	}
+    public void setLabel(String mLabel) {
+        this.mLabel = mLabel;
+    }
 
-	public Pair<V> getEndpoints() {
-		return mEndpoints;
-	}
+    public int getGuid() {
+        return guid;
+    }
 
-	public void setEndpoints(Pair<V> mEndpoints) {
-		this.mEndpoints = mEndpoints;
-	}
+    public void setGuid(int mId) {
+        this.guid = mId;
+    }
 
-	public int getCost() {
-		return mCost;
-	}
+    public Pair<V> getEndpoints() {
+        return mEndpoints;
+    }
 
-	public void setCost(int mCost) {
-		this.mCost = mCost;
-	}
-	public int getId() {
-		return mId;
-	}
-	public boolean setId(int mId) {
-		if(!isFinalized)
-		{
-			this.mId = mId;
-			return true;
-		}
-		return false;
-	}
+    public void setEndpoints(Pair<V> mEndpoints) {
+        this.mEndpoints = mEndpoints;
+    }
 
-	public boolean isDirected() {
-		return isDirected;
-	}
+    public int getCost() {
+        return mCost;
+    }
 
-	public void setDirected(boolean isDirected) {
-		this.isDirected = isDirected;
-	}
+    public void setCost(int mCost) {
+        this.mCost = mCost;
+    }
 
-	public int getMatchId() {
-		return matchId;
-	}
+    public int getId() {
+        return mId;
+    }
 
-	public void setMatchId(int matchId) {
-		this.matchId = matchId;
-	}
+    public boolean setId(int mId) {
+        if (!isFinalized) {
+            this.mId = mId;
+            return true;
+        }
+        return false;
+    }
 
-	public void setCapacity(int newCapacity) throws IllegalArgumentException
-	{
-		//negative capcity is not meaningful
-		if(newCapacity < 0)
-			throw new IllegalArgumentException();
-		capacitySet = true;
-		mCapacity = newCapacity;
-	}
+    public boolean isDirected() {
+        return isDirected;
+    }
 
-	public int getCapacity() throws NoCapacitySetException{
-		if(!capacitySet)
-			throw new NoCapacitySetException();
-		return mCapacity;
-	}
+    public void setDirected(boolean isDirected) {
+        this.isDirected = isDirected;
+    }
 
-	public boolean isCapacitySet() {
-		return capacitySet;
-	}
+    public int getMatchId() {
+        return matchId;
+    }
 
-	public void unsetCapacity() {
-		capacitySet = false;
-	}
-	public boolean isRequired() {
-		return isRequired;
-	}
-	public void setRequired(boolean isRequired) {
-		this.isRequired = isRequired;
-	}
-	public int getGraphId() {
-		return mGraphId;
-	}
-	public void setGraphId(int mGraphId) {
-		this.mGraphId = mGraphId;
-	}
-	public boolean isFinalized() {
-		return isFinalized;
-	}
-	public void setFinalized(boolean isFinalized) {
-		this.isFinalized = isFinalized;
-	}
+    public void setMatchId(int matchId) {
+        this.matchId = matchId;
+    }
+
+    public void setCapacity(int newCapacity) throws IllegalArgumentException {
+        //negative capcity is not meaningful
+        if (newCapacity < 0)
+            throw new IllegalArgumentException();
+        capacitySet = true;
+        mCapacity = newCapacity;
+    }
+
+    public int getCapacity() throws NoCapacitySetException {
+        if (!capacitySet)
+            throw new NoCapacitySetException();
+        return mCapacity;
+    }
+
+    public boolean isCapacitySet() {
+        return capacitySet;
+    }
+
+    public void unsetCapacity() {
+        capacitySet = false;
+    }
+
+    public boolean isRequired() {
+        return isRequired;
+    }
+
+    public void setRequired(boolean isRequired) {
+        this.isRequired = isRequired;
+    }
+
+    public int getGraphId() {
+        return mGraphId;
+    }
+
+    public void setGraphId(int mGraphId) {
+        this.mGraphId = mGraphId;
+    }
+
+    public boolean isFinalized() {
+        return isFinalized;
+    }
+
+    public void setFinalized(boolean isFinalized) {
+        this.isFinalized = isFinalized;
+    }
 
 }

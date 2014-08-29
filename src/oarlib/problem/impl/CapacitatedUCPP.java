@@ -9,7 +9,7 @@ import java.util.Collection;
 /**
  * Problem class to represent the Capacitated Undirected Chinese Postman Problem.
  * Currently, this only supports a bound on the number of vehicles, and not a capacity constraint.
- *
+ * <p/>
  * Created by Oliver Lum on 7/25/2014.
  */
 public class CapacitatedUCPP extends CapacitatedProblem {
@@ -28,7 +28,7 @@ public class CapacitatedUCPP extends CapacitatedProblem {
 
     @Override
     public boolean isFeasible(Collection<Route> routes) {
-        if(routes.size() > getmNumVehicles())
+        if (routes.size() > getmNumVehicles())
             return false;
 
         //TODO: Now check for real.

@@ -9,14 +9,14 @@ import java.util.Collection;
 /**
  * Problem class to represent the Capacitated Mixed Chinese Postman Problem.
  * Currently, this only supports a bound on the number of vehicles, and not a capacity constraint.
- *
+ * <p/>
  * Created by oliverlum on 8/12/14.
  */
 public class CapacitatedMCPP extends CapacitatedProblem {
 
     MixedGraph mGraph;
 
-    protected CapacitatedMCPP( MixedGraph graph, int numVehicles) {
+    public CapacitatedMCPP(MixedGraph graph, int numVehicles) {
 
         super(numVehicles);
         mGraph = graph;
@@ -30,7 +30,7 @@ public class CapacitatedMCPP extends CapacitatedProblem {
 
     @Override
     public boolean isFeasible(Collection<Route> routes) {
-        if(routes.size() > getmNumVehicles())
+        if (routes.size() > getmNumVehicles())
             return false;
 
         //TODO: Now check for real.

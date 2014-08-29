@@ -1,128 +1,120 @@
 package oarlib.vertex.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import oarlib.core.MixedEdge;
 import oarlib.core.Vertex;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * Vertex representation for use with Mixed Graphs.  This vertex stores undirected degree separately from in-degree and out-degree.
- * @author Oliver
  *
+ * @author Oliver
  */
 public class MixedVertex extends Vertex {
 
-	private int inDegree;
-	private int outDegree;
-	private int degree;
-	private HashMap<MixedVertex, ArrayList<MixedEdge>> neighbors;
+    private int inDegree;
+    private int outDegree;
+    private int degree;
+    private HashMap<MixedVertex, ArrayList<MixedEdge>> neighbors;
 
-	public MixedVertex(String label) {
-		super(label);
-		setInDegree(0);
-		setOutDegree(0);
-		setDegree(0);
-		neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
+    public MixedVertex(String label) {
+        super(label);
+        setInDegree(0);
+        setOutDegree(0);
+        setDegree(0);
+        neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
 
-	}
-	
-	/**
-	 * Adds an edge joining this vertex with v.
-	 * @param v - the other endpoint of the arc.
-	 * @param a - the arc to be added.
-	 * @throws IllegalArgumentException - if the vertex isn't the other endpoint of the arc provided.
-	 */
-	public void addToNeighbors(MixedVertex v, MixedEdge e) throws IllegalArgumentException
-	{
-		try
-		{
-			if(!e.isDirected())
-			{
-				if((e.getEndpoints().getFirst() != this && e.getEndpoints().getSecond() != this) || (e.getEndpoints().getFirst() != v && e.getEndpoints().getSecond() != v) || this.getGraphId() != v.getGraphId())
-					throw new IllegalArgumentException();
-			}
-			else
-				if(e.getTail() != this || e.getHead() != v || this.getGraphId() != v.getGraphId())
-					throw new IllegalArgumentException();
+    }
+
+    /**
+     * Adds an edge joining this vertex with v.
+     *
+     * @param v - the other endpoint of the arc.
+     * @param a - the arc to be added.
+     * @throws IllegalArgumentException - if the vertex isn't the other endpoint of the arc provided.
+     */
+    public void addToNeighbors(MixedVertex v, MixedEdge e) throws IllegalArgumentException {
+        try {
+            if (!e.isDirected()) {
+                if ((e.getEndpoints().getFirst() != this && e.getEndpoints().getSecond() != this) || (e.getEndpoints().getFirst() != v && e.getEndpoints().getSecond() != v) || this.getGraphId() != v.getGraphId())
+                    throw new IllegalArgumentException();
+            } else if (e.getTail() != this || e.getHead() != v || this.getGraphId() != v.getGraphId())
+                throw new IllegalArgumentException();
 
 
-			if(!neighbors.containsKey(v))
-				neighbors.put(v, new ArrayList<MixedEdge>());
-			neighbors.get(v).add(e);
-			return;
-		} catch(Exception ex)
-		{
-			ex.printStackTrace();
-			return;
-		}
-	}
-	/**
-	 * Removes an edge joining this vertex with v.
-	 * @param v - the other endpoint of the arc.
-	 * @param a - the arc to be removed.
-	 * @return true if operation successful, false if the arguments were invalid.
-	 */
-	public boolean removeFromNeighbors(MixedVertex v, MixedEdge a) 
-	{
-		if(!neighbors.containsKey(v) || !neighbors.get(v).contains(a))
-			return false;
-		neighbors.get(v).remove(a);
-		if(neighbors.get(v).size()==0)
-			neighbors.remove(v);
-		return true;
-	}	
+            if (!neighbors.containsKey(v))
+                neighbors.put(v, new ArrayList<MixedEdge>());
+            neighbors.get(v).add(e);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
-	//=================================
-	//
-	// Getters and Setters
-	//
-	//=================================
+    /**
+     * Removes an edge joining this vertex with v.
+     *
+     * @param v - the other endpoint of the arc.
+     * @param a - the arc to be removed.
+     * @return true if operation successful, false if the arguments were invalid.
+     */
+    public boolean removeFromNeighbors(MixedVertex v, MixedEdge a) {
+        if (!neighbors.containsKey(v) || !neighbors.get(v).contains(a))
+            return false;
+        neighbors.get(v).remove(a);
+        if (neighbors.get(v).size() == 0)
+            neighbors.remove(v);
+        return true;
+    }
 
-	public int getInDegree() {
-		return inDegree;
-	}
+    //=================================
+    //
+    // Getters and Setters
+    //
+    //=================================
 
-	public void setInDegree(int inDegree) {
-		this.inDegree = inDegree;
-	}
+    public int getInDegree() {
+        return inDegree;
+    }
 
-	public int getOutDegree() {
-		return outDegree;
-	}
+    public void setInDegree(int inDegree) {
+        this.inDegree = inDegree;
+    }
 
-	public void setOutDegree(int outDegree) {
-		this.outDegree = outDegree;
-	}
+    public int getOutDegree() {
+        return outDegree;
+    }
 
-	public int getDegree() {
-		return degree;
-	}
+    public void setOutDegree(int outDegree) {
+        this.outDegree = outDegree;
+    }
 
-	public void setDegree(int degree) {
-		this.degree = degree;
-	}
+    public int getDegree() {
+        return degree;
+    }
 
-	public int getDelta()
-	{
-		return inDegree - outDegree;
-	}
+    public void setDegree(int degree) {
+        this.degree = degree;
+    }
 
-	//=================================
-	//
-	// Graph Overrides
-	//
-	//=================================
+    public int getDelta() {
+        return inDegree - outDegree;
+    }
 
-	@Override
-	public HashMap<MixedVertex, ArrayList<MixedEdge>> getNeighbors()
-	{
-		return neighbors;
-	}
+    //=================================
+    //
+    // Graph Overrides
+    //
+    //=================================
 
-	@Override
-	public void clearNeighbors() {
-		neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
-	}
+    @Override
+    public HashMap<MixedVertex, ArrayList<MixedEdge>> getNeighbors() {
+        return neighbors;
+    }
+
+    @Override
+    public void clearNeighbors() {
+        neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
+    }
 
 }

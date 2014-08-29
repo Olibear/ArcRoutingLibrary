@@ -8,7 +8,9 @@ import oarlib.graph.impl.DirectedGraph;
  * Created by Oliver Lum on 7/26/2014.
  */
 public class DirectedGraphFactory implements Factory<DirectedGraph> {
-    public DirectedGraphFactory(){};
+    public DirectedGraphFactory() {
+    }
+
     @Override
     public DirectedGraph instantiate() {
         return new DirectedGraph();

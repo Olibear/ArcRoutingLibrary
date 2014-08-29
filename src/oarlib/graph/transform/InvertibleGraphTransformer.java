@@ -7,11 +7,11 @@ import oarlib.core.Graph;
  * graph transformers for which it is possible to reverse; it is recommended that
  * any 1-1 mappings implement this interface instead of implementing two different
  * transforms.
- * @author oliverlum
  *
  * @param <S>
  * @param <T>
+ * @author oliverlum
  */
-public interface InvertibleGraphTransformer<S extends Graph<?,?>, T extends Graph<?,?>> extends GraphTransformer<S,T> {
-	public S invertTransformation(T input);
+public interface InvertibleGraphTransformer<S extends Graph<?, ?>, T extends Graph<?, ?>> extends GraphTransformer<S, T> {
+    public S invertTransformation(T input);
 }

@@ -1,32 +1,33 @@
 package oarlib.problem.impl;
 
-import java.util.Collection;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.UndirectedGraph;
 
-public class UndirectedCPP extends Problem{
-	
-	private UndirectedGraph mGraph;
+import java.util.Collection;
 
-	public UndirectedCPP(UndirectedGraph g) {
-		mGraph = g;
-	}
+public class UndirectedCPP extends Problem {
 
-	@Override
-	public boolean isFeasible(Collection<Route> routes) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    private UndirectedGraph mGraph;
 
-	@Override
-	public Type getType() {
-		return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
-	}
+    public UndirectedCPP(UndirectedGraph g) {
+        mGraph = g;
+    }
 
-	@Override
-	public UndirectedGraph getGraph() {
-		return mGraph;
-	}
+    @Override
+    public boolean isFeasible(Collection<Route> routes) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public Type getType() {
+        return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
+    }
+
+    @Override
+    public UndirectedGraph getGraph() {
+        return mGraph;
+    }
 
 }
