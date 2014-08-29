@@ -12,7 +12,6 @@ import oarlib.graph.transform.partition.impl.MixedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedMCPP;
 import oarlib.problem.impl.MixedCPP;
-import oarlib.vertex.impl.MixedVertex;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -173,17 +172,6 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
         MixedCPP subInstance = new MixedCPP(subgraph);
         MCPPSolver_Frederickson solver = new MCPPSolver_Frederickson(subInstance);
         Route ret = solver.solve();
-
-        //set the id map for the route
-        int n = subgraph.getVertices().size();
-        HashMap<Integer, MixedVertex> indexedVertices = subgraph.getInternalVertexMap();
-        HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
-
-        /*for(int i = 1; i<= n; i++)
-        {
-            customIDMap.put(i, indexedVertices.get(i).getMatchId());
-        }
-        ret.setMapping(customIDMap);*/
 
         return ret;
     }

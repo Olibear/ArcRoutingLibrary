@@ -13,7 +13,7 @@ public class CapacitatedWPP extends CapacitatedProblem {
 
     WindyGraph mGraph;
 
-    protected CapacitatedWPP(WindyGraph graph, int numVehicles) {
+    public CapacitatedWPP(WindyGraph graph, int numVehicles) {
         super(numVehicles);
         mGraph = graph;
     }

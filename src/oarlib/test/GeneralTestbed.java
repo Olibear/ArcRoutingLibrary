@@ -53,13 +53,13 @@ public class GeneralTestbed {
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testCapacitatedSolvers("/Users/oliverlum/Downloads/MCPP");
+        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP");
     }
 
     @SuppressWarnings("unused")
     private static void testCapacitatedSolvers(String instanceFolder) {
         try {
-            /*
+
             //UNDIRECTED
             System.out.println("========================================================");
             System.out.println("Beginning Test of the Undirected Partitioning Code");
@@ -98,10 +98,9 @@ public class GeneralTestbed {
                 System.out.println("This route costs " + r.getCost());
                 System.out.println();
             }
-            */
+
             //MIXED
 
-            int routeCounter = 1;
             System.out.println("========================================================");
             System.out.println("Beginning Test of the Mixed Partitioning Code");
             System.out.println("========================================================");
@@ -143,6 +142,41 @@ public class GeneralTestbed {
                 }
 
                 //WINDY
+
+                System.out.println("========================================================");
+                System.out.println("Beginning Test of the Windy Partitioning Code");
+                System.out.println("========================================================");
+
+                CapacitatedWPP validWInstance;
+                CapacitatedWPPSolver validWSolver;
+                Collection<Route> validWAns;
+
+                //run on all instances in the folder
+                for (final File testInstance : testInstanceFolder.listFiles()) {
+                    String temp = testInstance.getName();
+                    System.out.println(temp);
+                    if (temp.equals(".DS_Store"))
+                        continue;
+                    Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + temp);
+                    if (g.getClass() == WindyGraph.class) {
+                        WindyGraph g2 = (WindyGraph) g;
+                        validWInstance = new CapacitatedWPP(g2, 5);
+                        validWSolver = new CapacitatedWPPSolver(validWInstance);
+                        start = System.nanoTime();
+                        validWAns = validWSolver.trySolve();
+                        end = System.nanoTime();
+
+                        routeCounter = 1;
+
+                        for (Route r : validWAns) {
+                            System.out.println("Now displaying route " + routeCounter++);
+                            System.out.println(r.toString());
+                            System.out.println("This route costs " + r.getCost());
+                            System.out.println();
+                        }
+                        System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
+                    }
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();

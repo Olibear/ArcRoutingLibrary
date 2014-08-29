@@ -12,7 +12,6 @@ import oarlib.graph.transform.partition.impl.WindyKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedWPP;
 import oarlib.problem.impl.WindyRPP;
-import oarlib.vertex.impl.WindyVertex;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
      *
      * @param instance - instance for which this is a solver
      */
-    protected CapacitatedWPPSolver(CapacitatedWPP instance) throws IllegalArgumentException {
+    public CapacitatedWPPSolver(CapacitatedWPP instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
     }
@@ -172,15 +171,6 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
         WindyRPP subInstance = new WindyRPP(subgraph);
         WRPPSolver_Benavent_H1 solver = new WRPPSolver_Benavent_H1(subInstance);
         Route ret = solver.solve();
-
-        //set the id map for the route
-        int n = subgraph.getVertices().size();
-        HashMap<Integer, WindyVertex> indexedVertices = subgraph.getInternalVertexMap();
-        HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
-        for (int i = 1; i <= n; i++) {
-            customIDMap.put(i, indexedVertices.get(i).getMatchId());
-        }
-        ret.setMapping(customIDMap);
         return ret;
     }
 }
