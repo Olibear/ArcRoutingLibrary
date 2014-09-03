@@ -5,13 +5,14 @@ import oarlib.exceptions.FormatMismatchException;
 import oarlib.graph.transform.GraphTransformer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by oliverlum on 8/9/14.
  */
 public abstract class RebalanceTransformer<S extends Graph<?, ?>> implements GraphTransformer<S, S> {
     protected S mGraph;
-    protected ArrayList<Integer> mPartition;
+    protected HashMap<Integer, Integer> mPartition;
 
     /**
      * Super constructor for any Rebalance transformers.
@@ -21,8 +22,8 @@ public abstract class RebalanceTransformer<S extends Graph<?, ?>> implements Gra
      *                  with internal id i is currently assigned to partition j.
      * @throws FormatMismatchException - if the ArrayList is of the wrong size.
      */
-    protected RebalanceTransformer(S input, ArrayList<Integer> partition) throws FormatMismatchException {
-        if (partition.size() + 1 != input.getVertices().size())
+    protected RebalanceTransformer(S input, HashMap<Integer, Integer> partition) throws FormatMismatchException {
+        if (partition.keySet().size() != input.getVertices().size())
             throw new FormatMismatchException();
         mGraph = input;
         mPartition = partition;

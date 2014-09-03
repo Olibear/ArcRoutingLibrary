@@ -137,7 +137,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             CommonAlgorithms.connectedComponents(n, mreq, nodei, nodej, component);
 
             if (component[0] == 1)
-                return g;
+                return windyReq;
 
             /**
              * We need to keep track of vertices in the graph that have no incident required edges.
@@ -162,9 +162,12 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             //now create a complete collapsed graph over which we shall solve an MST problem
             UndirectedGraph mstGraph = new UndirectedGraph();
             int mstN = component[0] - extraComponents.size(); //we want 1 vertex for each connected component (subtract off the unconnected guys)
+            if(mstN <= 1)
+                return windyReq;
             for (int i = 1; i <= mstN; i++) {
                 mstGraph.addVertex(new UndirectedVertex("original"));
             }
+
 
 			/*
 			 * We need to figure out which of the components is real, and don't correspond to these
@@ -560,6 +563,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
 
             //construct the digraph for the min-cost flow solution
             DirectedGraph flowGraph = new DirectedGraph();
+            flowGraph.setDepotId(g.getDepotId());
             for (int i = 1; i <= n; i++) {
                 flowGraph.addVertex(new DirectedVertex("flow"));
             }
@@ -609,13 +613,6 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                         ans.addEdge(e.getEndpoints().getFirst().getId(), e.getEndpoints().getSecond().getId(), "ans", e.getCost(), e.getId(), e.isRequired());
                     }
                 }
-                //compute cost
-                HashSet<Arc> arcSet = ans.getEdges();
-                int cost = 0;
-                for (Arc a : arcSet) {
-                    cost += a.getCost();
-                }
-                System.out.println("Cost is: " + cost);
                 return ans;
             }
             for (DirectedVertex v : flowGraph.getVertices()) {
@@ -650,7 +647,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             }
 
             //should be done now
-            if (!CommonAlgorithms.isEulerian(ans) || !CommonAlgorithms.isStronglyConnected(ans))
+            if (!CommonAlgorithms.isEulerian(ans))
                 System.out.println("The flow augmentation failed."); //should never happen
 
             //compute cost
@@ -930,6 +927,12 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
         do {
             next = path[curr][end];
             temp = indexedWindyEdges.get(edgePath[curr][end]);
+            if(temp == null) {
+                int edgeId = edgePath[curr][end];
+                int nextVertex = path[curr][end];
+                boolean sccs = CommonAlgorithms.isConnected(g);
+                System.out.println("Debug");
+            }
             ans += temp.getCost() + temp.getReverseCost();
         } while ((curr = next) != end);
         return ans / 2.0;

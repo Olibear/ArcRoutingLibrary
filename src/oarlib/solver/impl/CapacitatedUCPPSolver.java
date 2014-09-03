@@ -66,7 +66,28 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
             UndirectedGraph mGraph = mInstance.getGraph();
             HashMap<Integer, Integer> sol = partition();
 
-            //initialize vars
+            /*
+             * initialize vars
+             *
+             * firstId, secondId - we're going to iterate through the edges, and figure out which partition to put them in.
+             * Since we solved a vertex partitioning problem, we need to try and recover the edge partition.  These are the ids of
+             * the vertex endpoints
+             *
+             * m - number of edges in the full graph.
+             *
+             * prob - random number between 0 and 1 to determine which partition to stick edges in the cut.
+             *
+             * temp - the edge we're considering right now
+             *
+             * mGraphEdges - the edge map of the graph
+             *
+             * edgeSol - key: edge id, value: partition we're placing it in
+             *
+             * partitions - key: partition #, value: set containing edge ids in this partition
+             *
+             * valueSet - set of partition numbers
+             */
+
             int firstId, secondId;
             int m = mGraph.getEdges().size();
             double prob;
@@ -129,6 +150,11 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
     protected HashMap<Integer, Integer> partition() {
         try {
 
+            /*
+             * Calls the METIS graph partitioning code after applying a transform to the graph to assign
+             * vertex weights that represent incident edge weights.
+             */
+
             //initialize transformer for turning edge-weighted graph into vertex-weighted graph
             UndirectedGraph mGraph = mInstance.getGraph();
             UndirectedKWayPartitionTransform transformer = new UndirectedKWayPartitionTransform(mGraph);
@@ -163,8 +189,10 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
     @Override
     protected Route route(HashSet<Integer> ids) {
 
+        //grab the graph
         UndirectedGraph mGraph = mInstance.getGraph();
 
+        //transform it
         UndirectedGraphFactory ugf = new UndirectedGraphFactory();
         EdgeInducedSubgraphTransform<UndirectedGraph> subgraphTransform = new EdgeInducedSubgraphTransform<UndirectedGraph>(mGraph, ugf, null, true);
 

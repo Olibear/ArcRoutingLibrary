@@ -28,6 +28,24 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver {
     @Override
     protected Route solve() {
         try {
+            /*
+             * The algorithm is simply:
+             *
+             * -Determine odd vertices
+             * -Solve a min-cost perfect matching on a complete graph of these vertices, where costs are shortest paths in the original graph.
+             * -Connect up with shortest paths
+             * -Route
+             *
+             * copy - so we don't screw with the original graph passed in
+             *
+             * indexedEdges - the edge map for copy
+             *
+             * ans - the list of edges returned by the routing procedure, in the order they are traversed in the tour.
+             *
+             * eulerTour - the route container which will make the string rep. look more like something we want to see
+             * (e.g. a vertex route).
+             */
+
             UndirectedGraph copy = mInstance.getGraph().getDeepCopy();
             eulerAugment(copy);
 
@@ -63,6 +81,25 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver {
      */
     private static void eulerAugment(UndirectedGraph input) {
         try {
+
+            /*
+             * The procedure that handles the graph augmentation phase, where edges are added to the graph
+             * to make it eulerian, (upon which a tour construction procedure is called).
+             *
+             * n - num vertices in the input graph
+             *
+             * dist - the shortest paths distance matrix
+             * path - the shortest paths next hop matrix
+             * edgePath - the shortest paths next edge matrix
+             *
+             * matchingGraph - the complete graph where each vertex represents an odd vertex in the original,
+             * and edges have weight equal to the shortest path costs in the original.
+             *
+             * oddVertices - the vertex set of matchingGraph
+             *
+             * matchingSolution - the solution to the min cost perfect matching; it is a collection of pairs of vertices
+             */
+
             //solve shortest paths
             int n = input.getVertices().size();
             int[][] dist = new int[n + 1][n + 1];

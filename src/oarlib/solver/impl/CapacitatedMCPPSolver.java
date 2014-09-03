@@ -61,6 +61,28 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
             MixedGraph mGraph = mInstance.getGraph();
             HashMap<Integer, Integer> sol = partition();
 
+            /*
+             * initialize vars
+             *
+             * firstId, secondId - we're going to iterate through the edges, and figure out which partition to put them in.
+             * Since we solved a vertex partitioning problem, we need to try and recover the edge partition.  These are the ids of
+             * the vertex endpoints
+             *
+             * m - number of edges in the full graph.
+             *
+             * prob - random number between 0 and 1 to determine which partition to stick edges in the cut.
+             *
+             * temp - the edge we're considering right now
+             *
+             * mGraphEdges - the edge map of the graph
+             *
+             * edgeSol - key: edge id, value: partition we're placing it in
+             *
+             * partitions - key: partition #, value: set containing edge ids in this partition
+             *
+             * valueSet - set of partition numbers
+             */
+
             //initialize vars
             int firstId, secondId;
             int m = mGraph.getEdges().size();

@@ -46,6 +46,20 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver {
     @Override
     protected Route solve() {
         try {
+
+            /*
+             * Solves the IP representing the UCPP, this is a glorified min-cost matching solver.
+             *
+             * copy - a copy of the graph
+             *
+             * env - Gurobi var
+             * model - Gurobi var
+             * expr - Gurobi var
+             * varArray - Gurobi var
+             *
+             * oddVertices - list of ids in the original graph of odd vertices, (that need to be matched)
+             */
+
             //copy to operate on
             UndirectedGraph copy = mInstance.getGraph().getDeepCopy();
 

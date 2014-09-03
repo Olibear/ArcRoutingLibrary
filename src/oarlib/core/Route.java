@@ -53,6 +53,16 @@ public abstract class Route {
     }
 
     /**
+     * Fetch the id mapping used.
+     *
+     */
+    public HashMap<Integer, Integer> getMapping() {
+        return mCustomIDMap;
+    }
+
+
+
+    /**
      * Retrieve a copy of the current route.
      *
      * @return List of edges to be traversed from first to last

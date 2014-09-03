@@ -18,7 +18,7 @@ import java.util.HashMap;
  */
 public class SimpleDistanceRebalancer<S extends Graph<?, ?>> extends RebalanceTransformer<S> {
 
-    protected SimpleDistanceRebalancer(S input, ArrayList<Integer> partition) throws FormatMismatchException {
+    public SimpleDistanceRebalancer(S input, HashMap<Integer, Integer> partition) throws FormatMismatchException {
         super(input, partition);
     }
 

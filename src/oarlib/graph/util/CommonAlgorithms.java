@@ -28,6 +28,8 @@ public class CommonAlgorithms {
     public static ArrayList<Integer> tryHierholzer(DirectedGraph eulerianGraph) throws IllegalArgumentException {
         if (!isEulerian(eulerianGraph))
             throw new IllegalArgumentException();
+        if(eulerianGraph.getEdges().size() == 0)
+            return new ArrayList<Integer>();
         return hierholzer(eulerianGraph, false);
     }
 
@@ -41,6 +43,8 @@ public class CommonAlgorithms {
     public static ArrayList<Integer> tryHierholzer(UndirectedGraph eulerianGraph) throws IllegalArgumentException {
         if (!isEulerian(eulerianGraph))
             throw new IllegalArgumentException();
+        if(eulerianGraph.getEdges().size() == 0)
+            return new ArrayList<Integer>();
         return hierholzer(eulerianGraph, false);
     }
 
@@ -54,6 +58,8 @@ public class CommonAlgorithms {
     public static ArrayList<Integer> tryHierholzer(MixedGraph eulerianGraph) throws IllegalArgumentException {
         if (!isStronglyEulerian(eulerianGraph))
             throw new IllegalArgumentException();
+        if(eulerianGraph.getEdges().size() == 0)
+            return new ArrayList<Integer>();
         DirectedGraph ans = CommonAlgorithms.directUndirectedCycles(eulerianGraph);
         if (!isStronglyConnected(ans))
             throw new IllegalArgumentException();
@@ -585,7 +591,9 @@ public class CommonAlgorithms {
                     }
                 }
             }
+            nextUp.clear();
             nextUp.addAll(toAdd);
+            toAdd.clear();
         }
         return vertices.size() == 0;
     }
@@ -621,7 +629,9 @@ public class CommonAlgorithms {
                     }
                 }
             }
+            nextUp.clear();
             nextUp.addAll(toAdd);
+            toAdd.clear();
         }
         return vertices.size() == 0;
     }
@@ -1922,6 +1932,7 @@ public class CommonAlgorithms {
 
         //add the sink and source edges
         Arc temp, temp2;
+        boolean hasDemand = false;
         for (DirectedVertex v : copy.getVertices()) {
             try {
                 if (v.getDemand() > 0) //has supply
@@ -1930,12 +1941,14 @@ public class CommonAlgorithms {
                     temp.setCapacity(v.getDemand());
                     copy.addEdge(temp);
                     temp.setMatchId(temp.getId());
+                    hasDemand = true;
                 } else if (v.getDemand() < 0) //has demand
                 {
                     temp = new Arc("sink arc", new Pair<DirectedVertex>(v, sink), 0);
                     temp.setCapacity(-v.getDemand());
                     copy.addEdge(temp);
                     temp.setMatchId(temp.getId());
+                    hasDemand = true;
                 }
             } catch (NoDemandSetException e) {
                 //do nothing
@@ -1950,6 +1963,9 @@ public class CommonAlgorithms {
         int[] realIds = new int[newm + 1]; //entry i holds the id in copy of the edge that maps to edge i of g
         int[] artificialIds = new int[newm + 1]; //entry i holds the id in copy of the artificial edge that maps to edge i of g
         int[] ans = new int[newm + 1]; //the answer
+
+        if(!hasDemand)
+            return ans;
 
         HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
 

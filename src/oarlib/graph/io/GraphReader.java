@@ -323,7 +323,7 @@ public class GraphReader {
                         type = "Mixed";
                     else if (temp[3].startsWith("WA") || temp[3].startsWith("WB"))
                         type = "Windy";
-                    else if (temp[3].startsWith("A") || temp[3].startsWith("M") || temp[3].startsWith("m"))
+                    else if (temp[3].startsWith("A") || temp[3].startsWith("M") || temp[3].startsWith("m") || temp[3].startsWith("P") || temp[3].startsWith("p"))
                         type = "WindyRural";
                     else {
                         br.close();
@@ -449,7 +449,7 @@ public class GraphReader {
 
                             temp = line.split("\\s+|:|\\)|,|\\(");
                             index = 1;
-                            if (temp[index].isEmpty())
+                            while (temp[index].isEmpty())
                                 index++;
                             tailId = Integer.parseInt(temp[index++]);
                             if (temp[index].isEmpty())
@@ -468,7 +468,7 @@ public class GraphReader {
                             if (temp.length == 1)
                                 break;
                             index = 1;
-                            if (temp[index].isEmpty())
+                            while (temp[index].isEmpty())
                                 index++;
                             tailId = Integer.parseInt(temp[index++]);
                             if (temp[index].isEmpty())

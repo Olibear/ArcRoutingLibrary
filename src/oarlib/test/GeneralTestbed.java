@@ -53,11 +53,11 @@ public class GeneralTestbed {
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP");
+        testCapacitatedSolvers("/Users/oliverlum/Downloads/MM_kWRPP_data", "/Users/oliverlum/Desktop/kwrpp.txt");
     }
 
     @SuppressWarnings("unused")
-    private static void testCapacitatedSolvers(String instanceFolder) {
+    private static void testCapacitatedSolvers(String instanceFolder, String outputFile) {
         try {
 
             //UNDIRECTED
@@ -150,6 +150,8 @@ public class GeneralTestbed {
                 CapacitatedWPP validWInstance;
                 CapacitatedWPPSolver validWSolver;
                 Collection<Route> validWAns;
+                PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
+
 
                 //run on all instances in the folder
                 for (final File testInstance : testInstanceFolder.listFiles()) {
@@ -160,6 +162,7 @@ public class GeneralTestbed {
                     Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + temp);
                     if (g.getClass() == WindyGraph.class) {
                         WindyGraph g2 = (WindyGraph) g;
+
                         validWInstance = new CapacitatedWPP(g2, 5);
                         validWSolver = new CapacitatedWPPSolver(validWInstance);
                         start = System.nanoTime();
@@ -167,16 +170,28 @@ public class GeneralTestbed {
                         end = System.nanoTime();
 
                         routeCounter = 1;
+                        int maxCost = 0;
+                        int minCost = Integer.MAX_VALUE;
+                        int tempCost;
 
                         for (Route r : validWAns) {
+                            tempCost = r.getCost();
+                            if(tempCost > maxCost)
+                                maxCost = tempCost;
+                            if(tempCost < minCost)
+                                minCost = tempCost;
+
                             System.out.println("Now displaying route " + routeCounter++);
                             System.out.println(r.toString());
-                            System.out.println("This route costs " + r.getCost());
+                            System.out.println("This route costs " + tempCost);
                             System.out.println();
                         }
-                        System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
+                        System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Benavent's implementation on a graph with " + g2.getEdges().size() + " edges.");
+                        System.out.println("Objective Value: " + maxCost);
+                        pw.println(temp + ": " + maxCost);
                     }
                 }
+                pw.close();
 
             } catch (Exception e) {
                 e.printStackTrace();

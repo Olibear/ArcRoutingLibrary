@@ -9,9 +9,11 @@ import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.WindyKWayPartitionTransform;
+import oarlib.graph.transform.rebalance.impl.SimpleDistanceRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedWPP;
 import oarlib.problem.impl.WindyRPP;
+import oarlib.route.impl.Tour;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,6 +63,35 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
             WindyGraph mGraph = mInstance.getGraph();
             HashMap<Integer, Integer> sol = partition();
 
+            /*
+             * initialize vars
+             *
+             * firstId, secondId - we're going to iterate through the edges, and figure out which partition to put them in.
+             * Since we solved a vertex partitioning problem, we need to try and recover the edge partition.  These are the ids of
+             * the vertex endpoints
+             *
+             * m - number of edges in the full graph.
+             *
+             * prob - random number between 0 and 1 to determine which partition to stick edges in the cut.
+             *
+             * temp - the edge we're considering right now
+             *
+             * mGraphEdges - the edge map of the graph
+             *
+             * edgeSol - key: edge id, value: partition we're placing it in
+             *
+             * partitions - key: partition #, value: set containing edge ids in this partition
+             *
+             * valueSet - set of partition numbers
+             */
+
+            //Rebalance phase
+            for(int i = 0; i < 5; i++) {
+                SimpleDistanceRebalancer<WindyGraph> rebalancer = new SimpleDistanceRebalancer<WindyGraph>(mGraph, sol);
+                mGraph = rebalancer.transformGraph();
+                sol = partition();
+            }
+
             //initialize vars
             int firstId, secondId;
             int m = mGraph.getEdges().size();
@@ -69,6 +100,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
             HashMap<Integer, WindyEdge> mGraphEdges = mGraph.getInternalEdgeMap();
             HashMap<Integer, Integer> edgeSol = new HashMap<Integer, Integer>();
             HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
+            HashMap<Integer, Integer> runningTotal = new HashMap<Integer, Integer>();
             HashSet<Integer> valueSet = new HashSet<Integer>(sol.values());
 
             for (Integer part : valueSet) {
@@ -105,6 +137,8 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
             //now create the subgraphs
             HashSet<Route> ans = new HashSet<Route>();
             for (Integer part : partitions.keySet()) {
+                if(partitions.get(part).isEmpty())
+                    continue;
                 ans.add(route(partitions.get(part)));
             }
 
@@ -164,12 +198,24 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
         WindyGraphFactory wgf = new WindyGraphFactory();
         EdgeInducedSubgraphTransform<WindyGraph> subgraphTransform = new EdgeInducedSubgraphTransform<WindyGraph>(mGraph, wgf, null, true);
 
+        //check to make sure we have at least 1 required edge
+        HashMap<Integer, WindyEdge> mEdges = mGraph.getInternalEdgeMap();
+        boolean hasReq = false;
+        for(Integer i : ids)
+        {
+            if(mEdges.get(i).isRequired())
+                hasReq = true;
+        }
+        if(!hasReq)
+            return new Tour();
+
         subgraphTransform.setEdges(ids);
         WindyGraph subgraph = subgraphTransform.transformGraph();
 
         //now solve the WPP on it
         WindyRPP subInstance = new WindyRPP(subgraph);
         WRPPSolver_Benavent_H1 solver = new WRPPSolver_Benavent_H1(subInstance);
+
         Route ret = solver.solve();
         return ret;
     }

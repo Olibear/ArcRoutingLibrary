@@ -45,6 +45,21 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver {
 
     @Override
     protected Route solve() {
+
+        /*
+         * Solves the IP representing the DCPP, this is a glorified min-cost flow solver.
+         *
+         * copy - a copy of the graph
+         *
+         * indexedVertices - the vertex map of copy
+         *
+         * env - Gurobi var
+         * model - Gurobi var
+         * expr - Gurobi var
+         * varArray - Gurobi var
+         *
+         * Dplus, Dminus - the set of vertex ids that have excess indegree, and outdegree respectively
+         */
         try {
             //copy
             DirectedGraph copy = mInstance.getGraph().getDeepCopy();

@@ -24,6 +24,25 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
 
     @Override
     protected Route solve() {
+
+        /*
+         * The algorithm is simply:
+         *
+         * -Determine the imbalanced vertices (excess in or out degree)
+         * -Solve the min-cost flow problem induced by the graph
+         * -For each edge, add copies equal to the amount of flow specified
+         * by the solution to the flow problem
+         * -Route
+         *
+         * copy - so we don't screw with the original graph passed in
+         *
+         * indexedArcs - the edge map for copy
+         *
+         * ans - the list of edges returned by the routing procedure, in the order they are traversed on the tour
+         *
+         * eulerTour - the route container which will make the string rep. look more like something we want to see
+         * (e.g. a vertex route).
+         */
         DirectedGraph copy = mInstance.getGraph().getDeepCopy();
         HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
 
@@ -39,6 +58,11 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
     }
 
     private static void eulerAugment(DirectedGraph input) {
+
+        /*
+         * The procedure that handles the graph augmentation phase, where edges are added to the graph
+         * to make it eulerian, (upon which a tour construction procedure is called).
+         */
         //prepare our unbalanced vertex sets
         for (DirectedVertex v : input.getVertices()) {
             if (v.getDelta() != 0) {
