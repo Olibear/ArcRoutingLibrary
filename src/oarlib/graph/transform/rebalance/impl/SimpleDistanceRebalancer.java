@@ -35,6 +35,10 @@ public class SimpleDistanceRebalancer<S extends Graph<?, ?>> extends RebalanceTr
      */
     @Override
     public S transformGraph() {
+        return transformGraph(1);
+    }
+
+    public S transformGraph(int weight) {
         //calculate shortest paths
         int n = mGraph.getVertices().size();
         int[] dist = new int[n + 1];
@@ -59,7 +63,7 @@ public class SimpleDistanceRebalancer<S extends Graph<?, ?>> extends RebalanceTr
         HashMap<Integer, ? extends Vertex> indexedVertices = mGraph.getInternalVertexMap();
         for (int i = 1; i <= n; i++) {
             partNumber = mPartition.get(i);
-            indexedVertices.get(i).setCost(indexedVertices.get(i).getCost() + minDist.get(partNumber).getSecond() / numVerticesPerPart.get(partNumber));
+            indexedVertices.get(i).setCost(indexedVertices.get(i).getCost() + weight * minDist.get(partNumber).getSecond() / numVerticesPerPart.get(partNumber));
         }
 
         return mGraph;

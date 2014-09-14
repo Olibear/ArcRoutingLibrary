@@ -38,11 +38,16 @@ public class WindyKWayPartitionTransform implements PartitionTransformer<WindyGr
             int firstId, secondId, sumCost;
 
             for (WindyEdge e : edges) {
+
+
+                firstId = e.getEndpoints().getFirst().getId();
+                secondId = e.getEndpoints().getSecond().getId();
+
+                ans.addEdge(firstId, secondId, 1);
+
                 if(!e.isRequired())
                     continue;
                 sumCost = e.getCost() + e.getReverseCost();
-                firstId = e.getEndpoints().getFirst().getId();
-                secondId = e.getEndpoints().getSecond().getId();
 
                 temp = ansVertices.get(firstId);
                 temp.setCost(temp.getCost() + sumCost);
@@ -50,7 +55,7 @@ public class WindyKWayPartitionTransform implements PartitionTransformer<WindyGr
                 temp = ansVertices.get(secondId);
                 temp.setCost(temp.getCost() + sumCost);
 
-                ans.addEdge(firstId, secondId, 1);
+
             }
             return ans;
         } catch (Exception e) {

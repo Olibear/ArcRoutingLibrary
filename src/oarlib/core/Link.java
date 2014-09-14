@@ -159,4 +159,6 @@ public abstract class Link<V extends Vertex> {
         this.isFinalized = isFinalized;
     }
 
+    public String toString() { return this.getEndpoints().getFirst().getId() + "-" + this.getEndpoints().getSecond().getId();}
+
 }

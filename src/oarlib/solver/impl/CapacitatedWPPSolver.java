@@ -8,12 +8,13 @@ import oarlib.graph.io.GraphWriter;
 import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
+import oarlib.graph.transform.partition.impl.PreciseWindyKWayPartitionTransform;
 import oarlib.graph.transform.partition.impl.WindyKWayPartitionTransform;
-import oarlib.graph.transform.rebalance.impl.SimpleDistanceRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedWPP;
 import oarlib.problem.impl.WindyRPP;
 import oarlib.route.impl.Tour;
+import oarlib.vertex.impl.WindyVertex;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import java.util.HashSet;
 public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
 
     CapacitatedWPP mInstance;
+    WindyGraph mGraph;
 
     /**
      * Default constructor; must set problem instance.
@@ -34,6 +36,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
     public CapacitatedWPPSolver(CapacitatedWPP instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
+        mGraph = mInstance.getGraph();
     }
 
     @Override
@@ -60,7 +63,12 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
         try {
 
             //partition
-            WindyGraph mGraph = mInstance.getGraph();
+            int reqCounter = 0;
+            for (WindyEdge we : mGraph.getEdges())
+            {
+                if (we.isRequired())
+                    reqCounter++;
+            }
             HashMap<Integer, Integer> sol = partition();
 
             /*
@@ -85,10 +93,11 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
              * valueSet - set of partition numbers
              */
 
+            /*
             //Rebalance phase
             for(int i = 0; i < 5; i++) {
                 SimpleDistanceRebalancer<WindyGraph> rebalancer = new SimpleDistanceRebalancer<WindyGraph>(mGraph, sol);
-                mGraph = rebalancer.transformGraph();
+                mGraph = rebalancer.transformGraph(5);
                 sol = partition();
             }
 
@@ -102,10 +111,19 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
             HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
             HashMap<Integer, Integer> runningTotal = new HashMap<Integer, Integer>();
             HashSet<Integer> valueSet = new HashSet<Integer>(sol.values());
+            HashSet<Integer> nonReqEdges = new HashSet<Integer>();
 
+            Integer max = 0;
             for (Integer part : valueSet) {
                 partitions.put(part, new HashSet<Integer>());
+                if(part > max)
+                    max = part;
             }
+
+
+            //DEBUG Let's see how balanced the partitions actually are
+
+            int[] reqCosts = new int[max + 1];
 
             //for each edge, figure out if it's internal, or part of the cut induced by the partition
             for (int i = 1; i <= m; i++) {
@@ -113,25 +131,53 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
                 firstId = temp.getEndpoints().getFirst().getId();
                 secondId = temp.getEndpoints().getSecond().getId();
 
+                //add to our non-required collection if appropriate
+                if(!temp.isRequired()) {
+                    nonReqEdges.add(i);
+                    continue;
+                }
+
                 //if it's internal, just log the edge in the appropriate partition
                 if (sol.get(firstId).equals(sol.get(secondId)) || secondId == mGraph.getDepotId()) {
                     edgeSol.put(i, sol.get(firstId));
                     partitions.get(sol.get(firstId)).add(i);
+                    reqCosts[sol.get(firstId)] += (temp.getCost() + temp.getReverseCost())/2.0;
                 } else if (firstId == mGraph.getDepotId()) {
                     edgeSol.put(i, sol.get(secondId));
                     partitions.get(sol.get(secondId)).add(i);
+                    reqCosts[sol.get(secondId)] += (temp.getCost() + temp.getReverseCost())/2.0;
                 }
                 //oth. with 50% probability, stick it in either one
                 else {
-                    prob = Math.random();
-                    if (prob > .5) {
+
+                    if(reqCosts[sol.get(firstId)] < reqCosts[sol.get(secondId)]) {
                         edgeSol.put(i, sol.get(firstId));
                         partitions.get(sol.get(firstId)).add(i);
-                    } else {
+
+                        reqCosts[sol.get(firstId)] += (temp.getCost() + temp.getReverseCost())/2.0;
+                    }
+                    else {
                         edgeSol.put(i, sol.get(secondId));
                         partitions.get(sol.get(secondId)).add(i);
+
+                        reqCosts[sol.get(secondId)] += (temp.getCost() + temp.getReverseCost())/2.0;
                     }
+
                 }
+            }
+            */
+
+            HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
+            HashMap<Integer, WindyEdge> mGraphEdges = mGraph.getInternalEdgeMap();
+            HashSet<Integer> nonReqEdges = new HashSet<Integer>();
+
+            for(Integer i : sol.keySet()) {
+                if(!partitions.containsKey(sol.get(i)))
+                    partitions.put(sol.get(i), new HashSet<Integer>());
+                partitions.get(sol.get(i)).add(i);
+                if(!mGraphEdges.get(i).isRequired())
+                    nonReqEdges.add(i);
+
             }
 
             //now create the subgraphs
@@ -139,6 +185,12 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
             for (Integer part : partitions.keySet()) {
                 if(partitions.get(part).isEmpty())
                     continue;
+                //put in all the non-required ones
+                for(Integer id: nonReqEdges)
+                {
+                    partitions.get(part).add(id);
+                }
+
                 ans.add(route(partitions.get(part)));
             }
 
@@ -160,8 +212,8 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
         try {
 
             //initialize transformer for turning edge-weighted grpah into vertex-weighted graph
-            WindyGraph mGraph = mInstance.getGraph();
-            WindyKWayPartitionTransform transformer = new WindyKWayPartitionTransform(mGraph);
+            //WindyGraph mGraph = mInstance.getGraph();
+            PreciseWindyKWayPartitionTransform transformer = new PreciseWindyKWayPartitionTransform(mGraph);
 
             //transform the graph
             WindyGraph vWeightedTest = transformer.transformGraph();
@@ -217,6 +269,16 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
         WRPPSolver_Benavent_H1 solver = new WRPPSolver_Benavent_H1(subInstance);
 
         Route ret = solver.solve();
+
+        //set the id map for the route
+        int n = subgraph.getVertices().size();
+        HashMap<Integer, WindyVertex> indexedVertices = subgraph.getInternalVertexMap();
+        HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
+        for (int i = 1; i <= n; i++) {
+            customIDMap.put(i, indexedVertices.get(i).getMatchId());
+        }
+        ret.setMapping(customIDMap);
+
         return ret;
     }
 }

@@ -64,6 +64,22 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
     public S transformGraph() {
         try {
 
+            /*
+             * Takes the graph and attempts to construct the subgraph induced by the edges with the ids specified.
+             *
+             * blankGraph - the template from which we build the subgraph, (it's what gets returned).
+             *
+             * indexedEdges - the edge map for the original graph
+             * indexedVertices - the vertex map for the original graph
+             *
+             * blankVertices - the vertex map for the answer graph
+             *
+             * addedVertices - the ids of the vertices that have thus far in the construction been added
+             *
+             * firstId, secondId - as we iterate through the subgraph-inducing edge set, these contain the ids of the endpoints
+             * in the original graph
+             */
+
             S blankGraph = graphGen.instantiate();
 
             //go through the edges, and create the induced graph
@@ -76,6 +92,9 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             int depotId = mGraph.getDepotId();
             Vertex first, second;
             Link<? extends Vertex> temp;
+
+            //windy case vars
+            boolean isWindy = blankGraph.getClass() == WindyGraph.class;
 
             for (Integer i : mEdges) {
 
@@ -117,7 +136,12 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 }
 
                 //now add the edges in there
-                blankGraph.addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), temp.isRequired());
+
+                //fix for windy case
+                if(isWindy)
+                    ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), ((WindyEdge)temp).getReverseCost(), temp.isRequired());
+                else
+                    blankGraph.addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), temp.isRequired());
             }
 
             //if the depot isn't in the list, then add it, and connect up with the shortest path costs
@@ -128,6 +152,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 blankVertices.get(newVertexCounter).setMatchId(depotId);
                 depot.setMatchId(newVertexCounter);
                 blankGraph.setDepotId(newVertexCounter++);
+                addedVertices.add(depotId);
 
                 //connect depot to partition
                 int n = mGraph.getVertices().size();
@@ -147,12 +172,109 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                     }
                 }
                 int bestConnectMatchId = indexedVertices.get(bestConnectId).getMatchId();
-                blankGraph.addEdge(depot.getMatchId(), bestConnectMatchId, dijkstraDist[bestConnectId], true);
+
+                int start = depotId;
+                int end = bestConnectId;
+                int next;
+                Link<? extends Vertex> l;
+                do {
+                    next = dijkstraPath[end];
+                    //make sure that we've added the proper vertices
+                    l = indexedEdges.get(dijkstraEdges[end]);
+
+                    first = l.getEndpoints().getFirst();
+                    firstId = first.getId();
+
+                    if (!addedVertices.contains(firstId)) {
+                        addedVertices.add(firstId);
+                        blankGraph.addVertex();
+
+                        //set the match id for later
+                        blankVertices.get(newVertexCounter).setMatchId(firstId);
+                        if (firstId == depotId) {
+                            blankGraph.setDepotId(newVertexCounter);
+                        }
+                        first.setMatchId(newVertexCounter++);
+
+                    }
+
+                    second = l.getEndpoints().getSecond();
+                    secondId = second.getId();
+                    if (!addedVertices.contains(secondId)) {
+
+                        addedVertices.add(secondId);
+                        blankGraph.addVertex();
+
+                        //set the match id for later
+                        blankVertices.get(newVertexCounter).setMatchId(secondId);
+                        if (secondId == depotId) {
+                            blankGraph.setDepotId(newVertexCounter);
+                        }
+                        second.setMatchId(newVertexCounter++);
+
+                    }
+
+                    //fix windy
+
+                    //fix for windy case
+                    if(isWindy) {
+                        ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge)l).getReverseCost(), true);
+                    }
+                    else
+                        blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), true);
+
+                } while((end = next) != start);
 
                 //connect partition to depot
                 CommonAlgorithms.dijkstrasAlgorithm(mGraph, bestConnectId, dijkstraDist, dijkstraPath, dijkstraEdges);
-                blankGraph.addEdge(bestConnectMatchId, depot.getMatchId(), dijkstraDist[depotId], true);
 
+                start = bestConnectId;
+                end = depotId;
+                do {
+                    next = dijkstraPath[end];
+                    //make sure that we've added the proper vertices
+                    l = indexedEdges.get(dijkstraEdges[end]);
+
+                    first = l.getEndpoints().getFirst();
+                    firstId = first.getId();
+
+                    if (!addedVertices.contains(firstId)) {
+                        addedVertices.add(firstId);
+                        blankGraph.addVertex();
+
+                        //set the match id for later
+                        blankVertices.get(newVertexCounter).setMatchId(firstId);
+                        if (firstId == depotId) {
+                            blankGraph.setDepotId(newVertexCounter);
+                        }
+                        first.setMatchId(newVertexCounter++);
+
+                    }
+
+                    second = l.getEndpoints().getSecond();
+                    secondId = second.getId();
+                    if (!addedVertices.contains(secondId)) {
+
+                        addedVertices.add(secondId);
+                        blankGraph.addVertex();
+
+                        //set the match id for later
+                        blankVertices.get(newVertexCounter).setMatchId(secondId);
+                        if (secondId == depotId) {
+                            blankGraph.setDepotId(newVertexCounter);
+                        }
+                        second.setMatchId(newVertexCounter++);
+
+                    }
+
+                    //fix for windy case
+                    if(isWindy) {
+                        ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge)l).getReverseCost(), true);
+                    }
+                    else
+                        blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), true);
+
+                } while((end = next) != start);
             }
 
             //now add back the non-required guys
@@ -190,7 +312,12 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 }
 
                 //now add the edges in there
-                blankGraph.addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), temp.isRequired());
+
+                //fix for windy case
+                if(isWindy)
+                    ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), ((WindyEdge)temp).getReverseCost(), temp.isRequired());
+                else
+                    blankGraph.addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), temp.isRequired());
             }
 
             repairConnectivity(blankGraph);
@@ -252,11 +379,13 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             //compute the shortest paths
             int[][] sccDist = new int[sccN + 1][sccN + 1];
             int[][] sccPath = new int[sccN + 1][sccN + 1];
-            CommonAlgorithms.fwLeastCostPaths(sccGraph, sccDist, sccPath);
+            int[][] sccEdgePath = new int[sccN + 1][sccN + 1];
+            CommonAlgorithms.fwLeastCostPaths(sccGraph, sccDist, sccPath, sccEdgePath);
 
             int[][] mainDist = new int[mainN + 1][mainN + 1];
             int[][] mainPath = new int[mainN + 1][mainN + 1];
-            CommonAlgorithms.fwLeastCostPaths(mGraph, mainDist, mainPath);
+            int[][] mainEdgePath = new int[mainN + 1][mainN + 1];
+            CommonAlgorithms.fwLeastCostPaths(mGraph, mainDist, mainPath, mainEdgePath);
 
             //connect the sccs of the partition
 
@@ -266,6 +395,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             HashMap<Integer, ? extends Vertex> subgraphVertices = subgraph.getInternalVertexMap();
             HashMap<Pair<Integer>, Pair<Integer>> idConn = new HashMap<Pair<Integer>, Pair<Integer>>();
             HashMap<Pair<Integer>, Integer> costMap = new HashMap<Pair<Integer>, Integer>();
+            HashMap<Pair<Integer>, Integer> edgeMap = new HashMap<Pair<Integer>, Integer>();
 
             DirectedGraph completeSccGraph = new DirectedGraph(nScc);
             HashMap<Integer, DirectedVertex> completeVertices = completeSccGraph.getInternalVertexMap();
@@ -315,11 +445,13 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                     if (!idConn.containsKey(candidateKey)) {
                         idConn.put(candidateKey, new Pair<Integer>(i, j));
                         costMap.put(candidateKey, connCost);
+                        edgeMap.put(candidateKey, mainEdgePath[subgraphVertices.get(i).getMatchId()][subgraphVertices.get(j).getMatchId()]);
                         completeSccGraph.addEdge(ans[i], ans[j], connCost, false);
                         realEdge.add(false);
                     } else if (connCost < costMap.get(candidateKey)) {
                         idConn.put(candidateKey, new Pair<Integer>(i, j));
                         costMap.put(candidateKey, connCost);
+                        edgeMap.put(candidateKey, mainEdgePath[subgraphVertices.get(i).getMatchId()][subgraphVertices.get(j).getMatchId()]);
                         completeSccGraph.addEdge(ans[i], ans[j], connCost, false);
                         realEdge.add(false);
                     }
@@ -330,11 +462,28 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(completeSccGraph);
             HashMap<Integer, Arc> completeArcs = completeSccGraph.getInternalEdgeMap();
             int numEdges = completeSccGraph.getEdges().size();
+
+            //to handle the asymmetric case
+            boolean isWindy = false;
+            WindyEdge dup;
+            HashMap<Integer, WindyEdge> windyEdgeMap = null;
+            if(subgraph.getClass() == WindyGraph.class) {
+                isWindy = true;
+                windyEdgeMap = ((WindyGraph)subgraph).getInternalEdgeMap();
+            }
+
+
+
             for (int i = 1; i <= numEdges; i++) {
                 if (!realEdge.get(i) && flowanswer[i] > 0) {
                     tempKey = new Pair<Integer>(completeArcs.get(i).getTail().getId(), completeArcs.get(i).getHead().getId());
                     //fix for windy case
-                    subgraph.addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), costMap.get(tempKey), false);
+                    if(isWindy) {
+                        dup = windyEdgeMap.get(edgeMap.get(tempKey));
+                        ((WindyGraph) subgraph).addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), dup.getCost(), dup.getReverseCost(), false);
+                    }
+                    else
+                        subgraph.addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), costMap.get(tempKey), false);
                     System.out.println("We're connecting component " + tempKey.getFirst() + " was connected to component " + tempKey.getSecond());
                 }
             }
@@ -363,17 +512,20 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 //compute the shortest paths
                 sccDist = new int[sccN + 1][sccN + 1];
                 sccPath = new int[sccN + 1][sccN + 1];
-                CommonAlgorithms.fwLeastCostPaths(sccGraph, sccDist, sccPath);
+                sccEdgePath = new int[sccN + 1][sccN + 1];
+                CommonAlgorithms.fwLeastCostPaths(sccGraph, sccDist, sccPath, sccEdgePath);
 
                 mainDist = new int[mainN + 1][mainN + 1];
                 mainPath = new int[mainN + 1][mainN + 1];
-                CommonAlgorithms.fwLeastCostPaths(mGraph, mainDist, mainPath);
+                mainEdgePath = new int[mainN + 1][mainN + 1];
+                CommonAlgorithms.fwLeastCostPaths(mGraph, mainDist, mainPath, mainEdgePath);
 
                 //connect the sccs of the partition
 
                 //first figure out which connections we could add
                 idConn = new HashMap<Pair<Integer>, Pair<Integer>>();
                 costMap = new HashMap<Pair<Integer>, Integer>();
+                edgeMap = new HashMap<Pair<Integer>, Integer>();
 
                 UndirectedGraph completeCcGraph = new UndirectedGraph(nScc);
 
@@ -391,10 +543,12 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                         if (!idConn.containsKey(candidateKey)) {
                             idConn.put(candidateKey, new Pair<Integer>(i, j));
                             costMap.put(candidateKey, connCost);
+                            edgeMap.put(candidateKey, mainEdgePath[subgraphVertices.get(i).getMatchId()][subgraphVertices.get(j).getMatchId()]);
                             completeCcGraph.addEdge(ans[i], ans[j], connCost, false);
                         } else if (connCost < costMap.get(candidateKey)) {
                             idConn.put(candidateKey, new Pair<Integer>(i, j));
                             costMap.put(candidateKey, connCost);
+                            edgeMap.put(candidateKey, mainEdgePath[subgraphVertices.get(i).getMatchId()][subgraphVertices.get(j).getMatchId()]);
                             completeCcGraph.addEdge(ans[i], ans[j], connCost, false);
                         }
                     }
@@ -404,9 +558,26 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 int[] mst = CommonAlgorithms.minCostSpanningTree(completeCcGraph);
                 HashMap<Integer, Edge> completeEdges = completeCcGraph.getInternalEdgeMap();
                 numEdges = completeCcGraph.getEdges().size();
+
+                //to handle the asymmetric case
+                isWindy = false;
+                windyEdgeMap = null;
+                if(subgraph.getClass() == WindyGraph.class) {
+                    isWindy = true;
+                    windyEdgeMap = ((WindyGraph)subgraph).getInternalEdgeMap();
+                }
+
+
+
                 for (int i = 1; i <= numEdges; i++) {
                     if (mst[i] > 0) {
                         tempKey = new Pair<Integer>(completeEdges.get(i).getEndpoints().getFirst().getId(), completeEdges.get(i).getEndpoints().getSecond().getId());
+                        //fix for windy case
+                        if(isWindy) {
+                            dup = windyEdgeMap.get(edgeMap.get(tempKey));
+                            ((WindyGraph) subgraph).addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), dup.getCost(), dup.getReverseCost(), false);
+                        }
+                        else
                         subgraph.addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), costMap.get(tempKey), false);
                         System.out.println("We're connecting component " + tempKey.getFirst() + " was connected to component " + tempKey.getSecond());
                     }

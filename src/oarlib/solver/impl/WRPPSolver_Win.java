@@ -439,6 +439,13 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             //Improvement Procedure 3
             //compute an euler tour, and then replace non-req paths with shortest paths from the full graph
             ArrayList<Integer> tour = CommonAlgorithms.tryHierholzer(ans);
+            /*
+            Debug
+             */
+            Tour debug = new Tour();
+            for(int i = 0; i < tour.size(); i++)
+                debug.appendEdge(ans.getInternalEdgeMap().get(tour.get(i)));
+
             HashMap<Integer, Arc> ansArcs = ans.getInternalEdgeMap();
             HashMap<Integer, WindyEdge> origEdges = orig.getInternalEdgeMap();
             int m = ans.getEdges().size();

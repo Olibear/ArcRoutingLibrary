@@ -9,6 +9,7 @@ import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.MixedKWayPartitionTransform;
+import oarlib.graph.transform.partition.impl.PreciseMixedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedMCPP;
 import oarlib.problem.impl.MixedCPP;
@@ -83,6 +84,7 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
              * valueSet - set of partition numbers
              */
 
+            /*
             //initialize vars
             int firstId, secondId;
             int m = mGraph.getEdges().size();
@@ -122,6 +124,14 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
                     }
                 }
 
+            }*/
+
+            HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
+
+            for(Integer i : sol.keySet()) {
+                if(!partitions.containsKey(sol.get(i)))
+                    partitions.put(sol.get(i), new HashSet<Integer>());
+                partitions.get(sol.get(i)).add(i);
             }
 
             //now create the subgraphs
@@ -151,7 +161,7 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
 
             //initialize transformer for turning edge-weighted graph into vertex-weighted graph
             MixedGraph mGraph = mInstance.getGraph();
-            MixedKWayPartitionTransform transformer = new MixedKWayPartitionTransform(mGraph);
+            PreciseMixedKWayPartitionTransform transformer = new PreciseMixedKWayPartitionTransform(mGraph);
 
             //transform the graph
             MixedGraph vWeightedTest = transformer.transformGraph();

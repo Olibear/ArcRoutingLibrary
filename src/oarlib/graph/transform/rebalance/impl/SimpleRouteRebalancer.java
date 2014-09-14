@@ -47,7 +47,11 @@ public class SimpleRouteRebalancer<S extends Graph<?,?>> extends RebalanceTransf
          */
 
         ArrayList<HashSet<Integer>> verticesInRoute = new ArrayList<HashSet<Integer>>();
-        ArrayList<Integer> numAppearances = new ArrayList<Integer>(mGraph.getVertices().size());
+        ArrayList<Integer> numAppearances = new ArrayList<Integer>(mGraph.getVertices().size()+1);
+        for (int i = 0; i <= mGraph.getVertices().size(); i++) {
+            numAppearances.add(0);
+        }
+
         int firstId, secondId;
         HashSet<Integer> toAdd;
         for(int i = 0; i < workingSol.size(); i ++)
@@ -88,6 +92,6 @@ public class SimpleRouteRebalancer<S extends Graph<?,?>> extends RebalanceTransf
             v.setCost(v.getCost() + (penalty / numAppearances.get(v.getId())));
         }
 
-        return null;
+        return mGraph;
     }
 }

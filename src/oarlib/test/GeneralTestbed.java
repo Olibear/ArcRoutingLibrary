@@ -60,6 +60,7 @@ public class GeneralTestbed {
     private static void testCapacitatedSolvers(String instanceFolder, String outputFile) {
         try {
 
+            /*
             //UNDIRECTED
             System.out.println("========================================================");
             System.out.println("Beginning Test of the Undirected Partitioning Code");
@@ -98,6 +99,9 @@ public class GeneralTestbed {
                 System.out.println("This route costs " + r.getCost());
                 System.out.println();
             }
+            */
+
+            int routeCounter;
 
             //MIXED
 
@@ -154,7 +158,14 @@ public class GeneralTestbed {
 
 
                 //run on all instances in the folder
+                int limForDebug = 10; //only run on the first 10 instances for now
+                int debugCounter = 0;
+
                 for (final File testInstance : testInstanceFolder.listFiles()) {
+                    //if(debugCounter >= limForDebug)
+                        //break;
+                    debugCounter++;
+
                     String temp = testInstance.getName();
                     System.out.println(temp);
                     if (temp.equals(".DS_Store"))

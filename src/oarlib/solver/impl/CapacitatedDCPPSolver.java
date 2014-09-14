@@ -9,6 +9,7 @@ import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.DirectedKWayPartitionTransform;
+import oarlib.graph.transform.partition.impl.PreciseDirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedDCPP;
 import oarlib.problem.impl.DirectedCPP;
@@ -84,6 +85,7 @@ public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
              * valueSet - set of partition numbers
              */
 
+            /*
             //initialize vars
             int firstId, secondId;
             int m = mGraph.getEdges().size();
@@ -124,6 +126,14 @@ public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
                     }
                 }
 
+            }*/
+
+            HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
+
+            for(Integer i : sol.keySet()) {
+                if(!partitions.containsKey(sol.get(i)))
+                    partitions.put(sol.get(i), new HashSet<Integer>());
+                partitions.get(sol.get(i)).add(i);
             }
 
             //now create the subgraphs
@@ -151,7 +161,7 @@ public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
 
             //initialize transformer for turning edge-weighted graph into vertex-weighted graph
             DirectedGraph mGraph = mInstance.getGraph();
-            DirectedKWayPartitionTransform transformer = new DirectedKWayPartitionTransform(mGraph);
+            PreciseDirectedKWayPartitionTransform transformer = new PreciseDirectedKWayPartitionTransform(mGraph);
 
             //transform the graph
             DirectedGraph vWeightedTest = transformer.transformGraph();

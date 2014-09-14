@@ -11,6 +11,7 @@ import oarlib.graph.io.GraphWriter;
 import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
+import oarlib.graph.transform.partition.impl.PreciseUndirectedKWayPartitionTransform;
 import oarlib.graph.transform.partition.impl.UndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedUCPP;
@@ -87,7 +88,7 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
              *
              * valueSet - set of partition numbers
              */
-
+            /*
             int firstId, secondId;
             int m = mGraph.getEdges().size();
             double prob;
@@ -126,7 +127,16 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
                         partitions.get(sol.get(secondId)).add(i);
                     }
                 }
+            }*/
+
+            HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
+
+            for(Integer i : sol.keySet()) {
+                if(!partitions.containsKey(sol.get(i)))
+                    partitions.put(sol.get(i), new HashSet<Integer>());
+                partitions.get(sol.get(i)).add(i);
             }
+
 
             HashSet<Route> ans = new HashSet<Route>();
             //now create the subgraphs
@@ -157,7 +167,7 @@ public class CapacitatedUCPPSolver extends CapacitatedVehicleSolver {
 
             //initialize transformer for turning edge-weighted graph into vertex-weighted graph
             UndirectedGraph mGraph = mInstance.getGraph();
-            UndirectedKWayPartitionTransform transformer = new UndirectedKWayPartitionTransform(mGraph);
+            PreciseUndirectedKWayPartitionTransform transformer = new PreciseUndirectedKWayPartitionTransform(mGraph);
 
             //transform the graph
             UndirectedGraph vWeightedTest = transformer.transformGraph();
