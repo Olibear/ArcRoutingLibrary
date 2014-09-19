@@ -20,6 +20,8 @@ public class SimpleDistanceRebalancer<S extends Graph<?, ?>> extends RebalanceTr
 
     public SimpleDistanceRebalancer(S input, HashMap<Integer, Integer> partition) throws FormatMismatchException {
         super(input, partition);
+        if (partition.keySet().size() != input.getVertices().size())
+            throw new FormatMismatchException("This kind of rebalancer requires a vertex-weighted partition");
     }
 
     @Override
@@ -29,7 +31,7 @@ public class SimpleDistanceRebalancer<S extends Graph<?, ?>> extends RebalanceTr
 
     /**
      * Rebalances the graph, (which means that this transformer assumes a PartitionTransformer has already been run on
-     * this graph).
+     * this graph).  All vertices take a hit equal to the distance from the depot to the
      *
      * @return - a new vertex-weighted graph ready for METIS partitioning.
      */

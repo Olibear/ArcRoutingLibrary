@@ -138,8 +138,9 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 //now add the edges in there
 
                 //fix for windy case
-                if(isWindy)
-                    ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), ((WindyEdge)temp).getReverseCost(), temp.isRequired());
+                if(isWindy) {
+                    ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), ((WindyEdge) temp).getReverseCost(), temp.isRequired());
+                }
                 else
                     blankGraph.addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), temp.isRequired());
             }
@@ -177,6 +178,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 int end = bestConnectId;
                 int next;
                 Link<? extends Vertex> l;
+
                 do {
                     next = dijkstraPath[end];
                     //make sure that we've added the proper vertices
@@ -217,11 +219,13 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                     //fix windy
 
                     //fix for windy case
-                    if(isWindy) {
-                        ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge)l).getReverseCost(), true);
+                    if(next == start) {
+                        if (isWindy) {
+                            ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge) indexedEdges.get(dijkstraEdges[end])).getReverseCost(), true);
+                        }
+                        else
+                            blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), true);
                     }
-                    else
-                        blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), true);
 
                 } while((end = next) != start);
 
@@ -268,11 +272,13 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                     }
 
                     //fix for windy case
-                    if(isWindy) {
-                        ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge)l).getReverseCost(), true);
+                    if(next == start) {
+                        if (isWindy) {
+                            ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge) l).getReverseCost(), true);
+                        }
+                        else
+                            blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), true);
                     }
-                    else
-                        blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), true);
 
                 } while((end = next) != start);
             }
@@ -314,8 +320,9 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 //now add the edges in there
 
                 //fix for windy case
-                if(isWindy)
-                    ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), ((WindyEdge)temp).getReverseCost(), temp.isRequired());
+                if(isWindy) {
+                    ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), ((WindyEdge) temp).getReverseCost(), temp.isRequired());
+                }
                 else
                     blankGraph.addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), temp.isRequired());
             }
@@ -469,7 +476,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             HashMap<Integer, WindyEdge> windyEdgeMap = null;
             if(subgraph.getClass() == WindyGraph.class) {
                 isWindy = true;
-                windyEdgeMap = ((WindyGraph)subgraph).getInternalEdgeMap();
+                windyEdgeMap = ((WindyGraph)mGraph).getInternalEdgeMap();
             }
 
 
@@ -564,7 +571,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 windyEdgeMap = null;
                 if(subgraph.getClass() == WindyGraph.class) {
                     isWindy = true;
-                    windyEdgeMap = ((WindyGraph)subgraph).getInternalEdgeMap();
+                    windyEdgeMap = ((WindyGraph)mGraph).getInternalEdgeMap();
                 }
 
 

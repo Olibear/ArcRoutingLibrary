@@ -18,8 +18,15 @@ public class PreciseWindyKWayPartitionTransform implements PartitionTransformer 
 
     private WindyGraph mGraph;
 
+    private boolean mWeighNonReq = false;
+
     public PreciseWindyKWayPartitionTransform(WindyGraph input) {
         mGraph = input;
+    }
+
+    public PreciseWindyKWayPartitionTransform(WindyGraph input, boolean weighNonReq) {
+        mGraph = input;
+        mWeighNonReq = weighNonReq;
     }
 
     @Override
@@ -45,8 +52,8 @@ public class PreciseWindyKWayPartitionTransform implements PartitionTransformer 
                 head = temp.getEndpoints().getSecond();
 
                 //assign the cost:
-                if(temp.isRequired())
-                    ansVertices.get(i).setCost(temp.getCost());
+                if(temp.isRequired() || mWeighNonReq)
+                    ansVertices.get(i).setCost((int)((temp.getCost() + temp.getReverseCost()) * .5));
                 else
                     ansVertices.get(i).setCost(0);
 

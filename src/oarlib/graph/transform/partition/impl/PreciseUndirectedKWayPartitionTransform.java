@@ -20,8 +20,15 @@ public class PreciseUndirectedKWayPartitionTransform implements PartitionTransfo
 
     private UndirectedGraph mGraph;
 
+    private boolean mWeighNonReq = false;
+
     public PreciseUndirectedKWayPartitionTransform(UndirectedGraph input) {
         mGraph = input;
+    }
+
+    public PreciseUndirectedKWayPartitionTransform(UndirectedGraph input, boolean weighNonReq) {
+        mGraph = input;
+        mWeighNonReq = weighNonReq;
     }
 
     @Override
@@ -48,7 +55,7 @@ public class PreciseUndirectedKWayPartitionTransform implements PartitionTransfo
                 head = temp.getEndpoints().getSecond();
 
                 //assign the cost:
-                if(temp.isRequired())
+                if(temp.isRequired() || mWeighNonReq)
                     ansVertices.get(i).setCost(temp.getCost());
                 else
                     ansVertices.get(i).setCost(0);

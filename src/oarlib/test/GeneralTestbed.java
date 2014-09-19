@@ -158,12 +158,12 @@ public class GeneralTestbed {
 
 
                 //run on all instances in the folder
-                int limForDebug = 10; //only run on the first 10 instances for now
+                int limForDebug = 25; //only run on the first 10 instances for now
                 int debugCounter = 0;
 
                 for (final File testInstance : testInstanceFolder.listFiles()) {
-                    //if(debugCounter >= limForDebug)
-                        //break;
+                    if(debugCounter >= limForDebug)
+                        break;
                     debugCounter++;
 
                     String temp = testInstance.getName();

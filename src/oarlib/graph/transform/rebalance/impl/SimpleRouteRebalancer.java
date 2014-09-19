@@ -26,6 +26,8 @@ public class SimpleRouteRebalancer<S extends Graph<?,?>> extends RebalanceTransf
      */
     public SimpleRouteRebalancer(S input, HashMap<Integer, Integer> partition, ArrayList<Route> sol) throws FormatMismatchException {
         super(input, partition);
+        if (partition.keySet().size() != input.getVertices().size())
+            throw new FormatMismatchException("This kind of rebalancer requires a vertex-weighted partition");
         workingSol = sol;
     }
 

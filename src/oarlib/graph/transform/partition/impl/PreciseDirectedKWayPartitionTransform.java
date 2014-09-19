@@ -17,9 +17,15 @@ import java.util.HashMap;
 public class PreciseDirectedKWayPartitionTransform implements PartitionTransformer<DirectedGraph> {
 
     private DirectedGraph mGraph;
+    private boolean mWeighNonReq = false;
 
     public PreciseDirectedKWayPartitionTransform(DirectedGraph input) {
         mGraph = input;
+    }
+
+    public PreciseDirectedKWayPartitionTransform(DirectedGraph input, boolean weighNonReq) {
+        mGraph = input;
+        mWeighNonReq = weighNonReq;
     }
 
     @Override
@@ -45,7 +51,7 @@ public class PreciseDirectedKWayPartitionTransform implements PartitionTransform
                 head = temp.getEndpoints().getSecond();
 
                 //assign the cost:
-                if(temp.isRequired())
+                if(temp.isRequired() || mWeighNonReq)
                     ansVertices.get(i).setCost(temp.getCost());
                 else
                     ansVertices.get(i).setCost(0);

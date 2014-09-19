@@ -10,12 +10,15 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseWindyKWayPartitionTransform;
 import oarlib.graph.transform.partition.impl.WindyKWayPartitionTransform;
+import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
+import oarlib.graph.transform.rebalance.impl.ShortRouteReductionRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.CapacitatedWPP;
 import oarlib.problem.impl.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,6 +62,9 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
 
     @Override
     protected Collection<Route> solve() {
+
+        int bestObj = Integer.MAX_VALUE;
+        ArrayList<Route> record = new ArrayList<Route>();
 
         try {
 
@@ -167,34 +173,69 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
             }
             */
 
-            HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
-            HashMap<Integer, WindyEdge> mGraphEdges = mGraph.getInternalEdgeMap();
-            HashSet<Integer> nonReqEdges = new HashSet<Integer>();
+            ArrayList<Route> ans = new ArrayList<Route>();
+            int maxCost = 0;
+            for(int j = 1; j <= 5; j++) {
 
-            for(Integer i : sol.keySet()) {
-                if(!partitions.containsKey(sol.get(i)))
-                    partitions.put(sol.get(i), new HashSet<Integer>());
-                partitions.get(sol.get(i)).add(i);
-                if(!mGraphEdges.get(i).isRequired())
-                    nonReqEdges.add(i);
+                mGraph = mInstance.getGraph();
 
-            }
+                HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
+                HashMap<Integer, WindyEdge> mGraphEdges = mGraph.getInternalEdgeMap();
+                HashSet<Integer> nonReqEdges = new HashSet<Integer>();
 
-            //now create the subgraphs
-            HashSet<Route> ans = new HashSet<Route>();
-            for (Integer part : partitions.keySet()) {
-                if(partitions.get(part).isEmpty())
-                    continue;
-                //put in all the non-required ones
-                for(Integer id: nonReqEdges)
-                {
-                    partitions.get(part).add(id);
+                for (Integer i : sol.keySet()) {
+                    if (!partitions.containsKey(sol.get(i)))
+                        partitions.put(sol.get(i), new HashSet<Integer>());
+                    partitions.get(sol.get(i)).add(i);
+                    if (!mGraphEdges.get(i).isRequired())
+                        nonReqEdges.add(i);
+
                 }
 
-                ans.add(route(partitions.get(part)));
-            }
+                //now create the subgraphs
+                ans.clear();
+                for (Integer part : partitions.keySet()) {
+                    if (partitions.get(part).isEmpty())
+                        continue;
+                    //put in all the non-required ones
+                    for (Integer id : nonReqEdges) {
+                        partitions.get(part).add(id);
+                    }
 
-            return ans;
+                    ans.add(route(partitions.get(part)));
+                }
+
+                //DEBUG: display routes
+                int routeCounter = 1;
+                int minCost = Integer.MAX_VALUE;
+                int tempCost;
+
+                for (Route r : ans) {
+                    tempCost = r.getCost();
+                    if(tempCost > maxCost)
+                        maxCost = tempCost;
+                    if(tempCost < minCost)
+                        minCost = tempCost;
+
+                    System.out.println("Now displaying route " + routeCounter++);
+                    System.out.println(r.toString());
+                    System.out.println("This route costs " + tempCost);
+                    System.out.println();
+
+                }
+                System.out.println("Objective Value: " + maxCost);
+
+                if(maxCost < bestObj) {
+                    bestObj = maxCost;
+                    record = ans;
+
+                }
+
+                ShortRouteReductionRebalancer<WindyGraph> rebalancer = new ShortRouteReductionRebalancer<WindyGraph>(mGraph, sol, ans);
+                mGraph = rebalancer.transformGraph(1 - (j*.1));
+                sol = partition();
+            }
+            return record;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -212,8 +253,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
         try {
 
             //initialize transformer for turning edge-weighted grpah into vertex-weighted graph
-            //WindyGraph mGraph = mInstance.getGraph();
-            PreciseWindyKWayPartitionTransform transformer = new PreciseWindyKWayPartitionTransform(mGraph);
+            PreciseWindyKWayPartitionTransform transformer = new PreciseWindyKWayPartitionTransform(mGraph, true);
 
             //transform the graph
             WindyGraph vWeightedTest = transformer.transformGraph();
@@ -245,6 +285,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
     @Override
     protected Route route(HashSet<Integer> ids) {
 
+        //check out a clean instance
         WindyGraph mGraph = mInstance.getGraph();
 
         WindyGraphFactory wgf = new WindyGraphFactory();

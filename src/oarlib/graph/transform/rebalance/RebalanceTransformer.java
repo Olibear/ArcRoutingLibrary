@@ -23,7 +23,7 @@ public abstract class RebalanceTransformer<S extends Graph<?, ?>> implements Gra
      * @throws FormatMismatchException - if the ArrayList is of the wrong size.
      */
     protected RebalanceTransformer(S input, HashMap<Integer, Integer> partition) throws FormatMismatchException {
-        if (partition.keySet().size() != input.getVertices().size())
+        if (partition.keySet().size() != input.getVertices().size() &&  partition.keySet().size() != input.getEdges().size())
             throw new FormatMismatchException();
         mGraph = input;
         mPartition = partition;

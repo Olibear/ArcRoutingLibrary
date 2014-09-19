@@ -18,8 +18,15 @@ public class PreciseMixedKWayPartitionTransform implements PartitionTransformer<
 
     private MixedGraph mGraph;
 
+    private boolean mWeighNonReq = false;
+
     public PreciseMixedKWayPartitionTransform(MixedGraph input) {
         mGraph = input;
+    }
+
+    public PreciseMixedKWayPartitionTransform(MixedGraph input, boolean weighNonReq) {
+        mGraph = input;
+        mWeighNonReq = weighNonReq;
     }
 
     @Override
@@ -45,7 +52,7 @@ public class PreciseMixedKWayPartitionTransform implements PartitionTransformer<
                 head = temp.getEndpoints().getSecond();
 
                 //assign the cost:
-                if(temp.isRequired())
+                if(temp.isRequired() || mWeighNonReq)
                     ansVertices.get(i).setCost(temp.getCost());
                 else
                     ansVertices.get(i).setCost(0); //we're gonna throw them all in anyways
