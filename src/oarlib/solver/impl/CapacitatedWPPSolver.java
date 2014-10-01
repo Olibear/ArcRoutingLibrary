@@ -1,12 +1,14 @@
 package oarlib.solver.impl;
 
 import oarlib.core.*;
+import oarlib.display.GraphDisplay;
 import oarlib.graph.factory.impl.WindyGraphFactory;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphWriter;
 import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
+import oarlib.graph.transform.impl.EdgeInducedRequirementTransform;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseWindyKWayPartitionTransform;
 import oarlib.graph.transform.partition.impl.WindyKWayPartitionTransform;
@@ -30,16 +32,18 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
 
     CapacitatedWPP mInstance;
     WindyGraph mGraph;
+    String mInstanceName;
 
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    public CapacitatedWPPSolver(CapacitatedWPP instance) throws IllegalArgumentException {
+    public CapacitatedWPPSolver(CapacitatedWPP instance, String instanceName) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
         mGraph = mInstance.getGraph();
+        mInstanceName = instanceName;
     }
 
     @Override
@@ -77,101 +81,8 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
             }
             HashMap<Integer, Integer> sol = partition();
 
-            /*
-             * initialize vars
-             *
-             * firstId, secondId - we're going to iterate through the edges, and figure out which partition to put them in.
-             * Since we solved a vertex partitioning problem, we need to try and recover the edge partition.  These are the ids of
-             * the vertex endpoints
-             *
-             * m - number of edges in the full graph.
-             *
-             * prob - random number between 0 and 1 to determine which partition to stick edges in the cut.
-             *
-             * temp - the edge we're considering right now
-             *
-             * mGraphEdges - the edge map of the graph
-             *
-             * edgeSol - key: edge id, value: partition we're placing it in
-             *
-             * partitions - key: partition #, value: set containing edge ids in this partition
-             *
-             * valueSet - set of partition numbers
-             */
-
-            /*
-            //Rebalance phase
-            for(int i = 0; i < 5; i++) {
-                SimpleDistanceRebalancer<WindyGraph> rebalancer = new SimpleDistanceRebalancer<WindyGraph>(mGraph, sol);
-                mGraph = rebalancer.transformGraph(5);
-                sol = partition();
-            }
-
-            //initialize vars
-            int firstId, secondId;
-            int m = mGraph.getEdges().size();
-            double prob;
-            WindyEdge temp;
-            HashMap<Integer, WindyEdge> mGraphEdges = mGraph.getInternalEdgeMap();
-            HashMap<Integer, Integer> edgeSol = new HashMap<Integer, Integer>();
-            HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
-            HashMap<Integer, Integer> runningTotal = new HashMap<Integer, Integer>();
-            HashSet<Integer> valueSet = new HashSet<Integer>(sol.values());
-            HashSet<Integer> nonReqEdges = new HashSet<Integer>();
-
-            Integer max = 0;
-            for (Integer part : valueSet) {
-                partitions.put(part, new HashSet<Integer>());
-                if(part > max)
-                    max = part;
-            }
-
-
-            //DEBUG Let's see how balanced the partitions actually are
-
-            int[] reqCosts = new int[max + 1];
-
-            //for each edge, figure out if it's internal, or part of the cut induced by the partition
-            for (int i = 1; i <= m; i++) {
-                temp = mGraphEdges.get(i);
-                firstId = temp.getEndpoints().getFirst().getId();
-                secondId = temp.getEndpoints().getSecond().getId();
-
-                //add to our non-required collection if appropriate
-                if(!temp.isRequired()) {
-                    nonReqEdges.add(i);
-                    continue;
-                }
-
-                //if it's internal, just log the edge in the appropriate partition
-                if (sol.get(firstId).equals(sol.get(secondId)) || secondId == mGraph.getDepotId()) {
-                    edgeSol.put(i, sol.get(firstId));
-                    partitions.get(sol.get(firstId)).add(i);
-                    reqCosts[sol.get(firstId)] += (temp.getCost() + temp.getReverseCost())/2.0;
-                } else if (firstId == mGraph.getDepotId()) {
-                    edgeSol.put(i, sol.get(secondId));
-                    partitions.get(sol.get(secondId)).add(i);
-                    reqCosts[sol.get(secondId)] += (temp.getCost() + temp.getReverseCost())/2.0;
-                }
-                //oth. with 50% probability, stick it in either one
-                else {
-
-                    if(reqCosts[sol.get(firstId)] < reqCosts[sol.get(secondId)]) {
-                        edgeSol.put(i, sol.get(firstId));
-                        partitions.get(sol.get(firstId)).add(i);
-
-                        reqCosts[sol.get(firstId)] += (temp.getCost() + temp.getReverseCost())/2.0;
-                    }
-                    else {
-                        edgeSol.put(i, sol.get(secondId));
-                        partitions.get(sol.get(secondId)).add(i);
-
-                        reqCosts[sol.get(secondId)] += (temp.getCost() + temp.getReverseCost())/2.0;
-                    }
-
-                }
-            }
-            */
+            GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, mGraph, mInstanceName);
+            gd.exportWithPartition(GraphDisplay.ExportType.PDF, sol);
 
             ArrayList<Route> ans = new ArrayList<Route>();
             int maxCost = 0;
@@ -209,6 +120,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
                 int routeCounter = 1;
                 int minCost = Integer.MAX_VALUE;
                 int tempCost;
+                int numReqLinks;
 
                 for (Route r : ans) {
                     tempCost = r.getCost();
@@ -220,6 +132,14 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
                     System.out.println("Now displaying route " + routeCounter++);
                     System.out.println(r.toString());
                     System.out.println("This route costs " + tempCost);
+
+                    numReqLinks = 0;
+                    for(Link l : r.getRoute()) {
+                        System.out.println("Link costs: " + l.getCost());
+                        if (l.isRequired())
+                            numReqLinks++;
+                    }
+                    System.out.println("This route has " + numReqLinks + " required links.");
                     System.out.println();
 
                 }
@@ -289,7 +209,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
         WindyGraph mGraph = mInstance.getGraph();
 
         WindyGraphFactory wgf = new WindyGraphFactory();
-        EdgeInducedSubgraphTransform<WindyGraph> subgraphTransform = new EdgeInducedSubgraphTransform<WindyGraph>(mGraph, wgf, null, true);
+        EdgeInducedRequirementTransform<WindyGraph> subgraphTransform = new EdgeInducedRequirementTransform<WindyGraph>(mGraph, wgf, ids);
 
         //check to make sure we have at least 1 required edge
         HashMap<Integer, WindyEdge> mEdges = mGraph.getInternalEdgeMap();
@@ -302,7 +222,6 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
         if(!hasReq)
             return new Tour();
 
-        subgraphTransform.setEdges(ids);
         WindyGraph subgraph = subgraphTransform.transformGraph();
 
         //now solve the WPP on it

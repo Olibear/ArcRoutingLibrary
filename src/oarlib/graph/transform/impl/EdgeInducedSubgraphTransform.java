@@ -217,14 +217,15 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                     }
 
                     //fix windy
+                    blankGraph.addEdge(blankGraph.getDepotId(), blankGraph.getDepotId(), 0, true);
 
                     //fix for windy case
                     if(next == start) {
                         if (isWindy) {
-                            ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge) indexedEdges.get(dijkstraEdges[end])).getReverseCost(), true);
+                            ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge) indexedEdges.get(dijkstraEdges[end])).getReverseCost(), false);
                         }
                         else
-                            blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), true);
+                            blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), false);
                     }
 
                 } while((end = next) != start);

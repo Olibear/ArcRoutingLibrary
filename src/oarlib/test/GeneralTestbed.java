@@ -5,6 +5,7 @@ import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Route;
+import oarlib.display.GraphDisplay;
 import oarlib.graph.graphgen.DirectedGraphGenerator;
 import oarlib.graph.graphgen.UndirectedGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
@@ -13,6 +14,7 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphReader;
+import oarlib.graph.io.GraphWriter;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
@@ -53,7 +55,22 @@ public class GeneralTestbed {
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testCapacitatedSolvers("/Users/oliverlum/Downloads/MM_kWRPP_data", "/Users/oliverlum/Desktop/kwrpp.txt");
+        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Desktop/kwrpp.txt");
+        //testGraphDisplay();
+    }
+
+    @SuppressWarnings("unused")
+    private static void testGraphDisplay() {
+        try {
+            DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+            DirectedGraph dGraph = (DirectedGraph)dgg.generateGraph(100,5,true,.005);
+
+            GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, dGraph, "test");
+            gd.export(GraphDisplay.ExportType.PDF);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unused")
@@ -158,7 +175,7 @@ public class GeneralTestbed {
 
 
                 //run on all instances in the folder
-                int limForDebug = 25; //only run on the first 10 instances for now
+                int limForDebug = 10; //only run on the first 10 instances for now
                 int debugCounter = 0;
 
                 for (final File testInstance : testInstanceFolder.listFiles()) {
@@ -175,7 +192,7 @@ public class GeneralTestbed {
                         WindyGraph g2 = (WindyGraph) g;
 
                         validWInstance = new CapacitatedWPP(g2, 5);
-                        validWSolver = new CapacitatedWPPSolver(validWInstance);
+                        validWSolver = new CapacitatedWPPSolver(validWInstance, temp);
                         start = System.nanoTime();
                         validWAns = validWSolver.trySolve();
                         end = System.nanoTime();

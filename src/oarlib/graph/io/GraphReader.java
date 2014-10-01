@@ -360,7 +360,7 @@ public class GraphReader {
                 for (int i = 0; i < n; i++) {
                     ans.addVertex(new MixedVertex("original"));
                 }
-                HashMap<Integer, MixedVertex> ansVertices = ans.getInternalVertexMap();
+
                 br.readLine();
                 br.readLine();
                 int index;
@@ -382,14 +382,31 @@ public class GraphReader {
                     cost2 = Integer.parseInt(temp[index]);
                     if (cost1 == 99999999) //backwards arc
                     {
-                        ans.addEdge(new MixedEdge("original", new Pair<MixedVertex>(ansVertices.get(headId), ansVertices.get(tailId)), cost2, true));
+                        ans.addEdge(headId, tailId, cost2, true);
                     } else if (cost2 == 99999999) //forwards arc
                     {
-                        ans.addEdge(new MixedEdge("original", new Pair<MixedVertex>(ansVertices.get(tailId), ansVertices.get(headId)), cost1, true));
+                        ans.addEdge(tailId,headId, cost1, true);
                     } else // edge
                     {
-                        ans.addEdge(new MixedEdge("original", new Pair<MixedVertex>(ansVertices.get(tailId), ansVertices.get(headId)), cost1, false));
+                        ans.addEdge(tailId, headId, cost1, false);
                     }
+                }
+
+                //skip some interim matter
+                br.readLine();
+                br.readLine();
+                br.readLine();
+                br.readLine();
+
+                //now read coordinates
+                int i = 1;
+                MixedVertex tempV;
+                HashMap<Integer, MixedVertex> ansVertices = ans.getInternalVertexMap();
+                while((line = br.readLine()) != null) {
+                    tempV = ansVertices.get(i);
+                    temp = line.split("\\s+|:|\\)|,|\\(");
+                    tempV.setCoordinates(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
+                    i++;
                 }
                 br.close();
                 return ans;
@@ -425,6 +442,28 @@ public class GraphReader {
                     ans.addEdge(tailId, headId, "original", cost1, cost2);
 
                 }
+
+                //skip some interim matter
+                br.readLine();
+                br.readLine();
+                br.readLine();
+                br.readLine();
+
+                //now read coordinates
+                int i = 1;
+                WindyVertex tempV;
+                HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
+                while((line = br.readLine()) != null) {
+                    if(line.contains("="))
+                        break;
+                    tempV = ansVertices.get(i);
+                    temp = line.split("\\s+|:|\\)|,|\\(");
+                    if(temp.length < 4)
+                        System.out.println("STOP HERE");
+                    tempV.setCoordinates(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
+                    i++;
+                }
+
                 br.close();
                 return ans;
             } else if (type.equals("WindyRural")) {
@@ -485,6 +524,24 @@ public class GraphReader {
                     }
 
                 }
+
+                //skip some interim matter
+                br.readLine();
+                br.readLine();
+                br.readLine();
+                br.readLine();
+
+                //now read coordinates
+                int i = 1;
+                WindyVertex tempV;
+                HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
+                while((line = br.readLine()) != null) {
+                    tempV = ansVertices.get(i);
+                    temp = line.split("\\s+|:|\\)|,|\\(");
+                    tempV.setCoordinates(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
+                    i++;
+                }
+
                 br.close();
                 return ans;
             } else {

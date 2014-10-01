@@ -1,6 +1,7 @@
 package oarlib.core;
 
 import oarlib.exceptions.NoDemandSetException;
+import oarlib.graph.util.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,10 @@ public abstract class Vertex {
     private boolean demandSet;
     private int myCost;
     private int mySize;
-    protected boolean isFinalized; // should be true if in a graph, false oth.
+    private double myX;
+    private double myY;
+    private boolean hasCoordinates;
+    private boolean isFinalized; // should be true if in a graph, false oth.
 
     public Vertex(String label) {
         setId(-1);
@@ -35,6 +39,8 @@ public abstract class Vertex {
         setGuid(counter);
         counter++;
         demandSet = false;
+        hasCoordinates = false;
+        isFinalized = false;
     }
 
     public abstract Map<? extends Vertex, ? extends List<? extends Link<? extends Vertex>>> getNeighbors();
@@ -128,5 +134,27 @@ public abstract class Vertex {
 
     public void setSize(int mySize) {
         this.mySize = mySize;
+    }
+
+    public double getX() {
+        return myX;
+    }
+
+    public void setCoordinates(int x, int y) {
+        myX = x;
+        myY = y;
+        hasCoordinates = true;
+    }
+
+    public double getY() {
+        return myY;
+    }
+
+    public Pair<Double> getCoordinates() {
+        return new Pair<Double>(myX, myY);
+    }
+
+    public boolean hasCoordinates() {
+        return hasCoordinates;
     }
 }
