@@ -160,4 +160,9 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver {
         return Problem.Type.DIRECTED_CHINESE_POSTMAN;
     }
 
+    @Override
+    public String printCurrentSol() throws IllegalStateException {
+        return "This solver does not support printing.";
+    }
+
 }

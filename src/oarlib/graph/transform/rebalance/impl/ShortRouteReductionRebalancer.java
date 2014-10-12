@@ -13,10 +13,11 @@ import java.util.HashMap;
 /**
  * Created by oliverlum on 9/15/14.
  */
-public class ShortRouteReductionRebalancer<S extends Graph<?, ?>> extends RebalanceTransformer<S>{
+public class ShortRouteReductionRebalancer<S extends Graph<?, ?>> extends RebalanceTransformer<S> {
 
 
     ArrayList<Route> workingSol;
+
     /**
      * Super constructor for any Rebalance transformers.
      *
@@ -75,10 +76,10 @@ public class ShortRouteReductionRebalancer<S extends Graph<?, ?>> extends Rebala
         HashMap<Integer, ? extends Vertex> mVertices = mGraph.getInternalVertexMap();
         Vertex temp;
 
-        for(Link l : minRoute.getRoute()) {
+        for (Link l : minRoute.getRoute()) {
             //temp = mVertices.get(l.getId());
             //temp.setCost((int)(temp.getCost() * weight));
-            l.setCost((int)(l.getCost() * weight));
+            l.setCost((int) (l.getCost() * weight));
         }
 
         return mGraph;

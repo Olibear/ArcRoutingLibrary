@@ -1,11 +1,8 @@
 package oarlib.graph.transform.partition.impl;
 
-import oarlib.core.Arc;
 import oarlib.core.MixedEdge;
-import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
-import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 
 import java.util.ArrayList;
@@ -52,7 +49,7 @@ public class PreciseMixedKWayPartitionTransform implements PartitionTransformer<
                 head = temp.getEndpoints().getSecond();
 
                 //assign the cost:
-                if(temp.isRequired() || mWeighNonReq)
+                if (temp.isRequired() || mWeighNonReq)
                     ansVertices.get(i).setCost(temp.getCost());
                 else
                     ansVertices.get(i).setCost(0); //we're gonna throw them all in anyways

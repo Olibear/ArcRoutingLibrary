@@ -10,15 +10,6 @@ import java.util.Collection;
  */
 public abstract class Problem {
 
-    public enum Type {
-        DIRECTED_CHINESE_POSTMAN,
-        UNDIRECTED_CHINESE_POSTMAN,
-        MIXED_CHINESE_POSTMAN,
-        WINDY_CHINESE_POSTMAN,
-        DIRECTED_RURAL_POSTMAN,
-        WINDY_RURAL_POSTMAN
-    }
-
     /**
      * Says whether the provided set of routes is a feasible solution
      *
@@ -37,4 +28,13 @@ public abstract class Problem {
      * @return - The type of problem that this represents.
      */
     public abstract Type getType();
+
+    public enum Type {
+        DIRECTED_CHINESE_POSTMAN,
+        UNDIRECTED_CHINESE_POSTMAN,
+        MIXED_CHINESE_POSTMAN,
+        WINDY_CHINESE_POSTMAN,
+        DIRECTED_RURAL_POSTMAN,
+        WINDY_RURAL_POSTMAN
+    }
 }

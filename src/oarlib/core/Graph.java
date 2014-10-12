@@ -14,18 +14,11 @@ import java.util.List;
  */
 public abstract class Graph<V extends Vertex, E extends Link<V>> {
 
+    private static int graphIdCounter = 1;
     private int vidCounter; //for assigning internal ids of vertices
     private int eidCounter;
     private int graphId;
     private int depotId;
-    private static int graphIdCounter = 1;
-
-    public enum Type {
-        DIRECTED,
-        UNDIRECTED,
-        MIXED,
-        WINDY
-    }
 
     public Graph() {
         vidCounter = 1;
@@ -262,4 +255,11 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
      * @return - a vertex satisfying these properties
      */
     public abstract V constructVertex(String desc);
+
+    public enum Type {
+        DIRECTED,
+        UNDIRECTED,
+        MIXED,
+        WINDY
+    }
 }

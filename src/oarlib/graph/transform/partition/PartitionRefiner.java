@@ -7,7 +7,6 @@ import java.util.HashMap;
  */
 public abstract class PartitionRefiner {
     /**
-     *
      * @param currMap
      * @return
      */

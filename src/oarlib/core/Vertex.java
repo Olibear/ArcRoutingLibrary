@@ -140,7 +140,7 @@ public abstract class Vertex {
         return myX;
     }
 
-    public void setCoordinates(int x, int y) {
+    public void setCoordinates(double x, double y) {
         myX = x;
         myY = y;
         hasCoordinates = true;

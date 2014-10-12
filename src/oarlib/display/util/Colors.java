@@ -8,12 +8,28 @@ import java.awt.*;
 public class Colors {
     public static final int VIVID_YELLOW = 0xFFB300; // Vivid Yellow
     public static final int STRONG_PURPLE = 0x803E75; // Strong Purple
+    public static final Color[] RYGCBGB = new Color[]{
+            Color.RED,
+            new Color(VIVID_YELLOW),
+            Color.GREEN,
+            Color.BLUE,
+            new Color(STRONG_PURPLE),
+            Color.BLACK
+    };
     public static final int VIVID_ORANGE = 0xFF6800; // Vivid Orange
     public static final int VERY_LIGHT_BLUE = 0xA6BDD7; // Very Light Blue
     public static final int VIVID_RED = 0xC10020; // Vivid Red
     public static final int GRAYISH_YELLOW = 0xCEA262; // Grayish Yellow
     public static final int MEDIUM_GRAY = 0x817066; // Medium Gray
-
+    public static final Color[] RESTRICTED_KELLY_COLORS = new Color[]{
+            new Color(VIVID_YELLOW),
+            new Color(STRONG_PURPLE),
+            new Color(VIVID_ORANGE),
+            new Color(VERY_LIGHT_BLUE),
+            new Color(VIVID_RED),
+            new Color(GRAYISH_YELLOW),
+            new Color(MEDIUM_GRAY),
+    };
     // The following don't work well for people with defective color vision
     public static final int VIVID_GREEN = 0x007D34; // Vivid Green
     public static final int STRONG_PURPLISH_PINK = 0xF6768E; // Strong Purplish Pink
@@ -28,18 +44,7 @@ public class Colors {
     public static final int DEEP_YELLOWISH_BROWN = 0x593315; // Deep Yellowish Brown
     public static final int VIVID_REDDISH_ORANGE = 0xF13A13; // Vivid Reddish Orange
     public static final int DARK_OLIVE_GREEN = 0x232C16; // Dark Olive Green
-
-    public static final Color[] RESTRICTED_KELLY_COLORS = new Color[] {
-        new Color(VIVID_YELLOW),
-        new Color(STRONG_PURPLE),
-        new Color(VIVID_ORANGE),
-        new Color(VERY_LIGHT_BLUE),
-        new Color(VIVID_RED),
-        new Color(GRAYISH_YELLOW),
-        new Color(MEDIUM_GRAY),
-    };
-
-    public static final Color[] KELLY_COLORS = new Color[] {
+    public static final Color[] KELLY_COLORS = new Color[]{
             new Color(VIVID_YELLOW),
             new Color(STRONG_PURPLE),
             new Color(VIVID_ORANGE),
@@ -61,5 +66,7 @@ public class Colors {
             new Color(VIVID_REDDISH_ORANGE),
             new Color(DARK_OLIVE_GREEN)
     };
+    public static final int INDIGO = 0x6F00FF;
+    public static final int VIOLET = 0x663399;
 
 }

@@ -8,17 +8,10 @@ package oarlib.core;
  */
 public abstract class CapacitatedProblem extends Problem {
 
-    public enum CapacitatedObjective {
-        Distance,
-        MinMax,
-        MaxService
-    }
-
     int mNumVehicles;
     int mCapacity;
     boolean capSet;
     boolean numVehiclesSet;
-
     /**
      * Default constructor for a Capacitated Problem, this assumes there is no max capacity, but rather a constraint
      * on the number of vehicles used.
@@ -76,4 +69,10 @@ public abstract class CapacitatedProblem extends Problem {
     }
 
     public abstract CapacitatedObjective getObjectiveType();
+
+    public enum CapacitatedObjective {
+        Distance,
+        MinMax,
+        MaxService
+    }
 }

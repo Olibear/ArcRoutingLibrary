@@ -3,7 +3,6 @@ package oarlib.graph.io;
 import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
-import oarlib.core.MixedEdge;
 import oarlib.exceptions.FormatMismatchException;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;
@@ -33,12 +32,12 @@ public class GraphReader {
         mFormat = format;
     }
 
-    public void setFormat(GraphFormat.Name newFormat) {
-        mFormat = newFormat;
-    }
-
     public GraphFormat.Name getFormat() {
         return mFormat;
+    }
+
+    public void setFormat(GraphFormat.Name newFormat) {
+        mFormat = newFormat;
     }
 
     public Graph<?, ?> readGraph(String fileName) throws UnsupportedFormatException, FormatMismatchException {
@@ -385,7 +384,7 @@ public class GraphReader {
                         ans.addEdge(headId, tailId, cost2, true);
                     } else if (cost2 == 99999999) //forwards arc
                     {
-                        ans.addEdge(tailId,headId, cost1, true);
+                        ans.addEdge(tailId, headId, cost1, true);
                     } else // edge
                     {
                         ans.addEdge(tailId, headId, cost1, false);
@@ -402,7 +401,7 @@ public class GraphReader {
                 int i = 1;
                 MixedVertex tempV;
                 HashMap<Integer, MixedVertex> ansVertices = ans.getInternalVertexMap();
-                while((line = br.readLine()) != null) {
+                while ((line = br.readLine()) != null) {
                     tempV = ansVertices.get(i);
                     temp = line.split("\\s+|:|\\)|,|\\(");
                     tempV.setCoordinates(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
@@ -453,12 +452,12 @@ public class GraphReader {
                 int i = 1;
                 WindyVertex tempV;
                 HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
-                while((line = br.readLine()) != null) {
-                    if(line.contains("="))
+                while ((line = br.readLine()) != null) {
+                    if (line.contains("="))
                         break;
                     tempV = ansVertices.get(i);
                     temp = line.split("\\s+|:|\\)|,|\\(");
-                    if(temp.length < 4)
+                    if (temp.length < 4)
                         System.out.println("STOP HERE");
                     tempV.setCoordinates(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
                     i++;
@@ -535,7 +534,7 @@ public class GraphReader {
                 int i = 1;
                 WindyVertex tempV;
                 HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
-                while((line = br.readLine()) != null) {
+                while ((line = br.readLine()) != null) {
                     tempV = ansVertices.get(i);
                     temp = line.split("\\s+|:|\\)|,|\\(");
                     tempV.setCoordinates(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));

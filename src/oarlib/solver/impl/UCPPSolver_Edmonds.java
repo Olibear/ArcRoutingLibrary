@@ -25,54 +25,6 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver {
         mInstance = instance;
     }
 
-    @Override
-    protected Route solve() {
-        try {
-            /*
-             * The algorithm is simply:
-             *
-             * -Determine odd vertices
-             * -Solve a min-cost perfect matching on a complete graph of these vertices, where costs are shortest paths in the original graph.
-             * -Connect up with shortest paths
-             * -Route
-             *
-             * copy - so we don't screw with the original graph passed in
-             *
-             * indexedEdges - the edge map for copy
-             *
-             * ans - the list of edges returned by the routing procedure, in the order they are traversed in the tour.
-             *
-             * eulerTour - the route container which will make the string rep. look more like something we want to see
-             * (e.g. a vertex route).
-             */
-
-            UndirectedGraph copy = mInstance.getGraph().getDeepCopy();
-            eulerAugment(copy);
-
-            HashMap<Integer, Edge> indexedEdges = copy.getInternalEdgeMap();
-            //return the answer
-            ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
-            Tour eulerTour = new Tour();
-            for (int i = 0; i < ans.size(); i++) {
-                eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
-            }
-            return eulerTour;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
-    }
-
-    @Override
-    protected UndirectedCPP getInstance() {
-        return mInstance;
-    }
-
     /**
      * Carries out the bulk of the solve logic; it produces a least cost eulerian augmentation of the graph.
      *
@@ -137,6 +89,79 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected Route solve() {
+        try {
+            /*
+             * The algorithm is simply:
+             *
+             * -Determine odd vertices
+             * -Solve a min-cost perfect matching on a complete graph of these vertices, where costs are shortest paths in the original graph.
+             * -Connect up with shortest paths
+             * -Route
+             *
+             * copy - so we don't screw with the original graph passed in
+             *
+             * indexedEdges - the edge map for copy
+             *
+             * ans - the list of edges returned by the routing procedure, in the order they are traversed in the tour.
+             *
+             * eulerTour - the route container which will make the string rep. look more like something we want to see
+             * (e.g. a vertex route).
+             */
+
+            UndirectedGraph copy = mInstance.getGraph().getDeepCopy();
+            eulerAugment(copy);
+
+            HashMap<Integer, Edge> indexedEdges = copy.getInternalEdgeMap();
+            //return the answer
+            ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
+            Tour eulerTour = new Tour();
+            for (int i = 0; i < ans.size(); i++) {
+                eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
+            }
+            currSol = eulerTour;
+            return eulerTour;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Problem.Type getProblemType() {
+        return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
+    }
+
+    @Override
+    public String printCurrentSol() throws IllegalStateException {
+        if (currSol == null)
+            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
+
+        String ans = "UCPPSolver_Edmonds: Printing current solution...";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
+        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
+        ans += "Route Cost: " + currSol.getCost() + "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "\n";
+        ans += currSol.toString();
+        ans += "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        return ans;
+
+    }
+
+    @Override
+    protected UndirectedCPP getInstance() {
+        return mInstance;
     }
 
     @Override

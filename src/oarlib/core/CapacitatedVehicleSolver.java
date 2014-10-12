@@ -11,6 +11,9 @@ import java.util.HashSet;
  * Created by Oliver Lum on 7/25/2014.
  */
 public abstract class CapacitatedVehicleSolver {
+
+    protected Collection<Route> currSol;
+
     /**
      * Default constructor; must set problem instance.
      *
@@ -95,4 +98,13 @@ public abstract class CapacitatedVehicleSolver {
      * Solves the routing problem over a subgraph, or group of subgraphs.
      */
     protected abstract Route route(HashSet<Integer> ids);
+
+    /**
+     * Essentially a toString method for the current solution, it can include meta data output, or whatever the solver
+     * decides to include.
+     *
+     * @return - a string representation of the current solution
+     * @throws IllegalStateException - if solve hasn't been called yet
+     */
+    public abstract String printCurrentSol() throws IllegalStateException;
 }

@@ -18,12 +18,12 @@ public class PartitionReader {
         mFormat = format;
     }
 
-    public void setFormat(PartitionFormat.Name newFormat) {
-        mFormat = newFormat;
-    }
-
     public PartitionFormat.Name getFormat() {
         return mFormat;
+    }
+
+    public void setFormat(PartitionFormat.Name newFormat) {
+        mFormat = newFormat;
     }
 
     public HashMap<Integer, Integer> readPartition(String fileName) throws UnsupportedFormatException {

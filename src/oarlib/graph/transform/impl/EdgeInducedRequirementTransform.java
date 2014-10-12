@@ -10,11 +10,12 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 9/19/14.
  */
-public class EdgeInducedRequirementTransform<S extends Graph<?,?>> implements GraphTransformer<S,S>{
+public class EdgeInducedRequirementTransform<S extends Graph<?, ?>> implements GraphTransformer<S, S> {
 
     S mGraph;
     HashSet<Integer> mEdges;
     Factory<S> mFactory;
+
     /**
      * Transformer, primarily for rural problems.  This takes a set of ids, and returns the same graph, but where the only required edges are the
      * ones specified.  This ensures maximum flexibility, and free connectivity
@@ -24,6 +25,7 @@ public class EdgeInducedRequirementTransform<S extends Graph<?,?>> implements Gr
         mEdges = ids;
         mFactory = sFactory;
     }
+
     @Override
     public void setGraph(S input) {
         mGraph = input;
@@ -51,19 +53,17 @@ public class EdgeInducedRequirementTransform<S extends Graph<?,?>> implements Gr
             for (int i = 1; i <= m; i++) {
                 l = mGraphEdges.get(i);
 
-                if(isWindy) {
-                    if(mEdges.contains(l.getId())) {
-                        int revCost = ((WindyEdge)l).getReverseCost();
-                        ((WindyGraph)blankGraph).addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), ((WindyEdge)l).getReverseCost(), l.isRequired());
-                    }
-                    else {
-                        int revCost = ((WindyEdge)l).getReverseCost();
-                        ((WindyGraph)blankGraph).addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), ((WindyEdge) l).getReverseCost(), false);
-                    }
-                }
-                else {
+                if (isWindy) {
                     if (mEdges.contains(l.getId())) {
-                        int revCost = ((WindyEdge)l).getReverseCost();
+                        int revCost = ((WindyEdge) l).getReverseCost();
+                        ((WindyGraph) blankGraph).addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), ((WindyEdge) l).getReverseCost(), l.isRequired());
+                    } else {
+                        int revCost = ((WindyEdge) l).getReverseCost();
+                        ((WindyGraph) blankGraph).addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), ((WindyEdge) l).getReverseCost(), false);
+                    }
+                } else {
+                    if (mEdges.contains(l.getId())) {
+                        int revCost = ((WindyEdge) l).getReverseCost();
                         blankGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), l.isRequired());
                     } else {
                         blankGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), false);

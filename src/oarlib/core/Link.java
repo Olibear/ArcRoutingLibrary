@@ -11,6 +11,7 @@ import oarlib.graph.util.Pair;
 public abstract class Link<V extends Vertex> {
 
     private static int counter = 1; //for assigning edge ids
+    protected boolean isFinalized; // should be true if in a graph, false oth.
     private String mLabel;
     private int guid; //the idea is that this will be unique for all links, even between graphs
     private int mId; //while this will help us identify the 'same' link in different graphs (graph copies for instance)
@@ -22,7 +23,6 @@ public abstract class Link<V extends Vertex> {
     private boolean isDirected;
     private boolean isRequired;
     private boolean capacitySet;
-    protected boolean isFinalized; // should be true if in a graph, false oth.
 
     public Link(String label, Pair<V> endpoints, int cost) {
         this(label, endpoints, cost, true);
@@ -113,18 +113,18 @@ public abstract class Link<V extends Vertex> {
         this.matchId = matchId;
     }
 
+    public int getCapacity() throws NoCapacitySetException {
+        if (!capacitySet)
+            throw new NoCapacitySetException();
+        return mCapacity;
+    }
+
     public void setCapacity(int newCapacity) throws IllegalArgumentException {
         //negative capcity is not meaningful
         if (newCapacity < 0)
             throw new IllegalArgumentException();
         capacitySet = true;
         mCapacity = newCapacity;
-    }
-
-    public int getCapacity() throws NoCapacitySetException {
-        if (!capacitySet)
-            throw new NoCapacitySetException();
-        return mCapacity;
     }
 
     public boolean isCapacitySet() {
@@ -159,6 +159,8 @@ public abstract class Link<V extends Vertex> {
         this.isFinalized = isFinalized;
     }
 
-    public String toString() { return this.getEndpoints().getFirst().getId() + "-" + this.getEndpoints().getSecond().getId();}
+    public String toString() {
+        return this.getEndpoints().getFirst().getId() + "-" + this.getEndpoints().getSecond().getId();
+    }
 
 }

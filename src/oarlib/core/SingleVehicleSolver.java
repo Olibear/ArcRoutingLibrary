@@ -9,6 +9,9 @@ import oarlib.exceptions.GraphInfeasibleException;
  * @author oliverlum
  */
 public abstract class SingleVehicleSolver {
+
+    protected Route currSol;
+
     /**
      * Default constructor; must set problem instance.
      *
@@ -57,5 +60,14 @@ public abstract class SingleVehicleSolver {
      * @return
      */
     public abstract Problem.Type getProblemType();
+
+    /**
+     * Essentially a toString method for the current solution, it can include meta data output, or whatever the solver
+     * decides to include.
+     *
+     * @return - a string representation of the current solution
+     * @throws IllegalStateException - if solve hasn't been called yet
+     */
+    public abstract String printCurrentSol() throws IllegalStateException;
 
 }

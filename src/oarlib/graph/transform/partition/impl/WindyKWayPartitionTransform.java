@@ -45,7 +45,7 @@ public class WindyKWayPartitionTransform implements PartitionTransformer<WindyGr
 
                 ans.addEdge(firstId, secondId, 1);
 
-                if(!e.isRequired())
+                if (!e.isRequired())
                     continue;
                 sumCost = e.getCost() + e.getReverseCost();
 

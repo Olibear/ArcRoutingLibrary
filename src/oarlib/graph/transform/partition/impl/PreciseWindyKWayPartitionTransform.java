@@ -1,11 +1,8 @@
 package oarlib.graph.transform.partition.impl;
 
-import oarlib.core.MixedEdge;
 import oarlib.core.WindyEdge;
-import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
-import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -14,7 +11,7 @@ import java.util.HashMap;
 /**
  * Created by oliverlum on 9/13/14.
  */
-public class PreciseWindyKWayPartitionTransform implements PartitionTransformer <WindyGraph> {
+public class PreciseWindyKWayPartitionTransform implements PartitionTransformer<WindyGraph> {
 
     private WindyGraph mGraph;
 
@@ -52,8 +49,8 @@ public class PreciseWindyKWayPartitionTransform implements PartitionTransformer 
                 head = temp.getEndpoints().getSecond();
 
                 //assign the cost:
-                if(temp.isRequired() || mWeighNonReq)
-                    ansVertices.get(i).setCost((int)((temp.getCost() + temp.getReverseCost()) * .5));
+                if (temp.isRequired() || mWeighNonReq)
+                    ansVertices.get(i).setCost((int) ((temp.getCost() + temp.getReverseCost()) * .5));
                 else
                     ansVertices.get(i).setCost(0);
 

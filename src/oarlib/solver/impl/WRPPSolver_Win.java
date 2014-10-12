@@ -24,54 +24,6 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
         mInstance = instance;
     }
 
-    @Override
-    protected WindyRPP getInstance() {
-        return mInstance;
-    }
-
-    @Override
-    /**
-     * Implements the WRPP1 heuristic from Benavent's paper
-     */
-    protected Route solve() {
-        try {
-
-            //get a copy to operate on
-            WindyGraph copy = mInstance.getGraph().getDeepCopy();
-
-            //solve the shortest spanning tree problem to connect the required components of the graph
-            WindyGraph windyReq = connectRequiredComponents(copy);
-
-            //solve the min-cost matching problem to produce an eulerian augmentation to the original graph
-            eulerAugment(copy, windyReq);
-
-            //solve the min-cost flow problem to produce the optimal tour on the resultant windy graph
-            DirectedGraph ans = constructOptimalWindyTour(windyReq);
-
-            //go through the improvement procedures described in Benavent that eliminate added cycles
-            eliminateRedundantCycles(ans, windyReq, copy);
-
-
-            //return the answer
-            ArrayList<Integer> tour;
-            tour = CommonAlgorithms.tryHierholzer(ans);
-            Tour eulerTour = new Tour();
-            HashMap<Integer, Arc> indexedEdges = ans.getInternalEdgeMap();
-            for (int i = 0; i < tour.size(); i++) {
-                eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
-            }
-            return eulerTour;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
-    }
-
     /**
      * Carries out the connection procedure contained in Benavent's paper, solving an MST problem on the conncted components
      * induced by the required edges of g.
@@ -109,8 +61,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             edge2.add(null);
 
 			/*
-			 *  Cycle through the original edges, and add them to windyReq if they're required.
-			 *  Also, add to our list of edges to solve the connected components graph 
+             *  Cycle through the original edges, and add them to windyReq if they're required.
+			 *  Also, add to our list of edges to solve the connected components graph
 			 */
             for (int i = 1; i <= m; i++) {
                 temp = indexedWindyEdges.get(i);
@@ -162,7 +114,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             //now create a complete collapsed graph over which we shall solve an MST problem
             UndirectedGraph mstGraph = new UndirectedGraph();
             int mstN = component[0] - extraComponents.size(); //we want 1 vertex for each connected component (subtract off the unconnected guys)
-            if(mstN <= 1)
+            if (mstN <= 1)
                 return windyReq;
             for (int i = 1; i <= mstN; i++) {
                 mstGraph.addVertex(new UndirectedVertex("original"));
@@ -312,8 +264,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
 
 			/*
 			 * Improvement Procedure 2
-			 * Looks for cycles that consist of arcs which we can get rid of, 
-			 * (i.e. case a makes sure we don't get rid of our only traversal 
+			 * Looks for cycles that consist of arcs which we can get rid of,
+			 * (i.e. case a makes sure we don't get rid of our only traversal
 			 * of a required arc)
 			 */
             HashMap<Integer, WindyEdge> windyReqEdges = windyReq.getInternalEdgeMap();
@@ -443,7 +395,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             Debug
              */
             Tour debug = new Tour();
-            for(int i = 0; i < tour.size(); i++)
+            for (int i = 0; i < tour.size(); i++)
                 debug.appendEdge(ans.getInternalEdgeMap().get(tour.get(i)));
 
             HashMap<Integer, Arc> ansArcs = ans.getInternalEdgeMap();
@@ -934,7 +886,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
         do {
             next = path[curr][end];
             temp = indexedWindyEdges.get(edgePath[curr][end]);
-            if(temp == null) {
+            if (temp == null) {
                 int edgeId = edgePath[curr][end];
                 int nextVertex = path[curr][end];
                 boolean sccs = CommonAlgorithms.isConnected(g);
@@ -943,6 +895,79 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             ans += temp.getCost() + temp.getReverseCost();
         } while ((curr = next) != end);
         return ans / 2.0;
+    }
+
+    @Override
+    protected WindyRPP getInstance() {
+        return mInstance;
+    }
+
+    @Override
+    /**
+     * Implements the WRPP1 heuristic from Benavent's paper
+     */
+    protected Route solve() {
+        try {
+
+            //get a copy to operate on
+            WindyGraph copy = mInstance.getGraph().getDeepCopy();
+
+            //solve the shortest spanning tree problem to connect the required components of the graph
+            WindyGraph windyReq = connectRequiredComponents(copy);
+
+            //solve the min-cost matching problem to produce an eulerian augmentation to the original graph
+            eulerAugment(copy, windyReq);
+
+            //solve the min-cost flow problem to produce the optimal tour on the resultant windy graph
+            DirectedGraph ans = constructOptimalWindyTour(windyReq);
+
+            //go through the improvement procedures described in Benavent that eliminate added cycles
+            eliminateRedundantCycles(ans, windyReq, copy);
+
+
+            //return the answer
+            ArrayList<Integer> tour;
+            tour = CommonAlgorithms.tryHierholzer(ans);
+            Tour eulerTour = new Tour();
+            HashMap<Integer, Arc> indexedEdges = ans.getInternalEdgeMap();
+            for (int i = 0; i < tour.size(); i++) {
+                eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
+            }
+            currSol = eulerTour;
+            return eulerTour;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Type getProblemType() {
+        return Problem.Type.WINDY_RURAL_POSTMAN;
+    }
+
+    @Override
+    public String printCurrentSol() throws IllegalStateException {
+        if (currSol == null)
+            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
+
+        String ans = "WRPPSolver_Win: Printing current solution...";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
+        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
+        ans += "Route Cost: " + currSol.getCost() + "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "\n";
+        ans += currSol.toString();
+        ans += "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        return ans;
+
     }
 
     @Override

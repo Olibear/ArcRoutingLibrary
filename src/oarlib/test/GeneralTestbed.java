@@ -7,14 +7,16 @@ import oarlib.core.Graph;
 import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.graphgen.DirectedGraphGenerator;
+import oarlib.graph.graphgen.OSM_Fetcher;
 import oarlib.graph.graphgen.UndirectedGraphGenerator;
+import oarlib.graph.graphgen.Util.BoundingBox;
+import oarlib.graph.graphgen.Util.OSM_BoundingBoxes;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphReader;
-import oarlib.graph.io.GraphWriter;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
@@ -30,7 +32,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class GeneralTestbed {
+public class
+        GeneralTestbed {
 
     /**
      * The main method.  This class contains a bunch of test / validation methods, and is meant to give examples of
@@ -57,13 +60,20 @@ public class GeneralTestbed {
         //POMSexample();
         testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Desktop/kwrpp.txt");
         //testGraphDisplay();
+        //testOSMQuery();
+    }
+
+    @SuppressWarnings("unused")
+    private static void testOSMQuery() {
+        OSM_Fetcher fetcher = new OSM_Fetcher(new BoundingBox(-71.217725, 42.329616, -71.198092, 42.338468));
+        fetcher.queryForGraph();
     }
 
     @SuppressWarnings("unused")
     private static void testGraphDisplay() {
         try {
             DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-            DirectedGraph dGraph = (DirectedGraph)dgg.generateGraph(100,5,true,.005);
+            DirectedGraph dGraph = (DirectedGraph) dgg.generateGraph(100, 5, true, .005);
 
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, dGraph, "test");
             gd.export(GraphDisplay.ExportType.PDF);
@@ -175,11 +185,12 @@ public class GeneralTestbed {
 
 
                 //run on all instances in the folder
-                int limForDebug = 10; //only run on the first 10 instances for now
+                int limForDebug = 2; //only run on the first 10 instances for now
                 int debugCounter = 0;
+                String output;
 
                 for (final File testInstance : testInstanceFolder.listFiles()) {
-                    if(debugCounter >= limForDebug)
+                    if (debugCounter >= limForDebug)
                         break;
                     debugCounter++;
 
@@ -187,9 +198,12 @@ public class GeneralTestbed {
                     System.out.println(temp);
                     if (temp.equals(".DS_Store"))
                         continue;
-                    Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + temp);
+                    Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + "WB3065");
                     if (g.getClass() == WindyGraph.class) {
                         WindyGraph g2 = (WindyGraph) g;
+
+                        OSM_Fetcher fetcher = new OSM_Fetcher(OSM_BoundingBoxes.SUBURBAN_INSTANCES[0]);
+                        WindyGraph g3 = fetcher.queryForGraph();
 
                         validWInstance = new CapacitatedWPP(g2, 5);
                         validWSolver = new CapacitatedWPPSolver(validWInstance, temp);
@@ -204,19 +218,16 @@ public class GeneralTestbed {
 
                         for (Route r : validWAns) {
                             tempCost = r.getCost();
-                            if(tempCost > maxCost)
+                            if (tempCost > maxCost)
                                 maxCost = tempCost;
-                            if(tempCost < minCost)
+                            if (tempCost < minCost)
                                 minCost = tempCost;
 
-                            System.out.println("Now displaying route " + routeCounter++);
-                            System.out.println(r.toString());
-                            System.out.println("This route costs " + tempCost);
-                            System.out.println();
                         }
-                        System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Benavent's implementation on a graph with " + g2.getEdges().size() + " edges.");
-                        System.out.println("Objective Value: " + maxCost);
-                        pw.println(temp + ": " + maxCost);
+
+                        output = validWSolver.printCurrentSol();
+                        System.out.println(output);
+                        pw.println(output);
                     }
                 }
                 pw.close();

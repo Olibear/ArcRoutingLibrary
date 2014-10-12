@@ -17,99 +17,12 @@ import java.util.*;
 
 public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
 
-    WindyRPP mInstance;
     private static final double K = .2; //parameter fixed by computational experiments done by Benavent
+    WindyRPP mInstance;
 
     public WRPPSolver_Benavent_H1(WindyRPP instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
-    }
-
-    @Override
-    protected Problem getInstance() {
-        return mInstance;
-    }
-
-    @Override
-    protected Route solve() {
-        try {
-            WindyGraph copy = mInstance.getGraph().getDeepCopy();
-
-			/*
-             * Connect up the required components of the graph, just as in WRPP1.
-			 * Match ids in windyReq correspond to edge ids in copy after this.
-			 */
-            WindyGraph windyReq = WRPPSolver_Win.connectRequiredComponents(copy);
-
-            //calculate average cost of edges in Er', so add up (cij + cji)/2, and then divide by num edges of windyReq
-            double averageCost = calculateAverageCost(windyReq);
-
-            //construct E1 and E2
-            HashSet<Integer> E1 = new HashSet<Integer>();
-            HashSet<Integer> E2 = new HashSet<Integer>();
-
-			/*
-			 * Build out the edge sets E1 and E2, which hold the particularly asymmetric edges from windyReq, and
-			 * the everyone else respectively. We do so by searching windyReq for asymmetric edges, and adding their
-			 * match ids (ids in copy) to E1.  Then we go through copy's edges, and add the rest to E2. 
-			 */
-            buildEdgeSets(E1, E2, windyReq, copy, averageCost);
-
-			/*
-			 * Build Gdr, which is a graph that has only the edges in E1 in it as arcs directed in the cheap direction.
-			 * The purpose of doing so is to set demands for the flow problem we're about to solve.
-			 */
-            DirectedGraph Gdr = buildGdr(copy, E1);
-            HashSet<Integer> L = new HashSet<Integer>();
-            if (!CommonAlgorithms.isEulerian(Gdr)) {
-
-				/*
-				 * Build Gaux, which is a graph that is the directed graph induced by copy, PLUS
-				 * an extra arc for each edge in E1 in the expensive direction, with cost = (cji - cij)/2.
-				 * The match ids here will be ids in copy for the inf. capacity arcs, and -1 for the 
-				 * artificial ones. 
-				 */
-                DirectedGraph Gaux = buildGaux(copy, E1);
-
-                //set up the flow problem on Gaux using demands from Gdr
-                HashMap<Integer, DirectedVertex> indexedVertices = Gdr.getInternalVertexMap();
-                for (DirectedVertex v : Gaux.getVertices()) {
-                    v.setDemand(indexedVertices.get(v.getId()).getDelta());
-                }
-
-
-                //solve the flow problem on Gaux with demands from Gdr
-                int flowanswer[] = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(Gaux);
-
-				/*
-				 * Create a list of ids L (in copy) which represent guys that are likely to appear in the min cost flow
-				 * solution we solve to construct the optimal windy tour. 
-				 */
-                L = buildL(Gaux, E1, E2, flowanswer);
-            }
-			/*
-			 * Perform the same euler augmentation process the same as in WRPP1, except that this time, 
-			 * when we solve the matching, we want the edges we marked in L to be of zero cost
-			 * to coerce the matching to use these.
-			 */
-            eulerAugment(copy, windyReq, L);
-            DirectedGraph ans = WRPPSolver_Win.constructOptimalWindyTour(windyReq);
-            ans.setDepotId(copy.getDepotId());
-            WRPPSolver_Win.eliminateRedundantCycles(ans, windyReq, copy);
-
-            ArrayList<Integer> tour;
-            tour = CommonAlgorithms.tryHierholzer(ans);
-            Tour eulerTour = new Tour();
-            HashMap<Integer, Arc> indexedEdges = ans.getInternalEdgeMap();
-            for (int i = 0; i < tour.size(); i++) {
-                eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
-            }
-
-            return eulerTour;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public static void eulerAugment(WindyGraph fullGraph, WindyGraph g, HashSet<Integer> L) {
@@ -303,7 +216,6 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
         }
     }
 
-
     private static void buildEdgeSets(HashSet<Integer> e1, HashSet<Integer> e2, WindyGraph windyReq, WindyGraph fullGraph, double averageCost) {
         double costDiff;
         double threshold = K * averageCost;
@@ -343,10 +255,121 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
         return ans / 2.0;
     }
 
+    @Override
+    protected Problem getInstance() {
+        return mInstance;
+    }
+
+    @Override
+    protected Route solve() {
+        try {
+            WindyGraph copy = mInstance.getGraph().getDeepCopy();
+
+			/*
+             * Connect up the required components of the graph, just as in WRPP1.
+			 * Match ids in windyReq correspond to edge ids in copy after this.
+			 */
+            WindyGraph windyReq = WRPPSolver_Win.connectRequiredComponents(copy);
+
+            //calculate average cost of edges in Er', so add up (cij + cji)/2, and then divide by num edges of windyReq
+            double averageCost = calculateAverageCost(windyReq);
+
+            //construct E1 and E2
+            HashSet<Integer> E1 = new HashSet<Integer>();
+            HashSet<Integer> E2 = new HashSet<Integer>();
+
+			/*
+             * Build out the edge sets E1 and E2, which hold the particularly asymmetric edges from windyReq, and
+			 * the everyone else respectively. We do so by searching windyReq for asymmetric edges, and adding their
+			 * match ids (ids in copy) to E1.  Then we go through copy's edges, and add the rest to E2.
+			 */
+            buildEdgeSets(E1, E2, windyReq, copy, averageCost);
+
+			/*
+			 * Build Gdr, which is a graph that has only the edges in E1 in it as arcs directed in the cheap direction.
+			 * The purpose of doing so is to set demands for the flow problem we're about to solve.
+			 */
+            DirectedGraph Gdr = buildGdr(copy, E1);
+            HashSet<Integer> L = new HashSet<Integer>();
+            if (!CommonAlgorithms.isEulerian(Gdr)) {
+
+				/*
+				 * Build Gaux, which is a graph that is the directed graph induced by copy, PLUS
+				 * an extra arc for each edge in E1 in the expensive direction, with cost = (cji - cij)/2.
+				 * The match ids here will be ids in copy for the inf. capacity arcs, and -1 for the
+				 * artificial ones.
+				 */
+                DirectedGraph Gaux = buildGaux(copy, E1);
+
+                //set up the flow problem on Gaux using demands from Gdr
+                HashMap<Integer, DirectedVertex> indexedVertices = Gdr.getInternalVertexMap();
+                for (DirectedVertex v : Gaux.getVertices()) {
+                    v.setDemand(indexedVertices.get(v.getId()).getDelta());
+                }
+
+
+                //solve the flow problem on Gaux with demands from Gdr
+                int flowanswer[] = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(Gaux);
+
+				/*
+				 * Create a list of ids L (in copy) which represent guys that are likely to appear in the min cost flow
+				 * solution we solve to construct the optimal windy tour.
+				 */
+                L = buildL(Gaux, E1, E2, flowanswer);
+            }
+			/*
+			 * Perform the same euler augmentation process the same as in WRPP1, except that this time,
+			 * when we solve the matching, we want the edges we marked in L to be of zero cost
+			 * to coerce the matching to use these.
+			 */
+            eulerAugment(copy, windyReq, L);
+            DirectedGraph ans = WRPPSolver_Win.constructOptimalWindyTour(windyReq);
+            ans.setDepotId(copy.getDepotId());
+            WRPPSolver_Win.eliminateRedundantCycles(ans, windyReq, copy);
+
+            ArrayList<Integer> tour;
+            tour = CommonAlgorithms.tryHierholzer(ans);
+            Tour eulerTour = new Tour();
+            HashMap<Integer, Arc> indexedEdges = ans.getInternalEdgeMap();
+            for (int i = 0; i < tour.size(); i++) {
+                eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
+            }
+
+            currSol = eulerTour;
+            return eulerTour;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     @Override
     public Type getProblemType() {
         return Problem.Type.WINDY_RURAL_POSTMAN;
+    }
+
+    @Override
+    public String printCurrentSol() throws IllegalStateException {
+        if (currSol == null)
+            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
+
+        String ans = "WRPPSolver_Benavent_H1: Printing current solution...";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
+        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
+        ans += "Route Cost: " + currSol.getCost() + "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "\n";
+        ans += currSol.toString();
+        ans += "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        return ans;
+
     }
 
     @Override

@@ -135,4 +135,9 @@ public class WPPSolver_Gurobi extends SingleVehicleSolver {
         return Problem.Type.WINDY_CHINESE_POSTMAN;
     }
 
+    @Override
+    public String printCurrentSol() throws IllegalStateException {
+        return "This solver does not support printing.";
+    }
+
 }

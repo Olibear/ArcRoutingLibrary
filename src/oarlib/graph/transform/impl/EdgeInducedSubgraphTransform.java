@@ -2,7 +2,6 @@ package oarlib.graph.transform.impl;
 
 import oarlib.core.*;
 import oarlib.graph.impl.DirectedGraph;
-import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.GraphTransformer;
@@ -101,7 +100,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 temp = indexedEdges.get(i);
 
                 //start with only the required guys
-                if(!temp.isRequired())
+                if (!temp.isRequired())
                     continue;
                 first = temp.getEndpoints().getFirst();
                 firstId = first.getId();
@@ -138,10 +137,9 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 //now add the edges in there
 
                 //fix for windy case
-                if(isWindy) {
+                if (isWindy) {
                     ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), ((WindyEdge) temp).getReverseCost(), temp.isRequired());
-                }
-                else
+                } else
                     blankGraph.addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), temp.isRequired());
             }
 
@@ -220,15 +218,14 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                     blankGraph.addEdge(blankGraph.getDepotId(), blankGraph.getDepotId(), 0, true);
 
                     //fix for windy case
-                    if(next == start) {
+                    if (next == start) {
                         if (isWindy) {
                             ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge) indexedEdges.get(dijkstraEdges[end])).getReverseCost(), false);
-                        }
-                        else
+                        } else
                             blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), false);
                     }
 
-                } while((end = next) != start);
+                } while ((end = next) != start);
 
                 //connect partition to depot
                 CommonAlgorithms.dijkstrasAlgorithm(mGraph, bestConnectId, dijkstraDist, dijkstraPath, dijkstraEdges);
@@ -273,24 +270,22 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                     }
 
                     //fix for windy case
-                    if(next == start) {
+                    if (next == start) {
                         if (isWindy) {
                             ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), ((WindyEdge) l).getReverseCost(), true);
-                        }
-                        else
+                        } else
                             blankGraph.addEdge(first.getMatchId(), second.getMatchId(), l.getCost(), true);
                     }
 
-                } while((end = next) != start);
+                } while ((end = next) != start);
             }
 
             //now add back the non-required guys
-            for(Integer i : mEdges)
-            {
+            for (Integer i : mEdges) {
                 temp = indexedEdges.get(i);
 
                 //start with only the required guys
-                if(temp.isRequired())
+                if (temp.isRequired())
                     continue;
                 first = temp.getEndpoints().getFirst();
                 firstId = first.getId();
@@ -321,10 +316,9 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 //now add the edges in there
 
                 //fix for windy case
-                if(isWindy) {
+                if (isWindy) {
                     ((WindyGraph) blankGraph).addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), ((WindyEdge) temp).getReverseCost(), temp.isRequired());
-                }
-                else
+                } else
                     blankGraph.addEdge(first.getMatchId(), second.getMatchId(), temp.getCost(), temp.isRequired());
             }
 
@@ -475,22 +469,20 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             boolean isWindy = false;
             WindyEdge dup;
             HashMap<Integer, WindyEdge> windyEdgeMap = null;
-            if(subgraph.getClass() == WindyGraph.class) {
+            if (subgraph.getClass() == WindyGraph.class) {
                 isWindy = true;
-                windyEdgeMap = ((WindyGraph)mGraph).getInternalEdgeMap();
+                windyEdgeMap = ((WindyGraph) mGraph).getInternalEdgeMap();
             }
-
 
 
             for (int i = 1; i <= numEdges; i++) {
                 if (!realEdge.get(i) && flowanswer[i] > 0) {
                     tempKey = new Pair<Integer>(completeArcs.get(i).getTail().getId(), completeArcs.get(i).getHead().getId());
                     //fix for windy case
-                    if(isWindy) {
+                    if (isWindy) {
                         dup = windyEdgeMap.get(edgeMap.get(tempKey));
                         ((WindyGraph) subgraph).addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), dup.getCost(), dup.getReverseCost(), false);
-                    }
-                    else
+                    } else
                         subgraph.addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), costMap.get(tempKey), false);
                     System.out.println("We're connecting component " + tempKey.getFirst() + " was connected to component " + tempKey.getSecond());
                 }
@@ -515,8 +507,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             //compute sccs
             int[] ans2 = CommonAlgorithms.stronglyConnectedComponents(sccGraph2);
             int nScc2 = ans2[0];
-            if(nScc2 > 1)
-            {
+            if (nScc2 > 1) {
                 //compute the shortest paths
                 sccDist = new int[sccN + 1][sccN + 1];
                 sccPath = new int[sccN + 1][sccN + 1];
@@ -570,23 +561,21 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 //to handle the asymmetric case
                 isWindy = false;
                 windyEdgeMap = null;
-                if(subgraph.getClass() == WindyGraph.class) {
+                if (subgraph.getClass() == WindyGraph.class) {
                     isWindy = true;
-                    windyEdgeMap = ((WindyGraph)mGraph).getInternalEdgeMap();
+                    windyEdgeMap = ((WindyGraph) mGraph).getInternalEdgeMap();
                 }
-
 
 
                 for (int i = 1; i <= numEdges; i++) {
                     if (mst[i] > 0) {
                         tempKey = new Pair<Integer>(completeEdges.get(i).getEndpoints().getFirst().getId(), completeEdges.get(i).getEndpoints().getSecond().getId());
                         //fix for windy case
-                        if(isWindy) {
+                        if (isWindy) {
                             dup = windyEdgeMap.get(edgeMap.get(tempKey));
                             ((WindyGraph) subgraph).addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), dup.getCost(), dup.getReverseCost(), false);
-                        }
-                        else
-                        subgraph.addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), costMap.get(tempKey), false);
+                        } else
+                            subgraph.addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), costMap.get(tempKey), false);
                         System.out.println("We're connecting component " + tempKey.getFirst() + " was connected to component " + tempKey.getSecond());
                     }
                 }

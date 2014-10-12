@@ -5,7 +5,6 @@ import oarlib.core.Vertex;
 import oarlib.exceptions.FormatMismatchException;
 import oarlib.graph.transform.rebalance.RebalanceTransformer;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.graph.util.Pair;
 
 import java.util.HashMap;
 
@@ -54,7 +53,7 @@ public class IndividualDistanceToDepotRebalancer<S extends Graph<?, ?>> extends 
         //update the vertex weights for each
         HashMap<Integer, ? extends Vertex> indexedVertices = mGraph.getInternalVertexMap();
         for (int i = 1; i <= n; i++) {
-            if(i == mGraph.getDepotId())
+            if (i == mGraph.getDepotId())
                 continue;
             indexedVertices.get(i).setCost(indexedVertices.get(i).getCost() + dist[i]);
         }

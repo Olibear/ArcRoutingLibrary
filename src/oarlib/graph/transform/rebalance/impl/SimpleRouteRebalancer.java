@@ -7,15 +7,18 @@ import oarlib.core.Vertex;
 import oarlib.exceptions.FormatMismatchException;
 import oarlib.graph.transform.rebalance.RebalanceTransformer;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * A post processing rebalancer that divides the cost of the route among its constituent vertices.
  */
-public class SimpleRouteRebalancer<S extends Graph<?,?>> extends RebalanceTransformer<S> {
+public class SimpleRouteRebalancer<S extends Graph<?, ?>> extends RebalanceTransformer<S> {
 
     ArrayList<Route> workingSol;
+
     /**
      * Super constructor for any Rebalance transformers.
      *
@@ -36,8 +39,7 @@ public class SimpleRouteRebalancer<S extends Graph<?,?>> extends RebalanceTransf
         mGraph = input;
     }
 
-    public void setSol(ArrayList<Route> newSol)
-    {
+    public void setSol(ArrayList<Route> newSol) {
         workingSol = newSol;
     }
 
@@ -49,26 +51,23 @@ public class SimpleRouteRebalancer<S extends Graph<?,?>> extends RebalanceTransf
          */
 
         ArrayList<HashSet<Integer>> verticesInRoute = new ArrayList<HashSet<Integer>>();
-        ArrayList<Integer> numAppearances = new ArrayList<Integer>(mGraph.getVertices().size()+1);
+        ArrayList<Integer> numAppearances = new ArrayList<Integer>(mGraph.getVertices().size() + 1);
         for (int i = 0; i <= mGraph.getVertices().size(); i++) {
             numAppearances.add(0);
         }
 
         int firstId, secondId;
         HashSet<Integer> toAdd;
-        for(int i = 0; i < workingSol.size(); i ++)
-        {
+        for (int i = 0; i < workingSol.size(); i++) {
             Route r = workingSol.get(i);
             toAdd = new HashSet<Integer>();
             List<? extends Link<? extends Vertex>> path = r.getRoute();
             HashMap<Integer, Integer> mapping = r.getMapping();
-            for(Link<? extends Vertex> l : path)
-            {
-                if(mapping.isEmpty()) {
+            for (Link<? extends Vertex> l : path) {
+                if (mapping.isEmpty()) {
                     firstId = l.getEndpoints().getFirst().getId();
                     secondId = l.getEndpoints().getSecond().getId();
-                }
-                else {
+                } else {
                     firstId = mapping.get(l.getEndpoints().getFirst().getId());
                     secondId = mapping.get(l.getEndpoints().getSecond().getId());
                 }
@@ -83,12 +82,10 @@ public class SimpleRouteRebalancer<S extends Graph<?,?>> extends RebalanceTransf
 
         //now actually do the addition
         int penalty;
-        for(Vertex v : mGraph.getVertices())
-        {
+        for (Vertex v : mGraph.getVertices()) {
             penalty = 0;
-            for(int i = 0; i < workingSol.size(); i++)
-            {
-                if(verticesInRoute.get(i).contains(v.getId()))
+            for (int i = 0; i < workingSol.size(); i++) {
+                if (verticesInRoute.get(i).contains(v.getId()))
                     penalty += workingSol.get(i).getCost();
             }
             v.setCost(v.getCost() + (penalty / numAppearances.get(v.getId())));

@@ -44,6 +44,13 @@ public abstract class Route {
     }
 
     /**
+     * Fetch the id mapping used.
+     */
+    public HashMap<Integer, Integer> getMapping() {
+        return mCustomIDMap;
+    }
+
+    /**
      * Alter the id mapping used.
      *
      * @param newMapping
@@ -51,16 +58,6 @@ public abstract class Route {
     public void setMapping(HashMap<Integer, Integer> newMapping) {
         mCustomIDMap = newMapping;
     }
-
-    /**
-     * Fetch the id mapping used.
-     *
-     */
-    public HashMap<Integer, Integer> getMapping() {
-        return mCustomIDMap;
-    }
-
-
 
     /**
      * Retrieve a copy of the current route.

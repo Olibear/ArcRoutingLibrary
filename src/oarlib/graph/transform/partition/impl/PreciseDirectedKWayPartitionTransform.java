@@ -1,12 +1,9 @@
 package oarlib.graph.transform.partition.impl;
 
 import oarlib.core.Arc;
-import oarlib.core.Edge;
 import oarlib.graph.impl.DirectedGraph;
-import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
 import oarlib.vertex.impl.DirectedVertex;
-import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +48,7 @@ public class PreciseDirectedKWayPartitionTransform implements PartitionTransform
                 head = temp.getEndpoints().getSecond();
 
                 //assign the cost:
-                if(temp.isRequired() || mWeighNonReq)
+                if (temp.isRequired() || mWeighNonReq)
                     ansVertices.get(i).setCost(temp.getCost());
                 else
                     ansVertices.get(i).setCost(0);

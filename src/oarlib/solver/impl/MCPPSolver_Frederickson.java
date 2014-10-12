@@ -32,105 +32,6 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
         mInstance = instance;
     }
 
-    @Override
-    protected Route solve() {
-        try {
-
-            MixedGraph ans1 = mInstance.getGraph().getDeepCopy(); //starting point for Mixed1
-            MixedGraph ans2 = mInstance.getGraph().getDeepCopy(); //starting point for Mixed2
-
-            //Vars for bookkeeping
-            ArrayList<MixedEdge> U = new ArrayList<MixedEdge>(); //will hold the list of edges that are still undirected after inOutDegree
-            ArrayList<MixedEdge> M = new ArrayList<MixedEdge>(); //will hold the list of directed edges after inOutDegree
-            ArrayList<Boolean> inMdubPrime = new ArrayList<Boolean>(); // will hold the list of copies of directed edges after inOutDegree
-
-            //Start Mixed 1
-            /*
-			 * This procedure aims to make the mixed graph even; that is, for each vertex v, v.getDegree() % 2 == 0.
-			 */
-            evenDegree(ans1);
-
-			/*
-			 * This procedure aims to make the mixed graph symmetric; that is, for each vertex v, v.getInDegree() == v.getOutDegree().
-			 * Note that this may disrupt the property of every vertex being even.
-			 */
-            inOutDegree(ans1, U, M, inMdubPrime);
-
-			/*
-			 * This procedure restores evenness to the graph, without disturbing the symmetric property of the graph.
-			 */
-            evenParity(ans1, U, M, inMdubPrime);
-            //End Mixed 1
-
-            //Start Mixed 2
-
-            //Vars for bookkeeping
-            U = new ArrayList<MixedEdge>();
-            M = new ArrayList<MixedEdge>();
-            inMdubPrime = new ArrayList<Boolean>();
-
-			/*
-			 * This procedure aims to make the mixed graph symmetric; that is, for each vertex v, v.getInDegree() == v.getOutDegree().
-			 * Note that this may disrupt the property of every vertex being even.
-			 */
-            inOutDegree(ans2, U, M, inMdubPrime);
-
-			/*
-			 * This procedure aims to restore evenness to the graph by performing a matching on the graph induced
-			 * by the edges left undirected after inOutDegree
-			 */
-            largeCycles(ans2, U);
-            ans2.clearEdges();
-
-
-            int mSize, uSize;
-            mSize = M.size();
-            uSize = U.size();
-            for (int i = 0; i < mSize; i++) {
-                ans2.addEdge(M.get(i));
-            }
-            for (int i = 0; i < uSize; i++) {
-                ans2.addEdge(U.get(i));
-            }
-            //End Mixed 2
-
-            //select the lower cost of the two
-            int cost1 = 0;
-            int cost2 = 0;
-            for (MixedEdge temp : ans1.getEdges()) {
-                cost1 += temp.getCost();
-            }
-            for (MixedEdge temp : ans2.getEdges()) {
-                cost2 += temp.getCost();
-            }
-
-            ArrayList<Integer> tour;
-            Tour eulerTour = new Tour();
-            if (cost1 <= cost2) {
-                System.out.println("ans1 chosen: " + CommonAlgorithms.isStronglyConnected(ans1));
-                tour = CommonAlgorithms.tryHierholzer(ans1);
-                HashMap<Integer, MixedEdge> indexedEdges = ans1.getInternalEdgeMap();
-                int tourSize = tour.size();
-                for (int i = 0; i < tourSize; i++) {
-                    eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
-                }
-            } else {
-                System.out.println("ans2 chosen: " + CommonAlgorithms.isStronglyConnected(ans2));
-                tour = CommonAlgorithms.tryHierholzer(ans2);
-                HashMap<Integer, MixedEdge> indexedEdges = ans2.getInternalEdgeMap();
-                int tourSize = tour.size();
-                for (int i = 0; i < tourSize; i++) {
-                    eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
-                }
-            }
-            return eulerTour;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     /**
      * As described in Frederickson, we solve a min cost perfect matching on the odd vertices, and then
      * adds the paths to create an even graph.
@@ -563,8 +464,131 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
     }
 
     @Override
+    protected Route solve() {
+        try {
+
+            MixedGraph ans1 = mInstance.getGraph().getDeepCopy(); //starting point for Mixed1
+            MixedGraph ans2 = mInstance.getGraph().getDeepCopy(); //starting point for Mixed2
+
+            //Vars for bookkeeping
+            ArrayList<MixedEdge> U = new ArrayList<MixedEdge>(); //will hold the list of edges that are still undirected after inOutDegree
+            ArrayList<MixedEdge> M = new ArrayList<MixedEdge>(); //will hold the list of directed edges after inOutDegree
+            ArrayList<Boolean> inMdubPrime = new ArrayList<Boolean>(); // will hold the list of copies of directed edges after inOutDegree
+
+            //Start Mixed 1
+            /*
+             * This procedure aims to make the mixed graph even; that is, for each vertex v, v.getDegree() % 2 == 0.
+			 */
+            evenDegree(ans1);
+
+			/*
+			 * This procedure aims to make the mixed graph symmetric; that is, for each vertex v, v.getInDegree() == v.getOutDegree().
+			 * Note that this may disrupt the property of every vertex being even.
+			 */
+            inOutDegree(ans1, U, M, inMdubPrime);
+
+			/*
+			 * This procedure restores evenness to the graph, without disturbing the symmetric property of the graph.
+			 */
+            evenParity(ans1, U, M, inMdubPrime);
+            //End Mixed 1
+
+            //Start Mixed 2
+
+            //Vars for bookkeeping
+            U = new ArrayList<MixedEdge>();
+            M = new ArrayList<MixedEdge>();
+            inMdubPrime = new ArrayList<Boolean>();
+
+			/*
+			 * This procedure aims to make the mixed graph symmetric; that is, for each vertex v, v.getInDegree() == v.getOutDegree().
+			 * Note that this may disrupt the property of every vertex being even.
+			 */
+            inOutDegree(ans2, U, M, inMdubPrime);
+
+			/*
+			 * This procedure aims to restore evenness to the graph by performing a matching on the graph induced
+			 * by the edges left undirected after inOutDegree
+			 */
+            largeCycles(ans2, U);
+            ans2.clearEdges();
+
+
+            int mSize, uSize;
+            mSize = M.size();
+            uSize = U.size();
+            for (int i = 0; i < mSize; i++) {
+                ans2.addEdge(M.get(i));
+            }
+            for (int i = 0; i < uSize; i++) {
+                ans2.addEdge(U.get(i));
+            }
+            //End Mixed 2
+
+            //select the lower cost of the two
+            int cost1 = 0;
+            int cost2 = 0;
+            for (MixedEdge temp : ans1.getEdges()) {
+                cost1 += temp.getCost();
+            }
+            for (MixedEdge temp : ans2.getEdges()) {
+                cost2 += temp.getCost();
+            }
+
+            ArrayList<Integer> tour;
+            Tour eulerTour = new Tour();
+            if (cost1 <= cost2) {
+                System.out.println("ans1 chosen: " + CommonAlgorithms.isStronglyConnected(ans1));
+                tour = CommonAlgorithms.tryHierholzer(ans1);
+                HashMap<Integer, MixedEdge> indexedEdges = ans1.getInternalEdgeMap();
+                int tourSize = tour.size();
+                for (int i = 0; i < tourSize; i++) {
+                    eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
+                }
+            } else {
+                System.out.println("ans2 chosen: " + CommonAlgorithms.isStronglyConnected(ans2));
+                tour = CommonAlgorithms.tryHierholzer(ans2);
+                HashMap<Integer, MixedEdge> indexedEdges = ans2.getInternalEdgeMap();
+                int tourSize = tour.size();
+                for (int i = 0; i < tourSize; i++) {
+                    eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
+                }
+            }
+            currSol = eulerTour;
+            return eulerTour;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
     public Problem.Type getProblemType() {
         return Problem.Type.MIXED_CHINESE_POSTMAN;
+    }
+
+    @Override
+    public String printCurrentSol() throws IllegalStateException {
+        if (currSol == null)
+            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
+
+        String ans = "MCPPSolver_Frederickson: Printing current solution...";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
+        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
+        ans += "Route Cost: " + currSol.getCost() + "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "\n";
+        ans += currSol.toString();
+        ans += "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        return ans;
     }
 
     @Override

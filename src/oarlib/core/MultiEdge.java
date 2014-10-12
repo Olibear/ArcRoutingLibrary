@@ -16,18 +16,6 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
     private boolean directedForward; // if the copies are directed from endpoint 1 to endpoint 2, this is true (D is the exception; it has both flags set to false)
     private boolean directedBackward; // if the copies are directed from endpoint 2 to endpoint 1, this is true (D is the exception; it has both flags set to false)
 
-    public enum EDGETYPE {
-        /**
-         * A = undirected edge
-         * B = directed edge
-         * C = directed edge + n copies (n > 0)
-         * D = edge that has become two, opposite direction arcs
-         * E = directed arc
-         * F = directed arc + n copies (n > 0)
-         */
-        A, B, C, D, E, F
-    }
-
     /**
      * Default constructor for the multi-edge.
      *
@@ -209,6 +197,18 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
      */
     public boolean isDirectedBackward() {
         return directedBackward;
+    }
+
+    public enum EDGETYPE {
+        /**
+         * A = undirected edge
+         * B = directed edge
+         * C = directed edge + n copies (n > 0)
+         * D = edge that has become two, opposite direction arcs
+         * E = directed arc
+         * F = directed arc + n copies (n > 0)
+         */
+        A, B, C, D, E, F
     }
 
 }

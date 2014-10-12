@@ -10,10 +10,12 @@ import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
-import org.gephi.graph.api.Edge;
-import org.gephi.graph.api.GraphController;
-import org.gephi.graph.api.GraphModel;
-import org.gephi.graph.api.Node;
+import org.gephi.data.attributes.api.AttributeController;
+import org.gephi.data.attributes.api.AttributeModel;
+import org.gephi.filters.api.FilterController;
+import org.gephi.filters.api.Query;
+import org.gephi.filters.plugin.partition.PartitionBuilder;
+import org.gephi.graph.api.*;
 import org.gephi.io.exporter.api.ExportController;
 import org.gephi.layout.plugin.AutoLayout;
 import org.gephi.layout.plugin.force.StepDisplacement;
@@ -21,6 +23,8 @@ import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout;
 import org.gephi.layout.plugin.labelAdjust.LabelAdjust;
 import org.gephi.layout.spi.LayoutProperty;
+import org.gephi.partition.api.Partition;
+import org.gephi.partition.api.PartitionController;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
@@ -47,35 +51,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class GraphDisplay {
 
-    /**
-     * The types of supported display formats.
-     */
-    public enum Layout {
-        YifanHu,
-        ForceAtlas,
-        ForceAtlas2,
-        LabelAdjust,
-        FruchtermanReingold;
-    }
-
-    ;
-
-    /**
-     * The types of supported export formats.
-     */
-    public enum ExportType {
-        PDF,
-        GEXF,
-        CSV;
-    }
-
-    ;
-
     private Layout mLayout;
-    private Graph<? extends Vertex, ? extends Link<? extends Vertex>> mGraph;
-    private String mInstanceName;
 
-    public GraphDisplay(Layout layout, Graph<? extends Vertex,? extends Link<? extends Vertex>> graph, String instanceName) {
+    ;
+    private Graph<? extends Vertex, ? extends Link<? extends Vertex>> mGraph;
+
+    ;
+    private String mInstanceName;
+    public GraphDisplay(Layout layout, Graph<? extends Vertex, ? extends Link<? extends Vertex>> graph, String instanceName) {
         mLayout = layout;
         mGraph = graph;
         mInstanceName = instanceName;
@@ -91,10 +74,11 @@ public class GraphDisplay {
 
     /**
      * Exports the graph associated with this display to the specified export type, (e.g. PDF), using the display's layout.
+     *
      * @param et - the preferred export format.
      * @return - true if the export is successful; false oth.
      */
-    public boolean export(ExportType et) throws UnsupportedFormatException{
+    public boolean export(ExportType et) throws UnsupportedFormatException {
 
         try {
             switch (et) {
@@ -117,10 +101,12 @@ public class GraphDisplay {
 
     /**
      * Exports the graph associated with this display to the specified export type, (e.g. PDF), using the display's layout.
-     * @param et - the preferred export format.
+     *
+     * @param et            - the preferred export format.
+     * @param edgePartition - key = edge id; value = partition #
      * @return - true if the export is successful; false oth.
      */
-    public boolean exportWithPartition(ExportType et, HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException, IllegalArgumentException{
+    public boolean exportWithPartition(ExportType et, HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException, IllegalArgumentException {
         try {
             switch (et) {
                 case PDF:
@@ -134,34 +120,34 @@ public class GraphDisplay {
                     break;
             }
             return true;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    private void exportToGEXF(HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException{
+    private void exportToGEXF(HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException {
 
     }
 
-    private void exportToCSV(HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException{
+    private void exportToCSV(HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException {
 
     }
 
-    private void exportToPDF(HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException{
+    private void exportToPDF(HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException {
 
         boolean withPartitions = edgePartition != null;
         boolean useAutoLayout = true;
+        int numPartitions = 0;
 
-        if(withPartitions && edgePartition.keySet().size() != mGraph.getEdges().size())
+        if (withPartitions && edgePartition.keySet().size() != mGraph.getEdges().size())
             throw new IllegalArgumentException("The specified partition does not seem to have the appropriate number of entries.");
 
 
         //figure out max cost
         int maxCost = 0;
-        for(Link l: mGraph.getEdges())
-            if(l.getCost() > maxCost)
+        for (Link l : mGraph.getEdges())
+            if (l.getCost() > maxCost)
                 maxCost = l.getCost();
 
 
@@ -174,19 +160,15 @@ public class GraphDisplay {
         GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
         org.gephi.graph.api.Graph graph;
 
-        if(mGraph.getClass() == UndirectedGraph.class) {
+        if (mGraph.getClass() == UndirectedGraph.class) {
             graph = graphModel.getUndirectedGraph();
-        }
-        else if(mGraph.getClass() == DirectedGraph.class) {
+        } else if (mGraph.getClass() == DirectedGraph.class) {
             graph = graphModel.getDirectedGraph();
-        }
-        else if(mGraph.getClass() == MixedGraph.class) {
+        } else if (mGraph.getClass() == MixedGraph.class) {
             graph = graphModel.getMixedGraph();
-        }
-        else if(mGraph.getClass() == WindyGraph.class) {
+        } else if (mGraph.getClass() == WindyGraph.class) {
             graph = graphModel.getUndirectedGraph();
-        }
-        else
+        } else
             throw new UnsupportedFormatException("The graph passed in is not currently supported for visualization");
 
         //add nodes
@@ -194,26 +176,52 @@ public class GraphDisplay {
         Vertex tempV;
         HashMap<Integer, ? extends Vertex> mVertices = mGraph.getInternalVertexMap();
 
-        Node[] nodeSet = new Node[n+1];
+        Node[] nodeSet = new Node[n + 1];
         Node temp;
-        for(int i = 1; i <= n; i++) {
+
+        //figure out anchors for scaling
+        double minX = Double.MAX_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = -Double.MAX_VALUE;
+        double maxY = -Double.MAX_VALUE;
+
+        for (int i = 1; i <= n; i++) {
+            tempV = mVertices.get(i);
+
+            if (tempV.getX() > maxX)
+                maxX = tempV.getX();
+            if (tempV.getX() < minX)
+                minX = tempV.getX();
+
+
+            if (tempV.getY() > maxY)
+                maxY = tempV.getY();
+            if (tempV.getY() < minY)
+                minY = tempV.getY();
+        }
+
+        float xRange = (float) (maxX - minX);
+        float yRange = (float) (maxY - minY);
+        float xScaleFactor = 100f / xRange * 100;
+        float yScaleFactor = 100f / yRange * 100;
+
+        for (int i = 1; i <= n; i++) {
             tempV = mVertices.get(i);
             temp = graphModel.factory().newNode();
 
-            if(mGraph.getDepotId() == i) {
+            if (mGraph.getDepotId() == i) {
                 temp.getNodeData().setLabel("Depot");
                 temp.getNodeData().setSize(5f);
-            }
-            else {
+            } else {
                 temp.getNodeData().setLabel(String.valueOf(i));
                 temp.getNodeData().setSize(3f);
             }
             temp.getNodeData().setColor(1f, 1f, 1f);
 
-            if(tempV.hasCoordinates()) {
+            if (tempV.hasCoordinates()) {
                 useAutoLayout = false;
-                temp.getNodeData().setX((float)tempV.getX());
-                temp.getNodeData().setY((float)tempV.getY());
+                temp.getNodeData().setX((float) (tempV.getX() - minX) * xScaleFactor);
+                temp.getNodeData().setY((float) (tempV.getY() - minY) * yScaleFactor);
             }
 
             nodeSet[i] = temp;
@@ -227,34 +235,38 @@ public class GraphDisplay {
         Link<? extends Vertex> tempLink;
         float cost = 0f;
         float revCost = 0f;
-        for(int i = 1; i <= m; i ++) {
+
+        for (int i = 1; i <= m; i++) {
             tempLink = edgeMap.get(i);
             if (tempLink.getCost() == 0) {
                 cost = .5f;
                 revCost = .5f;
-            }
-            else {
+            } else {
                 cost = ((float) maxCost - tempLink.getCost()) / maxCost;
-                if(tempLink.getClass() == WindyEdge.class)
-                    revCost = ((float) maxCost - ((WindyEdge)tempLink).getReverseCost()) / maxCost;
+                if (tempLink.getClass() == WindyEdge.class)
+                    revCost = ((float) maxCost - ((WindyEdge) tempLink).getReverseCost()) / maxCost;
             }
 
-            if(tempLink.getClass() == WindyEdge.class)
-                tempEdge = graphModel.factory().newEdge(nodeSet[tempLink.getEndpoints().getFirst().getId()], nodeSet[tempLink.getEndpoints().getSecond().getId()], (cost+revCost)/2f, tempLink.isDirected());
+            if (tempLink.getClass() == WindyEdge.class)
+                tempEdge = graphModel.factory().newEdge(nodeSet[tempLink.getEndpoints().getFirst().getId()], nodeSet[tempLink.getEndpoints().getSecond().getId()], (cost + revCost) / 2f, tempLink.isDirected());
             else
                 tempEdge = graphModel.factory().newEdge(nodeSet[tempLink.getEndpoints().getFirst().getId()], nodeSet[tempLink.getEndpoints().getSecond().getId()], cost, tempLink.isDirected());
-            if(tempLink.getClass() == WindyEdge.class)
-                tempEdge.getEdgeData().setLabel(tempLink.getCost() + "," + ((WindyEdge)tempLink).getReverseCost());
+            if (tempLink.getClass() == WindyEdge.class)
+                tempEdge.getEdgeData().setLabel(tempLink.getCost() + "," + ((WindyEdge) tempLink).getReverseCost());
             else
                 tempEdge.getEdgeData().setLabel(String.valueOf(tempLink.getCost()));
-            if(withPartitions)
+            if (withPartitions) {
                 tempEdge.getEdgeData().getAttributes().setValue("Partition", edgePartition.get(i));
-            else
+                if (edgePartition.get(i) > numPartitions)
+                    numPartitions = edgePartition.get(i);
+            } else
                 tempEdge.getEdgeData().getAttributes().setValue("Partition", 1);
             graph.addEdge(tempEdge);
         }
 
-        if(useAutoLayout) {
+        numPartitions++;
+
+        if (useAutoLayout) {
             //Layout for 1 minute
             AutoLayout autoLayout = new AutoLayout(1, TimeUnit.MINUTES);
             autoLayout.setGraphModel(graphModel);
@@ -270,14 +282,21 @@ public class GraphDisplay {
             autoLayout.addLayout(secondLayout, 0.3f, new AutoLayout.DynamicProperty[]{adjustBySizeProperty, repulsionProperty});
             autoLayout.addLayout(thirdLayout, 0.2f, new AutoLayout.DynamicProperty[]{speed2});
             autoLayout.execute();
-         }
+        }
 
         //testing partitioning
         RankingController rc = Lookup.getDefault().lookup(RankingController.class);
         Ranking partitionRanking = rc.getModel().getRanking(Ranking.EDGE_ELEMENT, "Partition");
         AbstractColorTransformer ct = (AbstractColorTransformer) rc.getModel().getTransformer(Ranking.EDGE_ELEMENT, Transformer.RENDERABLE_COLOR);
 
-        ct.setColors(Colors.RESTRICTED_KELLY_COLORS);
+        float increment = 1f / (Colors.RYGCBGB.length - 1);
+        float[] positions = new float[Colors.RYGCBGB.length];
+        for(int i = 0; i < Colors.RYGCBGB.length; i++) {
+            positions[i] = i * increment;
+        }
+        ct.setColorPositions(positions);
+        ct.setColors(Colors.RYGCBGB);
+
         rc.transform(partitionRanking, ct);
 
         //Change some coloring / size attributes
@@ -288,6 +307,7 @@ public class GraphDisplay {
         pm.getProperties().putValue(PreviewProperty.EDGE_COLOR, edgeColor);
         pm.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, true);
         pm.getProperties().putValue(PreviewProperty.SHOW_EDGE_LABELS, true);
+        pm.getProperties().putValue(PreviewProperty.EDGE_CURVED, false);
         pm.getProperties().putValue(PreviewProperty.NODE_LABEL_PROPORTIONAL_SIZE, true);
         pm.getProperties().putValue(PreviewProperty.EDGE_LABEL_FONT, new Font("Helvetica", Font.ITALIC, 3));
         pm.getProperties().putValue(PreviewProperty.NODE_LABEL_FONT, new Font("Helvetica", Font.ITALIC, 3));
@@ -295,10 +315,56 @@ public class GraphDisplay {
         //Export
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
         try {
-            ec.exportFile(new File("/Users/oliverlum/Downloads/" +mInstanceName + "autolayout.pdf"));
+            ec.exportFile(new File("/Users/oliverlum/Downloads/Plots/" + mInstanceName + "autolayout.pdf"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
+        //now do the subgraphs
+        if (withPartitions) {
+            PartitionController partitionController = Lookup.getDefault().lookup(PartitionController.class);
+            AttributeModel attributeModel = Lookup.getDefault().lookup(AttributeController.class).getModel();
+            Partition p = partitionController.buildPartition(attributeModel.getEdgeTable().getColumn("Partition"), graph);
+
+            PartitionBuilder.EdgePartitionFilter epf = new PartitionBuilder.EdgePartitionFilter(p);
+            FilterController fc = Lookup.getDefault().lookup(FilterController.class);
+            Query q;
+            GraphView view;
+            for (int i = 0; i < numPartitions; i++) {
+                epf.unselectAll();
+                epf.addPart(p.getPartFromValue(i));
+
+                q = fc.createQuery(epf);
+                view = fc.filter(q);
+                graphModel.setVisibleView(view);
+
+                try {
+                    ec.exportFile(new File("/Users/oliverlum/Downloads/Plots/" + mInstanceName + "_PART_" + i + "_autolayout.pdf"));
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+    /**
+     * The types of supported display formats.
+     */
+    public enum Layout {
+        YifanHu,
+        ForceAtlas,
+        ForceAtlas2,
+        LabelAdjust,
+        FruchtermanReingold;
+    }
+
+    /**
+     * The types of supported export formats.
+     */
+    public enum ExportType {
+        PDF,
+        GEXF,
+        CSV;
     }
 }

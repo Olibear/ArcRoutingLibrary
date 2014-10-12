@@ -22,41 +22,6 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
         mInstance = instance;
     }
 
-    @Override
-    protected Route solve() {
-
-        /*
-         * The algorithm is simply:
-         *
-         * -Determine the imbalanced vertices (excess in or out degree)
-         * -Solve the min-cost flow problem induced by the graph
-         * -For each edge, add copies equal to the amount of flow specified
-         * by the solution to the flow problem
-         * -Route
-         *
-         * copy - so we don't screw with the original graph passed in
-         *
-         * indexedArcs - the edge map for copy
-         *
-         * ans - the list of edges returned by the routing procedure, in the order they are traversed on the tour
-         *
-         * eulerTour - the route container which will make the string rep. look more like something we want to see
-         * (e.g. a vertex route).
-         */
-        DirectedGraph copy = mInstance.getGraph().getDeepCopy();
-        HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
-
-        eulerAugment(copy);
-
-        // return the answer
-        ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
-        Tour eulerTour = new Tour();
-        for (int i = 0; i < ans.size(); i++) {
-            eulerTour.appendEdge(indexedArcs.get(ans.get(i)));
-        }
-        return eulerTour;
-    }
-
     private static void eulerAugment(DirectedGraph input) {
 
         /*
@@ -89,8 +54,68 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
     }
 
     @Override
+    protected Route solve() {
+
+        /*
+         * The algorithm is simply:
+         *
+         * -Determine the imbalanced vertices (excess in or out degree)
+         * -Solve the min-cost flow problem induced by the graph
+         * -For each edge, add copies equal to the amount of flow specified
+         * by the solution to the flow problem
+         * -Route
+         *
+         * copy - so we don't screw with the original graph passed in
+         *
+         * indexedArcs - the edge map for copy
+         *
+         * ans - the list of edges returned by the routing procedure, in the order they are traversed on the tour
+         *
+         * eulerTour - the route container which will make the string rep. look more like something we want to see
+         * (e.g. a vertex route).
+         */
+        DirectedGraph copy = mInstance.getGraph().getDeepCopy();
+        HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
+
+        eulerAugment(copy);
+
+        // return the answer
+        ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
+        Tour eulerTour = new Tour();
+        for (int i = 0; i < ans.size(); i++) {
+            eulerTour.appendEdge(indexedArcs.get(ans.get(i)));
+        }
+        currSol = eulerTour;
+        return eulerTour;
+    }
+
+    @Override
     public Problem.Type getProblemType() {
         return Problem.Type.DIRECTED_CHINESE_POSTMAN;
+    }
+
+    @Override
+    public String printCurrentSol() throws IllegalStateException {
+        if (currSol == null)
+            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
+
+        String ans = "DCPPSolver_Edmonds: Printing current solution...";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
+        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
+        ans += "Route Cost: " + currSol.getCost() + "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "\n";
+        ans += currSol.toString();
+        ans += "\n";
+        ans += "\n";
+        ans += "=======================================================";
+
+        return ans;
     }
 
     @Override

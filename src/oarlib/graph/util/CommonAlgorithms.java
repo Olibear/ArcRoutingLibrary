@@ -28,7 +28,7 @@ public class CommonAlgorithms {
     public static ArrayList<Integer> tryHierholzer(DirectedGraph eulerianGraph) throws IllegalArgumentException {
         if (!isEulerian(eulerianGraph))
             throw new IllegalArgumentException();
-        if(eulerianGraph.getEdges().size() == 0)
+        if (eulerianGraph.getEdges().size() == 0)
             return new ArrayList<Integer>();
         return hierholzer(eulerianGraph, false);
     }
@@ -43,7 +43,7 @@ public class CommonAlgorithms {
     public static ArrayList<Integer> tryHierholzer(UndirectedGraph eulerianGraph) throws IllegalArgumentException {
         if (!isEulerian(eulerianGraph))
             throw new IllegalArgumentException();
-        if(eulerianGraph.getEdges().size() == 0)
+        if (eulerianGraph.getEdges().size() == 0)
             return new ArrayList<Integer>();
         return hierholzer(eulerianGraph, false);
     }
@@ -58,7 +58,7 @@ public class CommonAlgorithms {
     public static ArrayList<Integer> tryHierholzer(MixedGraph eulerianGraph) throws IllegalArgumentException {
         if (!isStronglyEulerian(eulerianGraph))
             throw new IllegalArgumentException();
-        if(eulerianGraph.getEdges().size() == 0)
+        if (eulerianGraph.getEdges().size() == 0)
             return new ArrayList<Integer>();
         DirectedGraph ans = CommonAlgorithms.directUndirectedCycles(eulerianGraph);
         if (!isStronglyConnected(ans))
@@ -1564,7 +1564,7 @@ public class CommonAlgorithms {
     }
 
     /*
-	 * Mainly for use with the MCPP Solvers, once we have our answer, we want to be able to search for 
+     * Mainly for use with the MCPP Solvers, once we have our answer, we want to be able to search for
 	 * convert an eulerian mixed graph into an eulerian directed graph.  This graph simply identifies
 	 * undirected cycles in the input graph, and directs them in an arbitrary direction.  
 	 */
@@ -1964,7 +1964,7 @@ public class CommonAlgorithms {
         int[] artificialIds = new int[newm + 1]; //entry i holds the id in copy of the artificial edge that maps to edge i of g
         int[] ans = new int[newm + 1]; //the answer
 
-        if(!hasDemand)
+        if (!hasDemand)
             return ans;
 
         HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();

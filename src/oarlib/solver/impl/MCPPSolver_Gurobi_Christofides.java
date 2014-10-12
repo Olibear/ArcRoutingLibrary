@@ -184,4 +184,9 @@ public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver {
         return Problem.Type.MIXED_CHINESE_POSTMAN;
     }
 
+    @Override
+    public String printCurrentSol() throws IllegalStateException {
+        return "This solver does not support printing.";
+    }
+
 }

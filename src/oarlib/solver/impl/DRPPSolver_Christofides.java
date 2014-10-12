@@ -22,132 +22,6 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
         mInstance = instance;
     }
 
-    @Override
-    protected Route solve() {
-
-        try {
-            DirectedGraph copy = mInstance.getGraph();
-
-            //form the complete graph Gc1 = (Nr, Ar U As)
-            DirectedGraph Gc1 = formGc1(copy);
-
-            //simplify Gc1 to get Gc2
-            DirectedGraph Gc2 = formGc2(Gc1);
-
-            //Now, Gc2 is the graph that we solve the DRPP on.  Any feasible solution here will correspond
-            //to one in the original graph, which we shall construct at the end.
-
-            //Collapse the graph to its connected components with min cost arcs joining them
-            int n = Gc2.getVertices().size();
-            int[] component = new int[n + 1];
-            DirectedGraph Gc = collapseGraph(Gc2, component);
-
-            //now, for each root, solve the problem, and pick the cheapest
-            int bestCost = Integer.MAX_VALUE;
-            int tempCost;
-            ArrayList<Integer> bestTour = new ArrayList<Integer>();
-            HashMap<Integer, Arc> bestArcs = new HashMap<Integer, Arc>();
-            for (int root = 1; root <= Gc.getVertices().size(); root++) {
-                //compute a shortest spanning arborescence rooted at a component node and re/expand
-                DirectedGraph Gfinal = connectAndExpand(Gc, Gc2, component, root);
-
-                //solve an uncapacitated min-cost flow problem, and then add the appropriate arcs
-                HashMap<Integer, DirectedVertex> gfinalVertices = Gfinal.getInternalVertexMap();
-                DirectedGraph Gc2copy = Gc2.getDeepCopy(); //in order to get min cost flow to work
-                for (DirectedVertex v : Gc2copy.getVertices()) {
-                    v.setDemand(gfinalVertices.get(v.getId()).getDelta()); //set demands according to Gfinal
-                }
-                int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(Gc2copy);
-                HashMap<Integer, Arc> indexedArcs = Gc2copy.getInternalEdgeMap();
-                Arc temp;
-                //add the solution to the graph (augment)
-                for (int i = 1; i < flowanswer.length; i++) {
-                    temp = indexedArcs.get(i);
-                    for (int j = 0; j < flowanswer[i]; j++) {
-                        Gfinal.addEdge(temp.getTail().getId(), temp.getHead().getId(), "min cost flow", temp.getCost(), false);
-                    }
-                }
-
-                tempCost = 0;
-                for (Arc a : Gfinal.getEdges())
-                    if (!a.isRequired())
-                        tempCost += a.getCost();
-                if (tempCost < bestCost) {
-                    bestCost = tempCost;
-                    bestTour = CommonAlgorithms.tryHierholzer(Gfinal);
-                    bestArcs = Gfinal.getInternalEdgeMap();
-                }
-            }
-
-            //now reproduce the solution in the original graph
-            Tour eulerTour = new Tour();
-            Arc temp;
-            DirectedVertex dv1, dv2;
-            HashMap<Integer, DirectedVertex> gc1Vertices = Gc1.getInternalVertexMap();
-            HashMap<Integer, DirectedVertex> copyVertices = copy.getInternalVertexMap();
-            HashMap<Integer, Arc> copyArcs = copy.getInternalEdgeMap();
-            List<Arc> tempConns = new ArrayList<Arc>();
-
-            int nOrig = copy.getVertices().size();
-            int[][] dist = new int[nOrig + 1][nOrig + 1];
-            int[][] path = new int[nOrig + 1][nOrig + 1];
-            int[][] edgePath = new int[nOrig + 1][nOrig + 1];
-            CommonAlgorithms.fwLeastCostPaths(copy, dist, path, edgePath);
-
-            int curr, end, next;
-            boolean foundConnection = false;
-
-            for (int i = 0; i < bestTour.size(); i++) {
-                temp = bestArcs.get(bestTour.get(i));
-                dv1 = copyVertices.get(gc1Vertices.get(temp.getTail().getId()).getMatchId());
-                dv2 = copyVertices.get(gc1Vertices.get(temp.getHead().getId()).getMatchId());
-
-                tempConns = copy.findEdges(new Pair<DirectedVertex>(dv1, dv2));
-
-                if (temp.isRequired()) //we must find it
-                {
-                    for (Arc a : tempConns) {
-                        if (a.getCost() == temp.getCost() && a.isRequired()) {
-                            eulerTour.appendEdge(a);
-                            break;
-                        }
-                    }
-                } else if (tempConns.size() > 0) //just throw in this edge if it exists
-                {
-                    foundConnection = false;
-                    for (Arc a : tempConns) {
-                        if (a.getCost() == temp.getCost()) {
-                            eulerTour.appendEdge(a);
-                            foundConnection = true;
-                            break;
-                        }
-                    }
-                    if (!foundConnection) {
-                        curr = dv1.getId();
-                        end = dv2.getId();
-                        do {
-                            next = path[curr][end];
-                            eulerTour.appendEdge(copyArcs.get(edgePath[curr][end]));
-                        } while ((curr = next) != end);
-                    }
-                } else {
-                    curr = dv1.getId();
-                    end = dv2.getId();
-                    do {
-                        next = path[curr][end];
-                        eulerTour.appendEdge(copyArcs.get(edgePath[curr][end]));
-                    } while ((curr = next) != end);
-                }
-            }
-
-            return eulerTour;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private static DirectedGraph connectAndExpand(DirectedGraph gCollapsed, DirectedGraph gOrig, int[] component, int root) {
         try {
             int n = gOrig.getVertices().size();
@@ -465,8 +339,158 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
     }
 
     @Override
+    protected Route solve() {
+
+        try {
+            DirectedGraph copy = mInstance.getGraph();
+
+            //form the complete graph Gc1 = (Nr, Ar U As)
+            DirectedGraph Gc1 = formGc1(copy);
+
+            //simplify Gc1 to get Gc2
+            DirectedGraph Gc2 = formGc2(Gc1);
+
+            //Now, Gc2 is the graph that we solve the DRPP on.  Any feasible solution here will correspond
+            //to one in the original graph, which we shall construct at the end.
+
+            //Collapse the graph to its connected components with min cost arcs joining them
+            int n = Gc2.getVertices().size();
+            int[] component = new int[n + 1];
+            DirectedGraph Gc = collapseGraph(Gc2, component);
+
+            //now, for each root, solve the problem, and pick the cheapest
+            int bestCost = Integer.MAX_VALUE;
+            int tempCost;
+            ArrayList<Integer> bestTour = new ArrayList<Integer>();
+            HashMap<Integer, Arc> bestArcs = new HashMap<Integer, Arc>();
+            for (int root = 1; root <= Gc.getVertices().size(); root++) {
+                //compute a shortest spanning arborescence rooted at a component node and re/expand
+                DirectedGraph Gfinal = connectAndExpand(Gc, Gc2, component, root);
+
+                //solve an uncapacitated min-cost flow problem, and then add the appropriate arcs
+                HashMap<Integer, DirectedVertex> gfinalVertices = Gfinal.getInternalVertexMap();
+                DirectedGraph Gc2copy = Gc2.getDeepCopy(); //in order to get min cost flow to work
+                for (DirectedVertex v : Gc2copy.getVertices()) {
+                    v.setDemand(gfinalVertices.get(v.getId()).getDelta()); //set demands according to Gfinal
+                }
+                int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(Gc2copy);
+                HashMap<Integer, Arc> indexedArcs = Gc2copy.getInternalEdgeMap();
+                Arc temp;
+                //add the solution to the graph (augment)
+                for (int i = 1; i < flowanswer.length; i++) {
+                    temp = indexedArcs.get(i);
+                    for (int j = 0; j < flowanswer[i]; j++) {
+                        Gfinal.addEdge(temp.getTail().getId(), temp.getHead().getId(), "min cost flow", temp.getCost(), false);
+                    }
+                }
+
+                tempCost = 0;
+                for (Arc a : Gfinal.getEdges())
+                    if (!a.isRequired())
+                        tempCost += a.getCost();
+                if (tempCost < bestCost) {
+                    bestCost = tempCost;
+                    bestTour = CommonAlgorithms.tryHierholzer(Gfinal);
+                    bestArcs = Gfinal.getInternalEdgeMap();
+                }
+            }
+
+            //now reproduce the solution in the original graph
+            Tour eulerTour = new Tour();
+            Arc temp;
+            DirectedVertex dv1, dv2;
+            HashMap<Integer, DirectedVertex> gc1Vertices = Gc1.getInternalVertexMap();
+            HashMap<Integer, DirectedVertex> copyVertices = copy.getInternalVertexMap();
+            HashMap<Integer, Arc> copyArcs = copy.getInternalEdgeMap();
+            List<Arc> tempConns = new ArrayList<Arc>();
+
+            int nOrig = copy.getVertices().size();
+            int[][] dist = new int[nOrig + 1][nOrig + 1];
+            int[][] path = new int[nOrig + 1][nOrig + 1];
+            int[][] edgePath = new int[nOrig + 1][nOrig + 1];
+            CommonAlgorithms.fwLeastCostPaths(copy, dist, path, edgePath);
+
+            int curr, end, next;
+            boolean foundConnection = false;
+
+            for (int i = 0; i < bestTour.size(); i++) {
+                temp = bestArcs.get(bestTour.get(i));
+                dv1 = copyVertices.get(gc1Vertices.get(temp.getTail().getId()).getMatchId());
+                dv2 = copyVertices.get(gc1Vertices.get(temp.getHead().getId()).getMatchId());
+
+                tempConns = copy.findEdges(new Pair<DirectedVertex>(dv1, dv2));
+
+                if (temp.isRequired()) //we must find it
+                {
+                    for (Arc a : tempConns) {
+                        if (a.getCost() == temp.getCost() && a.isRequired()) {
+                            eulerTour.appendEdge(a);
+                            break;
+                        }
+                    }
+                } else if (tempConns.size() > 0) //just throw in this edge if it exists
+                {
+                    foundConnection = false;
+                    for (Arc a : tempConns) {
+                        if (a.getCost() == temp.getCost()) {
+                            eulerTour.appendEdge(a);
+                            foundConnection = true;
+                            break;
+                        }
+                    }
+                    if (!foundConnection) {
+                        curr = dv1.getId();
+                        end = dv2.getId();
+                        do {
+                            next = path[curr][end];
+                            eulerTour.appendEdge(copyArcs.get(edgePath[curr][end]));
+                        } while ((curr = next) != end);
+                    }
+                } else {
+                    curr = dv1.getId();
+                    end = dv2.getId();
+                    do {
+                        next = path[curr][end];
+                        eulerTour.appendEdge(copyArcs.get(edgePath[curr][end]));
+                    } while ((curr = next) != end);
+                }
+            }
+
+            currSol = eulerTour;
+            return eulerTour;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
     public Problem.Type getProblemType() {
         return Problem.Type.DIRECTED_RURAL_POSTMAN;
+    }
+
+    @Override
+    public String printCurrentSol() throws IllegalStateException {
+        if (currSol == null)
+            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
+
+        String ans = "DRPPSolver_Christofides: Printing current solution...";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
+        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
+        ans += "Route Cost: " + currSol.getCost() + "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "\n";
+        ans += currSol.toString();
+        ans += "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        return ans;
     }
 
     @Override
