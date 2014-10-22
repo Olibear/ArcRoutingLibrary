@@ -94,7 +94,7 @@ public class OSM_Fetcher {
                                 if (curr instanceof Element && prev instanceof Element) {
                                     from = refIds.get(((Element) prev).getAttribute("ref"));
                                     to = refIds.get(((Element) curr).getAttribute("ref"));
-                                    cost = latLonToMeters(ansVertices.get(from).getY(), ansVertices.get(from).getX(), ansVertices.get(to).getY(), ansVertices.get(to).getX());
+                                    cost = latLonToMeters(ansVertices.get(from).getY(), ansVertices.get(from).getX(), ansVertices.get(to).getY(), ansVertices.get(to).getX()) + 1; //don't want 0 cost edges
 
                                     perturb = (rng.nextInt(10) - 5) / 100.0;
                                     reverseCost = (int) (cost * (1 + perturb));

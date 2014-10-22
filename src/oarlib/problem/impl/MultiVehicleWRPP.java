@@ -1,19 +1,20 @@
 package oarlib.problem.impl;
 
-import oarlib.core.CapacitatedProblem;
+import oarlib.core.MultiVehicleProblem;
+import oarlib.core.MultiVehicleSolver;
 import oarlib.core.Route;
-import oarlib.graph.impl.DirectedGraph;
+import oarlib.graph.impl.WindyGraph;
 
 import java.util.Collection;
 
 /**
- * Created by oliverlum on 8/5/14.
+ * Created by oliverlum on 10/17/14.
  */
-public class CapacitatedDCPP extends CapacitatedProblem {
+public class MultiVehicleWRPP extends MultiVehicleProblem {
 
-    DirectedGraph mGraph;
+    WindyGraph mGraph;
 
-    public CapacitatedDCPP(DirectedGraph graph, int numVehicles) {
+    public MultiVehicleWRPP(WindyGraph graph, int numVehicles) {
         super(numVehicles);
         mGraph = graph;
     }
@@ -34,12 +35,13 @@ public class CapacitatedDCPP extends CapacitatedProblem {
     }
 
     @Override
-    public DirectedGraph getGraph() {
+    public WindyGraph getGraph() {
         return mGraph;
     }
 
     @Override
     public Type getType() {
-        return Type.DIRECTED_CHINESE_POSTMAN;
+        return Type.WINDY_RURAL_POSTMAN;
     }
+
 }

@@ -1,6 +1,6 @@
 package oarlib.problem.impl;
 
-import oarlib.core.CapacitatedProblem;
+import oarlib.core.MultiVehicleProblem;
 import oarlib.core.Route;
 import oarlib.graph.impl.MixedGraph;
 
@@ -12,11 +12,11 @@ import java.util.Collection;
  * <p/>
  * Created by oliverlum on 8/12/14.
  */
-public class CapacitatedMCPP extends CapacitatedProblem {
+public class MultiVehicleMCPP extends MultiVehicleProblem {
 
     MixedGraph mGraph;
 
-    public CapacitatedMCPP(MixedGraph graph, int numVehicles) {
+    public MultiVehicleMCPP(MixedGraph graph, int numVehicles) {
 
         super(numVehicles);
         mGraph = graph;

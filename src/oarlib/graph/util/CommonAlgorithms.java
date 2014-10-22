@@ -1165,17 +1165,167 @@ public class CommonAlgorithms {
     }
 
     /**
+     * Implements a modified Dijkstra's Algorithm to solve the widest path problem, which determines a path that
+     * maximizes the minimum link weight from the source to the destination.  This can also be used to minimize the max
+     * link weight through a simple graph conversion.  This subroutine has the added ability to constrain based on path
+     * cardinality.
+     *
+     * @param g - the graph on which to solve the widest path problem.
+     * @param sourceId - the internal vertex id from which the paths and distances will be calculated
+     * @param width - the ith entry contains the width from source to vertex i.
+     * @param path - the ith entry contains the previous vertex on the widest path from source to vertex i.
+     * @param maxPathCardinality - the max allowable path cardinality (e.g. 5 means only 5 hops from source are allowed)
+     * @throws IllegalArgumentException
+     */
+    public static void dijkstrasWidestPathAlgorithmWithMaxPathCardinality(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, IndexedRecord<Integer>[] width, IndexedRecord<Integer>[] path, IndexedRecord<Integer>[] edgePath, int maxPathCardinality) throws IllegalArgumentException {
+
+        int n = g.getVertices().size();
+        if(width.length != n+1 || path.length != n+1 || edgePath.length != n+1)
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+
+        //holds the remaining guys we need to process
+        Stack<Integer> toProcess = new Stack<Integer>();
+
+        //our starting point
+        toProcess.push(sourceId);
+
+        for (int i = 1; i <= n; i++) {
+            width[i] = new IndexedRecord<Integer>(IndexedRecord.Objective.MAX);
+            path[i] = new IndexedRecord<Integer>(IndexedRecord.Objective.MAX);
+            edgePath[i] = new IndexedRecord<Integer>(IndexedRecord.Objective.MAX);
+        }
+
+        //trivially set the source
+        for(int i = 1; i <= maxPathCardinality; i++) {
+            width[sourceId].addEntry(i, Integer.MAX_VALUE);
+            path[sourceId].addEntry(i, 0);
+            edgePath[sourceId].addEntry(i,0);
+        }
+
+        int underConsideration, max, alt;
+        int vid = 0;
+        int maxId = 0;
+        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        Vertex u;
+        boolean needToPush = false;
+        while(!toProcess.isEmpty()) {
+            underConsideration = toProcess.pop();
+            u = indexedVertices.get(underConsideration);
+            for(Vertex v: u.getNeighbors().keySet()) {
+
+                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+                max = Integer.MIN_VALUE;
+                vid = v.getId();
+                for (Link<? extends Vertex> link : l) {
+                    if (link.getCost() > max) {
+                        max = link.getCost();
+                        maxId = link.getId();
+                    }
+                }
+
+                needToPush = false;
+
+                //make the comparisons for each of the step cardinalities
+                for(int i = 1; i < maxPathCardinality; i++) {
+                    if(width[underConsideration].hasKey(i))
+                        alt = Math.min(width[underConsideration].getEntry(i), max);
+                    else
+                        continue;
+                    if (!width[vid].hasKey(i+1) || alt > width[vid].getEntry(i+1) ) {
+                        //found a better path
+                        width[vid].addEntry(i+1, alt);
+                        path[vid].addEntry(i+1, underConsideration);
+                        edgePath[vid].addEntry(i+1,maxId);
+
+                        needToPush = true;
+                    }
+                }
+                if(needToPush && !toProcess.contains(vid)) {
+                    toProcess.push(vid);
+                }
+            }
+        }
+
+    }
+
+
+    /**
+     * Implements a modified Dijkstra's Algorithm to solve the widest path problem, which determines a path that
+     * maximizes the minimum link weight from the source to the destination.  This can also be used to minimize the max
+     * link weight through a simple graph conversion.
+     *
+     * @param g - the graph on which to solve the widest path problem.
+     * @param sourceId - the internal vertex id from which the paths and distances will be calculated
+     * @param width - the ith entry contains the width from source to vertex i.
+     * @param path - the ith entry contains the previous vertex on the widest path from source to vertex i.
+     * @throws IllegalArgumentException
+     */
+    public static void dijkstrasWidestPathAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] width, int[] path, int[] edgePath) throws IllegalArgumentException {
+
+        int n = g.getVertices().size();
+        if(width.length != n+1 || path.length != n+1 || edgePath.length != n+1)
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+
+        //initialize
+        PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new Utils.InverseDijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
+        width[sourceId] = Integer.MAX_VALUE;
+        path[sourceId] = -1;
+        for (int i = 1; i <= n; i++) {
+            if (i != sourceId) {
+                width[i] = Integer.MAX_VALUE;
+                path[i] = -1;
+            }
+            pq.add(new Pair<Integer>(i, width[i]));
+        }
+
+        Vertex u;
+        Pair<Integer> temp;
+        int max, alt, uid, vid, maxId;
+        maxId = Integer.MAX_VALUE;
+        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        //now actually do the walk
+        while (!pq.isEmpty()) {
+            temp = pq.poll();
+            u = indexedVertices.get(temp.getFirst());
+            uid = u.getId();
+            for (Vertex v : u.getNeighbors().keySet()) {
+                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+                max = Integer.MIN_VALUE;
+                vid = v.getId();
+                if (!pq.contains(new Pair<Integer>(vid, width[vid])))
+                    continue;
+                for (Link<? extends Vertex> link : l) {
+                    if (link.getCost() > max) {
+                        max = link.getCost();
+                        maxId = link.getId();
+                    }
+                }
+                alt = Math.min(width[uid], max);
+                if (alt > width[vid] || width[vid] == Integer.MAX_VALUE) {
+                    //found a better path
+                    pq.remove(new Pair<Integer>(vid, width[vid]));
+                    width[vid] = alt;
+                    path[vid] = uid;
+                    edgePath[vid] = maxId;
+                    pq.add(new Pair<Integer>(vid, width[vid]));
+                }
+            }
+        }
+
+    }
+
+    /**
      * Implements Dijkstra's Algorithm with Priority Queues, to achieve |E| + |V|log|V| single-source shortest paths
      *
      * @param g      - the graph on which to solve our shortest path problem.
-     * @param source - the Vertex from which paths and distances will be calculated
+     * @param sourceId - the internal vertex id from which paths and distances will be calculated
      * @param dist   - the ith entry contains the shortest distance from source to vertex i.
      * @param path   - the ith entry contains the previous vertex on the shortest path from source to vertex i.
      */
     public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException {
         int n = g.getVertices().size();
         if (dist.length != n + 1 || path.length != n + 1)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
 
         //initialize
         PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
@@ -1224,7 +1374,7 @@ public class CommonAlgorithms {
      * Implements Dijkstra's Algorithm with Priority Queues, to achieve |E| + |V|log|V| single-source shortest paths
      *
      * @param g        - the graph on which to solve our shortest path problem.
-     * @param source   - the Vertex from which paths and distances will be calculated
+     * @param sourceId   - the vertex id from which paths and distances will be calculated
      * @param dist     - the ith entry will contain the shortest distance from source to vertex i.
      * @param path     - the ith entry will contain the previous vertex on the shortest path from source to vertex i.
      * @param edgePath - the ith entry will contain the id of the edge that gets traversed to get from the previous vertex in the path to the ith vertex.
@@ -1232,7 +1382,7 @@ public class CommonAlgorithms {
     public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
         int n = g.getVertices().size();
         if (dist.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
 
         //initialize
         PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.

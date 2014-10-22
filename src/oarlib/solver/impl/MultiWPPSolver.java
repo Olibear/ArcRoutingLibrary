@@ -12,7 +12,7 @@ import oarlib.graph.transform.impl.EdgeInducedRequirementTransform;
 import oarlib.graph.transform.partition.impl.PreciseWindyKWayPartitionTransform;
 import oarlib.graph.transform.rebalance.impl.ShortRouteReductionRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.CapacitatedWPP;
+import oarlib.problem.impl.MultiVehicleWPP;
 import oarlib.problem.impl.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;
@@ -25,9 +25,9 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 8/14/14.
  */
-public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
+public class MultiWPPSolver extends MultiVehicleSolver {
 
-    CapacitatedWPP mInstance;
+    MultiVehicleWPP mInstance;
     WindyGraph mGraph;
     String mInstanceName;
 
@@ -36,7 +36,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
      *
      * @param instance - instance for which this is a solver
      */
-    public CapacitatedWPPSolver(CapacitatedWPP instance, String instanceName) throws IllegalArgumentException {
+    public MultiWPPSolver(MultiVehicleWPP instance, String instanceName) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
         mGraph = mInstance.getGraph();
@@ -57,7 +57,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
     }
 
     @Override
-    protected CapacitatedProblem getInstance() {
+    protected MultiVehicleProblem getInstance() {
         return mInstance;
     }
 
@@ -252,7 +252,7 @@ public class CapacitatedWPPSolver extends CapacitatedVehicleSolver {
         String ans = "=======================================================";
         ans += "\n";
         ans += "\n";
-        ans += "CapacitatedDCPPSolver: Printing current solution...";
+        ans += "CapacitatedWRPPSolver: Printing current solution...";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";

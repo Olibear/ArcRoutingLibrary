@@ -10,7 +10,7 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseDirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.CapacitatedDCPP;
+import oarlib.problem.impl.MultiVehicleDCPP;
 import oarlib.problem.impl.DirectedCPP;
 import oarlib.vertex.impl.DirectedVertex;
 
@@ -21,16 +21,16 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 8/5/14.
  */
-public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
+public class MultiDCPPSolver extends MultiVehicleSolver {
 
-    CapacitatedDCPP mInstance;
+    MultiVehicleDCPP mInstance;
 
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    public CapacitatedDCPPSolver(CapacitatedDCPP instance) throws IllegalArgumentException {
+    public MultiDCPPSolver(MultiVehicleDCPP instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
     }
@@ -49,7 +49,7 @@ public class CapacitatedDCPPSolver extends CapacitatedVehicleSolver {
     }
 
     @Override
-    protected CapacitatedProblem getInstance() {
+    protected MultiVehicleProblem getInstance() {
         return mInstance;
     }
 

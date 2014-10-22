@@ -55,15 +55,12 @@ public class EdgeInducedRequirementTransform<S extends Graph<?, ?>> implements G
 
                 if (isWindy) {
                     if (mEdges.contains(l.getId())) {
-                        int revCost = ((WindyEdge) l).getReverseCost();
                         ((WindyGraph) blankGraph).addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), ((WindyEdge) l).getReverseCost(), l.isRequired());
                     } else {
-                        int revCost = ((WindyEdge) l).getReverseCost();
                         ((WindyGraph) blankGraph).addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), ((WindyEdge) l).getReverseCost(), false);
                     }
                 } else {
                     if (mEdges.contains(l.getId())) {
-                        int revCost = ((WindyEdge) l).getReverseCost();
                         blankGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), l.isRequired());
                     } else {
                         blankGraph.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), false);
@@ -73,7 +70,7 @@ public class EdgeInducedRequirementTransform<S extends Graph<?, ?>> implements G
 
             //to make sure the depot gets included
             int depotId = blankGraph.getDepotId();
-            blankGraph.addEdge(depotId, depotId, 0, true);
+            blankGraph.addEdge(depotId, depotId, 2, true);
 
             return blankGraph;
 

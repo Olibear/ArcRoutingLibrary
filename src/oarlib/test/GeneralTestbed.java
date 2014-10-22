@@ -18,6 +18,7 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphReader;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.graph.util.IndexedRecord;
 import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
 import oarlib.problem.impl.*;
@@ -58,15 +59,107 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Desktop/kwrpp.txt");
+        //testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Desktop/kwrpp.txt");
         //testGraphDisplay();
         //testOSMQuery();
+        testMMkWRPPSolver();
+        //testWidestPath();
+
+    }
+
+    @SuppressWarnings("unused")
+    private static void testWidestPath() {
+        try {
+            DirectedGraph dg = new DirectedGraph(4);
+            dg.addEdge(1, 2, 3);
+            dg.addEdge(1, 3, 4);
+            dg.addEdge(1, 4, 2);
+            dg.addEdge(2, 3, 4);
+            dg.addEdge(2, 4, 2);
+            dg.addEdge(3, 4, 5);
+
+            int[] width = new int[5];
+            int[] widestPath = new int[5];
+            int[] widestEdgePath = new int[5];
+            CommonAlgorithms.dijkstrasWidestPathAlgorithm(dg,1, width, widestPath,widestEdgePath);
+
+            IndexedRecord<Integer>[] width2 = new IndexedRecord[5];
+            IndexedRecord<Integer>[] widestPath2 = new IndexedRecord[5];
+            IndexedRecord<Integer>[] widestEdgePath2 = new IndexedRecord[5];
+            CommonAlgorithms.dijkstrasWidestPathAlgorithmWithMaxPathCardinality(dg, 1, width2, widestPath2, widestEdgePath2, 2);
+
+            System.out.println("Done");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @SuppressWarnings("unused")
+    private static void testMMkWRPPSolver() {
+        try {
+            MultiVehicleWRPP wrpp;
+            MultiWPPSolver_Benavent wrppSolver;
+            Collection<Route> ans;
+
+            GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
+
+            WindyGraph test = (WindyGraph)gr.readGraph("/Users/oliverlum/Downloads/WPP/WA0531");
+
+            wrpp = new MultiVehicleWRPP(test, 5);
+            wrppSolver = new MultiWPPSolver_Benavent(wrpp, "WA0531");
+
+            ans = wrppSolver.trySolve();
+            wrppSolver.printCurrentSol();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unused")
     private static void testOSMQuery() {
-        OSM_Fetcher fetcher = new OSM_Fetcher(new BoundingBox(-71.217725, 42.329616, -71.198092, 42.338468));
-        fetcher.queryForGraph();
+
+        try {
+            System.out.println("====================================");
+            for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
+                OSM_Fetcher fetcher = new OSM_Fetcher(bb);
+                fetcher.queryForGraph();
+                WindyGraph g = fetcher.queryForGraph();
+                System.out.println("N: " + g.getVertices().size());
+                System.out.println("M: " + g.getEdges().size());
+                GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, g, bb.getTitle());
+                gd.export(GraphDisplay.ExportType.PDF);
+            }
+
+            System.out.println("====================================");
+            for (BoundingBox bb : OSM_BoundingBoxes.SUBURBAN_INSTANCES) {
+                OSM_Fetcher fetcher = new OSM_Fetcher(bb);
+                fetcher.queryForGraph();
+                WindyGraph g = fetcher.queryForGraph();
+                System.out.println("N: " + g.getVertices().size());
+                System.out.println("M: " + g.getEdges().size());
+                GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, g, bb.getTitle());
+                gd.export(GraphDisplay.ExportType.PDF);
+            }
+
+            System.out.println("====================================");
+            for (BoundingBox bb : OSM_BoundingBoxes.RURAL_INSTANCES) {
+                OSM_Fetcher fetcher = new OSM_Fetcher(bb);
+                fetcher.queryForGraph();
+                WindyGraph g = fetcher.queryForGraph();
+                System.out.println("N: " + g.getVertices().size());
+                System.out.println("M: " + g.getEdges().size());
+                GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, g, bb.getTitle());
+                gd.export(GraphDisplay.ExportType.PDF);
+            }
+
+            System.out.println("====================================");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @SuppressWarnings("unused")
@@ -137,8 +230,8 @@ public class
             System.out.println("========================================================");
             GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
             try {
-                CapacitatedMCPP validMInstance;
-                CapacitatedMCPPSolver validMSolver;
+                MultiVehicleMCPP validMInstance;
+                MultiMCPPSolver validMSolver;
                 Collection<Route> validMAns;
 
                 File testInstanceFolder = new File(instanceFolder);
@@ -154,8 +247,8 @@ public class
                     Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + temp);
                     if (g.getClass() == MixedGraph.class) {
                         MixedGraph g2 = (MixedGraph) g;
-                        validMInstance = new CapacitatedMCPP(g2, 5);
-                        validMSolver = new CapacitatedMCPPSolver(validMInstance);
+                        validMInstance = new MultiVehicleMCPP(g2, 5);
+                        validMSolver = new MultiMCPPSolver(validMInstance);
                         start = System.nanoTime();
                         validMAns = validMSolver.trySolve();
                         end = System.nanoTime();
@@ -178,8 +271,8 @@ public class
                 System.out.println("Beginning Test of the Windy Partitioning Code");
                 System.out.println("========================================================");
 
-                CapacitatedWPP validWInstance;
-                CapacitatedWPPSolver validWSolver;
+                MultiVehicleWPP validWInstance;
+                MultiWPPSolver validWSolver;
                 Collection<Route> validWAns;
                 PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
 
@@ -189,47 +282,39 @@ public class
                 int debugCounter = 0;
                 String output;
 
-                for (final File testInstance : testInstanceFolder.listFiles()) {
-                    if (debugCounter >= limForDebug)
-                        break;
+                for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
+                    //if (debugCounter >= limForDebug)
+                        //break;
                     debugCounter++;
 
-                    String temp = testInstance.getName();
-                    System.out.println(temp);
-                    if (temp.equals(".DS_Store"))
-                        continue;
-                    Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + "WB3065");
-                    if (g.getClass() == WindyGraph.class) {
-                        WindyGraph g2 = (WindyGraph) g;
+                    OSM_Fetcher fetcher = new OSM_Fetcher(bb);
+                    WindyGraph g = fetcher.queryForGraph();
 
-                        OSM_Fetcher fetcher = new OSM_Fetcher(OSM_BoundingBoxes.SUBURBAN_INSTANCES[0]);
-                        WindyGraph g3 = fetcher.queryForGraph();
+                    validWInstance = new MultiVehicleWPP(g, 5);
+                    validWSolver = new MultiWPPSolver(validWInstance, bb.getTitle());
+                    start = System.nanoTime();
+                    validWAns = validWSolver.trySolve();
+                    end = System.nanoTime();
 
-                        validWInstance = new CapacitatedWPP(g2, 5);
-                        validWSolver = new CapacitatedWPPSolver(validWInstance, temp);
-                        start = System.nanoTime();
-                        validWAns = validWSolver.trySolve();
-                        end = System.nanoTime();
+                    routeCounter = 1;
+                    int maxCost = 0;
+                    int minCost = Integer.MAX_VALUE;
+                    int tempCost;
 
-                        routeCounter = 1;
-                        int maxCost = 0;
-                        int minCost = Integer.MAX_VALUE;
-                        int tempCost;
+                    for (Route r : validWAns) {
+                        tempCost = r.getCost();
+                        if (tempCost > maxCost)
+                            maxCost = tempCost;
+                        if (tempCost < minCost)
+                            minCost = tempCost;
 
-                        for (Route r : validWAns) {
-                            tempCost = r.getCost();
-                            if (tempCost > maxCost)
-                                maxCost = tempCost;
-                            if (tempCost < minCost)
-                                minCost = tempCost;
-
-                        }
-
-                        output = validWSolver.printCurrentSol();
-                        System.out.println(output);
-                        pw.println(output);
                     }
+
+                    output = validWSolver.printCurrentSol();
+                    System.out.println(output);
+                    pw.println(output);
                 }
+
                 pw.close();
 
             } catch (Exception e) {

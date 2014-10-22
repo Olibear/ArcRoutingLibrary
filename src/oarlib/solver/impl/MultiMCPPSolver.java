@@ -10,7 +10,7 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseMixedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.CapacitatedMCPP;
+import oarlib.problem.impl.MultiVehicleMCPP;
 import oarlib.problem.impl.MixedCPP;
 
 import java.util.Collection;
@@ -20,16 +20,16 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 8/12/14.
  */
-public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
+public class MultiMCPPSolver extends MultiVehicleSolver {
 
-    CapacitatedMCPP mInstance;
+    MultiVehicleMCPP mInstance;
 
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    public CapacitatedMCPPSolver(CapacitatedMCPP instance) throws IllegalArgumentException {
+    public MultiMCPPSolver(MultiVehicleMCPP instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
     }
@@ -48,7 +48,7 @@ public class CapacitatedMCPPSolver extends CapacitatedVehicleSolver {
     }
 
     @Override
-    protected CapacitatedProblem getInstance() {
+    protected MultiVehicleProblem getInstance() {
         return mInstance;
     }
 

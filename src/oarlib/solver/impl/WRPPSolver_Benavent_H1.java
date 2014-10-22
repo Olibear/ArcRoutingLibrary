@@ -323,6 +323,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
 			 * to coerce the matching to use these.
 			 */
             eulerAugment(copy, windyReq, L);
+
             DirectedGraph ans = WRPPSolver_Win.constructOptimalWindyTour(windyReq);
             ans.setDepotId(copy.getDepotId());
             WRPPSolver_Win.eliminateRedundantCycles(ans, windyReq, copy);

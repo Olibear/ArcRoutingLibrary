@@ -606,8 +606,10 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             }
 
             //should be done now
-            if (!CommonAlgorithms.isEulerian(ans))
+            if (!CommonAlgorithms.isEulerian(ans)) {
                 System.out.println("The flow augmentation failed."); //should never happen
+                CommonAlgorithms.isEulerian(ans);
+            }
 
             //compute cost
             HashSet<Arc> arcSet = ans.getEdges();

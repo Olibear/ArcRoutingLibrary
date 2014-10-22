@@ -28,6 +28,8 @@ import org.gephi.partition.api.PartitionController;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
+import org.gephi.preview.types.DependantColor;
+import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.preview.types.EdgeColor;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
@@ -211,12 +213,13 @@ public class GraphDisplay {
 
             if (mGraph.getDepotId() == i) {
                 temp.getNodeData().setLabel("Depot");
-                temp.getNodeData().setSize(5f);
+                temp.getNodeData().setSize(100f);
+                temp.getNodeData().setColor(1f,0f,0f);
             } else {
-                temp.getNodeData().setLabel(String.valueOf(i));
+                temp.getNodeData().setLabel("");
                 temp.getNodeData().setSize(3f);
+                temp.getNodeData().setColor(1f, 1f, 1f);
             }
-            temp.getNodeData().setColor(1f, 1f, 1f);
 
             if (tempV.hasCoordinates()) {
                 useAutoLayout = false;
@@ -311,6 +314,7 @@ public class GraphDisplay {
         pm.getProperties().putValue(PreviewProperty.NODE_LABEL_PROPORTIONAL_SIZE, true);
         pm.getProperties().putValue(PreviewProperty.EDGE_LABEL_FONT, new Font("Helvetica", Font.ITALIC, 3));
         pm.getProperties().putValue(PreviewProperty.NODE_LABEL_FONT, new Font("Helvetica", Font.ITALIC, 3));
+        pm.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
 
         //Export
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
