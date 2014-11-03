@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="gephi-toolkit">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/External Jars (Redistributable)/gephi-toolkit.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/External Jars (Redistributable)/gephi-toolkit.jar!/" />
+    </SOURCES>
+  </library>
+</component>
