@@ -11,6 +11,11 @@ public class WindyRPP extends Problem {
     WindyGraph mGraph;
 
     public WindyRPP(WindyGraph g) {
+        this(g, "");
+    }
+
+    public WindyRPP(WindyGraph g, String name) {
+        super(name);
         mGraph = g;
     }
 

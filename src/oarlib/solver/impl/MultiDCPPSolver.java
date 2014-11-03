@@ -1,5 +1,7 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntIntHashMap;
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.graph.factory.impl.DirectedGraphFactory;
 import oarlib.graph.impl.DirectedGraph;
@@ -10,8 +12,8 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseDirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.MultiVehicleDCPP;
 import oarlib.problem.impl.DirectedCPP;
+import oarlib.problem.impl.MultiVehicleDCPP;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.Collection;
@@ -89,7 +91,6 @@ public class MultiDCPPSolver extends MultiVehicleSolver {
         return Problem.Type.DIRECTED_CHINESE_POSTMAN;
     }
 
-    @Override
     protected HashMap<Integer, Integer> partition() {
 
         try {
@@ -126,7 +127,6 @@ public class MultiDCPPSolver extends MultiVehicleSolver {
         }
     }
 
-    @Override
     protected Route route(HashSet<Integer> ids) {
 
         DirectedGraph mGraph = mInstance.getGraph();
@@ -144,8 +144,8 @@ public class MultiDCPPSolver extends MultiVehicleSolver {
 
         //set the id map for the route
         int n = subgraph.getVertices().size();
-        HashMap<Integer, DirectedVertex> indexedVertices = subgraph.getInternalVertexMap();
-        HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
+        TIntObjectHashMap<DirectedVertex> indexedVertices = subgraph.getInternalVertexMap();
+        TIntIntHashMap customIDMap = new TIntIntHashMap();
         for (int i = 1; i <= n; i++) {
             customIDMap.put(i, indexedVertices.get(i).getMatchId());
         }

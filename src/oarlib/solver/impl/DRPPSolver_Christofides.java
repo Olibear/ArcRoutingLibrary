@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
@@ -27,8 +28,8 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
             int n = gOrig.getVertices().size();
 
             DirectedGraph ans = new DirectedGraph();
-            HashMap<Integer, Arc> gColArcs = gCollapsed.getInternalEdgeMap();
-            HashMap<Integer, Arc> gOriArcs = gOrig.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> gColArcs = gCollapsed.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> gOriArcs = gOrig.getInternalEdgeMap();
             for (int i = 0; i < n; i++) {
                 ans.addVertex(new DirectedVertex("req"));
             }
@@ -63,8 +64,8 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
             int n = gOrig.getVertices().size();
 
             DirectedGraph ans = new DirectedGraph();
-            HashMap<Integer, Arc> gColArcs = gCollapsed.getInternalEdgeMap();
-            HashMap<Integer, Arc> gOriArcs = gOrig.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> gColArcs = gCollapsed.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> gOriArcs = gOrig.getInternalEdgeMap();
             for (int i = 0; i < n; i++) {
                 ans.addVertex(new DirectedVertex("req"));
             }
@@ -108,7 +109,8 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
                     nrIds.add(a.getTail().getId());
                 }
             }
-            HashMap<Integer, DirectedVertex> gVertices = g.getInternalVertexMap();
+
+            TIntObjectHashMap<DirectedVertex> gVertices = g.getInternalVertexMap();
             int i = 1;
             for (Integer id : nrIds) {
                 gVertices.get(id).setMatchId(i++);
@@ -152,7 +154,7 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
         Arc a, a2;
 
         //first eliminate same cost, parallel arcs
-        HashMap<Integer, Arc> copyArcs = copy.getInternalEdgeMap();
+        TIntObjectHashMap<Arc> copyArcs = copy.getInternalEdgeMap();
         for (int i = 1; i <= m; i++) {
             if (!copyArcs.containsKey(i))
                 continue; //might have removed
@@ -362,19 +364,19 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
             int bestCost = Integer.MAX_VALUE;
             int tempCost;
             ArrayList<Integer> bestTour = new ArrayList<Integer>();
-            HashMap<Integer, Arc> bestArcs = new HashMap<Integer, Arc>();
+            TIntObjectHashMap<Arc> bestArcs = new TIntObjectHashMap<Arc>();
             for (int root = 1; root <= Gc.getVertices().size(); root++) {
                 //compute a shortest spanning arborescence rooted at a component node and re/expand
                 DirectedGraph Gfinal = connectAndExpand(Gc, Gc2, component, root);
 
                 //solve an uncapacitated min-cost flow problem, and then add the appropriate arcs
-                HashMap<Integer, DirectedVertex> gfinalVertices = Gfinal.getInternalVertexMap();
+                TIntObjectHashMap<DirectedVertex> gfinalVertices = Gfinal.getInternalVertexMap();
                 DirectedGraph Gc2copy = Gc2.getDeepCopy(); //in order to get min cost flow to work
                 for (DirectedVertex v : Gc2copy.getVertices()) {
                     v.setDemand(gfinalVertices.get(v.getId()).getDelta()); //set demands according to Gfinal
                 }
                 int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(Gc2copy);
-                HashMap<Integer, Arc> indexedArcs = Gc2copy.getInternalEdgeMap();
+                TIntObjectHashMap<Arc> indexedArcs = Gc2copy.getInternalEdgeMap();
                 Arc temp;
                 //add the solution to the graph (augment)
                 for (int i = 1; i < flowanswer.length; i++) {
@@ -399,9 +401,9 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
             Tour eulerTour = new Tour();
             Arc temp;
             DirectedVertex dv1, dv2;
-            HashMap<Integer, DirectedVertex> gc1Vertices = Gc1.getInternalVertexMap();
-            HashMap<Integer, DirectedVertex> copyVertices = copy.getInternalVertexMap();
-            HashMap<Integer, Arc> copyArcs = copy.getInternalEdgeMap();
+            TIntObjectHashMap<DirectedVertex> gc1Vertices = Gc1.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> copyVertices = copy.getInternalVertexMap();
+            TIntObjectHashMap<Arc> copyArcs = copy.getInternalEdgeMap();
             List<Arc> tempConns = new ArrayList<Arc>();
 
             int nOrig = copy.getVertices().size();

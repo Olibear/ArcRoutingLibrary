@@ -1,5 +1,6 @@
 package oarlib.display;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;
@@ -10,12 +11,10 @@ import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
-import org.gephi.data.attributes.api.AttributeController;
-import org.gephi.data.attributes.api.AttributeModel;
-import org.gephi.filters.api.FilterController;
-import org.gephi.filters.api.Query;
-import org.gephi.filters.plugin.partition.PartitionBuilder;
-import org.gephi.graph.api.*;
+import org.gephi.graph.api.Edge;
+import org.gephi.graph.api.GraphController;
+import org.gephi.graph.api.GraphModel;
+import org.gephi.graph.api.Node;
 import org.gephi.io.exporter.api.ExportController;
 import org.gephi.layout.plugin.AutoLayout;
 import org.gephi.layout.plugin.force.StepDisplacement;
@@ -23,12 +22,9 @@ import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout;
 import org.gephi.layout.plugin.labelAdjust.LabelAdjust;
 import org.gephi.layout.spi.LayoutProperty;
-import org.gephi.partition.api.Partition;
-import org.gephi.partition.api.PartitionController;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
-import org.gephi.preview.types.DependantColor;
 import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.preview.types.EdgeColor;
 import org.gephi.project.api.ProjectController;
@@ -60,6 +56,7 @@ public class GraphDisplay {
 
     ;
     private String mInstanceName;
+
     public GraphDisplay(Layout layout, Graph<? extends Vertex, ? extends Link<? extends Vertex>> graph, String instanceName) {
         mLayout = layout;
         mGraph = graph;
@@ -176,7 +173,7 @@ public class GraphDisplay {
         //add nodes
         int n = mGraph.getVertices().size();
         Vertex tempV;
-        HashMap<Integer, ? extends Vertex> mVertices = mGraph.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> mVertices = mGraph.getInternalVertexMap();
 
         Node[] nodeSet = new Node[n + 1];
         Node temp;
@@ -214,7 +211,7 @@ public class GraphDisplay {
             if (mGraph.getDepotId() == i) {
                 temp.getNodeData().setLabel("Depot");
                 temp.getNodeData().setSize(100f);
-                temp.getNodeData().setColor(1f,0f,0f);
+                temp.getNodeData().setColor(1f, 0f, 0f);
             } else {
                 temp.getNodeData().setLabel("");
                 temp.getNodeData().setSize(3f);
@@ -234,13 +231,14 @@ public class GraphDisplay {
         //add edges
         int m = mGraph.getEdges().size();
         Edge tempEdge;
-        HashMap<Integer, ? extends Link<? extends Vertex>> edgeMap = mGraph.getInternalEdgeMap();
-        Link<? extends Vertex> tempLink;
+        TIntObjectHashMap<? extends Link<? extends Vertex>> edgeMap = mGraph.getInternalEdgeMap();
+        //Link<? extends Vertex> tempLink;
         float cost = 0f;
         float revCost = 0f;
 
-        for (int i = 1; i <= m; i++) {
-            tempLink = edgeMap.get(i);
+        //for (int i = 1; i <= m; i++) {
+        for (Link<? extends Vertex> tempLink : edgeMap.getValues(new Link[1])) {
+            //tempLink = edgeMap.get(i);
             if (tempLink.getCost() == 0) {
                 cost = .5f;
                 revCost = .5f;
@@ -259,11 +257,15 @@ public class GraphDisplay {
             else
                 tempEdge.getEdgeData().setLabel(String.valueOf(tempLink.getCost()));
             if (withPartitions) {
-                tempEdge.getEdgeData().getAttributes().setValue("Partition", edgePartition.get(i));
-                if (edgePartition.get(i) > numPartitions)
-                    numPartitions = edgePartition.get(i);
-            } else
-                tempEdge.getEdgeData().getAttributes().setValue("Partition", 1);
+                tempEdge.getEdgeData().getAttributes().setValue("Partition", edgePartition.get(tempLink.getId()));
+                if (edgePartition.get(tempLink.getId()) > numPartitions)
+                    numPartitions = edgePartition.get(tempLink.getId());
+            } else {
+                if (tempLink.isRequired())
+                    tempEdge.getEdgeData().getAttributes().setValue("Partition", 1);
+                else
+                    tempEdge.getEdgeData().getAttributes().setValue("Partition", 2);
+            }
             graph.addEdge(tempEdge);
         }
 
@@ -294,7 +296,7 @@ public class GraphDisplay {
 
         float increment = 1f / (Colors.RYGCBGB.length - 1);
         float[] positions = new float[Colors.RYGCBGB.length];
-        for(int i = 0; i < Colors.RYGCBGB.length; i++) {
+        for (int i = 0; i < Colors.RYGCBGB.length; i++) {
             positions[i] = i * increment;
         }
         ct.setColorPositions(positions);
@@ -325,7 +327,7 @@ public class GraphDisplay {
         }
 
         //now do the subgraphs
-        if (withPartitions) {
+        /*if (withPartitions) {
             PartitionController partitionController = Lookup.getDefault().lookup(PartitionController.class);
             AttributeModel attributeModel = Lookup.getDefault().lookup(AttributeController.class).getModel();
             Partition p = partitionController.buildPartition(attributeModel.getEdgeTable().getColumn("Partition"), graph);
@@ -348,8 +350,9 @@ public class GraphDisplay {
                     ex.printStackTrace();
                 }
             }
-        }
+        }*/
 
+        pc.cleanWorkspace(pc.getCurrentWorkspace());
     }
 
     /**

@@ -1,5 +1,6 @@
 package oarlib.graph.transform.partition.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.MixedEdge;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
@@ -33,7 +34,7 @@ public class MixedKWayPartitionTransform implements PartitionTransformer<MixedGr
 
             //setup
             MixedVertex temp;
-            HashMap<Integer, MixedVertex> ansVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<MixedVertex> ansVertices = ans.getInternalVertexMap();
             HashSet<MixedEdge> edges = mGraph.getEdges();
             int firstId, secondId;
 

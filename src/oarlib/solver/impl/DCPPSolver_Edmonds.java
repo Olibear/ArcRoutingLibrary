@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
@@ -38,7 +39,7 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
             if (!CommonAlgorithms.isEulerian(input)) {
                 int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(input);
 
-                HashMap<Integer, Arc> indexedArcs = input.getInternalEdgeMap();
+                TIntObjectHashMap<Arc> indexedArcs = input.getInternalEdgeMap();
                 Arc temp;
                 //add the solution to the graph (augment)
                 for (int i = 1; i < flowanswer.length; i++) {
@@ -75,7 +76,7 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
          * (e.g. a vertex route).
          */
         DirectedGraph copy = mInstance.getGraph().getDeepCopy();
-        HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
+        TIntObjectHashMap<Arc> indexedArcs = copy.getInternalEdgeMap();
 
         eulerAugment(copy);
 

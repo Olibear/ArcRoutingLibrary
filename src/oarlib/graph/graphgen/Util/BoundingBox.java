@@ -52,5 +52,7 @@ public class BoundingBox {
         this.mMaxLat = mMaxLat;
     }
 
-    public String getTitle() {return  this.mTitle; }
+    public String getTitle() {
+        return this.mTitle;
+    }
 }

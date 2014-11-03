@@ -10,8 +10,8 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseMixedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.MultiVehicleMCPP;
 import oarlib.problem.impl.MixedCPP;
+import oarlib.problem.impl.MultiVehicleMCPP;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -90,7 +90,6 @@ public class MultiMCPPSolver extends MultiVehicleSolver {
         return Problem.Type.MIXED_CHINESE_POSTMAN;
     }
 
-    @Override
     protected HashMap<Integer, Integer> partition() {
 
         try {
@@ -125,7 +124,6 @@ public class MultiMCPPSolver extends MultiVehicleSolver {
         }
     }
 
-    @Override
     protected Route route(HashSet<Integer> ids) {
 
         MixedGraph mGraph = mInstance.getGraph();

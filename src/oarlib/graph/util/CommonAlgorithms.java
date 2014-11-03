@@ -1,5 +1,6 @@
 package oarlib.graph.util;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.exceptions.NoDemandSetException;
@@ -72,6 +73,7 @@ public class CommonAlgorithms {
      * @return the Eulerian cycle
      */
     private static ArrayList<Integer> hierholzer(Graph<? extends Vertex, ? extends Link<? extends Vertex>> orig, boolean useMatchIds) {
+
         Graph<? extends Vertex, ? extends Link<? extends Vertex>> graph = orig.getDeepCopy();
         ArrayList<Integer> edgeTrail = new ArrayList<Integer>();
         ArrayList<Integer> edgeCycle = new ArrayList<Integer>();
@@ -91,7 +93,7 @@ public class CommonAlgorithms {
         Iterator<Vertex> vertexIter;
         boolean nextStart = true;
 
-        HashMap<Integer, ? extends Link<? extends Vertex>> indexedOrigEdges = orig.getInternalEdgeMap();
+        TIntObjectHashMap<? extends Link<? extends Vertex>> indexedOrigEdges = orig.getInternalEdgeMap();
 
         while (nextStart) {
             //greedily go until we've come back to start
@@ -169,7 +171,7 @@ public class CommonAlgorithms {
             return false;
 
         int v1, v2;
-        HashMap<Integer, ? extends Vertex> origVertices = orig.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> origVertices = orig.getInternalVertexMap();
         boolean foundCopy;
         for (Link<? extends Vertex> l : augmented.getEdges()) {
             v1 = l.getEndpoints().getFirst().getId();
@@ -729,7 +731,7 @@ public class CommonAlgorithms {
         dist[sourceId] = 0;
 
         //relax edges
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         LinkedList<Integer> activeVertices = new LinkedList<Integer>();
         activeVertices.add(sourceId);
         boolean[] active = new boolean[n + 1];
@@ -802,7 +804,7 @@ public class CommonAlgorithms {
         dist[sourceId] = 0;
 
         //relax edges
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         LinkedList<Integer> activeVertices = new LinkedList<Integer>();
         activeVertices.add(sourceId);
         boolean[] active = new boolean[n + 1];
@@ -877,7 +879,7 @@ public class CommonAlgorithms {
         dist[sourceId] = 0;
 
         //relax edges
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         LinkedList<Integer> activeVertices = new LinkedList<Integer>();
         activeVertices.add(sourceId);
         boolean[] active = new boolean[n + 1];
@@ -954,7 +956,7 @@ public class CommonAlgorithms {
         dist[sourceId] = 0;
 
         //relax edges
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         LinkedList<Integer> activeVertices = new LinkedList<Integer>();
         activeVertices.add(sourceId);
         boolean[] active = new boolean[n + 1];
@@ -1033,7 +1035,7 @@ public class CommonAlgorithms {
         dist[sourceId] = 0;
 
         //relax edges
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         LinkedList<Integer> activeVertices = new LinkedList<Integer>();
         activeVertices.add(sourceId);
         boolean[] active = new boolean[n + 1];
@@ -1110,7 +1112,7 @@ public class CommonAlgorithms {
         dist[sourceId] = 0;
 
         //relax edges
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         LinkedList<Integer> activeVertices = new LinkedList<Integer>();
         activeVertices.add(sourceId);
         boolean[] active = new boolean[n + 1];
@@ -1170,17 +1172,17 @@ public class CommonAlgorithms {
      * link weight through a simple graph conversion.  This subroutine has the added ability to constrain based on path
      * cardinality.
      *
-     * @param g - the graph on which to solve the widest path problem.
-     * @param sourceId - the internal vertex id from which the paths and distances will be calculated
-     * @param width - the ith entry contains the width from source to vertex i.
-     * @param path - the ith entry contains the previous vertex on the widest path from source to vertex i.
+     * @param g                  - the graph on which to solve the widest path problem.
+     * @param sourceId           - the internal vertex id from which the paths and distances will be calculated
+     * @param width              - the ith entry contains the width from source to vertex i.
+     * @param path               - the ith entry contains the previous vertex on the widest path from source to vertex i.
      * @param maxPathCardinality - the max allowable path cardinality (e.g. 5 means only 5 hops from source are allowed)
      * @throws IllegalArgumentException
      */
     public static void dijkstrasWidestPathAlgorithmWithMaxPathCardinality(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, IndexedRecord<Integer>[] width, IndexedRecord<Integer>[] path, IndexedRecord<Integer>[] edgePath, int maxPathCardinality) throws IllegalArgumentException {
 
         int n = g.getVertices().size();
-        if(width.length != n+1 || path.length != n+1 || edgePath.length != n+1)
+        if (width.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
             throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
 
         //holds the remaining guys we need to process
@@ -1196,22 +1198,22 @@ public class CommonAlgorithms {
         }
 
         //trivially set the source
-        for(int i = 1; i <= maxPathCardinality; i++) {
+        for (int i = 0; i <= maxPathCardinality; i++) {
             width[sourceId].addEntry(i, Integer.MAX_VALUE);
             path[sourceId].addEntry(i, 0);
-            edgePath[sourceId].addEntry(i,0);
+            edgePath[sourceId].addEntry(i, 0);
         }
 
         int underConsideration, max, alt;
         int vid = 0;
         int maxId = 0;
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         Vertex u;
         boolean needToPush = false;
-        while(!toProcess.isEmpty()) {
+        while (!toProcess.isEmpty()) {
             underConsideration = toProcess.pop();
             u = indexedVertices.get(underConsideration);
-            for(Vertex v: u.getNeighbors().keySet()) {
+            for (Vertex v : u.getNeighbors().keySet()) {
 
                 List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
                 max = Integer.MIN_VALUE;
@@ -1226,21 +1228,21 @@ public class CommonAlgorithms {
                 needToPush = false;
 
                 //make the comparisons for each of the step cardinalities
-                for(int i = 1; i < maxPathCardinality; i++) {
-                    if(width[underConsideration].hasKey(i))
+                for (int i = 0; i < maxPathCardinality; i++) {
+                    if (width[underConsideration].hasKey(i))
                         alt = Math.min(width[underConsideration].getEntry(i), max);
                     else
                         continue;
-                    if (!width[vid].hasKey(i+1) || alt > width[vid].getEntry(i+1) ) {
+                    if (!width[vid].hasKey(i + 1) || alt > width[vid].getEntry(i + 1)) {
                         //found a better path
-                        width[vid].addEntry(i+1, alt);
-                        path[vid].addEntry(i+1, underConsideration);
-                        edgePath[vid].addEntry(i+1,maxId);
+                        width[vid].addEntry(i + 1, alt);
+                        path[vid].addEntry(i + 1, underConsideration);
+                        edgePath[vid].addEntry(i + 1, maxId);
 
                         needToPush = true;
                     }
                 }
-                if(needToPush && !toProcess.contains(vid)) {
+                if (needToPush && !toProcess.contains(vid)) {
                     toProcess.push(vid);
                 }
             }
@@ -1254,16 +1256,16 @@ public class CommonAlgorithms {
      * maximizes the minimum link weight from the source to the destination.  This can also be used to minimize the max
      * link weight through a simple graph conversion.
      *
-     * @param g - the graph on which to solve the widest path problem.
+     * @param g        - the graph on which to solve the widest path problem.
      * @param sourceId - the internal vertex id from which the paths and distances will be calculated
-     * @param width - the ith entry contains the width from source to vertex i.
-     * @param path - the ith entry contains the previous vertex on the widest path from source to vertex i.
+     * @param width    - the ith entry contains the width from source to vertex i.
+     * @param path     - the ith entry contains the previous vertex on the widest path from source to vertex i.
      * @throws IllegalArgumentException
      */
     public static void dijkstrasWidestPathAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] width, int[] path, int[] edgePath) throws IllegalArgumentException {
 
         int n = g.getVertices().size();
-        if(width.length != n+1 || path.length != n+1 || edgePath.length != n+1)
+        if (width.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
             throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
 
         //initialize
@@ -1282,7 +1284,7 @@ public class CommonAlgorithms {
         Pair<Integer> temp;
         int max, alt, uid, vid, maxId;
         maxId = Integer.MAX_VALUE;
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         //now actually do the walk
         while (!pq.isEmpty()) {
             temp = pq.poll();
@@ -1317,10 +1319,10 @@ public class CommonAlgorithms {
     /**
      * Implements Dijkstra's Algorithm with Priority Queues, to achieve |E| + |V|log|V| single-source shortest paths
      *
-     * @param g      - the graph on which to solve our shortest path problem.
+     * @param g        - the graph on which to solve our shortest path problem.
      * @param sourceId - the internal vertex id from which paths and distances will be calculated
-     * @param dist   - the ith entry contains the shortest distance from source to vertex i.
-     * @param path   - the ith entry contains the previous vertex on the shortest path from source to vertex i.
+     * @param dist     - the ith entry contains the shortest distance from source to vertex i.
+     * @param path     - the ith entry contains the previous vertex on the shortest path from source to vertex i.
      */
     public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException {
         int n = g.getVertices().size();
@@ -1342,7 +1344,7 @@ public class CommonAlgorithms {
         Vertex u;
         Pair<Integer> temp;
         int min, alt, uid, vid;
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         //now actually do the walk
         while (!pq.isEmpty()) {
             temp = pq.poll();
@@ -1374,7 +1376,7 @@ public class CommonAlgorithms {
      * Implements Dijkstra's Algorithm with Priority Queues, to achieve |E| + |V|log|V| single-source shortest paths
      *
      * @param g        - the graph on which to solve our shortest path problem.
-     * @param sourceId   - the vertex id from which paths and distances will be calculated
+     * @param sourceId - the vertex id from which paths and distances will be calculated
      * @param dist     - the ith entry will contain the shortest distance from source to vertex i.
      * @param path     - the ith entry will contain the previous vertex on the shortest path from source to vertex i.
      * @param edgePath - the ith entry will contain the id of the edge that gets traversed to get from the previous vertex in the path to the ith vertex.
@@ -1401,7 +1403,7 @@ public class CommonAlgorithms {
         Pair<Integer> temp;
         int min, alt, uid, vid, minid;
         minid = Integer.MAX_VALUE;
-        HashMap<Integer, ? extends Vertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
         //now actually do the walk
         while (!pq.isEmpty()) {
             temp = pq.poll();
@@ -1462,7 +1464,7 @@ public class CommonAlgorithms {
                 g2.addVertex(new DirectedVertex("original"));
             }
 
-            HashMap<Integer, WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
             WindyEdge temp;
             for (int i = 1; i <= m; i++) {
                 temp = indexedWindyEdges.get(i);
@@ -1532,7 +1534,7 @@ public class CommonAlgorithms {
                 g2.addVertex(new DirectedVertex("original"));
             }
 
-            HashMap<Integer, WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
             WindyEdge temp;
             for (int i = 1; i <= m; i++) {
                 temp = indexedWindyEdges.get(i);
@@ -1671,7 +1673,7 @@ public class CommonAlgorithms {
     public static int[] minCostSpanningTree(UndirectedGraph g) {
         int m = g.getEdges().size();
         int[] ans = new int[m + 1];
-        HashMap<Integer, Edge> indexedEdges = g.getInternalEdgeMap();
+        TIntObjectHashMap<Edge> indexedEdges = g.getInternalEdgeMap();
         Edge temp;
         ArrayList<Pair<Integer>> pq = new ArrayList<Pair<Integer>>();
         for (int i = 1; i <= m; i++) {
@@ -1713,6 +1715,70 @@ public class CommonAlgorithms {
         return ans;
     }
 
+
+    /**
+     * Solves the min-cost spanning tree problem using Prim's algorithm
+     *
+     * @param g       - the undirected graph on which to solve the MST problem.
+     * @param setSize - the size of the set from which an edge is greedily selected.  setSize = 1 reduces to a
+     *                normal MST algorithm.  setSize = 2 chooses from the cheapest 2 edges at each stage.
+     * @return - an 0-1 array where the ith entry is 1 if the ith edge is included in the tree.
+     */
+    public static int[] randomizedLowCostSpanningTree(UndirectedGraph g, int setSize) {
+        int m = g.getEdges().size();
+        int[] ans = new int[m + 1];
+        TIntObjectHashMap<Edge> indexedEdges = g.getInternalEdgeMap();
+        Edge temp;
+        ArrayList<Pair<Integer>> pq = new ArrayList<Pair<Integer>>();
+        for (int i = 1; i <= m; i++) {
+            temp = indexedEdges.get(i);
+            pq.add(new Pair<Integer>(i, temp.getCost()));
+        }
+        Collections.sort(pq, new DijkstrasComparator()); //a sorted list of our edges
+        Collections.reverse(pq);
+
+        //now pick a start vertex, and start expanding
+        int start = pq.size() - 1;
+        HashSet<Integer> visitedVertices = new HashSet<Integer>();
+        temp = indexedEdges.get(pq.get(start).getFirst()); //might as well start with the cheapest guy
+        ans[temp.getId()] = 1;
+        visitedVertices.add(temp.getEndpoints().getFirst().getId());
+        visitedVertices.add(temp.getEndpoints().getSecond().getId());
+        pq.remove(start);
+
+        //now grow this guy organically
+        Pair<UndirectedVertex> tempEndpoints;
+        int currTreeSize = 1;
+        int mstSize = g.getVertices().size() - 1;
+        Random rng = new Random(1000);
+        int offset, counter;
+
+        while (currTreeSize < mstSize) {
+            start = pq.size() - 1;
+            temp = indexedEdges.get(pq.get(start).getFirst());
+            tempEndpoints = temp.getEndpoints();
+            offset = rng.nextInt(setSize);
+            counter = 0;
+            while (counter <= offset) {
+                while (visitedVertices.contains(tempEndpoints.getFirst().getId()) == visitedVertices.contains(tempEndpoints.getSecond().getId())) {
+                    if (start == 0)
+                        break;
+                    start--;
+                    temp = indexedEdges.get(pq.get(start).getFirst());
+                    tempEndpoints = temp.getEndpoints();
+                }
+                counter++;
+            }
+            ans[temp.getId()] = 1;
+            visitedVertices.add(temp.getEndpoints().getFirst().getId());
+            visitedVertices.add(temp.getEndpoints().getSecond().getId());
+            pq.remove(start);
+            currTreeSize++;
+        }
+
+        return ans;
+    }
+
     /*
      * Mainly for use with the MCPP Solvers, once we have our answer, we want to be able to search for
 	 * convert an eulerian mixed graph into an eulerian directed graph.  This graph simply identifies
@@ -1742,8 +1808,8 @@ public class CommonAlgorithms {
             ArrayList<Integer> vertexIds;
             ArrayList<Integer> edgeIds;
             HashMap<UndirectedVertex, ArrayList<Edge>> neighbors;
-            HashMap<Integer, Edge> indexedEdges = temp.getInternalEdgeMap();
-            HashMap<Integer, UndirectedVertex> indexedVertices = temp.getInternalVertexMap();
+            TIntObjectHashMap<Edge> indexedEdges = temp.getInternalEdgeMap();
+            TIntObjectHashMap<UndirectedVertex> indexedVertices = temp.getInternalVertexMap();
             UndirectedVertex curr;
             int startId = 0;
             int currId = 0;
@@ -1912,7 +1978,7 @@ public class CommonAlgorithms {
             int end = p.getSecond();
             int next = 0;
             int nextEdge = 0;
-            HashMap<Integer, Arc> indexedArcs = g.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> indexedArcs = g.getInternalEdgeMap();
             do {
                 next = path[curr][end];
                 nextEdge = edgePath[curr][end];
@@ -1938,7 +2004,7 @@ public class CommonAlgorithms {
             int end = p.getSecond();
             int next = 0;
             int nextEdge = 0;
-            HashMap<Integer, WindyEdge> indexedEdges = g.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> indexedEdges = g.getInternalEdgeMap();
             do {
                 next = path[curr][end];
                 nextEdge = edgePath[curr][end];
@@ -1991,7 +2057,7 @@ public class CommonAlgorithms {
             int end = p.getSecond();
             int next = 0;
             int nextEdge = 0;
-            HashMap<Integer, Edge> indexedEdges = g.getInternalEdgeMap();
+            TIntObjectHashMap<Edge> indexedEdges = g.getInternalEdgeMap();
             Edge toRemove;
             do {
                 next = path[curr][end];
@@ -2019,7 +2085,7 @@ public class CommonAlgorithms {
             int end = p.getSecond();
             int next = 0;
             int nextEdge = 0;
-            HashMap<Integer, Edge> indexedEdges = g.getInternalEdgeMap();
+            TIntObjectHashMap<Edge> indexedEdges = g.getInternalEdgeMap();
             do {
                 next = path[curr][end];
                 nextEdge = edgePath[curr][end];
@@ -2117,7 +2183,7 @@ public class CommonAlgorithms {
         if (!hasDemand)
             return ans;
 
-        HashMap<Integer, Arc> indexedArcs = copy.getInternalEdgeMap();
+        TIntObjectHashMap<Arc> indexedArcs = copy.getInternalEdgeMap();
 
         //initialize
         for (int i = 1; i < newm + 1; i++) {
@@ -2242,7 +2308,7 @@ public class CommonAlgorithms {
             return null;
         }
         //trim out artificial flows
-        HashMap<Integer, Arc> gArcs = g.getInternalEdgeMap();
+        TIntObjectHashMap<Arc> gArcs = g.getInternalEdgeMap();
         int realIndex = 1;
         for (int i = 1; i <= m; i++) {
             while (!gArcs.containsKey(realIndex))
@@ -2349,7 +2415,7 @@ public class CommonAlgorithms {
             //setup the residual graph
             boolean improvements = true;
             DirectedGraph resid;
-            HashMap<Integer, DirectedVertex> reducedVertexMap = reduced.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> reducedVertexMap = reduced.getInternalVertexMap();
 
             //while there's a negative cycle
             while (improvements) {
@@ -2462,7 +2528,7 @@ public class CommonAlgorithms {
             //inputs to MSArbor
             int[] weights = new int[n * (n - 1)];
 
-            HashMap<Integer, DirectedVertex> gVertices = g.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> gVertices = g.getInternalVertexMap();
             DirectedVertex dv1, dv2;
             List<Arc> tempConnections;
             int tempMin, realI, realJ;
@@ -2558,7 +2624,7 @@ public class CommonAlgorithms {
      */
     public static Set<Pair<UndirectedVertex>> minCostMatching(UndirectedGraph graph) throws UnsupportedFormatException {
         HashSet<Pair<UndirectedVertex>> matching = new HashSet<Pair<UndirectedVertex>>();
-        HashMap<Integer, UndirectedVertex> indexedVertices = graph.getInternalVertexMap();
+        TIntObjectHashMap<UndirectedVertex> indexedVertices = graph.getInternalVertexMap();
 
         //setup our input to Kolmogorov's Blossom V code
         int n = graph.getVertices().size();

@@ -1,5 +1,6 @@
 package oarlib.graph.graphgen;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.WindyEdge;
 import oarlib.graph.graphgen.Util.BoundingBox;
 import oarlib.graph.impl.WindyGraph;
@@ -64,12 +65,12 @@ public class OSM_Fetcher {
 
                 int counter = 1;
                 HashMap<String, Integer> refIds = new HashMap<String, Integer>(); //key = nodeId, value = internalId
-                HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
+                TIntObjectHashMap<WindyVertex> ansVertices = ans.getInternalVertexMap();
                 NodeList subNodeList;
                 Node curr, prev;
                 int to, from, cost, reverseCost;
                 double perturb;
-                Random rng = new Random();
+                Random rng = new Random(1000);
 
                 for (int i = 0; i < nodeList.getLength(); i++) {
                     Node node = nodeList.item(i);
@@ -153,7 +154,7 @@ public class OSM_Fetcher {
 
                     i = 1;
                     WindyVertex tempVertex, toAdd;
-                    HashMap<Integer, WindyEdge> ansEdges = ans.getInternalEdgeMap();
+                    TIntObjectHashMap<WindyEdge> ansEdges = ans.getInternalEdgeMap();
                     for (int j = 1; j <= n; j++) {
                         if (maxPart.contains(j)) {
                             ansVertices.get(j).setMatchId(i++);
@@ -167,10 +168,12 @@ public class OSM_Fetcher {
                     }
 
                     WindyEdge temp;
+                    boolean isReq;
                     for (int j = 1; j <= m; j++) {
                         temp = ansEdges.get(j);
+                        isReq = rng.nextDouble() > .5;
                         if (maxPart.contains(temp.getEndpoints().getFirst().getId()) && maxPart.contains(temp.getEndpoints().getSecond().getId())) {
-                            trueAns.addEdge(temp.getEndpoints().getFirst().getMatchId(), temp.getEndpoints().getSecond().getMatchId(), temp.getCost(), temp.getReverseCost());
+                            trueAns.addEdge(temp.getEndpoints().getFirst().getMatchId(), temp.getEndpoints().getSecond().getMatchId(), temp.getCost(), temp.getReverseCost(), isReq);
                         }
 
                     }

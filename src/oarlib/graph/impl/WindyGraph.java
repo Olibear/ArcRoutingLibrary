@@ -1,5 +1,7 @@
 package oarlib.graph.impl;
 
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.WindyEdge;
 import oarlib.exceptions.InvalidEndpointsException;
@@ -142,16 +144,19 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
         try {
             WindyGraph ans = new WindyGraph();
             ans.setDepotId(getDepotId());
-            HashMap<Integer, WindyEdge> indexedEdges = this.getInternalEdgeMap();
-            WindyVertex temp;
+            TIntObjectHashMap<WindyEdge> indexedEdges = this.getInternalEdgeMap();
+            TIntObjectHashMap<WindyVertex> indexedVertices = this.getInternalVertexMap();
+            WindyVertex temp, temp2;
             int n = this.getVertices().size();
             for (int i = 1; i <= n; i++) {
                 temp = new WindyVertex("deep copy original"); //the new guy
+                temp2 = indexedVertices.get(i);
+                temp.setCoordinates(temp2.getX(), temp2.getY());
                 ans.addVertex(temp, i);
             }
             WindyEdge e, e2;
-            ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedEdges.keySet());
-            Collections.sort(forSorting);
+            TIntArrayList forSorting = new TIntArrayList(indexedEdges.keys());
+            forSorting.sort();
             int m = forSorting.size();
             for (int i = 0; i < m; i++) {
                 e = indexedEdges.get(forSorting.get(i));

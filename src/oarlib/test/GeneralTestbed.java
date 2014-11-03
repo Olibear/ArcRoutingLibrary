@@ -1,5 +1,6 @@
 package oarlib.test;
 
+import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
 import oarlib.core.Arc;
 import oarlib.core.Edge;
@@ -59,10 +60,10 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        //testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Desktop/kwrpp.txt");
+        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Desktop/kwrpp_big.txt");
         //testGraphDisplay();
         //testOSMQuery();
-        testMMkWRPPSolver();
+        //testMMkWRPPSolver();
         //testWidestPath();
 
     }
@@ -81,7 +82,7 @@ public class
             int[] width = new int[5];
             int[] widestPath = new int[5];
             int[] widestEdgePath = new int[5];
-            CommonAlgorithms.dijkstrasWidestPathAlgorithm(dg,1, width, widestPath,widestEdgePath);
+            CommonAlgorithms.dijkstrasWidestPathAlgorithm(dg, 1, width, widestPath, widestEdgePath);
 
             IndexedRecord<Integer>[] width2 = new IndexedRecord[5];
             IndexedRecord<Integer>[] widestPath2 = new IndexedRecord[5];
@@ -100,18 +101,18 @@ public class
     private static void testMMkWRPPSolver() {
         try {
             MultiVehicleWRPP wrpp;
-            MultiWPPSolver_Benavent wrppSolver;
+            MultiWRPPSolver_Benavent wrppSolver;
             Collection<Route> ans;
 
             GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
 
-            WindyGraph test = (WindyGraph)gr.readGraph("/Users/oliverlum/Downloads/WPP/WA0531");
+            WindyGraph test = (WindyGraph) gr.readGraph("/Users/oliverlum/Downloads/WPP/WA0531");
 
             wrpp = new MultiVehicleWRPP(test, 5);
-            wrppSolver = new MultiWPPSolver_Benavent(wrpp, "WA0531");
+            wrppSolver = new MultiWRPPSolver_Benavent(wrpp, "WA0531");
 
             ans = wrppSolver.trySolve();
-            wrppSolver.printCurrentSol();
+            System.out.println(wrppSolver.printCurrentSol());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -146,6 +147,18 @@ public class
 
             System.out.println("====================================");
             for (BoundingBox bb : OSM_BoundingBoxes.RURAL_INSTANCES) {
+                OSM_Fetcher fetcher = new OSM_Fetcher(bb);
+                fetcher.queryForGraph();
+                WindyGraph g = fetcher.queryForGraph();
+                System.out.println("N: " + g.getVertices().size());
+                System.out.println("M: " + g.getEdges().size());
+                GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, g, bb.getTitle());
+                gd.export(GraphDisplay.ExportType.PDF);
+            }
+
+
+            System.out.println("====================================");
+            for (BoundingBox bb : OSM_BoundingBoxes.BIG_INSTANCES) {
                 OSM_Fetcher fetcher = new OSM_Fetcher(bb);
                 fetcher.queryForGraph();
                 WindyGraph g = fetcher.queryForGraph();
@@ -271,8 +284,8 @@ public class
                 System.out.println("Beginning Test of the Windy Partitioning Code");
                 System.out.println("========================================================");
 
-                MultiVehicleWPP validWInstance;
-                MultiWPPSolver validWSolver;
+                MultiVehicleWRPP validWInstance;
+                MultiWRPPSolver validWSolver;
                 Collection<Route> validWAns;
                 PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
 
@@ -282,16 +295,16 @@ public class
                 int debugCounter = 0;
                 String output;
 
-                for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
+                for (BoundingBox bb : OSM_BoundingBoxes.BIG_INSTANCES) {
                     //if (debugCounter >= limForDebug)
-                        //break;
+                    //break;
                     debugCounter++;
 
                     OSM_Fetcher fetcher = new OSM_Fetcher(bb);
                     WindyGraph g = fetcher.queryForGraph();
 
-                    validWInstance = new MultiVehicleWPP(g, 5);
-                    validWSolver = new MultiWPPSolver(validWInstance, bb.getTitle());
+                    validWInstance = new MultiVehicleWRPP(g, 20);
+                    validWSolver = new MultiWRPPSolver(validWInstance, bb.getTitle());
                     start = System.nanoTime();
                     validWAns = validWSolver.trySolve();
                     end = System.nanoTime();
@@ -502,7 +515,7 @@ public class
             test.addEdge(1, 3, "orig", 1);
             test.addEdge(2, 3, "orig", 4);
 
-            HashMap<Integer, Arc> testArcs = test.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> testArcs = test.getInternalEdgeMap();
             test.removeEdge(testArcs.get(3));
             test.removeEdge(testArcs.get(4));
             test.removeEdge(testArcs.get(1));
@@ -857,7 +870,7 @@ public class
                     continue;
                 }
                 HashSet<Integer> used = new HashSet<Integer>();
-                HashMap<Integer, Edge> indexedEdges = g.getInternalEdgeMap();
+                TIntObjectHashMap<Edge> indexedEdges = g.getInternalEdgeMap();
                 Edge curr = null;
                 Edge prev = null;
                 //make sure it's a real tour
@@ -900,7 +913,7 @@ public class
                     continue;
                 }
                 HashSet<Integer> used = new HashSet<Integer>();
-                HashMap<Integer, Arc> indexedEdges = g2.getInternalEdgeMap();
+                TIntObjectHashMap<Arc> indexedEdges = g2.getInternalEdgeMap();
                 Arc curr = null;
                 Arc prev = null;
                 //make sure it's a real tour
@@ -1089,7 +1102,7 @@ public class
                     continue;
                 //copy for gurobi to run on
                 g2 = g.getDeepCopy();
-                HashMap<Integer, DirectedVertex> indexedVertices = g2.getInternalVertexMap();
+                TIntObjectHashMap<DirectedVertex> indexedVertices = g2.getInternalVertexMap();
                 System.out.println("Generated directed graph with n = " + i);
 
                 validInstance = new DirectedCPP(g);

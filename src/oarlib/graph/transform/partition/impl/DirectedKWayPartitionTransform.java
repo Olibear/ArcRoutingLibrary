@@ -1,5 +1,6 @@
 package oarlib.graph.transform.partition.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Arc;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
@@ -33,7 +34,7 @@ public class DirectedKWayPartitionTransform implements PartitionTransformer<Dire
 
             //setup
             DirectedVertex temp;
-            HashMap<Integer, DirectedVertex> ansVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> ansVertices = ans.getInternalVertexMap();
             HashSet<Arc> arcs = mGraph.getEdges();
             int id;
 

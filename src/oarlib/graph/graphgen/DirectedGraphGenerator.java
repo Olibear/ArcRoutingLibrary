@@ -1,5 +1,6 @@
 package oarlib.graph.graphgen;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Arc;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
@@ -28,7 +29,7 @@ public class DirectedGraphGenerator extends GraphGenerator {
             for (int i = 0; i < n; i++) {
                 ans.addVertex(new DirectedVertex("Original"));
             }
-            HashMap<Integer, DirectedVertex> indexedVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> indexedVertices = ans.getInternalVertexMap();
 
             //figure out what is set
             maxCost = (maxCost < 0) ? Integer.MAX_VALUE : maxCost;

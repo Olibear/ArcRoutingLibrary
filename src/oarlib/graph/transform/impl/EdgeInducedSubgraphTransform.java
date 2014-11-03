@@ -1,5 +1,6 @@
 package oarlib.graph.transform.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -82,9 +83,9 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             S blankGraph = graphGen.instantiate();
 
             //go through the edges, and create the induced graph
-            HashMap<Integer, ? extends Link<? extends Vertex>> indexedEdges = mGraph.getInternalEdgeMap();
-            HashMap<Integer, ? extends Vertex> indexedVertices = mGraph.getInternalVertexMap();
-            HashMap<Integer, ? extends Vertex> blankVertices = blankGraph.getInternalVertexMap();
+            TIntObjectHashMap<? extends Link<? extends Vertex>> indexedEdges = mGraph.getInternalEdgeMap();
+            TIntObjectHashMap<? extends Vertex> indexedVertices = mGraph.getInternalVertexMap();
+            TIntObjectHashMap<? extends Vertex> blankVertices = blankGraph.getInternalVertexMap();
             HashSet<Integer> addedVertices = new HashSet<Integer>();
             int firstId, secondId;
             int newVertexCounter = 1;
@@ -394,13 +395,13 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             //first figure out which connections we could add
             int connCost;
             Pair<Integer> candidateKey;
-            HashMap<Integer, ? extends Vertex> subgraphVertices = subgraph.getInternalVertexMap();
+            TIntObjectHashMap<? extends Vertex> subgraphVertices = subgraph.getInternalVertexMap();
             HashMap<Pair<Integer>, Pair<Integer>> idConn = new HashMap<Pair<Integer>, Pair<Integer>>();
             HashMap<Pair<Integer>, Integer> costMap = new HashMap<Pair<Integer>, Integer>();
             HashMap<Pair<Integer>, Integer> edgeMap = new HashMap<Pair<Integer>, Integer>();
 
             DirectedGraph completeSccGraph = new DirectedGraph(nScc);
-            HashMap<Integer, DirectedVertex> completeVertices = completeSccGraph.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> completeVertices = completeSccGraph.getInternalVertexMap();
             ArrayList<Boolean> realEdge = new ArrayList<Boolean>();
             //entry 0 useless
             realEdge.add(true);
@@ -462,13 +463,13 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
 
             //solve the min cost flow
             int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(completeSccGraph);
-            HashMap<Integer, Arc> completeArcs = completeSccGraph.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> completeArcs = completeSccGraph.getInternalEdgeMap();
             int numEdges = completeSccGraph.getEdges().size();
 
             //to handle the asymmetric case
             boolean isWindy = false;
             WindyEdge dup;
-            HashMap<Integer, WindyEdge> windyEdgeMap = null;
+            TIntObjectHashMap<WindyEdge> windyEdgeMap = null;
             if (subgraph.getClass() == WindyGraph.class) {
                 isWindy = true;
                 windyEdgeMap = ((WindyGraph) mGraph).getInternalEdgeMap();
@@ -555,7 +556,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
 
                 //solve the mst
                 int[] mst = CommonAlgorithms.minCostSpanningTree(completeCcGraph);
-                HashMap<Integer, Edge> completeEdges = completeCcGraph.getInternalEdgeMap();
+                TIntObjectHashMap<Edge> completeEdges = completeCcGraph.getInternalEdgeMap();
                 numEdges = completeCcGraph.getEdges().size();
 
                 //to handle the asymmetric case

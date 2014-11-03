@@ -10,6 +10,16 @@ import java.util.Collection;
  */
 public abstract class Problem {
 
+    protected String mName = "";
+
+    protected Problem(String name) {
+        mName = name;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
     /**
      * Says whether the provided set of routes is a feasible solution
      *

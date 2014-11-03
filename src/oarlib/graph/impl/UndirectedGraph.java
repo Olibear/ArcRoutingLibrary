@@ -1,5 +1,7 @@
 package oarlib.graph.impl;
 
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
@@ -94,16 +96,19 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
             UndirectedGraph ans = new UndirectedGraph();
             ans.setDepotId(getDepotId());
 
-            HashMap<Integer, Edge> indexedEdges = this.getInternalEdgeMap();
-            UndirectedVertex temp;
+            TIntObjectHashMap<Edge> indexedEdges = this.getInternalEdgeMap();
+            TIntObjectHashMap<UndirectedVertex> indexedVertices = this.getInternalVertexMap();
+            UndirectedVertex temp, temp2;
             int n = this.getVertices().size();
             for (int i = 1; i <= n; i++) {
                 temp = new UndirectedVertex("deep copy original"); //the new guy
+                temp2 = indexedVertices.get(i);
+                temp.setCoordinates(temp2.getX(), temp2.getY());
                 ans.addVertex(temp, i);
             }
             Edge e, e2;
-            ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedEdges.keySet());
-            Collections.sort(forSorting);
+            TIntArrayList forSorting = new TIntArrayList(indexedEdges.keys());
+            forSorting.sort();
             int m = forSorting.size();
             for (int i = 0; i < m; i++) {
                 e = indexedEdges.get(forSorting.get(i));

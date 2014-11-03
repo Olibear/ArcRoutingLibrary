@@ -1,5 +1,6 @@
 package oarlib.graph.transform.partition.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Edge;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
@@ -33,7 +34,7 @@ public class UndirectedKWayPartitionTransform implements PartitionTransformer<Un
 
             //setup
             UndirectedVertex temp;
-            HashMap<Integer, UndirectedVertex> ansVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> ansVertices = ans.getInternalVertexMap();
             HashSet<Edge> edges = mGraph.getEdges();
             int firstId, secondId;
 

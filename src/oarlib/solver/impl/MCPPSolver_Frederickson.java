@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
@@ -51,8 +52,8 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
                 G1.addVertex(new UndirectedVertex("symmetric setup graph"), i);
                 G2.addVertex(new UndirectedVertex("symmetric setup graph"), i);
             }
-            HashMap<Integer, UndirectedVertex> g1Vertices = G1.getInternalVertexMap();
-            HashMap<Integer, UndirectedVertex> g2Vertices = G2.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> g1Vertices = G1.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> g2Vertices = G2.getInternalVertexMap();
 
             //add edges in U to G1
             MixedEdge e;
@@ -62,7 +63,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
                 G1.addEdge(new Edge("final", new Pair<UndirectedVertex>(g1Vertices.get(e.getEndpoints().getFirst().getId()), g1Vertices.get(e.getEndpoints().getSecond().getId())), e.getCost()));
             }
             //add edges in E to G2
-            HashMap<Integer, MixedEdge> inputEdges = input.getInternalEdgeMap();
+            TIntObjectHashMap<MixedEdge> inputEdges = input.getInternalEdgeMap();
             int edgesSize = input.getEdges().size();
             for (int i = 1; i <= edgesSize; i++) {
                 e = inputEdges.get(i);
@@ -91,7 +92,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             for (int i = 0; i < oddVertexIndices.size(); i++) {
                 matchingGraph.addVertex(new UndirectedVertex("matching graph"), oddVertexIndices.get(i));
             }
-            HashMap<Integer, UndirectedVertex> matchingVertices = matchingGraph.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> matchingVertices = matchingGraph.getInternalVertexMap();
             int n2 = matchingGraph.getVertices().size();
             UndirectedVertex u1, u2;
             for (int i = 1; i < n2 + 1; i++) {
@@ -148,7 +149,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             for (int i = 1; i <= input.getVertices().size(); i++) {
                 temp.addVertex(new MixedVertex("parity graph"), i);
             }
-            HashMap<Integer, MixedVertex> tempVertices = temp.getInternalVertexMap();
+            TIntObjectHashMap<MixedVertex> tempVertices = temp.getInternalVertexMap();
             MixedEdge e;
             //add in the edges from U
             for (int i = 0; i < U.size(); i++) {
@@ -164,7 +165,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             }
 
             MixedGraph temp2 = new MixedGraph();
-            HashMap<Integer, MixedVertex> temp2Vertices = temp2.getInternalVertexMap();
+            TIntObjectHashMap<MixedVertex> temp2Vertices = temp2.getInternalVertexMap();
             for (int i = 1; i <= input.getVertices().size(); i++) {
                 temp2.addVertex(new MixedVertex("parity graph"), i);
             }
@@ -184,7 +185,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             MixedVertex curr;
             HashMap<MixedVertex, ArrayList<MixedEdge>> currNeighbors;
             MixedEdge currEdge;
-            HashMap<Integer, MixedVertex> inputVertices = input.getInternalVertexMap();
+            TIntObjectHashMap<MixedVertex> inputVertices = input.getInternalVertexMap();
             int startId;
             if (!Vprime.isEmpty()) {
                 curr = temp2Vertices.get(Vprime.remove(0).getId()); //in the M'' graph
@@ -265,7 +266,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             for (int i = 1; i < input.getVertices().size() + 1; i++) {
                 setup.addVertex(new UndirectedVertex("even setup graph"), i);
             }
-            HashMap<Integer, UndirectedVertex> indexedVertices = setup.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> indexedVertices = setup.getInternalVertexMap();
             for (MixedEdge e : input.getEdges()) {
                 setup.addEdge(new Edge("even setup graph", new Pair<UndirectedVertex>(indexedVertices.get(e.getEndpoints().getFirst().getId()), indexedVertices.get(e.getEndpoints().getSecond().getId())), e.getCost()), e.getId());
             }
@@ -303,7 +304,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
 
             //now add copies in the mixed graph
             MixedEdge e;
-            HashMap<Integer, Edge> setupEdges = setup.getInternalEdgeMap();
+            TIntObjectHashMap<Edge> setupEdges = setup.getInternalEdgeMap();
             for (Pair<UndirectedVertex> p : matchingSolution) {
                 //add the 'undirected' shortest path
                 int curr = p.getFirst().getMatchId();
@@ -340,10 +341,10 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             }
             Arc a;
             MixedEdge e;
-            HashMap<Integer, MixedEdge> inputEdges = input.getInternalEdgeMap();
-            HashMap<Integer, MixedVertex> inputVertices = input.getInternalVertexMap();
-            HashMap<Integer, DirectedVertex> setupVertices = setup.getInternalVertexMap();
-            HashMap<Integer, Arc> setupEdges = setup.getInternalEdgeMap();
+            TIntObjectHashMap<MixedEdge> inputEdges = input.getInternalEdgeMap();
+            TIntObjectHashMap<MixedVertex> inputVertices = input.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> setupVertices = setup.getInternalVertexMap();
+            TIntObjectHashMap<Arc> setupEdges = setup.getInternalEdgeMap();
             int m = input.getEdges().size();
             for (int i = 1; i < m + 1; i++) {
                 e = inputEdges.get(i);
@@ -376,7 +377,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(setup);
 
             //build M and U
-			/*
+            /*
 			 * the ith entry will be 1 if the flow solution included an arc along the ith edge (of input), (only
 			 * meaningful for undirected edges) from tail to head; -1 if it included one from head to tail.
 			 * This enables us to determine which are still left unoriented by this phase.
@@ -540,7 +541,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             if (cost1 <= cost2) {
                 System.out.println("ans1 chosen: " + CommonAlgorithms.isStronglyConnected(ans1));
                 tour = CommonAlgorithms.tryHierholzer(ans1);
-                HashMap<Integer, MixedEdge> indexedEdges = ans1.getInternalEdgeMap();
+                TIntObjectHashMap<MixedEdge> indexedEdges = ans1.getInternalEdgeMap();
                 int tourSize = tour.size();
                 for (int i = 0; i < tourSize; i++) {
                     eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
@@ -548,7 +549,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             } else {
                 System.out.println("ans2 chosen: " + CommonAlgorithms.isStronglyConnected(ans2));
                 tour = CommonAlgorithms.tryHierholzer(ans2);
-                HashMap<Integer, MixedEdge> indexedEdges = ans2.getInternalEdgeMap();
+                TIntObjectHashMap<MixedEdge> indexedEdges = ans2.getInternalEdgeMap();
                 int tourSize = tour.size();
                 for (int i = 0; i < tourSize; i++) {
                     eulerTour.appendEdge(indexedEdges.get(tour.get(i)));

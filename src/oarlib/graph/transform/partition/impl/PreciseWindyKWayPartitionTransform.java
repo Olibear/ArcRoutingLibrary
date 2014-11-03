@@ -1,8 +1,10 @@
 package oarlib.graph.transform.partition.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
+import oarlib.graph.transform.rebalance.CostRebalancer;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -14,16 +16,28 @@ import java.util.HashMap;
 public class PreciseWindyKWayPartitionTransform implements PartitionTransformer<WindyGraph> {
 
     private WindyGraph mGraph;
-
-    private boolean mWeighNonReq = false;
+    private HashMap<Integer, Integer> mCostMap;
+    private boolean mWeighNonReq;
+    private boolean usingCostRebalancer;
 
     public PreciseWindyKWayPartitionTransform(WindyGraph input) {
-        mGraph = input;
+        this(input, false, null);
     }
 
     public PreciseWindyKWayPartitionTransform(WindyGraph input, boolean weighNonReq) {
+        this(input, weighNonReq, null);
+    }
+
+    public PreciseWindyKWayPartitionTransform(WindyGraph input, boolean weighNonReq, CostRebalancer<WindyGraph> costRebalancer) {
         mGraph = input;
         mWeighNonReq = weighNonReq;
+        if (costRebalancer != null) {
+            mCostMap = costRebalancer.rebalance();
+            usingCostRebalancer = true;
+        } else {
+            usingCostRebalancer = false;
+        }
+
     }
 
     @Override
@@ -41,16 +55,22 @@ public class PreciseWindyKWayPartitionTransform implements PartitionTransformer<
             //setup
             WindyEdge temp;
             WindyVertex tail, head;
-            HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
-            HashMap<Integer, WindyEdge> mEdges = mGraph.getInternalEdgeMap();
+            TIntObjectHashMap<WindyVertex> ansVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<WindyEdge> mEdges = mGraph.getInternalEdgeMap();
 
-            for (int i = 1; i <= m; i++) {
+            int tempCost;
+
+            for (int i : mEdges.keys()) {
                 temp = mEdges.get(i);
+                tempCost = (int) ((temp.getCost() + temp.getReverseCost()) * .5);
+                if (usingCostRebalancer)
+                    tempCost = mCostMap.get(i);
                 head = temp.getEndpoints().getSecond();
+                tail = temp.getEndpoints().getFirst();
 
                 //assign the cost:
                 if (temp.isRequired() || mWeighNonReq)
-                    ansVertices.get(i).setCost((int) ((temp.getCost() + temp.getReverseCost()) * .5));
+                    ansVertices.get(i).setCost(tempCost);
                 else
                     ansVertices.get(i).setCost(0);
 
@@ -58,7 +78,16 @@ public class PreciseWindyKWayPartitionTransform implements PartitionTransformer<
                 for (ArrayList<WindyEdge> toAdd : head.getNeighbors().values()) {
                     for (WindyEdge e : toAdd) {
                         //to avoid redundancy and self conns
-                        if (e.getId() != i) {
+                        if (e.getId() < i) {
+                            ans.addEdge(i, e.getId(), 1);
+                        }
+                    }
+                }
+
+                for (ArrayList<WindyEdge> toAdd : tail.getNeighbors().values()) {
+                    for (WindyEdge e : toAdd) {
+                        //to avoid redundancy and self conns
+                        if (e.getId() < i) {
                             ans.addEdge(i, e.getId(), 1);
                         }
                     }

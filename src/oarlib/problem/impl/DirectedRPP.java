@@ -16,6 +16,11 @@ public class DirectedRPP extends Problem {
     private DirectedGraph mGraph;
 
     public DirectedRPP(DirectedGraph g) {
+        this(g, "");
+    }
+
+    public DirectedRPP(DirectedGraph g, String name) {
+        super(name);
         mGraph = g;
     }
 

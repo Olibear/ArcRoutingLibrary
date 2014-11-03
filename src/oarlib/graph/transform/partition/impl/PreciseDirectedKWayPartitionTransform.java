@@ -1,8 +1,10 @@
 package oarlib.graph.transform.partition.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Arc;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
+import oarlib.graph.transform.rebalance.CostRebalancer;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;
@@ -14,15 +16,28 @@ import java.util.HashMap;
 public class PreciseDirectedKWayPartitionTransform implements PartitionTransformer<DirectedGraph> {
 
     private DirectedGraph mGraph;
-    private boolean mWeighNonReq = false;
+    private HashMap<Integer, Integer> mCostMap;
+    private boolean mWeighNonReq;
+    private boolean usingCostRebalancer;
 
     public PreciseDirectedKWayPartitionTransform(DirectedGraph input) {
-        mGraph = input;
+        this(input, false, null);
     }
 
     public PreciseDirectedKWayPartitionTransform(DirectedGraph input, boolean weighNonReq) {
+        this(input, weighNonReq, null);
+    }
+
+    public PreciseDirectedKWayPartitionTransform(DirectedGraph input, boolean weighNonReq, CostRebalancer<DirectedGraph> costRebalancer) {
         mGraph = input;
         mWeighNonReq = weighNonReq;
+        if (costRebalancer != null) {
+            mCostMap = costRebalancer.rebalance();
+            usingCostRebalancer = true;
+        } else {
+            usingCostRebalancer = false;
+        }
+
     }
 
     @Override
@@ -40,16 +55,22 @@ public class PreciseDirectedKWayPartitionTransform implements PartitionTransform
             //setup
             Arc temp;
             DirectedVertex tail, head;
-            HashMap<Integer, DirectedVertex> ansVertices = ans.getInternalVertexMap();
-            HashMap<Integer, Arc> mEdges = mGraph.getInternalEdgeMap();
+            TIntObjectHashMap<DirectedVertex> ansVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<Arc> mEdges = mGraph.getInternalEdgeMap();
 
-            for (int i = 1; i <= m; i++) {
+            int tempCost;
+
+            for (Integer i : mEdges.keys()) {
                 temp = mEdges.get(i);
+                tempCost = temp.getCost();
+                if (usingCostRebalancer)
+                    tempCost = mCostMap.get(i);
                 head = temp.getEndpoints().getSecond();
+                tail = temp.getEndpoints().getFirst();
 
                 //assign the cost:
                 if (temp.isRequired() || mWeighNonReq)
-                    ansVertices.get(i).setCost(temp.getCost());
+                    ansVertices.get(i).setCost(tempCost);
                 else
                     ansVertices.get(i).setCost(0);
 
@@ -57,7 +78,16 @@ public class PreciseDirectedKWayPartitionTransform implements PartitionTransform
                 for (ArrayList<Arc> toAdd : head.getNeighbors().values()) {
                     for (Arc e : toAdd) {
                         //to avoid redundancy and self conns
-                        if (e.getId() != i) {
+                        if (e.getId() < i) {
+                            ans.addEdge(i, e.getId(), 1);
+                        }
+                    }
+                }
+
+                for (ArrayList<Arc> toAdd : tail.getNeighbors().values()) {
+                    for (Arc e : toAdd) {
+                        //to avoid redundancy and self conns
+                        if (e.getId() < i) {
                             ans.addEdge(i, e.getId(), 1);
                         }
                     }

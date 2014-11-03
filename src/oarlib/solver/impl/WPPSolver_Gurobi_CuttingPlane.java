@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
 import oarlib.core.*;
 import oarlib.core.Problem.Type;
@@ -55,7 +56,7 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver {
         try {
             //copy
             WindyGraph copy = mInstance.getGraph().getDeepCopy();
-            HashMap<Integer, WindyEdge> indexedEdges = copy.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> indexedEdges = copy.getInternalEdgeMap();
             int n = copy.getVertices().size();
             int m = copy.getEdges().size();
 
@@ -238,7 +239,7 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver {
 
         CommonAlgorithms.connectedComponents(n, m, nodei, nodej, components);
 
-        HashMap<Integer, WindyVertex> gVertices = G.getInternalVertexMap();
+        TIntObjectHashMap<WindyVertex> gVertices = G.getInternalVertexMap();
         HashSet<HashSet<Integer>> ans = new HashSet<HashSet<Integer>>();
         WindyVertex temp;
         HashMap<Integer, HashSet<Integer>> candidateCuts = new HashMap<Integer, HashSet<Integer>>();
@@ -285,7 +286,7 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver {
 
             CommonAlgorithms.connectedComponents(n, m, nodei, nodej, components);
 
-            HashMap<Integer, WindyVertex> gVertices = G.getInternalVertexMap();
+            TIntObjectHashMap<WindyVertex> gVertices = G.getInternalVertexMap();
             HashSet<HashSet<Integer>> ans = new HashSet<HashSet<Integer>>();
             WindyVertex temp;
             HashMap<Integer, HashSet<Integer>> candidateCuts = new HashMap<Integer, HashSet<Integer>>();

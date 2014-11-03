@@ -1,5 +1,6 @@
 package oarlib.graph.io;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Arc;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
@@ -120,7 +121,7 @@ public class GraphReader {
                 ans.addVertex(new UndirectedVertex(""));
             }
 
-            HashMap<Integer, UndirectedVertex> indexedVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> indexedVertices = ans.getInternalVertexMap();
 
             //now read the rest
             for (int i = 1; i <= n; i++) {
@@ -400,7 +401,7 @@ public class GraphReader {
                 //now read coordinates
                 int i = 1;
                 MixedVertex tempV;
-                HashMap<Integer, MixedVertex> ansVertices = ans.getInternalVertexMap();
+                TIntObjectHashMap<MixedVertex> ansVertices = ans.getInternalVertexMap();
                 while ((line = br.readLine()) != null) {
                     tempV = ansVertices.get(i);
                     temp = line.split("\\s+|:|\\)|,|\\(");
@@ -451,7 +452,7 @@ public class GraphReader {
                 //now read coordinates
                 int i = 1;
                 WindyVertex tempV;
-                HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
+                TIntObjectHashMap<WindyVertex> ansVertices = ans.getInternalVertexMap();
                 while ((line = br.readLine()) != null) {
                     if (line.contains("="))
                         break;
@@ -533,7 +534,7 @@ public class GraphReader {
                 //now read coordinates
                 int i = 1;
                 WindyVertex tempV;
-                HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
+                TIntObjectHashMap<WindyVertex> ansVertices = ans.getInternalVertexMap();
                 while ((line = br.readLine()) != null) {
                     tempV = ansVertices.get(i);
                     temp = line.split("\\s+|:|\\)|,|\\(");
@@ -583,7 +584,7 @@ public class GraphReader {
                 for (int i = 0; i < n; i++) {
                     ans.addVertex(new DirectedVertex("Original"));
                 }
-                HashMap<Integer, DirectedVertex> indexedVertices = ans.getInternalVertexMap();
+                TIntObjectHashMap<DirectedVertex> indexedVertices = ans.getInternalVertexMap();
                 for (int i = 0; i < m - 2; i++) {
                     line = br.readLine();
                     if (line == null) {
@@ -609,7 +610,7 @@ public class GraphReader {
                 for (int i = 0; i < n; i++) {
                     ans.addVertex(new UndirectedVertex("Original"));
                 }
-                HashMap<Integer, UndirectedVertex> indexedVertices = ans.getInternalVertexMap();
+                TIntObjectHashMap<UndirectedVertex> indexedVertices = ans.getInternalVertexMap();
                 for (int i = 0; i < m - 2; i++) {
                     line = br.readLine();
                     if (line == null) {

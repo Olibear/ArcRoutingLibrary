@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Edge;
 import oarlib.core.Problem;
 import oarlib.core.Route;
@@ -115,7 +116,7 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver {
             UndirectedGraph copy = mInstance.getGraph().getDeepCopy();
             eulerAugment(copy);
 
-            HashMap<Integer, Edge> indexedEdges = copy.getInternalEdgeMap();
+            TIntObjectHashMap<Edge> indexedEdges = copy.getInternalEdgeMap();
             //return the answer
             ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
             Tour eulerTour = new Tour();

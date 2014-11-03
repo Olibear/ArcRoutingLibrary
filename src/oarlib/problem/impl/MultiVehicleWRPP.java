@@ -1,7 +1,6 @@
 package oarlib.problem.impl;
 
 import oarlib.core.MultiVehicleProblem;
-import oarlib.core.MultiVehicleSolver;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
 

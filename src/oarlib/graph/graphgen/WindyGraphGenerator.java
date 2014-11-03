@@ -1,5 +1,6 @@
 package oarlib.graph.graphgen;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
@@ -38,7 +39,7 @@ public class WindyGraphGenerator extends GraphGenerator {
             if (n == 1)
                 return ans;
 
-            HashMap<Integer, WindyVertex> indexedVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<WindyVertex> indexedVertices = ans.getInternalVertexMap();
 
             //figure out what is set
             maxCost = (maxCost < 0) ? Integer.MAX_VALUE : maxCost;

@@ -2,29 +2,72 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c224092-2200-42e8-9678-60c3400ac001" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/graph/util/IndexedRecord.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleWRPP.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver_Benavent.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/core/CapacitatedProblem.java" afterPath="$PROJECT_DIR$/src/oarlib/core/MultiVehicleProblem.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/core/CapacitatedVehicleSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/core/MultiVehicleSolver.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/CapacitatedDCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleDCPP.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/CapacitatedMCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleMCPP.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/CapacitatedUCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleUCPP.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/CapacitatedWPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleWPP.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/CapacitatedDCPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiDCPPSolver.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/CapacitatedMCPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiMCPPSolver.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/CapacitatedUCPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiUCPPSolver.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/CapacitatedWPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/CostRebalancer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/DuplicateEdgeCostRebalancer.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/RebalanceTransformer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/ShortRouteReductionRebalancer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/SimpleDistanceRebalancer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/SimpleRouteRebalancer.java" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver_Benavent.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ArcRoutingLibrary.iml" afterPath="$PROJECT_DIR$/ArcRoutingLibrary.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/BoundingBox.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/BoundingBox.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Edmonds.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Edmonds.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Gurobi.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Gurobi.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/DirectedCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/DirectedCPP.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/DirectedGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/DirectedGraph.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/DirectedGraphGenerator.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/DirectedGraphGenerator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/DirectedKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/DirectedKWayPartitionTransform.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/DirectedRPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/DirectedRPP.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedRequirementTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedRequirementTransform.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" afterPath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/core/Graph.java" afterPath="$PROJECT_DIR$/src/oarlib/core/Graph.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java" afterPath="$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/io/GraphReader.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/io/GraphReader.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/io/GraphWriter.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/io/GraphWriter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/util/IndexedRecord.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/util/IndexedRecord.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/IndividualDistanceToDepotRebalancer.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/IndividualDistanceToDepotRebalancer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Yaoyuenyong.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Yaoyuenyong.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/MixedCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/MixedCPP.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/MixedGraphGenerator.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/MixedGraphGenerator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/MixedKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/MixedKWayPartitionTransform.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiDCPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiDCPPSolver.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiMCPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiMCPPSolver.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiUCPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiUCPPSolver.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/core/MultiVehicleProblem.java" afterPath="$PROJECT_DIR$/src/oarlib/core/MultiVehicleProblem.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/core/MultiVehicleSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/core/MultiVehicleSolver.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleWRPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleWRPP.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/OSM_Fetcher.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/OSM_Fetcher.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/util/Utils.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/util/Utils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseWindyKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseWindyKWayPartitionTransform.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/core/Problem.java" afterPath="$PROJECT_DIR$/src/oarlib/core/Problem.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/core/Route.java" afterPath="$PROJECT_DIR$/src/oarlib/core/Route.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/route/impl/Tour.java" afterPath="$PROJECT_DIR$/src/oarlib/route/impl/Tour.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Edmonds.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Edmonds.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Gurobi.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Gurobi.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/UndirectedCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/UndirectedCPP.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/UndirectedGraphGenerator.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/UndirectedGraphGenerator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/UndirectedKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/UndirectedKWayPartitionTransform.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/WindyCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/WindyCPP.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/WindyGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/WindyGraph.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/WindyGraphGenerator.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/WindyGraphGenerator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/WindyKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/WindyKWayPartitionTransform.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/WindyRPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/WindyRPP.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ArcRoutingLibrary.iws" />
@@ -48,50 +91,32 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="GeneralTestbed.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
+      <file leaf-file-name="MCPPSolver_Frederickson.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1194" max-vertical-offset="18270">
-              <caret line="64" column="8" selection-start-line="64" selection-start-column="8" selection-end-line="64" selection-end-column="8" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MultiVehicleSolver.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/oarlib/core/MultiVehicleSolver.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="360" max-vertical-offset="1740">
-              <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="2183" max-vertical-offset="9030">
+              <caret line="165" column="0" selection-start-line="165" selection-start-column="0" selection-end-line="165" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MultiWPPSolver_Benavent.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver_Benavent.java">
+      <file leaf-file-name="GeneralTestbed.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4507389" vertical-offset="1764" max-vertical-offset="4890">
-              <caret line="144" column="0" selection-start-line="144" selection-start-column="0" selection-end-line="144" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#5315#5324#0" expanded="true" />
-                <element signature="e#5643#5650#0" expanded="true" />
-              </folding>
+            <state vertical-scroll-proportion="-4.730769" vertical-offset="3972" max-vertical-offset="17985">
+              <caret line="305" column="63" selection-start-line="305" selection-start-column="63" selection-end-line="305" selection-end-column="63" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CommonAlgorithms.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
+      <file leaf-file-name="WRPPSolver_Win.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="18009" max-vertical-offset="38775">
-              <caret line="1232" column="33" selection-start-line="1232" selection-start-column="33" selection-end-line="1232" selection-end-column="33" />
-              <folding>
-                <element signature="e#47918#47927#0" expanded="true" />
-              </folding>
+            <state vertical-scroll-proportion="5.244361" vertical-offset="0" max-vertical-offset="14850">
+              <caret line="200" column="28" selection-start-line="200" selection-start-column="28" selection-end-line="200" selection-end-column="28" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -109,57 +134,57 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/oarlib/core/Link.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/UndirectedKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/WindyKWayPartitionTransform.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/RebalanceTransformer.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/SimpleDistanceRebalancer.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/SimpleRouteRebalancer.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiMCPPSolver.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/DuplicateEdgeAugmenter.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/CostRebalancer.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/IndividualDistanceToDepotRebalancer.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/ShortRouteReductionRebalancer.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseWindyKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/PartitionRefiner.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/ShortRouteRefiner.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/display/util/Color.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/io/GraphReader.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/core/SingleVehicleSolver.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Edmonds.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Gurobi.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Gurobi.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver_Benavent.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/core/Graph.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/impl/WindyGraph.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/DirectedGraphGenerator.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/impl/DirectedGraph.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Yaoyuenyong.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/MixedKWayPartitionTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/MixedGraphGenerator.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiDCPPSolver.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/core/Route.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/UndirectedKWayPartitionTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/WindyGraphGenerator.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/DuplicateEdgeCostRebalancer.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/UndirectedGraphGenerator.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Edmonds.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/core/CapacitatedVehicleSolver.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/CapacitatedDCPPSolver.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/CapacitatedUCPPSolver.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/CapacitatedMCPPSolver.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/core/Vertex.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/display/util/Colors.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/BoundingBox.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/CapacitatedWPPSolver.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedRequirementTransform.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/OSM_Fetcher.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/core/CapacitatedProblem.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/core/MultiVehicleProblem.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleWRPP.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/util/AttributeRecord.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/util/Utils.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/util/IndexedRecord.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver_Benavent.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/io/GraphReader.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Gurobi.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseWindyKWayPartitionTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Gurobi.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedRequirementTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiUCPPSolver.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Yaoyuenyong.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/io/GraphWriter.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/WindyKWayPartitionTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/DirectedKWayPartitionTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Edmonds.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" />
         <option value="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" />
       </list>
     </option>
   </component>
@@ -212,7 +237,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -232,7 +256,7 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -242,15 +266,15 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="oarlib" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -260,19 +284,19 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="oarlib" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="impl" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -282,23 +306,23 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="oarlib" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="graph" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="util" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -308,124 +332,25 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="oarlib" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="graph" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="oarlib" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="graph" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="graphgen" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="oarlib" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="graph" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="graphgen" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Util" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="oarlib" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="exceptions" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ArcRoutingLibrary" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="oarlib" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="core" />
-              <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -435,12 +360,12 @@
     <property name="MemberChooser.sorted" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/gephi-toolkit.jar!/" />
     <property name="options.lastSelected" value="gradle.compiler" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
-    <property name="project.structure.last.edited" value="Artifacts" />
+    <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="OverrideImplement.combined" value="true" />
@@ -475,10 +400,14 @@
       <RunnerSettings RunnerId="JProfiler">
         <option name="WINDOW" value="false" />
       </RunnerSettings>
+      <RunnerSettings RunnerId="Profile " />
       <RunnerSettings RunnerId="Run" />
+      <RunnerSettings RunnerId="Run with VisualVM" />
       <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="JProfiler" />
+      <ConfigurationWrapper RunnerId="Profile " />
       <ConfigurationWrapper RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run with VisualVM" />
       <method />
     </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
@@ -627,6 +556,11 @@
     </configuration>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SliceManager">
+    <option name="analysisUIOptions">
+      <AnalysisUIOptions />
+    </option>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -680,7 +614,11 @@
       <created>1413126079236</created>
       <updated>1413126079236</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Weekend Commit; Benavent almost done.">
+      <created>1413945916714</created>
+      <updated>1413945916714</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -710,56 +648,31 @@
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3282532" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4548652" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3285151" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.50058615" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282532" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942554" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32919255" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.49941385" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3810082" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282532" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="IntelliHeap" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39875776" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-    </layout>
-    <layout-to-restore>
-      <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33997655" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3285151" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942554" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.49941385" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3810082" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282532" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.42086753" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.50058615" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="IntelliHeap" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282532" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282532" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942554" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942554" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32919255" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39875776" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-    </layout-to-restore>
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.49941385" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3985932" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3587339" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="IntelliHeap" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282532" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
+    </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
     <option name="RECENTLY_FILTERED_USER_GROUPS">
@@ -788,52 +701,47 @@
     <MESSAGE value="Fixed some bugs; now onto improvement procedures!" />
     <MESSAGE value="First pass at GraphDisplay Finished." />
     <MESSAGE value="Graph Display Improvements, OSM Integration done, real test instances added." />
-    <option name="LAST_COMMIT_MESSAGE" value="Graph Display Improvements, OSM Integration done, real test instances added." />
+    <MESSAGE value="Weekend Commit; Benavent almost done." />
+    <option name="LAST_COMMIT_MESSAGE" value="Weekend Commit; Benavent almost done." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/oarlib/core/Route.java</url>
-          <line>194</line>
+          <line>249</line>
           <properties />
           <option name="timeStamp" value="44" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java</url>
-          <line>2145</line>
+          <line>2211</line>
           <properties />
           <option name="timeStamp" value="53" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java</url>
-          <line>2118</line>
+          <line>2184</line>
           <properties />
           <option name="timeStamp" value="72" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java</url>
-          <line>381</line>
+          <line>382</line>
           <properties />
           <option name="timeStamp" value="115" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/oarlib/graph/io/GraphReader.java</url>
-          <line>404</line>
+          <line>405</line>
           <properties />
           <option name="timeStamp" value="135" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java</url>
-          <line>610</line>
-          <properties />
-          <option name="timeStamp" value="162" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="193" />
+      <option name="time" value="225" />
     </breakpoint-manager>
   </component>
   <component name="antWorkspaceConfiguration">
@@ -841,296 +749,411 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiMCPPSolver.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="18180">
-          <caret line="84" column="0" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.558" vertical-offset="1311" max-vertical-offset="3075">
+          <caret line="125" column="0" selection-start-line="125" selection-start-column="0" selection-end-line="125" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/core/MultiVehicleSolver.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/vertex/impl/UndirectedVertex.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="360" max-vertical-offset="1740">
-          <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-          <folding />
+        <state vertical-scroll-proportion="-0.49281314" vertical-offset="375" max-vertical-offset="1230">
+          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver_Benavent.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/CostRebalancer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2332" max-vertical-offset="4875">
-          <caret line="193" column="0" selection-start-line="193" selection-start-column="0" selection-end-line="193" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#5315#5324#0" expanded="true" />
-            <element signature="e#5643#5650#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.83815026" vertical-offset="75" max-vertical-offset="735">
+          <caret line="43" column="17" selection-start-line="43" selection-start-column="17" selection-end-line="43" selection-end-column="17" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/IndividualDistanceToDepotRebalancer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="18255" max-vertical-offset="37695">
-          <caret line="1217" column="0" selection-start-line="1217" selection-start-column="0" selection-end-line="1217" selection-end-column="0" />
-          <folding>
-            <element signature="e#47918#47927#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.6955684" vertical-offset="524" max-vertical-offset="1065">
+          <caret line="68" column="36" selection-start-line="68" selection-start-column="36" selection-end-line="68" selection-end-column="36" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Graph.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2340" max-vertical-offset="16545">
-          <caret line="207" column="62" selection-start-line="207" selection-start-column="62" selection-end-line="207" selection-end-column="62" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="90" max-vertical-offset="975">
-          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2340" max-vertical-offset="16545">
-          <caret line="207" column="62" selection-start-line="207" selection-start-column="62" selection-end-line="207" selection-end-column="62" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="90" max-vertical-offset="975">
-          <caret line="6" column="13" selection-start-line="6" selection-start-column="13" selection-end-line="6" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="465" max-vertical-offset="16545">
-          <caret line="34" column="8" selection-start-line="34" selection-start-column="8" selection-end-line="34" selection-end-column="8" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="465" max-vertical-offset="16545">
-          <caret line="34" column="8" selection-start-line="34" selection-start-column="8" selection-end-line="34" selection-end-column="8" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/display/util/Colors.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1170">
-          <caret line="10" column="32" selection-start-line="10" selection-start-column="32" selection-end-line="10" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/BoundingBox.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.2" vertical-offset="0" max-vertical-offset="720">
-          <caret line="54" column="50" selection-start-line="54" selection-start-column="50" selection-end-line="54" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="45" max-vertical-offset="1260">
-          <caret line="26" column="64" selection-start-line="26" selection-start-column="64" selection-end-line="26" selection-end-column="64" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3765">
+          <caret line="219" column="57" selection-start-line="219" selection-start-column="57" selection-end-line="219" selection-end-column="57" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33182845" vertical-offset="1098" max-vertical-offset="3255">
-          <caret line="89" column="16" selection-start-line="89" selection-start-column="16" selection-end-line="89" selection-end-column="16" />
+        <state vertical-scroll-proportion="0.10909091" vertical-offset="0" max-vertical-offset="3315">
+          <caret line="6" column="51" selection-start-line="6" selection-start-column="51" selection-end-line="6" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2730845" vertical-offset="12851" max-vertical-offset="39750">
+          <caret line="881" column="26" selection-start-line="881" selection-start-column="26" selection-end-line="881" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Vertex.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.5319549" vertical-offset="433" max-vertical-offset="1755">
+          <caret line="14" column="22" selection-start-line="14" selection-start-column="22" selection-end-line="14" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Link.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.24770643" vertical-offset="0" max-vertical-offset="1905">
+          <caret line="10" column="22" selection-start-line="10" selection-start-column="22" selection-end-line="10" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33211008" vertical-offset="509" max-vertical-offset="1470">
+          <caret line="58" column="69" selection-start-line="58" selection-start-column="69" selection-end-line="58" selection-end-column="69" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="2.6817288" vertical-offset="0" max-vertical-offset="1890">
+          <caret line="110" column="30" selection-start-line="110" selection-start-column="30" selection-end-line="110" selection-end-column="30" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/WindyGraph.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.13953489" vertical-offset="0" max-vertical-offset="2520">
-          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+        <state vertical-scroll-proportion="0.33270678" vertical-offset="1668" max-vertical-offset="2565">
+          <caret line="147" column="86" selection-start-line="147" selection-start-column="86" selection-end-line="147" selection-end-column="86" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Graph.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33182845" vertical-offset="1128" max-vertical-offset="3810">
-          <caret line="102" column="25" selection-start-line="102" selection-start-column="25" selection-end-line="102" selection-end-column="25" />
+        <state vertical-scroll-proportion="0.3045977" vertical-offset="591" max-vertical-offset="1440">
+          <caret line="64" column="31" selection-start-line="64" selection-start-column="31" selection-end-line="64" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33211008" vertical-offset="509" max-vertical-offset="1470">
+          <caret line="58" column="70" selection-start-line="58" selection-start-column="70" selection-end-line="58" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7556391" vertical-offset="1923" max-vertical-offset="2850">
+          <caret line="173" column="30" selection-start-line="173" selection-start-column="30" selection-end-line="173" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/DirectedGraphGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33834586" vertical-offset="165" max-vertical-offset="2100">
+          <caret line="34" column="20" selection-start-line="34" selection-start-column="20" selection-end-line="34" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/DirectedGraph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1230" max-vertical-offset="1995">
+          <caret line="103" column="72" selection-start-line="103" selection-start-column="72" selection-end-line="103" selection-end-column="72" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/MixedKWayPartitionTransform.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33211008" vertical-offset="224" max-vertical-offset="1080">
+          <caret line="36" column="26" selection-start-line="36" selection-start-column="26" selection-end-line="36" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33270678" vertical-offset="5718" max-vertical-offset="7590">
+          <caret line="405" column="69" selection-start-line="405" selection-start-column="69" selection-end-line="405" selection-end-column="69" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/MixedGraphGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.16353384" vertical-offset="363" max-vertical-offset="2625">
+          <caret line="41" column="28" selection-start-line="41" selection-start-column="28" selection-end-line="41" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Route.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.84586465" vertical-offset="1830" max-vertical-offset="4170">
+          <caret line="103" column="26" selection-start-line="103" selection-start-column="26" selection-end-line="103" selection-end-column="26" />
+          <folding>
+            <element signature="e#1494#1512#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiDCPPSolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4972477" vertical-offset="1664" max-vertical-offset="3210">
+          <caret line="151" column="17" selection-start-line="151" selection-start-column="17" selection-end-line="151" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.027522936" vertical-offset="615" max-vertical-offset="1980">
+          <caret line="56" column="29" selection-start-line="56" selection-start-column="29" selection-end-line="56" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.97318" vertical-offset="4375" max-vertical-offset="4920">
+          <caret line="227" column="56" selection-start-line="227" selection-start-column="56" selection-end-line="227" selection-end-column="56" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/WindyGraphGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33270678" vertical-offset="288" max-vertical-offset="1995">
+          <caret line="41" column="27" selection-start-line="41" selection-start-column="27" selection-end-line="41" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/DuplicateEdgeCostRebalancer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.35963303" vertical-offset="389" max-vertical-offset="1035">
+          <caret line="56" column="23" selection-start-line="56" selection-start-column="23" selection-end-line="56" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.31766918" vertical-offset="2831" max-vertical-offset="4920">
+          <caret line="215" column="82" selection-start-line="215" selection-start-column="82" selection-end-line="215" selection-end-column="82" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Edmonds.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.31766918" vertical-offset="1376" max-vertical-offset="2505">
+          <caret line="118" column="28" selection-start-line="118" selection-start-column="28" selection-end-line="118" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/UndirectedKWayPartitionTransform.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.019157087" vertical-offset="415" max-vertical-offset="960">
+          <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.34774068" vertical-offset="2673" max-vertical-offset="5100">
+          <caret line="233" column="95" selection-start-line="233" selection-start-column="95" selection-end-line="233" selection-end-column="95" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/UndirectedGraphGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.593985" vertical-offset="1313" max-vertical-offset="1845">
+          <caret line="41" column="27" selection-start-line="41" selection-start-column="27" selection-end-line="41" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/io/GraphReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.4962406" vertical-offset="8993" max-vertical-offset="9525">
+          <caret line="536" column="34" selection-start-line="536" selection-start-column="34" selection-end-line="536" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33270678" vertical-offset="1038" max-vertical-offset="5955">
+          <caret line="98" column="84" selection-start-line="98" selection-start-column="84" selection-end-line="98" selection-end-column="84" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.027522936" vertical-offset="645" max-vertical-offset="2670">
+          <caret line="61" column="28" selection-start-line="61" selection-start-column="28" selection-end-line="61" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Gurobi.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2387218" vertical-offset="1898" max-vertical-offset="2430">
+          <caret line="152" column="28" selection-start-line="152" selection-start-column="28" selection-end-line="152" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.30458716" vertical-offset="3944" max-vertical-offset="4920">
+          <caret line="288" column="30" selection-start-line="288" selection-start-column="30" selection-end-line="288" selection-end-column="30" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedRequirementTransform.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5651163" vertical-offset="732" max-vertical-offset="1230">
-          <caret line="72" column="50" selection-start-line="72" selection-start-column="50" selection-end-line="72" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/OSM_Fetcher.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4812362" vertical-offset="967" max-vertical-offset="3015">
-          <caret line="96" column="204" selection-start-line="96" selection-start-column="204" selection-end-line="96" selection-end-column="204" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/core/MultiVehicleProblem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.24" vertical-offset="0" max-vertical-offset="1260">
-          <caret line="8" column="22" selection-start-line="8" selection-start-column="22" selection-end-line="8" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.93492407" vertical-offset="3649" max-vertical-offset="4995">
-          <caret line="319" column="43" selection-start-line="319" selection-start-column="43" selection-end-line="319" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.90909094" vertical-offset="3615" max-vertical-offset="4500">
-          <caret line="315" column="19" selection-start-line="232" selection-start-column="8" selection-end-line="315" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleWRPP.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6909091" vertical-offset="0" max-vertical-offset="825">
-          <caret line="43" column="39" selection-start-line="43" selection-start-column="39" selection-end-line="43" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleWPP.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.34545454" vertical-offset="0" max-vertical-offset="825">
-          <caret line="25" column="13" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Route.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="445" max-vertical-offset="3465">
-          <caret line="66" column="59" selection-start-line="66" selection-start-column="59" selection-end-line="66" selection-end-column="59" />
+        <state vertical-scroll-proportion="0.38909775" vertical-offset="333" max-vertical-offset="1260">
+          <caret line="44" column="30" selection-start-line="44" selection-start-column="30" selection-end-line="44" selection-end-column="30" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/route/impl/Tour.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Gurobi.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="600">
-          <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
+        <state vertical-scroll-proportion="3.580827" vertical-offset="0" max-vertical-offset="2310">
+          <caret line="144" column="30" selection-start-line="144" selection-start-column="30" selection-end-line="144" selection-end-column="30" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseWindyKWayPartitionTransform.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1275" max-vertical-offset="5685">
-          <caret line="27" column="23" selection-start-line="27" selection-start-column="23" selection-end-line="27" selection-end-column="23" />
+        <state vertical-scroll-proportion="0.19266056" vertical-offset="615" max-vertical-offset="1440">
+          <caret line="62" column="21" selection-start-line="62" selection-start-column="21" selection-end-line="62" selection-end-column="21" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/IndividualDistanceToDepotRebalancer.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Yaoyuenyong.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="355" max-vertical-offset="900">
-          <caret line="50" column="25" selection-start-line="50" selection-start-column="25" selection-end-line="50" selection-end-column="25" />
+        <state vertical-scroll-proportion="0.33270678" vertical-offset="11043" max-vertical-offset="12165">
+          <caret line="763" column="30" selection-start-line="763" selection-start-column="30" selection-end-line="763" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/io/GraphWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.071428575" vertical-offset="1208" max-vertical-offset="1740">
+          <caret line="96" column="30" selection-start-line="96" selection-start-column="30" selection-end-line="96" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.11984283" vertical-offset="8161" max-vertical-offset="8670">
+          <caret line="558" column="34" selection-start-line="558" selection-start-column="34" selection-end-line="558" selection-end-column="34" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Edmonds.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.07272727" vertical-offset="1050" max-vertical-offset="1950">
-          <caret line="85" column="60" selection-start-line="85" selection-start-column="60" selection-end-line="85" selection-end-column="60" />
+        <state vertical-scroll-proportion="0.33333334" vertical-offset="816" max-vertical-offset="1950">
+          <caret line="78" column="68" selection-start-line="78" selection-start-column="68" selection-end-line="78" selection-end-column="68" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/core/MultiVehicleSolver.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/DirectedKWayPartitionTransform.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="138" max-vertical-offset="1680">
-          <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.33333334" vertical-offset="231" max-vertical-offset="825">
+          <caret line="36" column="30" selection-start-line="36" selection-start-column="30" selection-end-line="36" selection-end-column="30" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/WindyKWayPartitionTransform.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="8064" max-vertical-offset="14640">
-          <caret line="560" column="0" selection-start-line="560" selection-start-column="0" selection-end-line="560" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.33211008" vertical-offset="224" max-vertical-offset="1020">
+          <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/Utils.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiUCPPSolver.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.774" vertical-offset="78" max-vertical-offset="735">
-          <caret line="31" column="62" selection-start-line="31" selection-start-column="62" selection-end-line="31" selection-end-column="62" />
+        <state vertical-scroll-proportion="0.33211008" vertical-offset="1799" max-vertical-offset="3330">
+          <caret line="157" column="8" selection-start-line="157" selection-start-column="8" selection-end-line="157" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="2183" max-vertical-offset="9030">
+          <caret line="165" column="0" selection-start-line="165" selection-start-column="0" selection-end-line="165" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/OSM_Fetcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.028248588" vertical-offset="2055" max-vertical-offset="3045">
+          <caret line="156" column="82" selection-start-line="156" selection-start-column="82" selection-end-line="156" selection-end-column="82" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.82568806" vertical-offset="0" max-vertical-offset="1335">
+          <caret line="30" column="14" selection-start-line="30" selection-start-column="14" selection-end-line="30" selection-end-column="14" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1194" max-vertical-offset="18270">
-          <caret line="64" column="8" selection-start-line="64" selection-start-column="8" selection-end-line="64" selection-end-column="8" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="-4.730769" vertical-offset="3972" max-vertical-offset="17985">
+          <caret line="305" column="63" selection-start-line="305" selection-start-column="63" selection-end-line="305" selection-end-column="63" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/IndexedRecord.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.20594966" vertical-offset="315" max-vertical-offset="1170">
-          <caret line="27" column="41" selection-start-line="27" selection-start-column="41" selection-end-line="27" selection-end-column="41" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="18009" max-vertical-offset="38775">
-          <caret line="1232" column="33" selection-start-line="1232" selection-start-column="33" selection-end-line="1232" selection-end-column="33" />
-          <folding>
-            <element signature="e#47918#47927#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver_Benavent.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4507389" vertical-offset="1764" max-vertical-offset="4890">
-          <caret line="144" column="0" selection-start-line="144" selection-start-column="0" selection-end-line="144" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#5315#5324#0" expanded="true" />
-            <element signature="e#5643#5650#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="5.244361" vertical-offset="0" max-vertical-offset="14850">
+          <caret line="200" column="28" selection-start-line="200" selection-start-column="28" selection-end-line="200" selection-end-column="28" />
+          <folding />
         </state>
       </provider>
     </entry>

@@ -1,5 +1,6 @@
 package oarlib.core;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 
@@ -117,7 +118,6 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
      *
      * @param i    - add edge from vertex i
      * @param j    - add edge to vertex j
-     * @param desc - description for the edge
      * @param cost - cost of traversing the edge
      */
     public abstract void addEdge(int i, int j, int cost) throws InvalidEndpointsException;
@@ -129,7 +129,6 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
      *
      * @param i          - add edge from vertex i
      * @param j          - add edge to vertex j
-     * @param desc       - description for the edge
      * @param cost       - cost of traversing the edge
      * @param isRequired - whether or not this edge is required in the solution
      */
@@ -168,6 +167,15 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
      * @throws IllegalArgumentException
      */
     public abstract void removeEdge(E e) throws IllegalArgumentException;
+
+    /**
+     * To remove an edge from the graph.  This updates the degrees of the vertices, and throws to the specific implementation of the graph.
+     * Throws an IllegalArgumentException if the edge isn't a member of the edge collection belonging to the graph.
+     *
+     * @param i - index of edge to be removed from the graph
+     * @throws IllegalArgumentException
+     */
+    public abstract void removeEdge(int i) throws IllegalArgumentException;
 
     /**
      * To change the id of a link in the graph
@@ -212,24 +220,14 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     public abstract List<E> findEdges(Pair<V> endpoints);
 
     /**
-     * @return - a hash map that has guids as keys to the vertices
-     */
-    public abstract HashMap<Integer, V> getGlobalVertexMap();
-
-    /**
      * @return - a hash map that has ids as keys to the vertices
      */
-    public abstract HashMap<Integer, V> getInternalVertexMap();
-
-    /**
-     * @return - a hash map that has guids as keys to the edges
-     */
-    public abstract HashMap<Integer, E> getGlobalEdgeMap();
+    public abstract TIntObjectHashMap<V> getInternalVertexMap();
 
     /**
      * @return - a hash map that has ids as keys to the edges
      */
-    public abstract HashMap<Integer, E> getInternalEdgeMap();
+    public abstract TIntObjectHashMap<E> getInternalEdgeMap();
 
     /**
      * @return - the type that this graph structure represents

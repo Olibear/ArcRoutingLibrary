@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
 import oarlib.core.Arc;
 import oarlib.core.Problem;
@@ -63,7 +64,7 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver {
         try {
             //copy
             DirectedGraph copy = mInstance.getGraph().getDeepCopy();
-            HashMap<Integer, DirectedVertex> indexedVertices = copy.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> indexedVertices = copy.getInternalVertexMap();
 
             //Gurobi stuff
             GRBEnv env = new GRBEnv("miplog.log");
@@ -141,7 +142,7 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver {
             }
 
             //return the answer
-            HashMap<Integer, Arc> indexedEdges = copy.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> indexedEdges = copy.getInternalEdgeMap();
             ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
             Tour eulerTour = new Tour();
             for (int i = 0; i < ans.size(); i++) {

@@ -1,8 +1,10 @@
 package oarlib.graph.transform.partition.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.MixedEdge;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
+import oarlib.graph.transform.rebalance.CostRebalancer;
 import oarlib.vertex.impl.MixedVertex;
 
 import java.util.ArrayList;
@@ -14,16 +16,28 @@ import java.util.HashMap;
 public class PreciseMixedKWayPartitionTransform implements PartitionTransformer<MixedGraph> {
 
     private MixedGraph mGraph;
-
-    private boolean mWeighNonReq = false;
+    private HashMap<Integer, Integer> mCostMap;
+    private boolean mWeighNonReq;
+    private boolean usingCostRebalancer;
 
     public PreciseMixedKWayPartitionTransform(MixedGraph input) {
-        mGraph = input;
+        this(input, false, null);
     }
 
     public PreciseMixedKWayPartitionTransform(MixedGraph input, boolean weighNonReq) {
+        this(input, weighNonReq, null);
+    }
+
+    public PreciseMixedKWayPartitionTransform(MixedGraph input, boolean weighNonReq, CostRebalancer<MixedGraph> costRebalancer) {
         mGraph = input;
         mWeighNonReq = weighNonReq;
+        if (costRebalancer != null) {
+            mCostMap = costRebalancer.rebalance();
+            usingCostRebalancer = true;
+        } else {
+            usingCostRebalancer = false;
+        }
+
     }
 
     @Override
@@ -41,24 +55,39 @@ public class PreciseMixedKWayPartitionTransform implements PartitionTransformer<
             //setup
             MixedEdge temp;
             MixedVertex tail, head;
-            HashMap<Integer, MixedVertex> ansVertices = ans.getInternalVertexMap();
-            HashMap<Integer, MixedEdge> mEdges = mGraph.getInternalEdgeMap();
+            TIntObjectHashMap<MixedVertex> ansVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<MixedEdge> mEdges = mGraph.getInternalEdgeMap();
 
-            for (int i = 1; i <= m; i++) {
+            int tempCost;
+
+            for (int i : mEdges.keys()) {
                 temp = mEdges.get(i);
+                tempCost = temp.getCost();
+                if (usingCostRebalancer)
+                    tempCost = mCostMap.get(i);
                 head = temp.getEndpoints().getSecond();
+                tail = temp.getEndpoints().getFirst();
 
                 //assign the cost:
                 if (temp.isRequired() || mWeighNonReq)
-                    ansVertices.get(i).setCost(temp.getCost());
+                    ansVertices.get(i).setCost(tempCost);
                 else
-                    ansVertices.get(i).setCost(0); //we're gonna throw them all in anyways
+                    ansVertices.get(i).setCost(0);
 
                 //figure out the conns
                 for (ArrayList<MixedEdge> toAdd : head.getNeighbors().values()) {
                     for (MixedEdge e : toAdd) {
                         //to avoid redundancy and self conns
-                        if (e.getId() != i) {
+                        if (e.getId() < i) {
+                            ans.addEdge(i, e.getId(), 1);
+                        }
+                    }
+                }
+
+                for (ArrayList<MixedEdge> toAdd : tail.getNeighbors().values()) {
+                    for (MixedEdge e : toAdd) {
+                        //to avoid redundancy and self conns
+                        if (e.getId() < i) {
                             ans.addEdge(i, e.getId(), 1);
                         }
                     }

@@ -1,5 +1,7 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntIntHashMap;
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.factory.impl.WindyGraphFactory;
@@ -10,9 +12,11 @@ import oarlib.graph.io.PartitionFormat;
 import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedRequirementTransform;
 import oarlib.graph.transform.partition.impl.PreciseWindyKWayPartitionTransform;
-import oarlib.graph.transform.rebalance.impl.ShortRouteReductionRebalancer;
+import oarlib.graph.transform.rebalance.CostRebalancer;
+import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
+import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.MultiVehicleWPP;
+import oarlib.problem.impl.MultiVehicleWRPP;
 import oarlib.problem.impl.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;
@@ -25,22 +29,24 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 8/14/14.
  */
-public class MultiWPPSolver extends MultiVehicleSolver {
+public class MultiWRPPSolver extends MultiVehicleSolver {
 
-    MultiVehicleWPP mInstance;
-    WindyGraph mGraph;
-    String mInstanceName;
+    private MultiVehicleWRPP mInstance;
+    private WindyGraph mGraph;
+    private String mInstanceName;
+    private boolean lastRun; // to control when to export
 
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    public MultiWPPSolver(MultiVehicleWPP instance, String instanceName) throws IllegalArgumentException {
+    public MultiWRPPSolver(MultiVehicleWRPP instance, String instanceName) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
         mGraph = mInstance.getGraph();
         mInstanceName = instanceName;
+        lastRun = false;
     }
 
     @Override
@@ -75,19 +81,20 @@ public class MultiWPPSolver extends MultiVehicleSolver {
                 if (we.isRequired())
                     reqCounter++;
             }
-            HashMap<Integer, Integer> sol = partition();
-
-            GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, mGraph, mInstanceName);
-            gd.exportWithPartition(GraphDisplay.ExportType.PDF, sol);
+            HashMap<Integer, Integer> sol = partition(null);
+            HashMap<Integer, Integer> bestSol = new HashMap<Integer, Integer>();
 
             ArrayList<Route> ans = new ArrayList<Route>();
             int maxCost = 0;
-            for (int j = 1; j <= 5; j++) {
+            int numRebalances = 2;
+            for (int j = 1; j <= numRebalances; j++) {
 
+                if (j == numRebalances)
+                    lastRun = true;
                 mGraph = mInstance.getGraph();
 
                 HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
-                HashMap<Integer, WindyEdge> mGraphEdges = mGraph.getInternalEdgeMap();
+                TIntObjectHashMap<WindyEdge> mGraphEdges = mGraph.getInternalEdgeMap();
                 HashSet<Integer> nonReqEdges = new HashSet<Integer>();
 
                 for (Integer i : sol.keySet()) {
@@ -96,7 +103,6 @@ public class MultiWPPSolver extends MultiVehicleSolver {
                     partitions.get(sol.get(i)).add(i);
                     if (!mGraphEdges.get(i).isRequired())
                         nonReqEdges.add(i);
-
                 }
 
                 //now create the subgraphs
@@ -118,6 +124,7 @@ public class MultiWPPSolver extends MultiVehicleSolver {
                 int tempCost;
                 int numReqLinks;
 
+                maxCost = 0;
                 for (Route r : ans) {
                     tempCost = r.getCost();
                     if (tempCost > maxCost)
@@ -128,14 +135,15 @@ public class MultiWPPSolver extends MultiVehicleSolver {
 
                 if (maxCost < bestObj) {
                     bestObj = maxCost;
+                    bestSol = sol;
                     record = ans;
-
                 }
 
-                ShortRouteReductionRebalancer<WindyGraph> rebalancer = new ShortRouteReductionRebalancer<WindyGraph>(mGraph, sol, ans);
-                mGraph = rebalancer.transformGraph(1 - (j * .1));
-                sol = partition();
+                sol = partition(new DuplicateEdgeCostRebalancer(mGraph, new IndividualDistanceToDepotRebalancer(mGraph, .01)));
             }
+
+            GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, mGraph, mInstanceName);
+            gd.exportWithPartition(GraphDisplay.ExportType.PDF, bestSol);
 
             currSol = record;
             return record;
@@ -147,16 +155,15 @@ public class MultiWPPSolver extends MultiVehicleSolver {
 
     @Override
     public Problem.Type getProblemType() {
-        return Problem.Type.WINDY_CHINESE_POSTMAN;
+        return Problem.Type.WINDY_RURAL_POSTMAN;
     }
 
-    @Override
-    protected HashMap<Integer, Integer> partition() {
+    protected HashMap<Integer, Integer> partition(CostRebalancer costRebalancer) {
 
         try {
 
             //initialize transformer for turning edge-weighted grpah into vertex-weighted graph
-            PreciseWindyKWayPartitionTransform transformer = new PreciseWindyKWayPartitionTransform(mGraph, true);
+            PreciseWindyKWayPartitionTransform transformer = new PreciseWindyKWayPartitionTransform(mGraph, true, costRebalancer);
 
             //transform the graph
             WindyGraph vWeightedTest = transformer.transformGraph();
@@ -185,7 +192,6 @@ public class MultiWPPSolver extends MultiVehicleSolver {
 
     }
 
-    @Override
     protected Route route(HashSet<Integer> ids) {
 
         //check out a clean instance
@@ -195,7 +201,7 @@ public class MultiWPPSolver extends MultiVehicleSolver {
         EdgeInducedRequirementTransform<WindyGraph> subgraphTransform = new EdgeInducedRequirementTransform<WindyGraph>(mGraph, wgf, ids);
 
         //check to make sure we have at least 1 required edge
-        HashMap<Integer, WindyEdge> mEdges = mGraph.getInternalEdgeMap();
+        TIntObjectHashMap<WindyEdge> mEdges = mGraph.getInternalEdgeMap();
         boolean hasReq = false;
         for (Integer i : ids) {
             if (mEdges.get(i).isRequired())
@@ -207,8 +213,8 @@ public class MultiWPPSolver extends MultiVehicleSolver {
         WindyGraph subgraph = subgraphTransform.transformGraph();
 
         //now solve the WPP on it
-        WindyRPP subInstance = new WindyRPP(subgraph);
-        WRPPSolver_Benavent_H1 solver = new WRPPSolver_Benavent_H1(subInstance);
+        WindyRPP subInstance = new WindyRPP(subgraph, mInstanceName);
+        WRPPSolver_Benavent_H1 solver = new WRPPSolver_Benavent_H1(subInstance, lastRun);
 
         long start, end;
         start = System.currentTimeMillis();
@@ -218,8 +224,8 @@ public class MultiWPPSolver extends MultiVehicleSolver {
 
         //set the id map for the route
         int n = subgraph.getVertices().size();
-        HashMap<Integer, WindyVertex> indexedVertices = subgraph.getInternalVertexMap();
-        HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
+        TIntObjectHashMap<WindyVertex> indexedVertices = subgraph.getInternalVertexMap();
+        TIntIntHashMap customIDMap = new TIntIntHashMap();
         for (int i = 1; i <= n; i++) {
             customIDMap.put(i, indexedVertices.get(i).getMatchId());
         }
@@ -252,7 +258,7 @@ public class MultiWPPSolver extends MultiVehicleSolver {
         String ans = "=======================================================";
         ans += "\n";
         ans += "\n";
-        ans += "CapacitatedWRPPSolver: Printing current solution...";
+        ans += "CapacitatedWRPPSolver: Printing current solution for instance " + mInstanceName + "...";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";
@@ -274,6 +280,8 @@ public class MultiWPPSolver extends MultiVehicleSolver {
             ans += "\n";
             ans += "Route: " + r.toString() + "\n";
             ans += "Route Cost: " + tempCost + "\n";
+            ans += "Route Required Cost: " + r.getReqCost() + "\n";
+            ans += "Route Unrequired Cost: " + (tempCost - r.getReqCost()) + "\n";
             ans += "\n";
         }
 

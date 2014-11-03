@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.core.MultiEdge.EDGETYPE;
 import oarlib.core.Problem.Type;
@@ -29,8 +30,6 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
      * Eliminates directed cycles in the mixed graph if valid (that is, it only eliminates those cycles consisting entirely
      * of added edges, as specified by M and inMdubPrime)
      *
-     * @param input - the graph in which we wish to carry out the elimination.
-     * @param M     - a list that contains the arcs in input which have been added (and are therefore candidates for removal).
      */
     private static void eliminateAddedDirectedCycles(int n, ArrayList<MultiEdge<MixedEdge>> edgeContainers) throws IllegalArgumentException {
         try {
@@ -40,7 +39,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
                 add.addVertex(new DirectedVertex(""), i);
             }
             //only add the edges that correspond to the added ones before.
-            HashMap<Integer, DirectedVertex> addVertices = add.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> addVertices = add.getInternalVertexMap();
             MixedEdge e;
             MultiEdge<MixedEdge> temp;
             for (int i = 1; i < mSize + 1; i++) {
@@ -60,7 +59,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
             int[][] edgePath;
             boolean cycleDetected = true;
             int curr, next, nextEdge;
-            HashMap<Integer, Arc> addArcs = add.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> addArcs = add.getInternalEdgeMap();
             Arc u;
             while (cycleDetected) {
                 cycleDetected = false;
@@ -90,7 +89,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
         }
     }
 
-    private static void addShortestPathAndUpdate(int start, int end, int[] path, int[] edgePath, HashMap<Integer, MixedEdge> gijEdges, ArrayList<MultiEdge<MixedEdge>> edgeContainers) {
+    private static void addShortestPathAndUpdate(int start, int end, int[] path, int[] edgePath, TIntObjectHashMap<MixedEdge> gijEdges, ArrayList<MultiEdge<MixedEdge>> edgeContainers) {
 
         try {
             int curr = start;
@@ -150,14 +149,13 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
      * procedure.  These graphs are used for shortest path costs only.
      *
      * @param Gij  - the graph to be modified ( in almost all cases, the original graph G )
-     * @param type - the ith entry holds the type/status of the ith edge in G as it appears in G*
      * @param Em   - An arraylist of edges (undirected) added to G during evendegree's matching phase.
      * @param Am   - An arraylist of arcs (directed) added to G during evendegree's matching.
      */
     private static void CostMod1(MixedGraph Gij, ArrayList<MultiEdge<MixedEdge>> edgeContainers, ArrayList<MixedEdge> Em, ArrayList<MixedEdge> Am) throws IllegalArgumentException {
         try {
             int K = -5; //labeled 'attractive cost'
-            HashMap<Integer, MixedEdge> gijEdges = Gij.getInternalEdgeMap();
+            TIntObjectHashMap<MixedEdge> gijEdges = Gij.getInternalEdgeMap();
             MixedEdge temp;
             for (MixedEdge e : Em) {
                 if (e.isDirected())
@@ -193,7 +191,6 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
      *
      * @param Gij
      * @param G
-     * @param type
      * @param i
      * @param j
      */
@@ -204,8 +201,8 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
             int cost;
             MixedEdge e, e2;
             MixedVertex from, to;
-            HashMap<Integer, MixedEdge> gEdges = G.getInternalEdgeMap();
-            HashMap<Integer, MixedEdge> gijEdges = Gij.getInternalEdgeMap();
+            TIntObjectHashMap<MixedEdge> gEdges = G.getInternalEdgeMap();
+            TIntObjectHashMap<MixedEdge> gijEdges = Gij.getInternalEdgeMap();
             int m = edgeContainers.size() - 1;
             for (int k = 1; k < m + 1; k++) {
                 temp = edgeContainers.get(k);
@@ -232,7 +229,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
                 }
             }
             //now delete all links between vertex i and vertex j
-            HashMap<Integer, MixedVertex> gijVertices = Gij.getInternalVertexMap();
+            TIntObjectHashMap<MixedVertex> gijVertices = Gij.getInternalVertexMap();
             List<MixedEdge> toRemove = Gij.findEdges(new Pair<MixedVertex>(gijVertices.get(i), gijVertices.get(j)));
             for (MixedEdge elim : toRemove) {
                 Gij.removeEdge(elim);
@@ -250,13 +247,6 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
      * @param U           - should be an empty ArrayList.  At the end, it will contain edges for whom we are still unsure of their orientation
      * @param M           - should be an empty ArrayList.  At the end, it will contain arcs and edges for whom we know orientations
      * @param inMdubPrime - should be an empty ArrayList.  At the end, it will be of the same size as M, and will hold true if the arc is a duplicate, and false if it's an original
-     * @param type        - should be an empty char array of length m+1 that spells out what happened to the edges in input;
-     *                    a - original edge remains unoriented
-     *                    b - original edge was directed, but not duplicated
-     *                    c - original edge was directed, and duplicated in the same direction
-     *                    d - original edge was directed, and duplicated once in the opposite direction (doesn't happen here)
-     *                    e - original arc remains unduplicated
-     *                    f - original arc was duplicated
      */
     private static void inOutDegree(MixedGraph input, ArrayList<MixedEdge> U, ArrayList<MixedEdge> M, ArrayList<Boolean> inMdubPrime, ArrayList<MultiEdge<MixedEdge>> edgeContainers) {
         try {
@@ -266,10 +256,10 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
             }
             Arc a;
             MixedEdge e;
-            HashMap<Integer, MixedEdge> inputEdges = input.getInternalEdgeMap();
-            HashMap<Integer, MixedVertex> inputVertices = input.getInternalVertexMap();
-            HashMap<Integer, DirectedVertex> setupVertices = setup.getInternalVertexMap();
-            HashMap<Integer, Arc> setupEdges = setup.getInternalEdgeMap();
+            TIntObjectHashMap<MixedEdge> inputEdges = input.getInternalEdgeMap();
+            TIntObjectHashMap<MixedVertex> inputVertices = input.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> setupVertices = setup.getInternalVertexMap();
+            TIntObjectHashMap<Arc> setupEdges = setup.getInternalEdgeMap();
             int m = input.getEdges().size();
             for (int i = 1; i < m + 1; i++) {
                 e = inputEdges.get(i);
@@ -417,7 +407,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
             for (int i = 1; i < input.getVertices().size() + 1; i++) {
                 setup.addVertex(new UndirectedVertex("even setup graph"), i);
             }
-            HashMap<Integer, UndirectedVertex> indexedVertices = setup.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> indexedVertices = setup.getInternalVertexMap();
             for (MixedEdge e : input.getEdges()) {
                 setup.addEdge(new Edge("even setup graph", new Pair<UndirectedVertex>(indexedVertices.get(e.getEndpoints().getFirst().getId()), indexedVertices.get(e.getEndpoints().getSecond().getId())), e.getCost()), e.getId());
             }
@@ -456,7 +446,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
             //now add copies in the mixed graph
             MixedEdge e;
             MixedEdge temp;
-            HashMap<Integer, Edge> setupEdges = setup.getInternalEdgeMap();
+            TIntObjectHashMap<Edge> setupEdges = setup.getInternalEdgeMap();
             for (Pair<UndirectedVertex> p : matchingSolution) {
                 //add the 'undirected' shortest path
                 int curr = p.getFirst().getMatchId();
@@ -486,7 +476,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
         try {
             //Compute the inputs G, Gm and G star
             MixedGraph G = mInstance.getGraph().getDeepCopy(); //original
-            HashMap<Integer, MixedEdge> gEdges = G.getInternalEdgeMap();
+            TIntObjectHashMap<MixedEdge> gEdges = G.getInternalEdgeMap();
             ArrayList<MultiEdge<MixedEdge>> gEdgeContainers = new ArrayList<MultiEdge<MixedEdge>>(); //machinery to help us keep track of status in G*
             gEdgeContainers.add(null); //we want indices to be sympatico with the ids
             int m = G.getEdges().size();
@@ -522,9 +512,9 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
             int[] edgePath, edgePath2, edgePath3;
             int cost1, cost2;
             MultiEdge<MixedEdge> toImprove;
-            HashMap<Integer, MixedEdge> gij1Edges;
-            HashMap<Integer, MixedEdge> gij3Edges;
-            HashMap<Integer, MixedEdge> gij4Edges;
+            TIntObjectHashMap<MixedEdge> gij1Edges;
+            TIntObjectHashMap<MixedEdge> gij3Edges;
+            TIntObjectHashMap<MixedEdge> gij4Edges;
             int curr, next, end;
             int start = 1;
             while (improvements) //while we're making progress
@@ -556,7 +546,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
                     CostMod2(Gij1, G, gEdgeContainers, i, j); //cost mod 2 on Gij1
                     CostMod2(Gij2, G, gEdgeContainers, i, j); //cost mod 2 on Gij2
 
-                    HashMap<Integer, MixedVertex> gij2Vertices = Gij2.getInternalVertexMap(); //indexed edges of Gij2 for calculating costs
+                    TIntObjectHashMap<MixedVertex> gij2Vertices = Gij2.getInternalVertexMap(); //indexed edges of Gij2 for calculating costs
 
                     //now branch off; if we're type a or d, we need to check both directions SP ij, and SP ji; if we're type c or f, just SP ij
                     if (iStat == EDGETYPE.A || iStat == EDGETYPE.D) {
@@ -771,7 +761,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
             ArrayList<Integer> tour;
             tour = CommonAlgorithms.tryHierholzer(G);
             Tour eulerTour = new Tour();
-            HashMap<Integer, MixedEdge> indexedEdges = G.getInternalEdgeMap();
+            TIntObjectHashMap<MixedEdge> indexedEdges = G.getInternalEdgeMap();
             for (int k = 0; k < tour.size(); k++) {
                 eulerTour.appendEdge(indexedEdges.get(tour.get(k)));
             }

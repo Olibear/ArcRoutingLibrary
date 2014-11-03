@@ -1,5 +1,6 @@
 package oarlib.graph.graphgen;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.MixedEdge;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.util.CommonAlgorithms;
@@ -38,7 +39,7 @@ public class MixedGraphGenerator extends GraphGenerator {
             if (n == 1)
                 return ans;
 
-            HashMap<Integer, MixedVertex> indexedVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<MixedVertex> indexedVertices = ans.getInternalVertexMap();
 
             //figure out what is set
             maxCost = (maxCost < 0) ? Integer.MAX_VALUE : maxCost;

@@ -1,5 +1,7 @@
 package oarlib.graph.impl;
 
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Arc;
 import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
@@ -98,8 +100,8 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
             ans.setDepotId(getDepotId());
             DirectedVertex temp, temp2;
             Arc a, a2;
-            HashMap<Integer, DirectedVertex> indexedVertices = this.getInternalVertexMap();
-            HashMap<Integer, Arc> indexedArcs = this.getInternalEdgeMap();
+            TIntObjectHashMap<DirectedVertex> indexedVertices = this.getInternalVertexMap();
+            TIntObjectHashMap<Arc> indexedArcs = this.getInternalEdgeMap();
             int n = this.getVertices().size();
             int m = this.getEdges().size();
             for (int i = 1; i <= n; i++) {
@@ -107,10 +109,11 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
                 temp2 = indexedVertices.get(i); //the old guy
                 if (temp2.isDemandSet())
                     temp.setDemand(temp2.getDemand());
+                temp.setCoordinates(temp2.getX(), temp2.getY());
                 ans.addVertex(temp, i);
             }
-            ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedArcs.keySet());
-            Collections.sort(forSorting);
+            TIntArrayList forSorting = new TIntArrayList(indexedArcs.keys());
+            forSorting.sort();
             m = forSorting.size();
 
             for (int i = 0; i < m; i++) {

@@ -11,6 +11,11 @@ public class UndirectedCPP extends Problem {
     private UndirectedGraph mGraph;
 
     public UndirectedCPP(UndirectedGraph g) {
+        this(g, "");
+    }
+
+    public UndirectedCPP(UndirectedGraph g, String name) {
+        super(name);
         mGraph = g;
     }
 

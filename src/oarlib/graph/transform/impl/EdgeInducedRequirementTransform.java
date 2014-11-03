@@ -1,5 +1,6 @@
 package oarlib.graph.transform.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.GraphTransformer;
@@ -39,14 +40,16 @@ public class EdgeInducedRequirementTransform<S extends Graph<?, ?>> implements G
             blankGraph.setDepotId(mGraph.getDepotId());
             int n = mGraph.getVertices().size();
             int m = mGraph.getEdges().size();
-            HashMap<Integer, ? extends Vertex> blankVertices = blankGraph.getInternalVertexMap();
-            HashMap<Integer, ? extends Link<? extends Vertex>> mGraphEdges = mGraph.getInternalEdgeMap();
+            TIntObjectHashMap<? extends Vertex> blankVertices = blankGraph.getInternalVertexMap();
+            TIntObjectHashMap<? extends Vertex> mGraphVertices = mGraph.getInternalVertexMap();
+            TIntObjectHashMap<? extends Link<? extends Vertex>> mGraphEdges = mGraph.getInternalEdgeMap();
 
             boolean isWindy = mGraph.getClass() == WindyGraph.class;
 
             for (int i = 1; i <= n; i++) {
                 blankGraph.addVertex();
                 blankVertices.get(i).setMatchId(i);
+                blankVertices.get(i).setCoordinates(mGraphVertices.get(i).getX(), mGraphVertices.get(i).getY());
             }
 
             Link<? extends Vertex> l;

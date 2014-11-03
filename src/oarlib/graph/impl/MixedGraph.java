@@ -1,5 +1,7 @@
 package oarlib.graph.impl;
 
+import gnu.trove.TIntArrayList;
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.MixedEdge;
 import oarlib.exceptions.InvalidEndpointsException;
@@ -154,8 +156,8 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
         try {
             MixedGraph ans = new MixedGraph();
             ans.setDepotId(getDepotId());
-            HashMap<Integer, MixedEdge> indexedEdges = this.getInternalEdgeMap();
-            HashMap<Integer, MixedVertex> indexedVertices = this.getInternalVertexMap();
+            TIntObjectHashMap<MixedEdge> indexedEdges = this.getInternalEdgeMap();
+            TIntObjectHashMap<MixedVertex> indexedVertices = this.getInternalVertexMap();
             MixedVertex temp, temp2;
             int n = this.getVertices().size();
             int m = this.getEdges().size();
@@ -164,11 +166,12 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
                 temp2 = indexedVertices.get(i); //the old guy
                 if (temp2.isDemandSet())
                     temp.setDemand(temp2.getDemand());
+                temp.setCoordinates(temp2.getX(), temp2.getY());
                 ans.addVertex(temp, i);
             }
             MixedEdge e, e2;
-            ArrayList<Integer> forSorting = new ArrayList<Integer>(indexedEdges.keySet());
-            Collections.sort(forSorting);
+            TIntArrayList forSorting = new TIntArrayList(indexedEdges.keys());
+            forSorting.sort();
             m = forSorting.size();
             for (int i = 0; i < m; i++) {
                 e = indexedEdges.get(forSorting.get(i));

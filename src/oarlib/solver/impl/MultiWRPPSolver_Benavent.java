@@ -1,22 +1,24 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
+import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.IndexedRecord;
-import oarlib.problem.impl.MultiVehicleWPP;
 import oarlib.problem.impl.MultiVehicleWRPP;
 import oarlib.problem.impl.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
+import oarlib.vertex.impl.WindyVertex;
 
 import java.util.*;
 
 /**
  * Created by oliverlum on 10/17/14.
  */
-public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
+public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
 
     MultiVehicleWRPP mInstance;
     WindyGraph mGraph;
@@ -27,7 +29,7 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
      *
      * @param instance - instance for which this is a solver
      */
-    public MultiWPPSolver_Benavent(MultiVehicleWRPP instance, String instanceName) throws IllegalArgumentException {
+    public MultiWRPPSolver_Benavent(MultiVehicleWRPP instance, String instanceName) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
         mGraph = mInstance.getGraph();
@@ -65,11 +67,22 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
         Route singleAns = singleSolver.solve();
 
         /*
+         * Display it
+         */
+        try {
+            GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, copy, mInstanceName);
+            gd.export(GraphDisplay.ExportType.PDF);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error displaying graph.");
+        }
+
+        /*
          * now split it
          */
         Collection<Route> multiAns = splitRoute(singleAns);
 
-        return null;
+        return multiAns;
     }
 
     private Collection<Route> splitRoute(Route singleAns) {
@@ -103,13 +116,13 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
             for (int i = 1; i <= m; i++) {
                 for (int j = i; j <= m; j++) {
                     tempCost = 0;
-                    for(int k = i; k <= j; k++) {
+                    for (int k = i; k <= j; k++) {
 
                         //add the cost of getting here
                         if (k > 1) {
                             prevEnd = orderedReqEdges.get(k - 2).getHead().getId();
                             nextStart = orderedReqEdges.get(k - 1).getTail().getId();
-                            if(prevEnd != nextStart)
+                            if (prevEnd != nextStart)
                                 tempCost += dist[prevEnd][nextStart];
                         }
                         //add the cost of this req. edge
@@ -118,35 +131,32 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
                     }
                     tempCost += dist[depotId][orderedReqEdges.get(i - 1).getTail().getId()];
                     tempCost += dist[orderedReqEdges.get(j - 1).getHead().getId()][depotId];
-                    H.addEdge(i, j+1, tempCost);
-                    if(tempCost > maxtempCost)
+                    H.addEdge(i, j + 1, tempCost);
+                    if (tempCost > maxtempCost)
                         maxtempCost = tempCost;
                 }
             }
 
             //transform the graph so that when we solve the widest path problem, we get the min-max shortest path
-            for(Arc a: H.getEdges())
-                a.setCost( maxtempCost - a.getCost() );
+            for (Arc a : H.getEdges())
+                a.setCost(maxtempCost - a.getCost());
 
-
-            System.out.println("Start widest path solver...");
             //calculate a min-max shortest path problem from 1 to m+1 in H.
-            IndexedRecord<Integer>[] width = new IndexedRecord[m+2];
-            IndexedRecord<Integer>[] widestPath = new IndexedRecord[m+2];
-            IndexedRecord<Integer>[] widestEdgePath = new IndexedRecord[m+2];
+            IndexedRecord<Integer>[] width = new IndexedRecord[m + 2];
+            IndexedRecord<Integer>[] widestPath = new IndexedRecord[m + 2];
+            IndexedRecord<Integer>[] widestEdgePath = new IndexedRecord[m + 2];
             CommonAlgorithms.dijkstrasWidestPathAlgorithmWithMaxPathCardinality(H, 1, width, widestPath, widestEdgePath, mInstance.getmNumVehicles());
-            System.out.println("Expected objective: " + (maxtempCost - width[m+1].getRecord()));
 
             //now construct the routes
             Stack<Integer> stoppingPoints = new Stack<Integer>();
 
-            int prev = m+1;
+            int prev = m + 1;
             Tour temp;
-            int numSteps = widestPath[prev].getRecordKey();
+            int numSteps = width[prev].getRecordKey();
             do {
                 stoppingPoints.push(prev);
                 prev = widestPath[prev].getEntry(numSteps--);
-            } while(prev != 1);
+            } while (prev != 1);
 
             ArrayList<Route> ans = new ArrayList<Route>();
             int counter = 0;
@@ -154,8 +164,16 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
             int curr, next, end, cost;
             List<? extends Link<? extends Vertex>> singleRoute = singleAns.getRoute();
             Link<? extends Vertex> linkToAdd;
+            TIntObjectHashMap<WindyVertex> mVertices = mGraph.getInternalVertexMap();
             do {
-                DirectedGraph toAddGraph = new DirectedGraph(mGraph.getVertices().size(), mGraph.getDepotId());
+                //DirectedGraph toAddGraph = new DirectedGraph(mGraph.getVertices().size(), mGraph.getDepotId());
+                DirectedGraph toAddGraph = new DirectedGraph();
+                toAddGraph.setDepotId(mGraph.getDepotId());
+                for (int i = 1; i <= n; i++) {
+                    DirectedVertex toAdd = new DirectedVertex("");
+                    toAdd.setCoordinates(mVertices.get(i).getX(), mVertices.get(i).getY());
+                    toAddGraph.addVertex(toAdd);
+                }
 
                 //add path from depot to start
                 curr = mGraph.getDepotId();
@@ -163,25 +181,25 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
                 do {
                     next = path[curr][end];
                     cost = dist[curr][next];
-                    toAddGraph.addEdge(curr, next, cost);
+                    toAddGraph.addEdge(curr, next, cost, false);
                 } while ((curr = next) != end);
 
                 //increment singleRouteCounter to catch up
-                while(singleRoute.get(singleRouteCounter).getId() != orderedReqEdges.get(counter).getId()) {
+                while (singleRoute.get(singleRouteCounter).getId() != orderedReqEdges.get(counter).getId()) {
                     singleRouteCounter++;
                 }
 
                 //add guys from single route
                 end = stoppingPoints.pop();
-                while(singleRoute.get(singleRouteCounter).getId() != orderedReqEdges.get(end - 2).getId()) {
+                while (singleRoute.get(singleRouteCounter).getId() != orderedReqEdges.get(end - 2).getId()) {
                     //add singleRoute.get(singleRouteCounter) to the path
                     linkToAdd = singleRoute.get(singleRouteCounter);
-                    toAddGraph.addEdge(linkToAdd.getEndpoints().getFirst().getId(), linkToAdd.getEndpoints().getSecond().getId(), linkToAdd.getCost());
+                    toAddGraph.addEdge(linkToAdd.getEndpoints().getFirst().getId(), linkToAdd.getEndpoints().getSecond().getId(), linkToAdd.getCost(), linkToAdd.isRequired());
                     singleRouteCounter++;
                 }
                 //add singleRoute.get(singleRouteCounter) to the path
                 linkToAdd = singleRoute.get(singleRouteCounter);
-                toAddGraph.addEdge(linkToAdd.getEndpoints().getFirst().getId(), linkToAdd.getEndpoints().getSecond().getId(), linkToAdd.getCost());
+                toAddGraph.addEdge(linkToAdd.getEndpoints().getFirst().getId(), linkToAdd.getEndpoints().getSecond().getId(), linkToAdd.getCost(), linkToAdd.isRequired());
                 counter = end - 2;
 
                 //add path from end to depot
@@ -190,12 +208,12 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
                 do {
                     next = path[curr][end];
                     cost = dist[curr][next];
-                    toAddGraph.addEdge(curr, next, cost);
+                    toAddGraph.addEdge(curr, next, cost, false);
                 } while ((curr = next) != end);
 
                 //add the route
                 ArrayList<Integer> tour = CommonAlgorithms.tryHierholzer(toAddGraph);
-                HashMap<Integer, Arc> indexedArcs = toAddGraph.getInternalEdgeMap();
+                TIntObjectHashMap<Arc> indexedArcs = toAddGraph.getInternalEdgeMap();
                 Tour toAdd = new Tour();
                 for (int i = 0; i < tour.size(); i++) {
                     toAdd.appendEdge(indexedArcs.get(tour.get(i)));
@@ -204,17 +222,15 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
 
                 counter++;
 
-            } while(!stoppingPoints.empty());
-
-            System.out.println("Route creation finished.");
+            } while (!stoppingPoints.empty());
 
             int max = 0;
-            for(Route r: ans) {
-                if ( r.getCost() > max)
+            for (Route r : ans) {
+                if (r.getCost() > max)
                     max = r.getCost();
             }
 
-            System.out.println("Actual objective: " + max);
+            currSol = ans;
 
             return ans;
         } catch (Exception e) {
@@ -226,16 +242,6 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
     @Override
     public Problem.Type getProblemType() {
         return Problem.Type.WINDY_RURAL_POSTMAN;
-    }
-
-    @Override
-    protected HashMap<Integer, Integer> partition() {
-        return null;
-    }
-
-    @Override
-    protected Route route(HashSet<Integer> ids) {
-        return null;
     }
 
     @Override
@@ -262,7 +268,7 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
         String ans = "=======================================================";
         ans += "\n";
         ans += "\n";
-        ans += "CapacitatedWRPPSolver: Printing current solution...";
+        ans += "CapacitatedWRPPSolver: Printing current solution for instance " + mInstanceName + "...";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";
@@ -284,7 +290,12 @@ public class MultiWPPSolver_Benavent extends MultiVehicleSolver {
             ans += "\n";
             ans += "Route: " + r.toString() + "\n";
             ans += "Route Cost: " + tempCost + "\n";
+            ans += "Route Required Cost: " + r.getReqCost() + "\n";
+            ans += "Route Unrequired Cost: " + (tempCost - r.getReqCost()) + "\n";
             ans += "\n";
+
+            //exportSol
+            r.exportRouteToPDF(mInstanceName + tempCost);
         }
 
         percentVariance = ((double) maxLength - minLength) / maxLength;

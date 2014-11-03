@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
 import oarlib.core.MixedEdge;
 import oarlib.core.Problem;
@@ -58,7 +59,7 @@ public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver {
         try {
             //copy
             MixedGraph copy = mInstance.getGraph().getDeepCopy();
-            HashMap<Integer, MixedVertex> indexedVertices = copy.getInternalVertexMap();
+            TIntObjectHashMap<MixedVertex> indexedVertices = copy.getInternalVertexMap();
             int n = copy.getVertices().size();
             int arcCost = 0;
 

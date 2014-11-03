@@ -11,6 +11,11 @@ public class WindyCPP extends Problem {
     WindyGraph mGraph;
 
     public WindyCPP(WindyGraph g) {
+        this(g, "");
+    }
+
+    public WindyCPP(WindyGraph g, String name) {
+        super(name);
         mGraph = g;
     }
 

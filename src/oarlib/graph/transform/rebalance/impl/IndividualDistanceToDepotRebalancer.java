@@ -1,9 +1,11 @@
 package oarlib.graph.transform.rebalance.impl;
 
 import oarlib.core.Graph;
+import oarlib.core.Link;
 import oarlib.core.Vertex;
 import oarlib.exceptions.FormatMismatchException;
-import oarlib.graph.transform.rebalance.RebalanceTransformer;
+import oarlib.graph.impl.WindyGraph;
+import oarlib.graph.transform.rebalance.CostRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
 
 import java.util.HashMap;
@@ -11,23 +13,31 @@ import java.util.HashMap;
 /**
  * Created by oliverlum on 9/14/14.
  */
-public class IndividualDistanceToDepotRebalancer<S extends Graph<?, ?>> extends RebalanceTransformer<S> {
+public class IndividualDistanceToDepotRebalancer<S extends Graph<?, ?>> extends CostRebalancer<S> {
+
+
+    double mWeight;
 
     /**
      * Super constructor for any Rebalance transformers.
      *
-     * @param input     - the input graph.
-     * @param partition - an ArrayList that has an entry for each vertex in the graph; entry i has value j if vertex
-     *                  with internal id i is currently assigned to partition j.
-     * @throws oarlib.exceptions.FormatMismatchException - if the ArrayList is of the wrong size.
+     * @param input - the input graph.
      */
-    public IndividualDistanceToDepotRebalancer(S input, HashMap<Integer, Integer> partition) throws FormatMismatchException {
-        super(input, partition);
-        if (partition.keySet().size() != input.getVertices().size())
-            throw new FormatMismatchException("This kind of rebalancer requires a vertex-weighted partition");
+    public IndividualDistanceToDepotRebalancer(S input) throws FormatMismatchException {
+        super(input, null);
+        mWeight = 1;
     }
 
-    @Override
+    public IndividualDistanceToDepotRebalancer(S input, double weight) throws FormatMismatchException {
+        super(input, null);
+        mWeight = weight;
+    }
+
+    public IndividualDistanceToDepotRebalancer(S input, double weight, CostRebalancer<S> nextRebalancer) {
+        super(input, nextRebalancer);
+        mWeight = weight;
+    }
+
     public void setGraph(S input) {
         mGraph = input;
     }
@@ -39,11 +49,13 @@ public class IndividualDistanceToDepotRebalancer<S extends Graph<?, ?>> extends 
      * @return - a new vertex-weighted graph ready for METIS partitioning.
      */
     @Override
-    public S transformGraph() {
-        return transformGraph(1);
-    }
+    protected HashMap<Integer, Integer> startRebalance(HashMap<Integer, Integer> input) {
 
-    public S transformGraph(int weight) {
+        HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
+        boolean isWindy = false;
+        if (mGraph.getClass() == WindyGraph.class)
+            isWindy = true;
+
         //calculate shortest paths
         int n = mGraph.getVertices().size();
         int[] dist = new int[n + 1];
@@ -51,14 +63,12 @@ public class IndividualDistanceToDepotRebalancer<S extends Graph<?, ?>> extends 
         CommonAlgorithms.dijkstrasAlgorithm(mGraph, mGraph.getDepotId(), dist, path);
 
         //update the vertex weights for each
-        HashMap<Integer, ? extends Vertex> indexedVertices = mGraph.getInternalVertexMap();
-        for (int i = 1; i <= n; i++) {
-            if (i == mGraph.getDepotId())
-                continue;
-            indexedVertices.get(i).setCost(indexedVertices.get(i).getCost() + dist[i]);
+        int higherCost;
+        for (Link<? extends Vertex> tempEdge : mGraph.getEdges()) {
+            higherCost = Math.max(dist[tempEdge.getEndpoints().getFirst().getId()], dist[tempEdge.getEndpoints().getSecond().getId()]);
+            ans.put(tempEdge.getId(), input.get(tempEdge.getId()) + (int) (mWeight * higherCost));
         }
 
-        return mGraph;
-
+        return ans;
     }
 }

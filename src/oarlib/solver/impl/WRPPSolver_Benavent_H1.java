@@ -1,7 +1,9 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.core.Problem.Type;
+import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
@@ -19,11 +21,18 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
 
     private static final double K = .2; //parameter fixed by computational experiments done by Benavent
     WindyRPP mInstance;
+    private boolean exportSolToPDF;
 
     public WRPPSolver_Benavent_H1(WindyRPP instance) throws IllegalArgumentException {
+        this(instance, false);
+    }
+
+    public WRPPSolver_Benavent_H1(WindyRPP instance, boolean exportToPDF) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
+        exportSolToPDF = exportToPDF;
     }
+
 
     public static void eulerAugment(WindyGraph fullGraph, WindyGraph g, HashSet<Integer> L) {
 
@@ -36,7 +45,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
             for (int i = 1; i <= n; i++) {
                 fullGraphCopy.addVertex(new WindyVertex("orig"));
             }
-            HashMap<Integer, WindyEdge> fullGraphEdges = fullGraph.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> fullGraphEdges = fullGraph.getInternalEdgeMap();
             WindyEdge temp;
             for (int i = 1; i <= m; i++) {
                 temp = fullGraphEdges.get(i);
@@ -87,7 +96,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
 
             //now add the corresponding edges back in the windy graph
             int curr, end, next, nextEdge;
-            HashMap<Integer, WindyEdge> indexedEdges = fullGraph.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> indexedEdges = fullGraph.getInternalEdgeMap();
             for (Pair<UndirectedVertex> p : matchingSolution) {
                 //minCostMatching doesn't discriminate between 1 - 2 and 2 - 1 so we need to
                 if (p.getFirst().getId() < p.getSecond().getId()) {
@@ -126,7 +135,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
     private static HashSet<Integer> buildL(DirectedGraph gaux, HashSet<Integer> e1, HashSet<Integer> e2, int[] flowanswer) {
         HashSet<Integer> ans = new HashSet<Integer>();
         Arc temp;
-        HashMap<Integer, Arc> indexedArcs = gaux.getInternalEdgeMap();
+        TIntObjectHashMap<Arc> indexedArcs = gaux.getInternalEdgeMap();
         int tempMatchId;
         for (int i = 1; i < flowanswer.length; i++) {
             temp = indexedArcs.get(i);
@@ -150,7 +159,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
                 ans.addVertex(new DirectedVertex("Gdr"));
             }
 
-            HashMap<Integer, WindyEdge> indexedEdges = g.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> indexedEdges = g.getInternalEdgeMap();
             WindyEdge temp;
             //add an arc in the cheaper direction of the unbalanced edges
             for (Integer id : unbalancedEdges) {
@@ -187,8 +196,8 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
             }
 
             WindyEdge temp;
-            HashMap<Integer, WindyEdge> indexedEdges = fullGraph.getInternalEdgeMap();
-            HashMap<Integer, DirectedVertex> indexedVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<WindyEdge> indexedEdges = fullGraph.getInternalEdgeMap();
+            TIntObjectHashMap<DirectedVertex> indexedVertices = ans.getInternalVertexMap();
             Arc toAdd;
             //add an arc in the high cost direction for each of the unbalanced edges
             for (Integer id : unbalancedEdges) {
@@ -245,7 +254,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
         end = j;
         ans = 0;
         WindyEdge temp;
-        HashMap<Integer, WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
+        TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
         do {
             next = path[curr][end];
             temp = indexedWindyEdges.get(edgePath[curr][end]);
@@ -286,7 +295,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
             buildEdgeSets(E1, E2, windyReq, copy, averageCost);
 
 			/*
-			 * Build Gdr, which is a graph that has only the edges in E1 in it as arcs directed in the cheap direction.
+             * Build Gdr, which is a graph that has only the edges in E1 in it as arcs directed in the cheap direction.
 			 * The purpose of doing so is to set demands for the flow problem we're about to solve.
 			 */
             DirectedGraph Gdr = buildGdr(copy, E1);
@@ -302,7 +311,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
                 DirectedGraph Gaux = buildGaux(copy, E1);
 
                 //set up the flow problem on Gaux using demands from Gdr
-                HashMap<Integer, DirectedVertex> indexedVertices = Gdr.getInternalVertexMap();
+                TIntObjectHashMap<DirectedVertex> indexedVertices = Gdr.getInternalVertexMap();
                 for (DirectedVertex v : Gaux.getVertices()) {
                     v.setDemand(indexedVertices.get(v.getId()).getDelta());
                 }
@@ -330,13 +339,26 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
 
             ArrayList<Integer> tour;
             tour = CommonAlgorithms.tryHierholzer(ans);
+
             Tour eulerTour = new Tour();
-            HashMap<Integer, Arc> indexedEdges = ans.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> indexedEdges = ans.getInternalEdgeMap();
             for (int i = 0; i < tour.size(); i++) {
                 eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
             }
 
             currSol = eulerTour;
+
+            if (exportSolToPDF) {
+                try {
+                    GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, ans, mInstance.getName() + "_" + eulerTour.getCost());
+                    gd.export(GraphDisplay.ExportType.PDF);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
             return eulerTour;
         } catch (Exception e) {
             e.printStackTrace();

@@ -11,6 +11,11 @@ public class MixedCPP extends Problem {
     private MixedGraph mGraph;
 
     public MixedCPP(MixedGraph g) {
+        this(g, "");
+    }
+
+    public MixedCPP(MixedGraph g, String name) {
+        super(name);
         mGraph = g;
     }
 

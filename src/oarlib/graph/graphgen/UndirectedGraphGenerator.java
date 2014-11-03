@@ -1,5 +1,6 @@
 package oarlib.graph.graphgen;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Edge;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
@@ -38,7 +39,7 @@ public class UndirectedGraphGenerator extends GraphGenerator {
             if (n == 1)
                 return ans;
 
-            HashMap<Integer, UndirectedVertex> indexedVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> indexedVertices = ans.getInternalVertexMap();
 
             //figure out what is set
             maxCost = (maxCost < 0) ? Integer.MAX_VALUE : maxCost;

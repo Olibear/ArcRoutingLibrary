@@ -16,6 +16,11 @@ public class DirectedCPP extends Problem {
     private DirectedGraph mGraph;
 
     public DirectedCPP(DirectedGraph g) {
+        this(g, "");
+    }
+
+    public DirectedCPP(DirectedGraph g, String name) {
+        super(name);
         mGraph = g;
     }
 

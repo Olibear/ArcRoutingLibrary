@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
 import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
@@ -53,7 +54,7 @@ public class WPPSolver_Gurobi extends SingleVehicleSolver {
         try {
             //copy
             WindyGraph copy = mInstance.getGraph().getDeepCopy();
-            HashMap<Integer, WindyEdge> indexedEdges = copy.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> indexedEdges = copy.getInternalEdgeMap();
             int n = copy.getVertices().size();
             int m = copy.getEdges().size();
 

@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
 import oarlib.core.Edge;
 import oarlib.core.Problem;
@@ -149,7 +150,7 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver {
             }
 
             //return the answer
-            HashMap<Integer, Edge> indexedEdges = copy.getInternalEdgeMap();
+            TIntObjectHashMap<Edge> indexedEdges = copy.getInternalEdgeMap();
             ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
             Tour eulerTour = new Tour();
             for (int i = 0; i < ans.size(); i++) {

@@ -1,7 +1,9 @@
 package oarlib.solver.impl;
 
-import oarlib.core.MultiVehicleSolver;
+import gnu.trove.TIntIntHashMap;
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Link;
+import oarlib.core.MultiVehicleSolver;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.factory.impl.UndirectedGraphFactory;
@@ -94,7 +96,6 @@ public class MultiUCPPSolver extends MultiVehicleSolver {
         return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
     }
 
-    @Override
     protected HashMap<Integer, Integer> partition() {
         try {
 
@@ -134,7 +135,6 @@ public class MultiUCPPSolver extends MultiVehicleSolver {
 
     }
 
-    @Override
     protected Route route(HashSet<Integer> ids) {
 
         //grab the graph
@@ -155,8 +155,8 @@ public class MultiUCPPSolver extends MultiVehicleSolver {
 
         //set the id map for the route
         int n = subgraph.getVertices().size();
-        HashMap<Integer, UndirectedVertex> indexedVertices = subgraph.getInternalVertexMap();
-        HashMap<Integer, Integer> customIDMap = new HashMap<Integer, Integer>();
+        TIntObjectHashMap<UndirectedVertex> indexedVertices = subgraph.getInternalVertexMap();
+        TIntIntHashMap customIDMap = new TIntIntHashMap();
         for (int i = 1; i <= n; i++) {
             customIDMap.put(i, indexedVertices.get(i).getMatchId());
         }

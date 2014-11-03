@@ -1,5 +1,6 @@
 package oarlib.solver.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.core.Problem.Type;
 import oarlib.graph.impl.DirectedGraph;
@@ -44,12 +45,16 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             WindyGraph windyReq = new WindyGraph();
 
             //has the same number of vertices as g
+            TIntObjectHashMap<WindyVertex> gVertices = g.getInternalVertexMap();
+            WindyVertex tempVertex;
             for (int i = 1; i <= n; i++) {
-                windyReq.addVertex(new WindyVertex("original"));
+                tempVertex = new WindyVertex("original");
+                tempVertex.setCoordinates(gVertices.get(i).getX(), gVertices.get(i).getY());
+                windyReq.addVertex(tempVertex);
             }
 
             //edges from the original graph
-            HashMap<Integer, WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
 
             WindyEdge temp;
             int mreq = 0; //num required edges
@@ -122,7 +127,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
 
 
 			/*
-			 * We need to figure out which of the components is real, and don't correspond to these
+             * We need to figure out which of the components is real, and don't correspond to these
 			 * unconnected vertices.  To do so, we set up this list that only holds legitimate indices.
 			 */
             ArrayList<Integer> realComponents = new ArrayList<Integer>();
@@ -180,7 +185,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             int limi = mst.length;
             Edge selected;
             WindyEdge toAdd;
-            HashMap<Integer, Edge> mstEdges = mstGraph.getInternalEdgeMap();
+            TIntObjectHashMap<Edge> mstEdges = mstGraph.getInternalEdgeMap();
             Pair<Integer> pathToAdd;
             int curr, next, end;
             for (int i = 1; i < limi; i++) {
@@ -221,7 +226,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
 			 * Improvement Procedure 1
 			 * Look for two-vertex cycles, and eliminate them.
 			 */
-            HashMap<Integer, DirectedVertex> ansVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<DirectedVertex> ansVertices = ans.getInternalVertexMap();
             int n = ans.getVertices().size();
             DirectedVertex v;
             HashMap<DirectedVertex, ArrayList<Arc>> vNeighbors, dvNeighbors;
@@ -268,7 +273,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
 			 * (i.e. case a makes sure we don't get rid of our only traversal
 			 * of a required arc)
 			 */
-            HashMap<Integer, WindyEdge> windyReqEdges = windyReq.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> windyReqEdges = windyReq.getInternalEdgeMap();
             DirectedGraph flowGraph = new DirectedGraph();
             for (int i = 1; i <= n; i++) {
                 flowGraph.addVertex(new DirectedVertex("flow"));
@@ -319,7 +324,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             int[][] path = new int[n + 1][n + 1];
             int[][] edgePath = new int[n + 1][n + 1];
             int curr, end, next, cost;
-            HashMap<Integer, Arc> flowArcs = flowGraph.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> flowArcs = flowGraph.getInternalEdgeMap();
             ArrayList<Arc> removeCandidates;
             Arc changeDir;
             WindyEdge replaceDir;
@@ -353,6 +358,12 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                     }
                 }
             }
+
+            //if we deleted the depot self arc, then add it back now.
+            int ansDepotId = ans.getDepotId();
+            DirectedVertex depot = ans.getInternalVertexMap().get(ansDepotId);
+            if (depot.getNeighbors().keySet().isEmpty())
+                ans.addEdge(ansDepotId, ansDepotId, 2, true);
 
             //now reconnect with MST
             int[] components = CommonAlgorithms.stronglyConnectedComponents(ans);
@@ -398,8 +409,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             for (int i = 0; i < tour.size(); i++)
                 debug.appendEdge(ans.getInternalEdgeMap().get(tour.get(i)));
 
-            HashMap<Integer, Arc> ansArcs = ans.getInternalEdgeMap();
-            HashMap<Integer, WindyEdge> origEdges = orig.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> ansArcs = ans.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> origEdges = orig.getInternalEdgeMap();
             int m = ans.getEdges().size();
             int startId = -1;
             int endId = -1;
@@ -415,7 +426,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
              * Go through and make repeats of the required guys non-required
              */
             ArrayList<Arc> changeReq = new ArrayList<Arc>();
-            for (WindyEdge we : origEdges.values()) {
+            for (WindyEdge we : origEdges.getValues(new WindyEdge[1])) {
                 if (we.isRequired()) {
                     u1 = ansVertices.get(we.getEndpoints().getFirst().getId());
                     u2 = ansVertices.get(we.getEndpoints().getSecond().getId());
@@ -527,8 +538,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                 flowGraph.addVertex(new DirectedVertex("flow"));
             }
 
-            HashMap<Integer, DirectedVertex> flowVertices = flowGraph.getInternalVertexMap();
-            HashMap<Integer, WindyEdge> windyEdges = g.getInternalEdgeMap();
+            TIntObjectHashMap<DirectedVertex> flowVertices = flowGraph.getInternalVertexMap();
+            TIntObjectHashMap<WindyEdge> windyEdges = g.getInternalEdgeMap();
             WindyEdge e;
             Arc temp;
             int artID = 0;
@@ -581,11 +592,15 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(flowGraph);
 
             //now parse the result
-            HashMap<Integer, Arc> flowEdges = flowGraph.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> flowEdges = flowGraph.getInternalEdgeMap();
+            TIntObjectHashMap<WindyVertex> gVertices = g.getInternalVertexMap();
             Arc artificial;
             DirectedGraph ans = new DirectedGraph();
+            DirectedVertex tempVertex;
             for (int i = 1; i <= n; i++) {
-                ans.addVertex(new DirectedVertex("ans"));
+                tempVertex = new DirectedVertex("ans");
+                tempVertex.setCoordinates(gVertices.get(i).getX(), gVertices.get(i).getY());
+                ans.addVertex(tempVertex);
             }
             for (int i = 1; i < flowanswer.length; i++) {
                 temp = flowEdges.get(i);
@@ -683,7 +698,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
 
             //now add the corresponding edges back in the windy graph
             int curr, end, next, nextEdge;
-            HashMap<Integer, WindyEdge> indexedEdges = fullGraph.getInternalEdgeMap();
+            TIntObjectHashMap<WindyEdge> indexedEdges = fullGraph.getInternalEdgeMap();
             WindyEdge temp;
             for (Pair<UndirectedVertex> p : matchingSolution) {
 
@@ -742,7 +757,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             int[][] edgePath = new int[n + 1][n + 1];
             boolean foundImprovement = true;
             int curr, end, next, maxFlow;
-            HashMap<Integer, Arc> flowArcs = copy.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> flowArcs = copy.getInternalEdgeMap();
             Arc temp, temp2;
             while (foundImprovement) {
                 foundImprovement = false;
@@ -846,7 +861,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
         }
 
         //check to make sure there's a corresponding edge in orig
-        HashMap<Integer, WindyVertex> origVertices = orig.getInternalVertexMap();
+        TIntObjectHashMap<WindyVertex> origVertices = orig.getInternalVertexMap();
         boolean foundCopy;
         for (Arc a : ans.getEdges()) {
             foundCopy = false;
@@ -884,7 +899,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
         end = j;
         ans = 0;
         WindyEdge temp;
-        HashMap<Integer, WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
+        TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
         do {
             next = path[curr][end];
             temp = indexedWindyEdges.get(edgePath[curr][end]);
@@ -931,7 +946,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             ArrayList<Integer> tour;
             tour = CommonAlgorithms.tryHierholzer(ans);
             Tour eulerTour = new Tour();
-            HashMap<Integer, Arc> indexedEdges = ans.getInternalEdgeMap();
+            TIntObjectHashMap<Arc> indexedEdges = ans.getInternalEdgeMap();
             for (int i = 0; i < tour.size(); i++) {
                 eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
             }

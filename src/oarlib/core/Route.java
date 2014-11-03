@@ -1,7 +1,13 @@
 package oarlib.core;
 
+import gnu.trove.TIntIntHashMap;
+import oarlib.display.GraphDisplay;
+import oarlib.graph.impl.UndirectedGraph;
+import oarlib.vertex.impl.UndirectedVertex;
+
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Route abstraction. Most general contract that routes must fulfill.
@@ -11,13 +17,15 @@ import java.util.List;
 public abstract class Route {
 
     protected int mCost; // cost of the route
-    protected HashMap<Integer, Integer> mCustomIDMap;
+    protected int mReqCost;
+    protected TIntIntHashMap mCustomIDMap;
 
     //default constructor
     protected Route() {
 
         mCost = 0;
-        mCustomIDMap = new HashMap<Integer, Integer>();
+        mReqCost = 0;
+        mCustomIDMap = new TIntIntHashMap();
 
     }
 
@@ -29,11 +37,51 @@ public abstract class Route {
      *
      * @param customIDMap
      */
-    protected Route(HashMap<Integer, Integer> customIDMap) {
-
+    protected Route(TIntIntHashMap customIDMap) {
         mCost = 0;
         mCustomIDMap = customIDMap;
+    }
 
+    public void exportRouteToPDF(String instanceName) {
+
+        UndirectedGraph toExport = new UndirectedGraph();
+
+        try {
+
+            HashMap<Integer, Integer> vertexMap = new HashMap<Integer, Integer>();
+            Set<Integer> keySet = vertexMap.keySet();
+            List<? extends Link<? extends Vertex>> route = this.getRoute();
+            int vertexIndex = 1;
+            Vertex first, second;
+            UndirectedVertex toAdd;
+
+            for (Link<? extends Vertex> l : route) {
+
+                first = l.getEndpoints().getFirst();
+                if (!keySet.contains(first.getId())) {
+                    toAdd = new UndirectedVertex("");
+                    toAdd.setCoordinates(first.getX(), first.getY());
+                    toExport.addVertex(toAdd);
+                    vertexMap.put(first.getId(), vertexIndex++);
+                }
+
+                second = l.getEndpoints().getSecond();
+                if (!keySet.contains(second.getId())) {
+                    toAdd = new UndirectedVertex("");
+                    toAdd.setCoordinates(second.getX(), second.getY());
+                    toExport.addVertex(toAdd);
+                    vertexMap.put(second.getId(), vertexIndex++);
+                }
+
+                toExport.addEdge(vertexMap.get(first.getId()), vertexMap.get(second.getId()), 1, l.isRequired());
+
+            }
+
+            GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, toExport, instanceName);
+            gd.export(GraphDisplay.ExportType.PDF);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -44,9 +92,16 @@ public abstract class Route {
     }
 
     /**
+     * @return the cost of the required links on the route
+     */
+    public int getReqCost() {
+        return mReqCost;
+    }
+
+    /**
      * Fetch the id mapping used.
      */
-    public HashMap<Integer, Integer> getMapping() {
+    public TIntIntHashMap getMapping() {
         return mCustomIDMap;
     }
 
@@ -55,7 +110,7 @@ public abstract class Route {
      *
      * @param newMapping
      */
-    public void setMapping(HashMap<Integer, Integer> newMapping) {
+    public void setMapping(TIntIntHashMap newMapping) {
         mCustomIDMap = newMapping;
     }
 

@@ -1,5 +1,6 @@
 package oarlib.graph.io;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
@@ -63,7 +64,7 @@ public class GraphWriter {
             Vertex first, second;
             UndirectedGraph g2 = new UndirectedGraph(g.getVertices().size());
             Collection<? extends Vertex> gVertices = g.getVertices();
-            HashMap<Integer, UndirectedVertex> g2Vertices = g2.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> g2Vertices = g2.getInternalVertexMap();
 
             if (g.getClass() == UndirectedGraph.class)
                 g2 = (UndirectedGraph) g;
@@ -93,7 +94,7 @@ public class GraphWriter {
             header = header + n + " " + m + " " + "011" + " 1";
             pw.println(header);
 
-            HashMap<Integer, UndirectedVertex> indexedVertices = g2.getInternalVertexMap();
+            TIntObjectHashMap<UndirectedVertex> indexedVertices = g2.getInternalVertexMap();
             UndirectedVertex temp;
             HashMap<UndirectedVertex, ArrayList<Edge>> tempNeighbors;
             boolean shownWarning = false;

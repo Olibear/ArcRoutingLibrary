@@ -31,6 +31,8 @@ public class Tour extends Route {
     public void appendEdge(Link<? extends Vertex> l) {
         mRoute.add(l);
         mCost += l.getCost();
+        if (l.isRequired())
+            mReqCost += l.getCost();
     }
 
     @Override

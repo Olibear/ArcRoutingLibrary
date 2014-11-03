@@ -1,5 +1,6 @@
 package oarlib.graph.transform.partition.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
@@ -33,7 +34,7 @@ public class WindyKWayPartitionTransform implements PartitionTransformer<WindyGr
 
             //setup
             WindyVertex temp;
-            HashMap<Integer, WindyVertex> ansVertices = ans.getInternalVertexMap();
+            TIntObjectHashMap<WindyVertex> ansVertices = ans.getInternalVertexMap();
             HashSet<WindyEdge> edges = mGraph.getEdges();
             int firstId, secondId, sumCost;
 

@@ -1,12 +1,12 @@
 package oarlib.graph.impl;
 
+import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;
 import oarlib.exceptions.InvalidEndpointsException;
-
-import java.util.HashMap;
 import java.util.HashSet;
+
 
 /**
  * A mutable graph.  In the future, plans are to optimize performance by writing a finalized one with
@@ -18,19 +18,15 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 
     private HashSet<V> mVertices;
     private HashSet<E> mEdges;
-    private HashMap<Integer, V> mGlobalVertexMap; //indexed by guids
-    private HashMap<Integer, V> mInternalVertexMap; //indexed by ids
-    private HashMap<Integer, E> mGlobalEdgeMap;
-    private HashMap<Integer, E> mInternalEdgeMap;
+    private TIntObjectHashMap<V> mInternalVertexMap; //indexed by ids
+    private TIntObjectHashMap<E> mInternalEdgeMap;
 
     protected MutableGraph() {
         super();
         mVertices = new HashSet<V>();
         mEdges = new HashSet<E>();
-        mGlobalVertexMap = new HashMap<Integer, V>();
-        mInternalVertexMap = new HashMap<Integer, V>();
-        mGlobalEdgeMap = new HashMap<Integer, E>();
-        mInternalEdgeMap = new HashMap<Integer, E>();
+        mInternalVertexMap = new TIntObjectHashMap<V>();
+        mInternalEdgeMap = new TIntObjectHashMap<E>();
         this.assignGraphId();
     }
 
@@ -110,8 +106,8 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     @Override
     public void clearEdges() {
         mEdges = new HashSet<E>();
-        mInternalEdgeMap = new HashMap<Integer, E>();
-        mGlobalEdgeMap = new HashMap<Integer, E>();
+        mInternalEdgeMap = new TIntObjectHashMap<E>();
+        //mGlobalEdgeMap = new HashMap<Integer, E>();
         super.resetEdgeCounter();
     }
 
@@ -123,7 +119,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         e.setId(this.assignEdgeId());
         e.setGraphId(this.getGraphId());
         mEdges.add(e);
-        mGlobalEdgeMap.put(e.getGuid(), e);
+        //mGlobalEdgeMap.put(e.getGuid(), e);
         mInternalEdgeMap.put(e.getId(), e);
         e.setFinalized(true);
     }
@@ -178,7 +174,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         v.setId(this.assignVertexId());
         v.setGraphId(this.getGraphId());
         mVertices.add(v);
-        mGlobalVertexMap.put(v.getGuid(), v);
+        //mGlobalVertexMap.put(v.getGuid(), v);
         mInternalVertexMap.put(v.getId(), v);
     }
 
@@ -202,30 +198,30 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     }
 
     @Override
-    public void removeEdge(E e) {
+    public void removeEdge(E e) throws IllegalArgumentException {
+        if (!mEdges.contains(e))
+            throw new IllegalArgumentException("Could not remove edge because it wasn't detected as existing in the first place!");
         mEdges.remove(e);
-        mGlobalEdgeMap.remove(e.getGuid());
+        //mGlobalEdgeMap.remove(e.getGuid());
         mInternalEdgeMap.remove(e.getId());
         e.setFinalized(false);
     }
 
     @Override
-    public HashMap<Integer, V> getGlobalVertexMap() {
-        return mGlobalVertexMap;
+    public void removeEdge(int i) throws IllegalArgumentException {
+        if (!mInternalEdgeMap.containsKey(i))
+            throw new IllegalArgumentException("Could not remove edge because it wasn't detected as existing in the first place!");
+        E temp = mInternalEdgeMap.get(i);
+        this.removeEdge(temp);
     }
 
     @Override
-    public HashMap<Integer, V> getInternalVertexMap() {
+    public TIntObjectHashMap<V> getInternalVertexMap() {
         return mInternalVertexMap;
     }
 
     @Override
-    public HashMap<Integer, E> getGlobalEdgeMap() {
-        return mGlobalEdgeMap;
-    }
-
-    @Override
-    public HashMap<Integer, E> getInternalEdgeMap() {
+    public TIntObjectHashMap<E> getInternalEdgeMap() {
         return mInternalEdgeMap;
     }
 }
