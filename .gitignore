@@ -5,6 +5,9 @@
 *.war
 *.ear
 
+#External Jars #
+!External Jars (Redistributable)/*.jar
+
 # DS_Store #
 *.DS_Store
 /bin
