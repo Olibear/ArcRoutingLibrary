@@ -1,7 +1,7 @@
 package oarlib.graph.io;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Edge;
+import oarlib.link.impl.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;

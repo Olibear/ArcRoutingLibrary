@@ -6,13 +6,11 @@ import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
 import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
-import oarlib.core.WindyEdge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.problem.impl.WindyCPP;
 import oarlib.route.impl.Tour;
-
-import java.util.HashMap;
 
 /**
  * @author oliverlum

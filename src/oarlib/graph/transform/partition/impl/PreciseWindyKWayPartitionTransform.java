@@ -1,7 +1,7 @@
 package oarlib.graph.transform.partition.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.WindyEdge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
 import oarlib.graph.transform.rebalance.CostRebalancer;

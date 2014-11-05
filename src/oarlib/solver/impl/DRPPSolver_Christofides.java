@@ -1,7 +1,7 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Arc;
+import oarlib.link.impl.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;

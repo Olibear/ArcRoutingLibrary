@@ -1,13 +1,12 @@
 package oarlib.graph.graphgen;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Edge;
+import oarlib.link.impl.Edge;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.UndirectedVertex;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class UndirectedGraphGenerator extends GraphGenerator {

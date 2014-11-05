@@ -3,13 +3,12 @@ package oarlib.graph.impl;
 import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
-import oarlib.core.WindyEdge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 

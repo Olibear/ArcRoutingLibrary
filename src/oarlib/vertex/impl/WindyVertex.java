@@ -1,7 +1,7 @@
 package oarlib.vertex.impl;
 
 import oarlib.core.Vertex;
-import oarlib.core.WindyEdge;
+import oarlib.link.impl.WindyEdge;
 
 import java.util.ArrayList;
 import java.util.HashMap;

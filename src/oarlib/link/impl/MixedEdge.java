@@ -1,5 +1,6 @@
-package oarlib.core;
+package oarlib.link.impl;
 
+import oarlib.core.Link;
 import oarlib.exceptions.WrongEdgeTypeException;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.MixedVertex;

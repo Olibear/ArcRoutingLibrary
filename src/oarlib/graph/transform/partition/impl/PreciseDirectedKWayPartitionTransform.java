@@ -1,7 +1,7 @@
 package oarlib.graph.transform.partition.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Arc;
+import oarlib.link.impl.Arc;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
 import oarlib.graph.transform.rebalance.CostRebalancer;

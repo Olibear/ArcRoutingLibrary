@@ -2,8 +2,8 @@ package oarlib.test;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
-import oarlib.core.Arc;
-import oarlib.core.Edge;
+import oarlib.link.impl.Arc;
+import oarlib.link.impl.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class
@@ -295,7 +294,7 @@ public class
                 int debugCounter = 0;
                 String output;
 
-                for (BoundingBox bb : OSM_BoundingBoxes.BIG_INSTANCES) {
+                for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
                     //if (debugCounter >= limForDebug)
                     //break;
                     debugCounter++;
@@ -303,7 +302,7 @@ public class
                     OSM_Fetcher fetcher = new OSM_Fetcher(bb);
                     WindyGraph g = fetcher.queryForGraph();
 
-                    validWInstance = new MultiVehicleWRPP(g, 20);
+                    validWInstance = new MultiVehicleWRPP(g, 5);
                     validWSolver = new MultiWRPPSolver(validWInstance, bb.getTitle());
                     start = System.nanoTime();
                     validWAns = validWSolver.trySolve();

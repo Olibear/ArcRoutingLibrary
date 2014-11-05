@@ -1,6 +1,6 @@
 package oarlib.vertex.impl;
 
-import oarlib.core.Arc;
+import oarlib.link.impl.Arc;
 import oarlib.core.Vertex;
 
 import java.util.ArrayList;

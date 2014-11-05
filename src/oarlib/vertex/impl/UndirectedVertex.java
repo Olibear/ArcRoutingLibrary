@@ -1,6 +1,6 @@
 package oarlib.vertex.impl;
 
-import oarlib.core.Edge;
+import oarlib.link.impl.Edge;
 import oarlib.core.Vertex;
 
 import java.util.ArrayList;

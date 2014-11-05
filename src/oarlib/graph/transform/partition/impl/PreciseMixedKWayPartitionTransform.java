@@ -1,7 +1,7 @@
 package oarlib.graph.transform.partition.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.MixedEdge;
+import oarlib.link.impl.MixedEdge;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
 import oarlib.graph.transform.rebalance.CostRebalancer;

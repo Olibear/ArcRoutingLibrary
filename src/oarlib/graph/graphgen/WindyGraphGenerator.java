@@ -1,13 +1,12 @@
 package oarlib.graph.graphgen;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.WindyEdge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.WindyVertex;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class WindyGraphGenerator extends GraphGenerator {

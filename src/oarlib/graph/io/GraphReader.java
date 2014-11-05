@@ -1,8 +1,8 @@
 package oarlib.graph.io;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Arc;
-import oarlib.core.Edge;
+import oarlib.link.impl.Arc;
+import oarlib.link.impl.Edge;
 import oarlib.core.Graph;
 import oarlib.exceptions.FormatMismatchException;
 import oarlib.exceptions.UnsupportedFormatException;
@@ -19,7 +19,6 @@ import oarlib.vertex.impl.WindyVertex;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.HashMap;
 
 /**
  * Reader to accept various file formats, and store them as a graph object.

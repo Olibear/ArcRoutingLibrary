@@ -16,6 +16,7 @@ import oarlib.graph.transform.rebalance.CostRebalancer;
 import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
 import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.MultiVehicleWRPP;
 import oarlib.problem.impl.WindyRPP;
 import oarlib.route.impl.Tour;

@@ -2,7 +2,7 @@ package oarlib.graph.transform.rebalance;
 
 import oarlib.core.Graph;
 import oarlib.core.Link;
-import oarlib.core.WindyEdge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.exceptions.FormatMismatchException;
 import oarlib.graph.impl.WindyGraph;
 

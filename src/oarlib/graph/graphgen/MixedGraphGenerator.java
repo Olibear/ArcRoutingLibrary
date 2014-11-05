@@ -1,14 +1,13 @@
 package oarlib.graph.graphgen;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.MixedEdge;
+import oarlib.link.impl.MixedEdge;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.MixedVertex;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class MixedGraphGenerator extends GraphGenerator {

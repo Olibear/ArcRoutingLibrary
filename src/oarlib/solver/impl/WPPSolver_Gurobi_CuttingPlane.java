@@ -7,6 +7,8 @@ import oarlib.core.Problem.Type;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.link.impl.Edge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.WindyCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;

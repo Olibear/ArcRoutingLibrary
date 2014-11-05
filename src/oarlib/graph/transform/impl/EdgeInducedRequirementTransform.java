@@ -4,8 +4,8 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.GraphTransformer;
+import oarlib.link.impl.WindyEdge;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
 /**

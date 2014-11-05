@@ -8,6 +8,9 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.GraphTransformer;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
+import oarlib.link.impl.Arc;
+import oarlib.link.impl.Edge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;

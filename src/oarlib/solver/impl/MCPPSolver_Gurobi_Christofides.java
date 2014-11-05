@@ -2,7 +2,7 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
-import oarlib.core.MixedEdge;
+import oarlib.link.impl.MixedEdge;
 import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
 import oarlib.core.Route;

@@ -2,7 +2,7 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
-import oarlib.core.Edge;
+import oarlib.link.impl.Edge;
 import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
 import oarlib.core.Route;
@@ -15,7 +15,6 @@ import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class UCPPSolver_Gurobi extends SingleVehicleSolver {
 

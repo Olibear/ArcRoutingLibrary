@@ -4,7 +4,7 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;
-import oarlib.core.WindyEdge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.display.util.Colors;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;

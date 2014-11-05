@@ -1,7 +1,7 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Arc;
+import oarlib.link.impl.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
@@ -12,7 +12,6 @@ import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class DCPPSolver_Edmonds extends SingleVehicleSolver {
 

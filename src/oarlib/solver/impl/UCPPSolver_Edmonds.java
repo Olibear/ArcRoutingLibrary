@@ -1,7 +1,7 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Edge;
+import oarlib.link.impl.Edge;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
@@ -14,7 +14,6 @@ import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Set;
 
 public class UCPPSolver_Edmonds extends SingleVehicleSolver {

@@ -2,14 +2,13 @@ package oarlib.graph.impl;
 
 import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Edge;
+import oarlib.link.impl.Edge;
 import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 

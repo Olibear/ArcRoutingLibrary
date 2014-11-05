@@ -7,6 +7,7 @@ import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.IndexedRecord;
+import oarlib.link.impl.Arc;
 import oarlib.problem.impl.MultiVehicleWRPP;
 import oarlib.problem.impl.WindyRPP;
 import oarlib.route.impl.Tour;
