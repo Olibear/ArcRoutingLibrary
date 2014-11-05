@@ -1386,6 +1386,13 @@ public class CommonAlgorithms {
      * @param edgePath - the ith entry will contain the id of the edge that gets traversed to get from the previous vertex in the path to the ith vertex.
      */
     public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
+
+        //handle windy case
+        if(g.getClass() == WindyGraph.class) {
+            dijkstrasAlgorithmForWindyGraphs((WindyGraph)g, sourceId, dist, path, edgePath);
+            return;
+        }
+
         int n = g.getVertices().size();
         if (dist.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
             throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
@@ -1423,6 +1430,67 @@ public class CommonAlgorithms {
                     continue;
                 for (Link<? extends Vertex> link : l) {
                     if (link.getCost() < min) {
+                        min = link.getCost();
+                        minid = link.getId();
+                    }
+                }
+                //don't go past max integer, that's bad
+                alt = dist[uid] + min;
+                if (alt < dist[vid]) {
+                    //found a better path
+                    pq.remove(new Pair<Integer>(vid, dist[vid]));
+                    dist[vid] = alt;
+                    path[vid] = uid;
+                    edgePath[vid] = minid;
+                    pq.add(new Pair<Integer>(vid, dist[vid]));
+                }
+            }
+        }
+    }
+
+    private static void dijkstrasAlgorithmForWindyGraphs(WindyGraph g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
+
+        int n = g.getVertices().size();
+        if (dist.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+
+        //initialize
+        PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
+        dist[sourceId] = 0;
+        path[sourceId] = -1;
+        for (int i = 1; i <= n; i++) {
+            if (i != sourceId) {
+                dist[i] = Integer.MAX_VALUE;
+                path[i] = -1;
+                edgePath[i] = -1;
+            }
+            pq.add(new Pair<Integer>(i, dist[i]));
+        }
+
+        WindyVertex u;
+        Pair<Integer> temp;
+        int min, alt, uid, vid, minid, trueLinkCost;
+        minid = Integer.MAX_VALUE;
+        TIntObjectHashMap<WindyVertex> indexedVertices = g.getInternalVertexMap();
+        //now actually do the walk
+        while (!pq.isEmpty()) {
+            temp = pq.poll();
+            u = indexedVertices.get(temp.getFirst());
+            uid = u.getId();
+            if (dist[uid] == Integer.MAX_VALUE)
+                continue; //we got to the point where it's disconnected; don't add to max integer, and cause loop around
+            for (WindyVertex v : u.getNeighbors().keySet()) {
+                List<WindyEdge> l = u.getNeighbors().get(v);
+                min = Integer.MAX_VALUE;
+                vid = v.getId();
+                if (!pq.contains(new Pair<Integer>(vid, dist[vid])))
+                    continue;
+                for (WindyEdge link : l) {
+                    if(uid == link.getEndpoints().getFirst().getId())
+                        trueLinkCost = link.getCost();
+                    else
+                        trueLinkCost = link.getReverseCost();
+                    if (trueLinkCost < min) {
                         min = link.getCost();
                         minid = link.getId();
                     }

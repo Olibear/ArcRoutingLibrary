@@ -2,60 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c224092-2200-42e8-9678-60c3400ac001" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/DirectedKWayPartitionTransform.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/MixedKWayPartitionTransform.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/ShortRouteRefiner.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/UndirectedKWayPartitionTransform.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/WindyKWayPartitionTransform.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/util/CycleUtils.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/graph/util/SwapUtils.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/objective/impl/IPObjective.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/objective/impl/RouteObjective.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/ObjectiveFunction.java" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/core/Arc.java" afterPath="$PROJECT_DIR$/src/oarlib/link/impl/Arc.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/core/Edge.java" afterPath="$PROJECT_DIR$/src/oarlib/link/impl/Edge.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/core/MixedEdge.java" afterPath="$PROJECT_DIR$/src/oarlib/link/impl/MixedEdge.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/core/WindyEdge.java" afterPath="$PROJECT_DIR$/src/oarlib/link/impl/WindyEdge.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/CostRebalancer.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/CostRebalancer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Edmonds.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Edmonds.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Gurobi.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Gurobi.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/DirectedGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/DirectedGraph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/DirectedGraphGenerator.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/DirectedGraphGenerator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/vertex/impl/DirectedVertex.java" afterPath="$PROJECT_DIR$/src/oarlib/vertex/impl/DirectedVertex.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedRequirementTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedRequirementTransform.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" afterPath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java" afterPath="$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/io/GraphReader.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/io/GraphReader.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/io/GraphWriter.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/io/GraphWriter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Yaoyuenyong.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Yaoyuenyong.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/MixedGraphGenerator.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/MixedGraphGenerator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/vertex/impl/MixedVertex.java" afterPath="$PROJECT_DIR$/src/oarlib/vertex/impl/MixedVertex.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/OSM_Fetcher.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/OSM_Fetcher.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseWindyKWayPartitionTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseWindyKWayPartitionTransform.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Edmonds.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Edmonds.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Gurobi.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Gurobi.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/UndirectedGraphGenerator.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/UndirectedGraphGenerator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/vertex/impl/UndirectedVertex.java" afterPath="$PROJECT_DIR$/src/oarlib/vertex/impl/UndirectedVertex.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/WindyGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/WindyGraph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/WindyGraphGenerator.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/WindyGraphGenerator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/vertex/impl/WindyVertex.java" afterPath="$PROJECT_DIR$/src/oarlib/vertex/impl/WindyVertex.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ArcRoutingLibrary.iws" />
@@ -89,11 +36,31 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GeneralTestbed.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="GeneralTestbed.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.31683168" vertical-offset="3815" max-vertical-offset="17985">
+            <state vertical-scroll-proportion="85.57692" vertical-offset="6200" max-vertical-offset="17985">
               <caret line="296" column="70" selection-start-line="296" selection-start-column="70" selection-end-line="296" selection-end-column="70" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CommonAlgorithms.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.2730845" vertical-offset="20396" max-vertical-offset="40770">
+              <caret line="1388" column="0" selection-start-line="1388" selection-start-column="0" selection-end-line="1388" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="WRPPSolver_Benavent_H1.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="491" max-vertical-offset="5955">
+              <caret line="60" column="12" selection-start-line="60" selection-start-column="12" selection-end-line="60" selection-end-column="12" />
               <folding />
             </state>
           </provider>
@@ -149,7 +116,6 @@
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver_Benavent.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/impl/WindyGraph.java" />
@@ -173,7 +139,6 @@
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Edmonds.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/OSM_Fetcher.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/io/GraphReader.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java" />
@@ -193,6 +158,8 @@
         <option value="$PROJECT_DIR$/src/oarlib/core/Graph.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" />
         <option value="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" />
       </list>
     </option>
   </component>
@@ -641,7 +608,11 @@
       <created>1414977025537</created>
       <updated>1414977025537</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Refactored for package naming consistency">
+      <created>1415222483537</created>
+      <updated>1415222483537</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -673,13 +644,14 @@
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3282532" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33997655" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3285151" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.50058615" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282532" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32942554" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
+      <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942554" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942554" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -691,7 +663,6 @@
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3282532" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="IntelliHeap" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282532" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3985932" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -727,7 +698,8 @@
     <MESSAGE value="Weekend Commit; Benavent almost done." />
     <MESSAGE value="SF Build; gonna start unit testing, and optimization" />
     <MESSAGE value="Some Dependencies" />
-    <option name="LAST_COMMIT_MESSAGE" value="Some Dependencies" />
+    <MESSAGE value="Refactored for package naming consistency" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactored for package naming consistency" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -740,13 +712,13 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java</url>
-          <line>2215</line>
+          <line>2283</line>
           <properties />
           <option name="timeStamp" value="53" />
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java</url>
-          <line>2188</line>
+          <line>2256</line>
           <properties />
           <option name="timeStamp" value="72" />
         </line-breakpoint>
@@ -831,14 +803,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.10909091" vertical-offset="0" max-vertical-offset="3315">
           <caret line="6" column="51" selection-start-line="6" selection-start-column="51" selection-end-line="6" selection-end-column="51" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2730845" vertical-offset="12851" max-vertical-offset="39750">
-          <caret line="881" column="26" selection-start-line="881" selection-start-column="26" selection-end-line="881" selection-end-column="26" />
           <folding />
         </state>
       </provider>
@@ -1027,14 +991,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33270678" vertical-offset="1038" max-vertical-offset="5955">
-          <caret line="98" column="84" selection-start-line="98" selection-start-column="84" selection-end-line="98" selection-end-column="84" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.027522936" vertical-offset="645" max-vertical-offset="2670">
@@ -1171,8 +1127,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.31683168" vertical-offset="3815" max-vertical-offset="17985">
+        <state vertical-scroll-proportion="85.57692" vertical-offset="6200" max-vertical-offset="17985">
           <caret line="296" column="70" selection-start-line="296" selection-start-column="70" selection-end-line="296" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="491" max-vertical-offset="5955">
+          <caret line="60" column="12" selection-start-line="60" selection-start-column="12" selection-end-line="60" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2730845" vertical-offset="20396" max-vertical-offset="40770">
+          <caret line="1388" column="0" selection-start-line="1388" selection-start-column="0" selection-end-line="1388" selection-end-column="0" />
           <folding />
         </state>
       </provider>
