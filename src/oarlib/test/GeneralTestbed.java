@@ -294,7 +294,7 @@ public class
                 int debugCounter = 0;
                 String output;
 
-                for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
+                for (BoundingBox bb : OSM_BoundingBoxes.RURAL_INSTANCES) {
                     //if (debugCounter >= limForDebug)
                     //break;
                     debugCounter++;
@@ -307,6 +307,7 @@ public class
                     start = System.nanoTime();
                     validWAns = validWSolver.trySolve();
                     end = System.nanoTime();
+                    System.out.println("It took " + (end - start) + " milliseconds to run the solver on this instance.");
 
                     routeCounter = 1;
                     int maxCost = 0;

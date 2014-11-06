@@ -57,21 +57,21 @@ public class OSM_BoundingBoxes {
 
     public static final BoundingBox[] RURAL_INSTANCES = new BoundingBox[]{
             //Mauritania
-            new BoundingBox(-11.423925, 16.609865, -11.397489, 16.631783, "Mauritania"),
+            //new BoundingBox(-11.423925, 16.609865, -11.397489, 16.631783, "Mauritania"),
             //Iceland
-            new BoundingBox(-21.794402, 64.098088, -21.762430, 64.104086, "Iceland"),
+            //new BoundingBox(-21.794402, 64.098088, -21.762430, 64.104086, "Iceland"),
             //Suriname
-            new BoundingBox(-55.223577, 5.687858, -55.172250, 5.709038, "Suriname"),
+            //new BoundingBox(-55.223577, 5.687858, -55.172250, 5.709038, "Suriname"),
             //Greenland
             new BoundingBox(-51.749314, 64.169166, -51.710433, 64.186850, "Greenland"),
             //Namibia
-            new BoundingBox(17.050057, -22.495008, 17.059992, -22.483747, "Namibia"),
+            //new BoundingBox(17.050057, -22.495008, 17.059992, -22.483747, "Namibia"),
             //French Guiana
-            new BoundingBox(-52.671360, 5.155302, -52.663307, 5.165410, "French Guiana"),
+            //new BoundingBox(-52.671360, 5.155302, -52.663307, 5.165410, "French Guiana"),
             //Mongolia
-            new BoundingBox(107.027021, 47.914561, 107.040325, 47.921162, "Mongolia"),
+            //new BoundingBox(107.027021, 47.914561, 107.040325, 47.921162, "Mongolia"),
             //Morocco
-            new BoundingBox(-7.520074, 33.553118, -7.507693, 33.566297, "Morocco"),
+            //new BoundingBox(-7.520074, 33.553118, -7.507693, 33.566297, "Morocco"),
     };
 
     public static final BoundingBox[] BIG_INSTANCES = new BoundingBox[]{

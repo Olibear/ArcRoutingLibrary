@@ -58,10 +58,9 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
                     fullGraphCopy.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "orig", temp.getCost(), temp.getReverseCost());
             }
 
-            int[][] dist = new int[n + 1][n + 1];
-            int[][] path = new int[n + 1][n + 1];
-            int[][] edgePath = new int[n + 1][n + 1];
-            CommonAlgorithms.fwLeastCostPaths(fullGraphCopy, dist, path, edgePath);
+            int[] dist = new int[n + 1];
+            int[] path = new int[n + 1];
+            int[] edgePath = new int[n + 1];
 
             //setup the complete graph composed entirely of the unbalanced vertices
             UndirectedGraph matchingGraph = new UndirectedGraph();
@@ -75,25 +74,29 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
 
             //connect with least cost edges
             Collection<UndirectedVertex> oddVertices = matchingGraph.getVertices();
-            HashMap<Pair<Integer>, Boolean> traverseIj = new HashMap<Pair<Integer>, Boolean>(); //key is (i,j) where i < j, and value is true if the shortest average path cost is i to j, false if it's j to i
-            double costCandidate1, costCandidate2;
+            HashMap<Pair<Integer>, Edge> traverseIj = new HashMap<Pair<Integer>, Edge>(); //key is (i,j) where i < j, and value is true if the shortest average path cost is i to j, false if it's j to i
+            double costCandidate;
+            Pair<Integer> candidateKey;
             for (UndirectedVertex v : oddVertices) {
+                CommonAlgorithms.dijkstrasAlgorithm(fullGraphCopy, v.getMatchId(), dist, path, edgePath);
                 for (UndirectedVertex v2 : oddVertices) {
                     //only add one edge per pair of vertices
-                    if (v.getId() >= v2.getId())
+                    if (v.getId() == v2.getId())
                         continue;
 
-                    costCandidate1 = calculateAveragePathCost(fullGraphCopy, v.getMatchId(), v2.getMatchId(), path, edgePath);
-                    costCandidate2 = calculateAveragePathCost(fullGraphCopy, v2.getMatchId(), v.getMatchId(), path, edgePath);
-                    if (costCandidate1 <= costCandidate2) {
-                        matchingGraph.addEdge(new Edge("matchingEdge", new Pair<UndirectedVertex>(v, v2), (int) (2 * costCandidate1)));
-                        traverseIj.put(new Pair<Integer>(v.getId(), v2.getId()), true);
-                    } else {
-                        matchingGraph.addEdge(new Edge("matchingEdge", new Pair<UndirectedVertex>(v2, v), (int) (2 * costCandidate2)));
-                        traverseIj.put(new Pair<Integer>(v.getId(), v2.getId()), false);
+                    costCandidate = calculateAveragePathCost(fullGraphCopy, v.getMatchId(), v2.getMatchId(), path, edgePath);
+                    candidateKey = new Pair<Integer>(v2.getId(), v.getId());
+
+                    if (!traverseIj.containsKey(candidateKey) || costCandidate < traverseIj.get(candidateKey).getCost()) {
+                        traverseIj.remove(candidateKey);
+                        traverseIj.put(new Pair<Integer>(v.getId(), v2.getId()), new Edge("matchingEdge", new Pair<UndirectedVertex>(v, v2), (int) (2 * costCandidate)));
                     }
                 }
             }
+
+            for(Edge e: traverseIj.values())
+                matchingGraph.addEdge(e);
+
 
             Set<Pair<UndirectedVertex>> matchingSolution = CommonAlgorithms.minCostMatching(matchingGraph);
 
@@ -102,32 +105,22 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
             TIntObjectHashMap<WindyEdge> indexedEdges = fullGraph.getInternalEdgeMap();
             for (Pair<UndirectedVertex> p : matchingSolution) {
                 //minCostMatching doesn't discriminate between 1 - 2 and 2 - 1 so we need to
-                if (p.getFirst().getId() < p.getSecond().getId()) {
-                    if (traverseIj.get(new Pair<Integer>(p.getFirst().getId(), p.getSecond().getId()))) {
-                        curr = p.getFirst().getMatchId();
-                        end = p.getSecond().getMatchId();
-                    } else {
-                        curr = p.getSecond().getMatchId();
-                        end = p.getFirst().getMatchId();
-                    }
+                if (traverseIj.containsKey(new Pair<Integer>(p.getFirst().getId(), p.getSecond().getId()))) {
+                    curr = p.getFirst().getMatchId();
+                    end = p.getSecond().getMatchId();
                 } else {
-                    if (traverseIj.get(new Pair<Integer>(p.getSecond().getId(), p.getFirst().getId()))) {
-                        curr = p.getSecond().getMatchId();
-                        end = p.getFirst().getMatchId();
-                    } else {
-                        curr = p.getFirst().getMatchId();
-                        end = p.getSecond().getMatchId();
-                    }
+                    curr = p.getSecond().getMatchId();
+                    end = p.getFirst().getMatchId();
                 }
 
-                next = 0;
-                nextEdge = 0;
+                CommonAlgorithms.dijkstrasAlgorithm(fullGraphCopy,curr,dist, path, edgePath);
+
                 do {
-                    next = path[curr][end];
-                    nextEdge = edgePath[curr][end];
+                    next = path[end];
+                    nextEdge = edgePath[end];
                     temp = indexedEdges.get(nextEdge);
                     g.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "to make even", temp.getCost(), temp.getReverseCost(), nextEdge, temp.isRequired());
-                } while ((curr = next) != end);
+                } while ((end = next) != curr);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -264,6 +257,23 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
             ans += temp.getCost() + temp.getReverseCost();
 
         } while ((curr = next) != end);
+        return ans / 2.0;
+    }
+
+    private static double calculateAveragePathCost(WindyGraph g, int i, int j, int[] path, int[] edgePath) {
+        int start, end, next, ans;
+        start = i;
+        end = j;
+        ans = 0;
+        WindyEdge temp;
+        TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
+        do {
+            next = path[end];
+            if(!indexedWindyEdges.containsKey(edgePath[end]))
+                System.out.println("Debug");
+            temp = indexedWindyEdges.get(edgePath[end]);
+            ans += temp.getCost() + temp.getReverseCost();
+        } while ((end = next) != start);
         return ans / 2.0;
     }
 
