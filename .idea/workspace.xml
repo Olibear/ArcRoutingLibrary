@@ -2,9 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c224092-2200-42e8-9678-60c3400ac001" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" afterPath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/test/test/core/GraphTestSuite.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/test/test/core/LinkTestSuite.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/exceptions/NegativeCycleException.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/test/test/core/VertexTestSuite.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ArcRoutingLibrary.iws" />
@@ -28,10 +32,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="GeneralTestbed.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="GeneralTestbed.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3083004" vertical-offset="3699" max-vertical-offset="18000">
+            <state vertical-scroll-proportion="0.0" vertical-offset="3699" max-vertical-offset="18000">
               <caret line="288" column="14" selection-start-line="288" selection-start-column="14" selection-end-line="288" selection-end-column="14" />
               <folding />
             </state>
@@ -41,8 +45,8 @@
       <file leaf-file-name="CommonAlgorithms.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="21861" max-vertical-offset="40770">
-              <caret line="1450" column="24" selection-start-line="1450" selection-start-column="24" selection-end-line="1450" selection-end-column="24" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="28692" max-vertical-offset="40770">
+              <caret line="1944" column="33" selection-start-line="1944" selection-start-column="33" selection-end-line="1944" selection-end-column="33" />
               <folding />
             </state>
           </provider>
@@ -61,7 +65,7 @@
       <file leaf-file-name="WRPPSolver_Benavent_H1.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1122" max-vertical-offset="6105">
+            <state vertical-scroll-proportion="0.0" vertical-offset="987" max-vertical-offset="6105">
               <caret line="115" column="93" selection-start-line="115" selection-start-column="93" selection-end-line="115" selection-end-column="93" />
               <folding>
                 <element signature="e#3043#3064#0" expanded="true" />
@@ -70,12 +74,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="WRPPSolver_Win.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="WRPPSolver_Win.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="990" max-vertical-offset="14850">
-              <caret line="203" column="28" selection-start-line="203" selection-start-column="28" selection-end-line="203" selection-end-column="28" />
-              <folding />
+            <state vertical-scroll-proportion="1.8675889" vertical-offset="9465" max-vertical-offset="14970">
+              <caret line="711" column="43" selection-start-line="711" selection-start-column="43" selection-end-line="711" selection-end-column="43" />
+              <folding>
+                <element signature="e#31405#31426#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -101,7 +107,6 @@
         <option value="$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/impl/WindyGraph.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java" />
@@ -144,6 +149,7 @@
         <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" />
         <option value="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
       </list>
     </option>
   </component>
@@ -600,7 +606,11 @@
       <created>1415223673586</created>
       <updated>1415223673586</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="switched off floyd-warshall in wrpp_benavent_H1.">
+      <created>1415237949010</created>
+      <updated>1415237949010</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -688,7 +698,8 @@
     <MESSAGE value="Some Dependencies" />
     <MESSAGE value="Refactored for package naming consistency" />
     <MESSAGE value="Added dijkstrasForWindy in preparation for switching to dijkstras everywhere for memory reasons." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added dijkstrasForWindy in preparation for switching to dijkstras everywhere for memory reasons." />
+    <MESSAGE value="switched off floyd-warshall in wrpp_benavent_H1." />
+    <option name="LAST_COMMIT_MESSAGE" value="switched off floyd-warshall in wrpp_benavent_H1." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -761,7 +772,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="3000" max-vertical-offset="15120">
           <caret line="200" column="28" selection-start-line="200" selection-start-column="28" selection-end-line="200" selection-end-column="28" />
-          <folding />
+          <folding>
+            <element signature="e#31405#31426#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1104,14 +1117,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3045" max-vertical-offset="15165">
-          <caret line="203" column="28" selection-start-line="203" selection-start-column="28" selection-end-line="203" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="486" max-vertical-offset="1335">
@@ -1120,10 +1125,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="21696" max-vertical-offset="40770">
-          <caret line="1450" column="24" selection-start-line="1450" selection-start-column="24" selection-end-line="1450" selection-end-column="24" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="3699" max-vertical-offset="18000">
+          <caret line="288" column="14" selection-start-line="288" selection-start-column="14" selection-end-line="288" selection-end-column="14" />
           <folding />
         </state>
       </provider>
@@ -1138,11 +1143,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3083004" vertical-offset="3699" max-vertical-offset="18000">
-          <caret line="288" column="14" selection-start-line="288" selection-start-column="14" selection-end-line="288" selection-end-column="14" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="28692" max-vertical-offset="40770">
+          <caret line="1944" column="33" selection-start-line="1944" selection-start-column="33" selection-end-line="1944" selection-end-column="33" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.8675889" vertical-offset="9465" max-vertical-offset="14970">
+          <caret line="711" column="43" selection-start-line="711" selection-start-column="43" selection-end-line="711" selection-end-column="43" />
+          <folding>
+            <element signature="e#31405#31426#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
