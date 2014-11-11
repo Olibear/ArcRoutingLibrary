@@ -39,14 +39,14 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
     //===============================================
 
     public void addEdge(int i, int j, String desc, int cost, boolean isDirected) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         this.addEdge(this.constructEdge(i, j, desc, cost, isDirected));
     }
 
     public MixedEdge constructEdge(int i, int j, String desc, int cost, boolean isDirected)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         return new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, isDirected);
 
@@ -191,7 +191,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
     @Override
     public MixedEdge constructEdge(int i, int j, String desc, int cost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         return new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost);
 

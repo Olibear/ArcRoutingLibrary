@@ -100,9 +100,8 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
             int n = mGraph.getVertices().size();
             int[][] dist = new int[n + 1][n + 1];
             int[][] path = new int[n + 1][n + 1];
-            int[][] edgePath = new int[n + 1][n + 1];
 
-            CommonAlgorithms.fwLeastCostPaths(mGraph, dist, path, edgePath);
+            CommonAlgorithms.fwLeastCostPaths(mGraph, dist, path);
 
         /*
          * Compute the acyclic digraph H in which an edge (i-1,j) represents the cost of having a

@@ -16,19 +16,19 @@ public class OSM_BoundingBoxes {
             //Paris
             //new BoundingBox(2.284695, 48.867812, 2.303707, 48.878453, "Paris, France"),
             //London
-            //new BoundingBox(-.137157, 51.510221, -.126986, 51.518527, "London, UK"),
+            new BoundingBox(-.137157, 51.510221, -.126986, 51.518527, "London, UK"),
             //Istanbul
-            //new BoundingBox(28.954437, 41.004398, 28.969264, 41.009030, "Istanbul, Turkey"),
+            new BoundingBox(28.954437, 41.004398, 28.969264, 41.009030, "Istanbul, Turkey"),
             //Perth
-            //new BoundingBox(115.858599, -31.944743, 115.869693, -31.939681, "Perth, Australia"),
+            new BoundingBox(115.858599, -31.944743, 115.869693, -31.939681, "Perth, Australia"),
             //Auckland
-            //new BoundingBox(174.728553, -36.860062, 174.743359, -36.843990, "Auckland, Australia"),
+            new BoundingBox(174.728553, -36.860062, 174.743359, -36.843990, "Auckland, Australia"),
             //Helsinki
             //new BoundingBox(24.935060, 60.164540, 24.943771, 60.169360, "Helsinki, Finland"),
             //Calgary
-            //new BoundingBox(-114.090764, 51.037411, -114.061281, 51.049795, "Calgary, Canada"),
+            new BoundingBox(-114.090764, 51.037411, -114.061281, 51.049795, "Calgary, Canada"),
             //Vienna
-            //new BoundingBox(16.367078, 48.205786, 16.375082, 48.211377, "Vienna, Austria")
+            new BoundingBox(16.367078, 48.205786, 16.375082, 48.211377, "Vienna, Austria")
     };
 
     public static final BoundingBox[] SUBURBAN_INSTANCES = new BoundingBox[]{
@@ -57,21 +57,21 @@ public class OSM_BoundingBoxes {
 
     public static final BoundingBox[] RURAL_INSTANCES = new BoundingBox[]{
             //Mauritania
-            //new BoundingBox(-11.423925, 16.609865, -11.397489, 16.631783, "Mauritania"),
+            new BoundingBox(-11.423925, 16.609865, -11.397489, 16.631783, "Mauritania"),
             //Iceland
-            //new BoundingBox(-21.794402, 64.098088, -21.762430, 64.104086, "Iceland"),
+            new BoundingBox(-21.794402, 64.098088, -21.762430, 64.104086, "Iceland"),
             //Suriname
-            //new BoundingBox(-55.223577, 5.687858, -55.172250, 5.709038, "Suriname"),
+            new BoundingBox(-55.223577, 5.687858, -55.172250, 5.709038, "Suriname"),
             //Greenland
             new BoundingBox(-51.749314, 64.169166, -51.710433, 64.186850, "Greenland"),
             //Namibia
-            //new BoundingBox(17.050057, -22.495008, 17.059992, -22.483747, "Namibia"),
+            new BoundingBox(17.050057, -22.495008, 17.059992, -22.483747, "Namibia"),
             //French Guiana
-            //new BoundingBox(-52.671360, 5.155302, -52.663307, 5.165410, "French Guiana"),
+            new BoundingBox(-52.671360, 5.155302, -52.663307, 5.165410, "French Guiana"),
             //Mongolia
-            //new BoundingBox(107.027021, 47.914561, 107.040325, 47.921162, "Mongolia"),
+            new BoundingBox(107.027021, 47.914561, 107.040325, 47.921162, "Mongolia"),
             //Morocco
-            //new BoundingBox(-7.520074, 33.553118, -7.507693, 33.566297, "Morocco"),
+            new BoundingBox(-7.520074, 33.553118, -7.507693, 33.566297, "Morocco"),
     };
 
     public static final BoundingBox[] BIG_INSTANCES = new BoundingBox[]{

@@ -2264,23 +2264,24 @@ public class CommonAlgorithms {
 
         //figure out residual graph, and look for paths from source to sink
         int n = copy.getVertices().size();
-        int[][] dist = new int[n + 1][n + 1];
-        int[][] path = new int[n + 1][n + 1];
-        int[][] edgePath = new int[n + 1][n + 1];
+        int[] dist = new int[n + 1];
+        int[] path = new int[n + 1];
 
-        CommonAlgorithms.fwLeastCostPaths(copy, dist, path, edgePath);
 
         //reduce costs
         int sourceId = source.getId();
         int sinkId = sink.getId();
+
+        CommonAlgorithms.slfShortestPaths(copy, sourceId, dist, path);
+
         for (Arc a : copy.getEdges()) {
             if (a.getTail().getId() == sourceId)
                 continue;
-            a.setCost(a.getCost() + dist[sourceId][a.getTail().getId()] - dist[sourceId][a.getHead().getId()]);
+            a.setCost(a.getCost() + dist[a.getTail().getId()] - dist[a.getHead().getId()]);
         }
 
         //check for legality
-        if (dist[sourceId][sinkId] == Integer.MAX_VALUE)
+        if (dist[sinkId] == Integer.MAX_VALUE)
             throw new IllegalArgumentException("Your graph is not connected, or this is not a valid flow problem");
 
         //start looking for augmenting paths
@@ -2370,9 +2371,8 @@ public class CommonAlgorithms {
                 }
 
                 //recalculate shortest paths
-                dist = new int[n + 1][n + 1];
-                path = new int[n + 1][n + 1];
-                edgePath = new int[n + 1][n + 1];
+                dist = new int[n + 1];
+                path = new int[n + 1];
                 CommonAlgorithms.dijkstrasAlgorithm(copy, sourceId, dijkstraDist, dijkstraPath, dijkstraEdge);
             }
         } catch (Exception e) {

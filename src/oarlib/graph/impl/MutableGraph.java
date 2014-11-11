@@ -52,7 +52,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     }
 
     public void addEdge(int i, int j, String desc, int cost, int matchId) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         E temp = this.constructEdge(i, j, desc, cost);
         temp.setMatchId(matchId);
@@ -61,7 +61,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 
     public void addEdge(int i, int j, String desc, int cost, int matchId, boolean isReq)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         E temp = this.constructEdge(i, j, desc, cost);
         temp.setRequired(isReq);
@@ -70,7 +70,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     }
 
     public void addEdge(int i, int j, int cost, int matchId) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         E temp = this.constructEdge(i, j, "", cost);
         temp.setMatchId(matchId);
@@ -107,7 +107,6 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     public void clearEdges() {
         mEdges = new HashSet<E>();
         mInternalEdgeMap = new TIntObjectHashMap<E>();
-        //mGlobalEdgeMap = new HashMap<Integer, E>();
         super.resetEdgeCounter();
     }
 
@@ -119,28 +118,27 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         e.setId(this.assignEdgeId());
         e.setGraphId(this.getGraphId());
         mEdges.add(e);
-        //mGlobalEdgeMap.put(e.getGuid(), e);
         mInternalEdgeMap.put(e.getId(), e);
         e.setFinalized(true);
     }
 
     @Override
     public void addEdge(int i, int j, int cost) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         this.addEdge(this.constructEdge(i, j, "", cost));
     }
 
     @Override
     public void addEdge(int i, int j, int cost, boolean isReq) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         this.addEdge(i, j, "", cost, isReq);
     }
 
     @Override
     public void addEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         this.addEdge(this.constructEdge(i, j, desc, cost));
     }
@@ -148,7 +146,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     @Override
     public void addEdge(int i, int j, String desc, int cost, boolean isReq)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         E temp = this.constructEdge(i, j, desc, cost);
         temp.setRequired(isReq);
@@ -174,7 +172,6 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         v.setId(this.assignVertexId());
         v.setGraphId(this.getGraphId());
         mVertices.add(v);
-        //mGlobalVertexMap.put(v.getGuid(), v);
         mInternalVertexMap.put(v.getId(), v);
     }
 
@@ -202,7 +199,6 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         if (!mEdges.contains(e))
             throw new IllegalArgumentException("Could not remove edge because it wasn't detected as existing in the first place!");
         mEdges.remove(e);
-        //mGlobalEdgeMap.remove(e.getGuid());
         mInternalEdgeMap.remove(e.getId());
         e.setFinalized(false);
     }

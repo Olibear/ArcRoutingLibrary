@@ -63,6 +63,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
         mGraph = input;
     }
 
+    //TODO: Rewrite
     @Override
     public S transformGraph() {
         try {
@@ -385,8 +386,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
             //compute the shortest paths
             int[][] sccDist = new int[sccN + 1][sccN + 1];
             int[][] sccPath = new int[sccN + 1][sccN + 1];
-            int[][] sccEdgePath = new int[sccN + 1][sccN + 1];
-            CommonAlgorithms.fwLeastCostPaths(sccGraph, sccDist, sccPath, sccEdgePath);
+            CommonAlgorithms.fwLeastCostPaths(sccGraph, sccDist, sccPath);
 
             int[][] mainDist = new int[mainN + 1][mainN + 1];
             int[][] mainPath = new int[mainN + 1][mainN + 1];
@@ -515,8 +515,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                 //compute the shortest paths
                 sccDist = new int[sccN + 1][sccN + 1];
                 sccPath = new int[sccN + 1][sccN + 1];
-                sccEdgePath = new int[sccN + 1][sccN + 1];
-                CommonAlgorithms.fwLeastCostPaths(sccGraph, sccDist, sccPath, sccEdgePath);
+                CommonAlgorithms.fwLeastCostPaths(sccGraph, sccDist, sccPath);
 
                 mainDist = new int[mainN + 1][mainN + 1];
                 mainPath = new int[mainN + 1][mainN + 1];

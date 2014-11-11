@@ -135,7 +135,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
     @Override
     public Arc constructEdge(int i, int j, String desc, int cost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         return new Arc(desc, new Pair<DirectedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost);
 

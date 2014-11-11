@@ -325,9 +325,6 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
 
             int flowanswer[] = solvePseudoMinCostFlow(flowGraph);
 
-            int[][] dist = new int[n + 1][n + 1];
-            int[][] path = new int[n + 1][n + 1];
-            int[][] edgePath = new int[n + 1][n + 1];
             int curr, end, next, cost;
             TIntObjectHashMap<Arc> flowArcs = flowGraph.getInternalEdgeMap();
             ArrayList<Arc> removeCandidates;
@@ -422,10 +419,9 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             boolean midPath = false;
             int nextEdge;
             WindyEdge origTemp;
-            dist = new int[n + 1][n + 1];
-            path = new int[n + 1][n + 1];
-            edgePath = new int[n + 1][n + 1];
-            CommonAlgorithms.fwLeastCostPaths(orig, dist, path, edgePath);
+            int[] dist = new int[n + 1];
+            int[] path = new int[n + 1];
+            int[] edgePath = new int[n + 1];
 
             /**
              * Go through and make repeats of the required guys non-required
@@ -452,23 +448,27 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                     startId = temp.getTail().getId();
                     midPath = true;
 
+                    CommonAlgorithms.dijkstrasAlgorithm(orig, startId, dist, path, edgePath);
+
                     //cleanup
                     if (i == m) {
                         endId = temp.getHead().getId();
                         //add the shortest path from startId to endId
                         curr = startId;
                         end = endId;
-                        do {
-                            next = path[curr][end];
-                            nextEdge = edgePath[curr][end];
-                            origTemp = origEdges.get(nextEdge);
-                            if (origTemp.getEndpoints().getFirst().getId() == next)
-                                cost = origTemp.getReverseCost();
-                            else
-                                cost = origTemp.getCost();
-                            ans.addEdge(curr, next, "final", cost, origTemp.isRequired());
+                        if(curr != end) {
+                            do {
+                                next = path[end];
+                                nextEdge = edgePath[end];
+                                origTemp = origEdges.get(nextEdge);
+                                if (origTemp.getEndpoints().getFirst().getId() != next)
+                                    cost = origTemp.getReverseCost();
+                                else
+                                    cost = origTemp.getCost();
+                                ans.addEdge(next, end, "final", cost, origTemp.isRequired());
 
-                        } while ((curr = next) != end);
+                            } while ((end = next) != curr);
+                        }
                         midPath = false;
                     }
 
@@ -480,17 +480,19 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                     //add the shortest path from startId to endId
                     curr = startId;
                     end = endId;
-                    do {
-                        next = path[curr][end];
-                        nextEdge = edgePath[curr][end];
-                        origTemp = origEdges.get(nextEdge);
-                        if (origTemp.getEndpoints().getFirst().getId() == next)
-                            cost = origTemp.getReverseCost();
-                        else
-                            cost = origTemp.getCost();
-                        ans.addEdge(curr, next, "final", cost, origTemp.isRequired());
+                    if(curr != end) {
+                        do {
+                            next = path[end];
+                            nextEdge = edgePath[end];
+                            origTemp = origEdges.get(nextEdge);
+                            if (origTemp.getEndpoints().getFirst().getId() != next)
+                                cost = origTemp.getReverseCost();
+                            else
+                                cost = origTemp.getCost();
+                            ans.addEdge(next, end, "final", cost, origTemp.isRequired());
 
-                    } while ((curr = next) != end);
+                        } while ((end = next) != curr);
+                    }
 
 
                     //reset
@@ -504,17 +506,19 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                         //add the shortest path from startId to endId
                         curr = startId;
                         end = endId;
-                        do {
-                            next = path[curr][end];
-                            nextEdge = edgePath[curr][end];
-                            origTemp = origEdges.get(nextEdge);
-                            if (origTemp.getEndpoints().getFirst().getId() == next)
-                                cost = origTemp.getReverseCost();
-                            else
-                                cost = origTemp.getCost();
-                            ans.addEdge(curr, next, "final", cost, origTemp.isRequired());
+                        if(curr != end) {
+                            do {
+                                next = path[end];
+                                nextEdge = edgePath[end];
+                                origTemp = origEdges.get(nextEdge);
+                                if (origTemp.getEndpoints().getFirst().getId() != next)
+                                    cost = origTemp.getReverseCost();
+                                else
+                                    cost = origTemp.getCost();
+                                ans.addEdge(next, end, "final", cost, origTemp.isRequired());
 
-                        } while ((curr = next) != end);
+                            } while ((end = next) != curr);
+                        }
                         midPath = false;
                     }
 

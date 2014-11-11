@@ -5,7 +5,6 @@ import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 /**

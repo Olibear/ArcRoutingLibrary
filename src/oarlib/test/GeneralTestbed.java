@@ -294,7 +294,7 @@ public class
                 int debugCounter = 0;
                 String output;
 
-                for (BoundingBox bb : OSM_BoundingBoxes.RURAL_INSTANCES) {
+                for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
                     //if (debugCounter >= limForDebug)
                     //break;
                     debugCounter++;
