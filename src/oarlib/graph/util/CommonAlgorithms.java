@@ -1,8 +1,12 @@
 package oarlib.graph.util;
 
+import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.*;
+import oarlib.core.Graph;
+import oarlib.core.Link;
+import oarlib.core.Vertex;
 import oarlib.exceptions.InvalidEndpointsException;
+import oarlib.exceptions.NegativeCycleException;
 import oarlib.exceptions.NoDemandSetException;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.DirectedGraph;
@@ -718,65 +722,8 @@ public class CommonAlgorithms {
      * @param path     - the ith entry contains the previous vertex on the shortest path from source to vertex i.
      * @throws IllegalArgumentException
      */
-    public static void bellmanFordShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException {
-        int n = g.getVertices().size();
-        int BIG = 0; //the sum of all edge costs
-        for (Link<? extends Vertex> l : g.getEdges())
-            BIG += l.getCost();
-
-        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
-            throw new IllegalArgumentException();
-
-        //initialization
-        for (int i = 0; i <= n; i++) {
-            dist[i] = BIG;
-            path[i] = 0;
-        }
-        dist[sourceId] = 0;
-
-        //relax edges
-        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
-        LinkedList<Integer> activeVertices = new LinkedList<Integer>();
-        activeVertices.add(sourceId);
-        boolean[] active = new boolean[n + 1];
-        active[sourceId] = true;
-        Vertex u;
-        int min, uid, vid, alt;
-        while (!activeVertices.isEmpty()) {
-            u = indexedVertices.get(activeVertices.remove());
-            uid = u.getId();
-            active[uid] = false;
-            for (Vertex v : u.getNeighbors().keySet()) {
-                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
-                min = Integer.MAX_VALUE;
-                vid = v.getId();
-                for (Link<? extends Vertex> link : l) {
-                    if (link.getCost() < min)
-                        min = link.getCost();
-                }
-                alt = dist[uid] + min;
-                if (alt < dist[vid]) {
-                    //found a better path
-                    dist[vid] = alt;
-                    path[vid] = uid;
-                    if (!active[vid]) {
-                        active[vid] = true;
-                        activeVertices.add(vid);
-                    }
-                }
-            }
-        }
-
-        int p, q, cost;
-        //check for negative cycles
-        for (Link<? extends Vertex> l : g.getEdges()) {
-            p = l.getEndpoints().getFirst().getId();
-            q = l.getEndpoints().getSecond().getId();
-            cost = l.getCost();
-            if (dist[p] + cost < dist[q]) {
-                throw new IllegalArgumentException("This graph contains a negative cycle.");
-            }
-        }
+    public static void bellmanFordShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException, NegativeCycleException {
+        bellmanFordShortestPaths(g, sourceId, dist, path, null);
     }
 
     /**
@@ -790,20 +737,32 @@ public class CommonAlgorithms {
      * @param edgePath - the ith entry contains the previous link on the shortest path from source to vertex i.
      * @throws IllegalArgumentException
      */
-    public static void bellmanFordShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
+    public static void bellmanFordShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException, NegativeCycleException {
+
+        if (g.getClass() == WindyGraph.class) {
+            windyBellmanFord((WindyGraph) g, sourceId, dist, path, edgePath);
+            return;
+        }
+
         int n = g.getVertices().size();
         int BIG = 0; //the sum of all edge costs
-        for (Link<? extends Vertex> l : g.getEdges())
-            BIG += l.getCost();
+        for (Link<? extends Vertex> l : g.getEdges()) {
+            BIG += Math.abs(l.getCost());
+        }
 
         if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("The input arrays to the Bellman-Ford procedure is not of the expected size.");
 
         //initialization
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+
         for (int i = 0; i <= n; i++) {
             dist[i] = BIG;
             path[i] = 0;
-            edgePath[i] = 0;
+            if (recordEdgePath)
+                edgePath[i] = 0;
         }
         dist[sourceId] = 0;
 
@@ -816,6 +775,8 @@ public class CommonAlgorithms {
         Vertex u;
         int min, uid, vid, alt;
         int minid = 0;
+        int counter = 0;
+        int lim = n * g.getEdges().size();
         while (!activeVertices.isEmpty()) {
             u = indexedVertices.get(activeVertices.remove());
             uid = u.getId();
@@ -835,25 +796,170 @@ public class CommonAlgorithms {
                     //found a better path
                     dist[vid] = alt;
                     path[vid] = uid;
-                    edgePath[vid] = minid;
+                    if (recordEdgePath)
+                        edgePath[vid] = minid;
                     if (!active[vid]) {
                         active[vid] = true;
                         activeVertices.add(vid);
                     }
                 }
             }
+            counter++;
+            if (counter > lim)
+                break;
         }
 
         int p, q, cost;
+        boolean continueSearching;
         //check for negative cycles
         for (Link<? extends Vertex> l : g.getEdges()) {
+            if (l.getCost() > 0)
+                continue;
+
+            continueSearching = false;
+
             p = l.getEndpoints().getFirst().getId();
             q = l.getEndpoints().getSecond().getId();
-            cost = l.getCost();
-            if (dist[p] + cost < dist[q]) {
-                throw new IllegalArgumentException("This graph contains a negative cycle.");
-            }
+
+
+            TIntArrayList problemPath = new TIntArrayList();
+            TIntArrayList problemEdgePath = new TIntArrayList();
+
+            int start = q;
+            int end = q;
+            int next;
+            counter = 0;
+            do {
+                next = path[end];
+                problemPath.add(next);
+                problemEdgePath.add(edgePath[end]);
+                counter++;
+                if (counter > n) {
+                    continueSearching = true;
+                    break;
+                }
+            } while ((end = next) != start);
+
+            if(!continueSearching)
+                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
         }
+    }
+
+    private static void windyBellmanFord(WindyGraph g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException, NegativeCycleException {
+
+        int n = g.getVertices().size();
+
+        //create a digraph that will have link match ids to the original graph
+        DirectedGraph virtual = new DirectedGraph(n);
+
+        int BIG = 0; //the sum of all edge costs
+        try {
+            for (WindyEdge l : g.getEdges()) {
+                BIG += l.getCost();
+                BIG += l.getReverseCost();
+                virtual.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), l.getId());
+                virtual.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), l.getReverseCost(), l.getId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
+            throw new IllegalArgumentException("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+
+        //initialization
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+
+        for (int i = 0; i <= n; i++) {
+            dist[i] = BIG;
+            path[i] = 0;
+            if (recordEdgePath)
+                edgePath[i] = 0;
+        }
+        dist[sourceId] = 0;
+
+        //relax edges
+        TIntObjectHashMap<? extends Vertex> indexedVertices = virtual.getInternalVertexMap();
+        LinkedList<Integer> activeVertices = new LinkedList<Integer>();
+        activeVertices.add(sourceId);
+        boolean[] active = new boolean[n + 1];
+        active[sourceId] = true;
+        Vertex u;
+        int min, uid, vid, alt;
+        int minid = 0;
+        int counter = 0;
+        int lim = n * virtual.getEdges().size();
+        while (!activeVertices.isEmpty()) {
+            u = indexedVertices.get(activeVertices.remove());
+            uid = u.getId();
+            active[uid] = false;
+            for (Vertex v : u.getNeighbors().keySet()) {
+                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+                min = Integer.MAX_VALUE;
+                vid = v.getId();
+                for (Link<? extends Vertex> link : l) {
+                    if (link.getCost() < min) {
+                        min = link.getCost();
+                        minid = link.getMatchId();
+                    }
+                }
+                alt = dist[uid] + min;
+                if (alt < dist[vid]) {
+                    //found a better path
+                    dist[vid] = alt;
+                    path[vid] = uid;
+                    if (recordEdgePath)
+                        edgePath[vid] = minid;
+                    if (!active[vid]) {
+                        active[vid] = true;
+                        activeVertices.add(vid);
+                    }
+                }
+            }
+            counter++;
+            if (counter > lim)
+                break;
+        }
+
+        int p, q, cost;
+        boolean continueSearching;
+        //check for negative cycles
+        for (Link<? extends Vertex> l : virtual.getEdges()) {
+            if (l.getCost() > 0)
+                continue;
+
+            continueSearching = false;
+
+            p = l.getEndpoints().getFirst().getId();
+            q = l.getEndpoints().getSecond().getId();
+
+
+            TIntArrayList problemPath = new TIntArrayList();
+            TIntArrayList problemEdgePath = new TIntArrayList();
+
+            int start = q;
+            int end = q;
+            int next;
+            counter = 0;
+            do {
+                next = path[end];
+                problemPath.add(next);
+                problemEdgePath.add(edgePath[end]);
+                counter++;
+                if (counter > n) {
+                    continueSearching = true;
+                    break;
+                }
+            } while ((end = next) != start);
+
+            if(!continueSearching)
+                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+
+        }
+
     }
 
     /**
@@ -866,70 +972,8 @@ public class CommonAlgorithms {
      * @param path     - the ith entry contains the previous vertex on the shortest path from source to vertex i.
      * @throws IllegalArgumentException
      */
-    public static void papeShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException {
-        int n = g.getVertices().size();
-        int BIG = 0; //the sum of all edge costs
-        for (Link<? extends Vertex> l : g.getEdges())
-            BIG += l.getCost();
-
-        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
-            throw new IllegalArgumentException();
-
-        //initialization
-        for (int i = 0; i <= n; i++) {
-            dist[i] = BIG;
-            path[i] = 0;
-        }
-        dist[sourceId] = 0;
-
-        //relax edges
-        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
-        LinkedList<Integer> activeVertices = new LinkedList<Integer>();
-        activeVertices.add(sourceId);
-        boolean[] active = new boolean[n + 1];
-        boolean[] labeled = new boolean[n + 1];
-        active[sourceId] = true;
-        Vertex u;
-        int min, uid, vid, alt;
-        while (!activeVertices.isEmpty()) {
-            u = indexedVertices.get(activeVertices.remove());
-            uid = u.getId();
-            active[uid] = false;
-            for (Vertex v : u.getNeighbors().keySet()) {
-                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
-                min = Integer.MAX_VALUE;
-                vid = v.getId();
-                for (Link<? extends Vertex> link : l) {
-                    if (link.getCost() < min)
-                        min = link.getCost();
-                }
-                alt = dist[uid] + min;
-                if (alt < dist[vid]) {
-                    //found a better path
-                    dist[vid] = alt;
-                    path[vid] = uid;
-                    if (!active[vid]) {
-                        active[vid] = true;
-                        if (!labeled[vid]) {
-                            activeVertices.add(vid);
-                            labeled[vid] = true;
-                        } else
-                            activeVertices.addFirst(vid);
-                    }
-                }
-            }
-        }
-
-        int p, q, cost;
-        //check for negative cycles
-        for (Link<? extends Vertex> l : g.getEdges()) {
-            p = l.getEndpoints().getFirst().getId();
-            q = l.getEndpoints().getSecond().getId();
-            cost = l.getCost();
-            if (dist[p] + cost < dist[q]) {
-                throw new IllegalArgumentException("This graph contains a negative cycle.");
-            }
-        }
+    public static void papeShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException, NegativeCycleException {
+        papeShortestPaths(g, sourceId, dist, path, null);
     }
 
     /**
@@ -942,20 +986,31 @@ public class CommonAlgorithms {
      * @param edgePath - the ith entry contains the previous link on the shortest path from source to vertex i.
      * @throws IllegalArgumentException
      */
-    public static void papeShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
+    public static void papeShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException, NegativeCycleException {
+
+        if (g.getClass() == WindyGraph.class) {
+            windyPape((WindyGraph) g, sourceId, dist, path, edgePath);
+            return;
+        }
+
         int n = g.getVertices().size();
         int BIG = 0; //the sum of all edge costs
         for (Link<? extends Vertex> l : g.getEdges())
-            BIG += l.getCost();
+            BIG += Math.abs(l.getCost());
 
         if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
             throw new IllegalArgumentException();
 
         //initialization
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException();
+
         for (int i = 0; i <= n; i++) {
             dist[i] = BIG;
             path[i] = 0;
-            edgePath[i] = 0;
+            if (recordEdgePath)
+                edgePath[i] = 0;
         }
         dist[sourceId] = 0;
 
@@ -969,6 +1024,8 @@ public class CommonAlgorithms {
         Vertex u;
         int min, uid, vid, alt;
         int minid = 0;
+        int counter = 0;
+        int lim = n * g.getEdges().size();
         while (!activeVertices.isEmpty()) {
             u = indexedVertices.get(activeVertices.remove());
             uid = u.getId();
@@ -988,7 +1045,8 @@ public class CommonAlgorithms {
                     //found a better path
                     dist[vid] = alt;
                     path[vid] = uid;
-                    edgePath[vid] = minid;
+                    if (recordEdgePath)
+                        edgePath[vid] = minid;
                     if (!active[vid]) {
                         active[vid] = true;
                         if (!labeled[vid]) {
@@ -999,18 +1057,165 @@ public class CommonAlgorithms {
                     }
                 }
             }
+            counter++;
+            if(counter > lim)
+                break;
         }
 
         int p, q, cost;
+        boolean continueSearching;
         //check for negative cycles
         for (Link<? extends Vertex> l : g.getEdges()) {
+            if (l.getCost() > 0)
+                continue;
+
+            continueSearching = false;
+
             p = l.getEndpoints().getFirst().getId();
             q = l.getEndpoints().getSecond().getId();
-            cost = l.getCost();
-            if (dist[p] + cost < dist[q]) {
-                throw new IllegalArgumentException("This graph contains a negative cycle.");
-            }
+
+
+            TIntArrayList problemPath = new TIntArrayList();
+            TIntArrayList problemEdgePath = new TIntArrayList();
+
+            int start = q;
+            int end = q;
+            int next;
+            counter = 0;
+            do {
+                next = path[end];
+                problemPath.add(next);
+                problemEdgePath.add(edgePath[end]);
+                counter++;
+                if (counter > n) {
+                    continueSearching = true;
+                    break;
+                }
+            } while ((end = next) != start);
+
+            if(!continueSearching)
+                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
         }
+    }
+
+    private static void windyPape(WindyGraph g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException, NegativeCycleException {
+
+        int n = g.getVertices().size();
+
+        DirectedGraph virtual = new DirectedGraph(n);
+
+        int BIG = 0; //the sum of all edge costs
+        try {
+            for (WindyEdge l : g.getEdges()) {
+                BIG += Math.abs(l.getCost());
+                BIG += Math.abs(l.getReverseCost());
+                virtual.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost());
+                virtual.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), l.getReverseCost());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
+            throw new IllegalArgumentException();
+
+        //initialization
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException();
+
+        for (int i = 0; i <= n; i++) {
+            dist[i] = BIG;
+            path[i] = 0;
+            if (recordEdgePath)
+                edgePath[i] = 0;
+        }
+        dist[sourceId] = 0;
+
+        //relax edges
+        TIntObjectHashMap<? extends Vertex> indexedVertices = virtual.getInternalVertexMap();
+        LinkedList<Integer> activeVertices = new LinkedList<Integer>();
+        activeVertices.add(sourceId);
+        boolean[] active = new boolean[n + 1];
+        boolean[] labeled = new boolean[n + 1];
+        active[sourceId] = true;
+        Vertex u;
+        int min, uid, vid, alt;
+        int minid = 0;
+        int counter = 0;
+        int lim = n * virtual.getEdges().size();
+        while (!activeVertices.isEmpty()) {
+            u = indexedVertices.get(activeVertices.remove());
+            uid = u.getId();
+            active[uid] = false;
+            for (Vertex v : u.getNeighbors().keySet()) {
+                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+                min = Integer.MAX_VALUE;
+                vid = v.getId();
+                for (Link<? extends Vertex> link : l) {
+                    if (link.getCost() < min) {
+                        min = link.getCost();
+                        minid = link.getMatchId();
+                    }
+                }
+                alt = dist[uid] + min;
+                if (alt < dist[vid]) {
+                    //found a better path
+                    dist[vid] = alt;
+                    path[vid] = uid;
+                    if (recordEdgePath)
+                        edgePath[vid] = minid;
+                    if (!active[vid]) {
+                        active[vid] = true;
+                        if (!labeled[vid]) {
+                            activeVertices.add(vid);
+                            labeled[vid] = true;
+                        } else
+                            activeVertices.addFirst(vid);
+                    }
+                }
+            }
+            counter++;
+            if(counter > lim)
+                break;
+        }
+
+        int p, q, cost;
+        boolean continueSearching;
+        //check for negative cycles
+        for (Link<? extends Vertex> l : virtual.getEdges()) {
+            if (l.getCost() > 0)
+                continue;
+
+            continueSearching = false;
+
+            p = l.getEndpoints().getFirst().getId();
+            q = l.getEndpoints().getSecond().getId();
+
+
+            TIntArrayList problemPath = new TIntArrayList();
+            TIntArrayList problemEdgePath = new TIntArrayList();
+
+            int start = q;
+            int end = q;
+            int next;
+            counter = 0;
+            do {
+                next = path[end];
+                problemPath.add(next);
+                problemEdgePath.add(edgePath[end]);
+                counter++;
+                if (counter > n) {
+                    continueSearching = true;
+                    break;
+                }
+            } while ((end = next) != start);
+
+            if(!continueSearching)
+                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+        }
+
     }
 
     /**
@@ -1022,70 +1227,8 @@ public class CommonAlgorithms {
      * @param path     - the ith entry contains the previous vertex on the shortest path from source to vertex i.
      * @throws IllegalArgumentException
      */
-    public static void slfShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException {
-        int n = g.getVertices().size();
-        int BIG = 0; //the sum of all edge costs
-        for (Link<? extends Vertex> l : g.getEdges())
-            BIG += l.getCost();
-
-        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
-            throw new IllegalArgumentException();
-
-        //initialization
-        for (int i = 0; i <= n; i++) {
-            dist[i] = BIG;
-            path[i] = 0;
-        }
-        dist[sourceId] = 0;
-
-        //relax edges
-        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
-        LinkedList<Integer> activeVertices = new LinkedList<Integer>();
-        activeVertices.add(sourceId);
-        boolean[] active = new boolean[n + 1];
-        active[sourceId] = true;
-        Vertex u;
-        int min, uid, vid, alt;
-        while (!activeVertices.isEmpty()) {
-            u = indexedVertices.get(activeVertices.remove());
-            uid = u.getId();
-            active[uid] = false;
-            for (Vertex v : u.getNeighbors().keySet()) {
-                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
-                min = Integer.MAX_VALUE;
-                vid = v.getId();
-                for (Link<? extends Vertex> link : l) {
-                    if (link.getCost() < min)
-                        min = link.getCost();
-                }
-                alt = dist[uid] + min;
-                if (alt < dist[vid]) {
-                    //found a better path
-                    dist[vid] = alt;
-                    path[vid] = uid;
-                    if (!active[vid]) {
-                        active[vid] = true;
-                        if (activeVertices.isEmpty())
-                            activeVertices.add(vid);
-                        if (dist[vid] <= dist[activeVertices.peek()])
-                            activeVertices.addFirst(vid);
-                        else
-                            activeVertices.addLast(vid);
-                    }
-                }
-            }
-        }
-
-        int p, q, cost;
-        //check for negative cycles
-        for (Link<? extends Vertex> l : g.getEdges()) {
-            p = l.getEndpoints().getFirst().getId();
-            q = l.getEndpoints().getSecond().getId();
-            cost = l.getCost();
-            if (dist[p] + cost < dist[q]) {
-                throw new IllegalArgumentException("This graph contains a negative cycle.");
-            }
-        }
+    public static void slfShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException, NegativeCycleException {
+        slfShortestPaths(g, sourceId, dist, path, null);
     }
 
     /**
@@ -1098,20 +1241,30 @@ public class CommonAlgorithms {
      * @param edgePath - the ith entry contains the previous link on the shortest path from source to vertex i.
      * @throws IllegalArgumentException
      */
-    public static void slfShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
+    public static void slfShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException, NegativeCycleException {
+
+        if (g.getClass() == WindyGraph.class) {
+            windySLF((WindyGraph) g, sourceId, dist, path, edgePath);
+            return;
+        }
         int n = g.getVertices().size();
         int BIG = 0; //the sum of all edge costs
         for (Link<? extends Vertex> l : g.getEdges())
-            BIG += l.getCost();
+            BIG += Math.abs(l.getCost());
 
         if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
             throw new IllegalArgumentException();
 
         //initialization
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException();
+
         for (int i = 0; i <= n; i++) {
             dist[i] = BIG;
             path[i] = 0;
-            edgePath[i] = 0;
+            if (recordEdgePath)
+                edgePath[i] = 0;
         }
         dist[sourceId] = 0;
 
@@ -1124,6 +1277,9 @@ public class CommonAlgorithms {
         Vertex u;
         int min, uid, vid, alt;
         int minid = 0;
+        int counter = 0;
+        int lim = n * g.getEdges().size();
+
         while (!activeVertices.isEmpty()) {
             u = indexedVertices.get(activeVertices.remove());
             uid = u.getId();
@@ -1143,7 +1299,8 @@ public class CommonAlgorithms {
                     //found a better path
                     dist[vid] = alt;
                     path[vid] = uid;
-                    edgePath[vid] = minid;
+                    if (recordEdgePath)
+                        edgePath[vid] = minid;
                     if (!active[vid]) {
                         active[vid] = true;
 
@@ -1156,18 +1313,168 @@ public class CommonAlgorithms {
                     }
                 }
             }
+            counter++;
+            if(counter > lim)
+                break;
+        }
+
+        int p, q;
+        boolean continueSearching;
+        //check for negative cycles
+        for (Link<? extends Vertex> l : g.getEdges()) {
+            if (l.getCost() > 0)
+                continue;
+
+            continueSearching = false;
+
+            p = l.getEndpoints().getFirst().getId();
+            q = l.getEndpoints().getSecond().getId();
+
+
+            TIntArrayList problemPath = new TIntArrayList();
+            TIntArrayList problemEdgePath = new TIntArrayList();
+
+            int start = q;
+            int end = q;
+            int next;
+            counter = 0;
+            do {
+                next = path[end];
+                problemPath.add(next);
+                problemEdgePath.add(edgePath[end]);
+                counter++;
+                if (counter > n) {
+                    continueSearching = true;
+                    break;
+                }
+            } while ((end = next) != start);
+
+            if(!continueSearching)
+                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+
+        }
+    }
+
+    private static void windySLF(WindyGraph g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException, NegativeCycleException {
+
+        int n = g.getVertices().size();
+
+        DirectedGraph virtual = new DirectedGraph(n);
+
+        int BIG = 0; //the sum of all edge costs
+
+        try {
+            for (WindyEdge l : g.getEdges()) {
+                BIG += Math.abs(l.getCost());
+                BIG += Math.abs(l.getReverseCost());
+                virtual.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost());
+                virtual.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), l.getReverseCost());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
+            throw new IllegalArgumentException();
+
+        //initialization
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException();
+
+        for (int i = 0; i <= n; i++) {
+            dist[i] = BIG;
+            path[i] = 0;
+            if (recordEdgePath)
+                edgePath[i] = 0;
+        }
+        dist[sourceId] = 0;
+
+        //relax edges
+        TIntObjectHashMap<? extends Vertex> indexedVertices = virtual.getInternalVertexMap();
+        LinkedList<Integer> activeVertices = new LinkedList<Integer>();
+        activeVertices.add(sourceId);
+        boolean[] active = new boolean[n + 1];
+        active[sourceId] = true;
+        Vertex u;
+        int min, uid, vid, alt;
+        int minid = 0;
+        int counter = 0;
+        int lim = n * g.getEdges().size();
+        while (!activeVertices.isEmpty()) {
+            u = indexedVertices.get(activeVertices.remove());
+            uid = u.getId();
+            active[uid] = false;
+            for (Vertex v : u.getNeighbors().keySet()) {
+                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+                min = Integer.MAX_VALUE;
+                vid = v.getId();
+                for (Link<? extends Vertex> link : l) {
+                    if (link.getCost() < min) {
+                        min = link.getCost();
+                        minid = link.getMatchId();
+                    }
+                }
+                alt = dist[uid] + min;
+                if (alt < dist[vid]) {
+                    //found a better path
+                    dist[vid] = alt;
+                    path[vid] = uid;
+                    if (recordEdgePath)
+                        edgePath[vid] = minid;
+                    if (!active[vid]) {
+                        active[vid] = true;
+
+                        if (activeVertices.isEmpty())
+                            activeVertices.add(vid);
+                        else if (dist[vid] <= dist[activeVertices.peek()])
+                            activeVertices.addFirst(vid);
+                        else
+                            activeVertices.addLast(vid);
+                    }
+                }
+            }
+            counter++;
+            if(counter > lim)
+                break;
         }
 
         int p, q, cost;
+        boolean continueSearching;
         //check for negative cycles
         for (Link<? extends Vertex> l : g.getEdges()) {
+            if (l.getCost() > 0)
+                continue;
+
+            continueSearching = false;
+
             p = l.getEndpoints().getFirst().getId();
             q = l.getEndpoints().getSecond().getId();
-            cost = l.getCost();
-            if (dist[p] + cost < dist[q]) {
-                throw new IllegalArgumentException("This graph contains a negative cycle.");
-            }
+
+
+            TIntArrayList problemPath = new TIntArrayList();
+            TIntArrayList problemEdgePath = new TIntArrayList();
+
+            int start = q;
+            int end = q;
+            int next;
+            counter = 0;
+            do {
+                next = path[end];
+                problemPath.add(next);
+                problemEdgePath.add(edgePath[end]);
+                counter++;
+                if (counter > n) {
+                    continueSearching = true;
+                    break;
+                }
+            } while ((end = next) != start);
+
+            if (!continueSearching)
+                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
         }
+
     }
 
     /**
@@ -1266,20 +1573,47 @@ public class CommonAlgorithms {
      * @param path     - the ith entry contains the previous vertex on the widest path from source to vertex i.
      * @throws IllegalArgumentException
      */
+    public static void dijkstrasWidestPathAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] width, int[] path) throws IllegalArgumentException {
+        dijkstrasAlgorithm(g, sourceId, width, path, null);
+    }
+
+    /**
+     * Implements a modified Dijkstra's Algorithm to solve the widest path problem, which determines a path that
+     * maximizes the minimum link weight from the source to the destination.  This can also be used to minimize the max
+     * link weight through a simple graph conversion.
+     *
+     * @param g        - the graph on which to solve the widest path problem.
+     * @param sourceId - the internal vertex id from which the paths and distances will be calculated
+     * @param width    - the ith entry contains the width from source to vertex i.
+     * @param path     - the ith entry contains the previous vertex on the widest path from source to vertex i.
+     * @param edgePath - the ith entry contains the edge id used to get from vertex i to vertex path[i].
+     * @throws IllegalArgumentException
+     */
     public static void dijkstrasWidestPathAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] width, int[] path, int[] edgePath) throws IllegalArgumentException {
 
+        if (g.getClass() == WindyGraph.class) {
+            windyDijkstrasWidestPath((WindyGraph) g, sourceId, width, path, edgePath);
+            return;
+        }
         int n = g.getVertices().size();
-        if (width.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
+        if (width.length != n + 1 || path.length != n + 1)
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
             throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
 
         //initialize
         PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new Utils.InverseDijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
-        width[sourceId] = Integer.MAX_VALUE;
+
+        width[sourceId] = Integer.MIN_VALUE;
         path[sourceId] = -1;
         for (int i = 1; i <= n; i++) {
             if (i != sourceId) {
-                width[i] = Integer.MAX_VALUE;
+                width[i] = Integer.MIN_VALUE;
                 path[i] = -1;
+                if (recordEdgePath)
+                    edgePath[i] = -1;
             }
             pq.add(new Pair<Integer>(i, width[i]));
         }
@@ -1306,13 +1640,96 @@ public class CommonAlgorithms {
                         maxId = link.getId();
                     }
                 }
-                alt = Math.min(width[uid], max);
-                if (alt > width[vid] || width[vid] == Integer.MAX_VALUE) {
+                if (width[uid] == Integer.MIN_VALUE)
+                    alt = max;
+                else
+                    alt = Math.min(width[uid], max);
+
+                if (alt > width[vid] || width[vid] == Integer.MIN_VALUE) {
                     //found a better path
                     pq.remove(new Pair<Integer>(vid, width[vid]));
                     width[vid] = alt;
                     path[vid] = uid;
-                    edgePath[vid] = maxId;
+                    if (recordEdgePath)
+                        edgePath[vid] = maxId;
+                    pq.add(new Pair<Integer>(vid, width[vid]));
+                }
+            }
+        }
+
+    }
+
+    private static void windyDijkstrasWidestPath(WindyGraph g, int sourceId, int[] width, int[] path, int[] edgePath) throws IllegalArgumentException {
+
+        int n = g.getVertices().size();
+        if (width.length != n + 1 || path.length != n + 1)
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+
+        DirectedGraph virtual = new DirectedGraph(n);
+
+        try {
+            for (WindyEdge l : g.getEdges()) {
+                virtual.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), l.getId());
+                virtual.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), l.getReverseCost(), l.getId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        //initialize
+        PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new Utils.InverseDijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
+        width[sourceId] = Integer.MIN_VALUE;
+        path[sourceId] = -1;
+        for (int i = 1; i <= n; i++) {
+            if (i != sourceId) {
+                width[i] = Integer.MIN_VALUE;
+                path[i] = -1;
+                if (recordEdgePath)
+                    edgePath[i] = -1;
+            }
+            pq.add(new Pair<Integer>(i, width[i]));
+        }
+
+        Vertex u;
+        Pair<Integer> temp;
+        int max, alt, uid, vid, maxId;
+        maxId = Integer.MAX_VALUE;
+        TIntObjectHashMap<? extends Vertex> indexedVertices = virtual.getInternalVertexMap();
+        //now actually do the walk
+        while (!pq.isEmpty()) {
+            temp = pq.poll();
+            u = indexedVertices.get(temp.getFirst());
+            uid = u.getId();
+            for (Vertex v : u.getNeighbors().keySet()) {
+                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
+                max = Integer.MIN_VALUE;
+                vid = v.getId();
+                if (!pq.contains(new Pair<Integer>(vid, width[vid])))
+                    continue;
+                for (Link<? extends Vertex> link : l) {
+                    if (link.getCost() > max) {
+                        max = link.getCost();
+                        maxId = link.getMatchId();
+                    }
+                }
+
+                if (width[uid] == Integer.MIN_VALUE)
+                    alt = max;
+                else
+                    alt = Math.min(width[uid], max);
+
+                if (alt > width[vid] || width[vid] == Integer.MIN_VALUE) {
+                    //found a better path
+                    pq.remove(new Pair<Integer>(vid, width[vid]));
+                    width[vid] = alt;
+                    path[vid] = uid;
+                    if (recordEdgePath)
+                        edgePath[vid] = maxId;
                     pq.add(new Pair<Integer>(vid, width[vid]));
                 }
             }
@@ -1329,51 +1746,7 @@ public class CommonAlgorithms {
      * @param path     - the ith entry contains the previous vertex on the shortest path from source to vertex i.
      */
     public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path) throws IllegalArgumentException {
-        int n = g.getVertices().size();
-        if (dist.length != n + 1 || path.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
-
-        //initialize
-        PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
-        dist[sourceId] = 0;
-        path[sourceId] = -1;
-        for (int i = 1; i <= n; i++) {
-            if (i != sourceId) {
-                dist[i] = Integer.MAX_VALUE;
-                path[i] = -1;
-            }
-            pq.add(new Pair<Integer>(i, dist[i]));
-        }
-
-        Vertex u;
-        Pair<Integer> temp;
-        int min, alt, uid, vid;
-        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
-        //now actually do the walk
-        while (!pq.isEmpty()) {
-            temp = pq.poll();
-            u = indexedVertices.get(temp.getFirst());
-            uid = u.getId();
-            for (Vertex v : u.getNeighbors().keySet()) {
-                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
-                min = Integer.MAX_VALUE;
-                vid = v.getId();
-                if (!pq.contains(new Pair<Integer>(vid, dist[vid])))
-                    continue;
-                for (Link<? extends Vertex> link : l) {
-                    if (link.getCost() < min)
-                        min = link.getCost();
-                }
-                alt = dist[uid] + min;
-                if (alt < dist[vid]) {
-                    //found a better path
-                    pq.remove(new Pair<Integer>(vid, dist[vid]));
-                    dist[vid] = alt;
-                    path[vid] = uid;
-                    pq.add(new Pair<Integer>(vid, dist[vid]));
-                }
-            }
-        }
+        dijkstrasAlgorithm(g, sourceId, dist, path, null);
     }
 
     /**
@@ -1388,16 +1761,20 @@ public class CommonAlgorithms {
     public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
 
         //handle windy case
-        if(g.getClass() == WindyGraph.class) {
-            dijkstrasAlgorithmForWindyGraphs((WindyGraph)g, sourceId, dist, path, edgePath);
+        if (g.getClass() == WindyGraph.class) {
+            dijkstrasAlgorithmForWindyGraphs((WindyGraph) g, sourceId, dist, path, edgePath);
             return;
         }
 
         int n = g.getVertices().size();
-        if (dist.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
+        if (dist.length != n + 1 || path.length != n + 1)
             throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
 
         //initialize
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+
         PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
         dist[sourceId] = 0;
         path[sourceId] = -1;
@@ -1405,7 +1782,8 @@ public class CommonAlgorithms {
             if (i != sourceId) {
                 dist[i] = Integer.MAX_VALUE;
                 path[i] = -1;
-                edgePath[i] = -1;
+                if (recordEdgePath)
+                    edgePath[i] = -1;
             }
             pq.add(new Pair<Integer>(i, dist[i]));
         }
@@ -1441,7 +1819,8 @@ public class CommonAlgorithms {
                     pq.remove(new Pair<Integer>(vid, dist[vid]));
                     dist[vid] = alt;
                     path[vid] = uid;
-                    edgePath[vid] = minid;
+                    if (recordEdgePath)
+                        edgePath[vid] = minid;
                     pq.add(new Pair<Integer>(vid, dist[vid]));
                 }
             }
@@ -1451,10 +1830,25 @@ public class CommonAlgorithms {
     private static void dijkstrasAlgorithmForWindyGraphs(WindyGraph g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
 
         int n = g.getVertices().size();
-        if (dist.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
+        if (dist.length != n + 1 || path.length != n + 1)
             throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
 
         //initialize
+        boolean recordEdgePath = (edgePath != null);
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+
+        DirectedGraph virtual = new DirectedGraph(n);
+        try {
+            for (WindyEdge l : g.getEdges()) {
+                virtual.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), l.getId());
+                virtual.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), l.getReverseCost(), l.getId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
         PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
         dist[sourceId] = 0;
         path[sourceId] = -1;
@@ -1462,16 +1856,17 @@ public class CommonAlgorithms {
             if (i != sourceId) {
                 dist[i] = Integer.MAX_VALUE;
                 path[i] = -1;
-                edgePath[i] = -1;
+                if (recordEdgePath)
+                    edgePath[i] = -1;
             }
             pq.add(new Pair<Integer>(i, dist[i]));
         }
 
-        WindyVertex u;
+        DirectedVertex u;
         Pair<Integer> temp;
-        int min, alt, uid, vid, minid, trueLinkCost;
+        int min, alt, uid, vid, minid;
         minid = Integer.MAX_VALUE;
-        TIntObjectHashMap<WindyVertex> indexedVertices = g.getInternalVertexMap();
+        TIntObjectHashMap<DirectedVertex> indexedVertices = virtual.getInternalVertexMap();
         //now actually do the walk
         while (!pq.isEmpty()) {
             temp = pq.poll();
@@ -1479,20 +1874,16 @@ public class CommonAlgorithms {
             uid = u.getId();
             if (dist[uid] == Integer.MAX_VALUE)
                 continue; //we got to the point where it's disconnected; don't add to max integer, and cause loop around
-            for (WindyVertex v : u.getNeighbors().keySet()) {
-                List<WindyEdge> l = u.getNeighbors().get(v);
+            for (DirectedVertex v : u.getNeighbors().keySet()) {
+                List<Arc> l = u.getNeighbors().get(v);
                 min = Integer.MAX_VALUE;
                 vid = v.getId();
                 if (!pq.contains(new Pair<Integer>(vid, dist[vid])))
                     continue;
-                for (WindyEdge link : l) {
-                    if(uid == link.getEndpoints().getFirst().getId())
-                        trueLinkCost = link.getCost();
-                    else
-                        trueLinkCost = link.getReverseCost();
-                    if (trueLinkCost < min) {
+                for (Arc link : l) {
+                    if (link.getCost() < min) {
                         min = link.getCost();
-                        minid = link.getId();
+                        minid = link.getMatchId();
                     }
                 }
                 //don't go past max integer, that's bad
@@ -1502,92 +1893,11 @@ public class CommonAlgorithms {
                     pq.remove(new Pair<Integer>(vid, dist[vid]));
                     dist[vid] = alt;
                     path[vid] = uid;
-                    edgePath[vid] = minid;
+                    if (recordEdgePath)
+                        edgePath[vid] = minid;
                     pq.add(new Pair<Integer>(vid, dist[vid]));
                 }
             }
-        }
-    }
-
-    /**
-     * Implements the Floyd-Warshall shortest paths algorithm on a windy graph by transforming it into at digraph for which the solution will give us
-     * the solution on the windy graph
-     *
-     * @param g    - the graph in which the shortest paths should be calculated
-     * @param dist - an [n+1][n+1] matrix that will be filled with shortest paths at the end: the 0th column and row
-     *             will be filled with Integer.MAX, and dist[i][j] will hold the shortest path cost between node i and node j.
-     * @param path - an [n+1][n+1] matrix that will tell us how to reconstruct the shortest path: the 0th column and row
-     *             will be filled with Integer.MAX, and path[i][j] holds the id of the node to go to next in the shortest path from node i t node j.
-     */
-    private static void windyFwLeastCostPaths(WindyGraph g, int[][] dist, int[][] path) throws IllegalArgumentException {
-        //initialize dist and path
-        int n = g.getVertices().size();
-        int m = g.getEdges().size();
-        if (dist.length != n + 1 || path.length != n + 1)
-            throw new IllegalArgumentException();
-
-
-        try {
-            //setup the digraph so and solve as normal; since we don't have to expose edge ids, 
-            //then no additional accounting is required.
-
-            DirectedGraph g2 = new DirectedGraph();
-            for (int i = 0; i < n; i++) {
-                g2.addVertex(new DirectedVertex("original"));
-            }
-
-            TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
-            WindyEdge temp;
-            for (int i = 1; i <= m; i++) {
-                temp = indexedWindyEdges.get(i);
-                g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
-                g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", temp.getReverseCost(), i);
-            }
-
-            //initialize dist and path
-            for (int i = 0; i <= n; i++) {
-                for (int j = 0; j <= n; j++) {
-                    dist[i][j] = Integer.MAX_VALUE;
-                }
-                path[0][i] = Integer.MAX_VALUE;
-                path[i][0] = Integer.MAX_VALUE;
-            }
-
-            Vertex vi;
-            int min;
-            for (int i = 1; i <= n; i++) {
-                vi = g2.getInternalVertexMap().get(i);
-                for (Vertex v : vi.getNeighbors().keySet()) {
-                    List<? extends Link<? extends Vertex>> l = vi.getNeighbors().get(v);
-                    min = Integer.MAX_VALUE;
-                    for (Link<? extends Vertex> link : l) {
-                        if (link.getCost() < min)
-                            min = link.getCost();
-                    }
-                    dist[vi.getId()][v.getId()] = min;
-                    path[vi.getId()][v.getId()] = v.getId();
-                }
-            }
-
-            //business logic
-            for (int k = 1; k <= n; k++) {
-                for (int i = 1; i <= n; i++) {
-                    //if there is an edge from i to k
-                    if (dist[i][k] < Integer.MAX_VALUE)
-                        for (int j = 1; j <= n; j++) {
-                            //if there is an edge from k to j
-                            if (dist[k][j] < Integer.MAX_VALUE
-                                    && (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j])) {
-                                path[i][j] = path[i][k];
-                                dist[i][j] = dist[i][k] + dist[k][j];
-                                if (i == j && dist[i][j] < 0)
-                                    return; //negative cycle
-                            }
-                        }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -1595,7 +1905,13 @@ public class CommonAlgorithms {
         //initialize dist and path
         int n = g.getVertices().size();
         int m = g.getEdges().size();
-        if (dist.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
+
+        boolean recordEdgePath = (edgePath != null);
+
+        if (dist.length != n + 1 || path.length != n + 1)
+            throw new IllegalArgumentException();
+
+        if (recordEdgePath && edgePath.length != n + 1)
             throw new IllegalArgumentException();
 
         try {
@@ -1621,8 +1937,10 @@ public class CommonAlgorithms {
                 }
                 path[0][i] = Integer.MAX_VALUE;
                 path[i][0] = Integer.MAX_VALUE;
-                edgePath[0][i] = Integer.MAX_VALUE;
-                edgePath[i][0] = Integer.MAX_VALUE;
+                if (recordEdgePath) {
+                    edgePath[0][i] = Integer.MAX_VALUE;
+                    edgePath[i][0] = Integer.MAX_VALUE;
+                }
             }
 
             Vertex vi;
@@ -1641,7 +1959,8 @@ public class CommonAlgorithms {
                     }
                     dist[vi.getId()][v.getId()] = min;
                     path[vi.getId()][v.getId()] = v.getId();
-                    edgePath[vi.getId()][v.getId()] = edge.getMatchId();
+                    if (recordEdgePath)
+                        edgePath[vi.getId()][v.getId()] = edge.getMatchId();
                 }
             }
 
@@ -1655,7 +1974,8 @@ public class CommonAlgorithms {
                             if (dist[k][j] < Integer.MAX_VALUE
                                     && (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j])) {
                                 path[i][j] = path[i][k];
-                                edgePath[i][j] = edgePath[i][k];
+                                if (recordEdgePath)
+                                    edgePath[i][j] = edgePath[i][k];
                                 dist[i][j] = dist[i][k] + dist[k][j];
                                 if (i == j && dist[i][j] < 0)
                                     return; //negative cycle
@@ -1683,57 +2003,7 @@ public class CommonAlgorithms {
      *             will be filled with Integer.MAX, and path[i][j] holds the id of the node to go to next in the shortest path from node i t node j.
      */
     public static void fwLeastCostPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int[][] dist, int[][] path) throws IllegalArgumentException {
-        //initialize dist and path
-        int n = g.getVertices().size();
-        if (dist.length != n + 1 || path.length != n + 1)
-            throw new IllegalArgumentException();
-        if (g.getClass() == WindyGraph.class) {
-            windyFwLeastCostPaths((WindyGraph) g, dist, path);
-            return;
-        }
-
-        //initialize dist and path
-        for (int i = 0; i <= n; i++) {
-            for (int j = 0; j <= n; j++) {
-                dist[i][j] = Integer.MAX_VALUE;
-            }
-            path[0][i] = Integer.MAX_VALUE;
-            path[i][0] = Integer.MAX_VALUE;
-        }
-
-        Vertex vi;
-        int min;
-        for (int i = 1; i <= n; i++) {
-            vi = g.getInternalVertexMap().get(i);
-            for (Vertex v : vi.getNeighbors().keySet()) {
-                List<? extends Link<? extends Vertex>> l = vi.getNeighbors().get(v);
-                min = Integer.MAX_VALUE;
-                for (Link<? extends Vertex> link : l) {
-                    if (link.getCost() < min)
-                        min = link.getCost();
-                }
-                dist[vi.getId()][v.getId()] = min;
-                path[vi.getId()][v.getId()] = v.getId();
-            }
-        }
-
-        //business logic
-        for (int k = 1; k <= n; k++) {
-            for (int i = 1; i <= n; i++) {
-                //if there is an edge from i to k
-                if (dist[i][k] < Integer.MAX_VALUE)
-                    for (int j = 1; j <= n; j++) {
-                        //if there is an edge from k to j
-                        if (dist[k][j] < Integer.MAX_VALUE
-                                && (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j])) {
-                            path[i][j] = path[i][k];
-                            dist[i][j] = dist[i][k] + dist[k][j];
-                            if (i == j && dist[i][j] < 0)
-                                return; //negative cycle
-                        }
-                    }
-            }
-        }
+        fwLeastCostPaths(g, dist, path, null);
     }
 
     /**
@@ -1945,8 +2215,14 @@ public class CommonAlgorithms {
     public static void fwLeastCostPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int[][] dist, int[][] path, int[][] edgePath) throws IllegalArgumentException {
         //initialize dist and path
         int n = g.getVertices().size();
-        if (dist.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
+
+        boolean recordEdgePath = (edgePath != null);
+
+        if (dist.length != n + 1 || path.length != n + 1)
             throw new IllegalArgumentException();
+        if (recordEdgePath && edgePath.length != n + 1)
+            throw new IllegalArgumentException();
+
         if (g.getClass() == WindyGraph.class) {
             windyFwLeastCostPaths((WindyGraph) g, dist, path, edgePath);
             return;
@@ -1959,8 +2235,10 @@ public class CommonAlgorithms {
             }
             path[0][i] = Integer.MAX_VALUE;
             path[i][0] = Integer.MAX_VALUE;
-            edgePath[0][i] = Integer.MAX_VALUE;
-            edgePath[i][0] = Integer.MAX_VALUE;
+            if (recordEdgePath) {
+                edgePath[0][i] = Integer.MAX_VALUE;
+                edgePath[i][0] = Integer.MAX_VALUE;
+            }
         }
 
         Vertex vi;
@@ -1979,7 +2257,8 @@ public class CommonAlgorithms {
                 }
                 dist[vi.getId()][v.getId()] = min;
                 path[vi.getId()][v.getId()] = v.getId();
-                edgePath[vi.getId()][v.getId()] = edge.getId();
+                if (recordEdgePath)
+                    edgePath[vi.getId()][v.getId()] = edge.getId();
             }
         }
 
@@ -1993,7 +2272,8 @@ public class CommonAlgorithms {
                         if (dist[k][j] < Integer.MAX_VALUE
                                 && (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j])) {
                             path[i][j] = path[i][k];
-                            edgePath[i][j] = edgePath[i][k];
+                            if (recordEdgePath)
+                                edgePath[i][j] = edgePath[i][k];
                             dist[i][j] = dist[i][k] + dist[k][j];
                             if (i == j && dist[i][j] < 0)
                                 return; //negative cycle
@@ -2272,7 +2552,12 @@ public class CommonAlgorithms {
         int sourceId = source.getId();
         int sinkId = sink.getId();
 
-        CommonAlgorithms.slfShortestPaths(copy, sourceId, dist, path);
+        try {
+            CommonAlgorithms.slfShortestPaths(copy, sourceId, dist, path);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 
         for (Arc a : copy.getEdges()) {
             if (a.getTail().getId() == sourceId)

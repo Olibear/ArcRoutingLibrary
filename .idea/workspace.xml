@@ -2,17 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c224092-2200-42e8-9678-60c3400ac001" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/core/FlowAlgorithmsTestSuite.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/core/GraphGeneratorTestSuite.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/core/GraphTestSuite.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/core/ShortestPathsTestSuite.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/core/SingleVehicleSolverTestSuite.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/oarlib/test/test/core/GraphTestSuite.java" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/test/test/core/LinkTestSuite.java" afterPath="$PROJECT_DIR$/test/core/LinkTestSuite.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/test/test/core/VertexTestSuite.java" afterPath="$PROJECT_DIR$/test/core/VertexTestSuite.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ArcRoutingLibrary.iml" afterPath="$PROJECT_DIR$/ArcRoutingLibrary.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/DirectedGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/DirectedGraph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" afterPath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/core/Graph.java" afterPath="$PROJECT_DIR$/src/oarlib/core/Graph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/exceptions/NegativeCycleException.java" afterPath="$PROJECT_DIR$/src/oarlib/exceptions/NegativeCycleException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/miplog.log" afterPath="$PROJECT_DIR$/miplog.log" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ArcRoutingLibrary.iws" />
@@ -36,13 +40,75 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="WRPPSolver_Win.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java">
+      <file leaf-file-name="CommonAlgorithms.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.28195488" vertical-offset="11100" max-vertical-offset="15030">
-              <caret line="767" column="33" selection-start-line="767" selection-start-column="33" selection-end-line="767" selection-end-column="33" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="22279" max-vertical-offset="45330">
+              <caret line="959" column="0" selection-start-line="959" selection-start-column="0" selection-end-line="959" selection-end-column="0" />
               <folding>
-                <element signature="e#31545#31566#0" expanded="true" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#3621#3630#0" expanded="true" />
+                <element signature="e#3686#3695#0" expanded="true" />
+                <element signature="e#3756#3764#0" expanded="true" />
+                <element signature="e#3821#3829#0" expanded="true" />
+                <element signature="e#22527#22545#0" expanded="true" />
+                <element signature="e#22650#22668#0" expanded="true" />
+                <element signature="e#22725#22743#0" expanded="true" />
+                <element signature="e#22793#22802#0" expanded="true" />
+                <element signature="e#23923#23936#0" expanded="true" />
+                <element signature="e#24036#24049#0" expanded="true" />
+                <element signature="e#24101#24114#0" expanded="true" />
+                <element signature="e#24164#24173#0" expanded="true" />
+                <element signature="e#30305#30314#0" expanded="true" />
+                <element signature="e#34629#34638#0" expanded="true" />
+                <element signature="e#39948#39957#0" expanded="true" />
+                <element signature="e#44264#44273#0" expanded="true" />
+                <element signature="e#49753#49762#0" expanded="true" />
+                <element signature="e#54108#54117#0" expanded="true" />
+                <element signature="e#58615#58624#0" expanded="true" />
+                <element signature="e#63745#63760#0" expanded="true" />
+                <element signature="e#67022#67037#0" expanded="true" />
+                <element signature="e#71500#71515#0" expanded="true" />
+                <element signature="e#74813#74828#0" expanded="true" />
+                <element signature="e#82235#82250#0" expanded="true" />
+                <element signature="e#82665#82674#0" expanded="true" />
+                <element signature="e#84704#84719#0" expanded="true" />
+                <element signature="e#85134#85143#0" expanded="true" />
+                <element signature="e#111399#111423#0" expanded="true" />
+                <element signature="e#111479#111497#0" expanded="true" />
+                <element signature="e#111556#111572#0" expanded="true" />
+                <element signature="e#111632#111648#0" expanded="true" />
+                <element signature="e#114690#114699#0" expanded="true" />
+                <element signature="e#120165#120174#0" expanded="true" />
+                <element signature="e#125090#125114#0" expanded="true" />
+                <element signature="e#126069#126078#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ShortestPathsTestSuite.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/core/ShortestPathsTestSuite.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="3529" max-vertical-offset="6585">
+              <caret line="152" column="40" selection-start-line="152" selection-start-column="40" selection-end-line="152" selection-end-column="40" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#5842#5851#0" expanded="true" />
+                <element signature="e#9440#9449#0" expanded="true" />
+                <element signature="e#15097#15106#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Graph.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/oarlib/core/Graph.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-0.37379575" vertical-offset="1619" max-vertical-offset="4050">
+              <caret line="107" column="39" selection-start-line="107" selection-start-column="39" selection-end-line="107" selection-end-column="39" />
+              <folding>
+                <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -61,17 +127,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiMCPPSolver.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/DuplicateEdgeAugmenter.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/CostRebalancer.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/IndividualDistanceToDepotRebalancer.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWPPSolver_Benavent.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/impl/WindyGraph.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/DirectedGraphGenerator.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/MixedKWayPartitionTransform.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/MixedGraphGenerator.java" />
@@ -103,15 +158,26 @@
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" />
         <option value="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/graphgen/Util/OSM_BoundingBoxes.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
-        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/impl/DirectedGraph.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/test/test/core/GraphTestSuite.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/test/test/core/GraphGeneratorTestSuite.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/test/test/core/SingleVehicleSolverTestSuite.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
         <option value="$PROJECT_DIR$/src/oarlib/core/Graph.java" />
         <option value="$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/test/test/core/FlowAlgorithmsTestSuite.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/exceptions/NegativeCycleException.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/test/test/core/ShortestPathsTestSuite.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
+        <option value="$PROJECT_DIR$/test/core/GraphTestSuite.java" />
+        <option value="$PROJECT_DIR$/test/core/GraphGeneratorTestSuite.java" />
+        <option value="$PROJECT_DIR$/test/core/VertexTestSuite.java" />
+        <option value="$PROJECT_DIR$/test/core/FlowAlgorithmsTestSuite.java" />
+        <option value="$PROJECT_DIR$/test/core/ShortestPathsTestSuite.java" />
+        <option value="$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java" />
       </list>
     </option>
   </component>
@@ -197,11 +263,73 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="oarlib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oarlib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oarlib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="impl" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -319,6 +447,54 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="graph" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="impl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oarlib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="exceptions" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ArcRoutingLibrary" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="oarlib" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="core" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -364,7 +540,7 @@
     <property name="MemberChooser.showClasses" value="true" />
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/External Jars (Redistributable)/hamcrest-core-1.3.jar!/" />
-    <property name="options.lastSelected" value="gradle.compiler" />
+    <property name="options.lastSelected" value="preferences.pluginManager" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
@@ -387,35 +563,132 @@
       <recent name="$PROJECT_DIR$/External Jars (Redistributable)" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.GeneralTestbed">
-    <configuration default="false" name="GeneralTestbed" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="oarlib.test.GeneralTestbed" />
-      <option name="VM_PARAMETERS" value="-Xmx1024m" />
-      <option name="PROGRAM_PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+  <component name="RunManager" selected="JUnit.ShortestPathsTestSuite">
+    <configuration default="false" name="ShortestPathsTestSuite" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ArcRoutingLibrary" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="core" />
+      <option name="MAIN_CLASS_NAME" value="core.ShortestPathsTestSuite" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="ArcRoutingLibrary" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
       <envs />
+      <patterns />
       <RunnerSettings RunnerId="Debug">
         <option name="DEBUG_PORT" value="" />
         <option name="TRANSPORT" value="0" />
         <option name="LOCAL" value="true" />
       </RunnerSettings>
-      <RunnerSettings RunnerId="JProfiler">
-        <option name="WINDOW" value="false" />
+      <RunnerSettings RunnerId="Profile " />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="VertexTestSuite" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ArcRoutingLibrary" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="core" />
+      <option name="MAIN_CLASS_NAME" value="core.VertexTestSuite" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Profile " />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="FlowAlgorithmsTestSuite" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ArcRoutingLibrary" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="core" />
+      <option name="MAIN_CLASS_NAME" value="core.FlowAlgorithmsTestSuite" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Profile " />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="SingleVehicleSolverTestSuite" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ArcRoutingLibrary" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="core" />
+      <option name="MAIN_CLASS_NAME" value="core.SingleVehicleSolverTestSuite" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Profile " />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method />
+    </configuration>
+    <configuration default="false" name="ShortestPathsTestSuite.testBellmanFord" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="ArcRoutingLibrary" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" value="core" />
+      <option name="MAIN_CLASS_NAME" value="core.ShortestPathsTestSuite" />
+      <option name="METHOD_NAME" value="testBellmanFord" />
+      <option name="TEST_OBJECT" value="method" />
+      <option name="VM_PARAMETERS" value="-ea" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
       </RunnerSettings>
       <RunnerSettings RunnerId="Profile " />
       <RunnerSettings RunnerId="Run" />
-      <RunnerSettings RunnerId="Run with VisualVM" />
       <ConfigurationWrapper RunnerId="Debug" />
-      <ConfigurationWrapper RunnerId="JProfiler" />
-      <ConfigurationWrapper RunnerId="Profile " />
       <ConfigurationWrapper RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="Run with VisualVM" />
       <method />
     </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
@@ -528,6 +801,7 @@
       </option>
       <envs />
       <patterns />
+      <RunnerSettings RunnerId="Profile " />
       <method />
     </configuration>
     <configuration default="true" type="AndroidRunConfigurationType" factoryName="Android Application">
@@ -550,12 +824,20 @@
       <option name="FILTER_LOGCAT_AUTOMATICALLY" value="true" />
       <method />
     </configuration>
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="Application.GeneralTestbed" />
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="JUnit.ShortestPathsTestSuite" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.VertexTestSuite" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.FlowAlgorithmsTestSuite" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.SingleVehicleSolverTestSuite" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.ShortestPathsTestSuite.testBellmanFord" />
     </list>
     <recent_temporary>
-      <list size="1">
-        <item index="0" class="java.lang.String" itemvalue="Application.GeneralTestbed" />
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="JUnit.ShortestPathsTestSuite" />
+        <item index="1" class="java.lang.String" itemvalue="JUnit.ShortestPathsTestSuite.testBellmanFord" />
+        <item index="2" class="java.lang.String" itemvalue="JUnit.SingleVehicleSolverTestSuite" />
+        <item index="3" class="java.lang.String" itemvalue="JUnit.FlowAlgorithmsTestSuite" />
+        <item index="4" class="java.lang.String" itemvalue="JUnit.VertexTestSuite" />
       </list>
     </recent_temporary>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
@@ -650,7 +932,11 @@
       <created>1415240640653</created>
       <updated>1415240640653</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="switched off floyd-warshall in wrpp_win's eliminateredundantcycles.">
+      <created>1415743266200</created>
+      <updated>1415743266200</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -682,7 +968,7 @@
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3282532" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3282532" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33997655" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3285151" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
@@ -696,8 +982,8 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Debug with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.49941385" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3587339" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.49941385" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3587339" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -740,7 +1026,8 @@
     <MESSAGE value="Added dijkstrasForWindy in preparation for switching to dijkstras everywhere for memory reasons." />
     <MESSAGE value="switched off floyd-warshall in wrpp_benavent_H1." />
     <MESSAGE value="switched off floyd-warshall in wrpp_win's connect required components." />
-    <option name="LAST_COMMIT_MESSAGE" value="switched off floyd-warshall in wrpp_win's connect required components." />
+    <MESSAGE value="switched off floyd-warshall in wrpp_win's eliminateredundantcycles." />
+    <option name="LAST_COMMIT_MESSAGE" value="switched off floyd-warshall in wrpp_win's eliminateredundantcycles." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -750,18 +1037,6 @@
           <line>249</line>
           <properties />
           <option name="timeStamp" value="44" />
-        </line-breakpoint>
-        <line-breakpoint type="java-line">
-          <url>file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java</url>
-          <line>2284</line>
-          <properties />
-          <option name="timeStamp" value="53" />
-        </line-breakpoint>
-        <line-breakpoint type="java-line">
-          <url>file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java</url>
-          <line>2256</line>
-          <properties />
-          <option name="timeStamp" value="72" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/oarlib/graph/transform/impl/EdgeInducedSubgraphTransform.java</url>
@@ -781,11 +1056,23 @@
           <properties />
           <option name="timeStamp" value="227" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/test/core/ShortestPathsTestSuite.java</url>
+          <line>321</line>
+          <properties />
+          <option name="timeStamp" value="237" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java</url>
+          <line>1630</line>
+          <properties />
+          <option name="timeStamp" value="238" />
+        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="233" />
+      <option name="time" value="255" />
     </breakpoint-manager>
   </component>
   <component name="antWorkspaceConfiguration">
@@ -793,99 +1080,11 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3000" max-vertical-offset="15120">
-          <caret line="200" column="28" selection-start-line="200" selection-start-column="28" selection-end-line="200" selection-end-column="28" />
-          <folding>
-            <element signature="e#31545#31566#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Graph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2820" max-vertical-offset="3855">
-          <caret line="7" column="25" selection-start-line="7" selection-start-column="25" selection-end-line="7" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/vertex/impl/UndirectedVertex.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.49281314" vertical-offset="375" max-vertical-offset="1230">
-          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/CostRebalancer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.83815026" vertical-offset="75" max-vertical-offset="735">
-          <caret line="43" column="17" selection-start-line="43" selection-start-column="17" selection-end-line="43" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/rebalance/impl/IndividualDistanceToDepotRebalancer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6955684" vertical-offset="524" max-vertical-offset="1065">
-          <caret line="68" column="36" selection-start-line="68" selection-start-column="36" selection-end-line="68" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Vertex.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.5319549" vertical-offset="433" max-vertical-offset="1755">
-          <caret line="14" column="22" selection-start-line="14" selection-start-column="22" selection-end-line="14" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Link.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.24770643" vertical-offset="0" max-vertical-offset="1905">
-          <caret line="10" column="22" selection-start-line="10" selection-start-column="22" selection-end-line="10" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseDirectedKWayPartitionTransform.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33211008" vertical-offset="509" max-vertical-offset="1470">
-          <caret line="58" column="69" selection-start-line="58" selection-start-column="69" selection-end-line="58" selection-end-column="69" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseMixedKWayPartitionTransform.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3045977" vertical-offset="591" max-vertical-offset="1440">
-          <caret line="64" column="31" selection-start-line="64" selection-start-column="31" selection-end-line="64" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/transform/partition/impl/PreciseUndirectedKWayPartitionTransform.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33211008" vertical-offset="509" max-vertical-offset="1470">
-          <caret line="58" column="70" selection-start-line="58" selection-start-column="70" selection-end-line="58" selection-end-column="70" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/DirectedGraphGenerator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33834586" vertical-offset="165" max-vertical-offset="2100">
-          <caret line="34" column="20" selection-start-line="34" selection-start-column="20" selection-end-line="34" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33270678" vertical-offset="5718" max-vertical-offset="7590">
           <caret line="405" column="69" selection-start-line="405" selection-start-column="69" selection-end-line="405" selection-end-column="69" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/MixedGraphGenerator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.16353384" vertical-offset="363" max-vertical-offset="2625">
-          <caret line="41" column="28" selection-start-line="41" selection-start-column="28" selection-end-line="41" selection-end-column="28" />
         </state>
       </provider>
     </entry>
@@ -903,6 +1102,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.4972477" vertical-offset="1664" max-vertical-offset="3210">
           <caret line="151" column="17" selection-start-line="151" selection-start-column="17" selection-end-line="151" selection-end-column="17" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -910,13 +1110,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.027522936" vertical-offset="615" max-vertical-offset="1980">
           <caret line="56" column="29" selection-start-line="56" selection-start-column="29" selection-end-line="56" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/WindyGraphGenerator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33270678" vertical-offset="288" max-vertical-offset="1995">
-          <caret line="41" column="27" selection-start-line="41" selection-start-column="27" selection-end-line="41" selection-end-column="27" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -939,6 +1133,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.34774068" vertical-offset="2673" max-vertical-offset="5100">
           <caret line="233" column="95" selection-start-line="233" selection-start-column="95" selection-end-line="233" selection-end-column="95" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -961,6 +1156,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.027522936" vertical-offset="645" max-vertical-offset="2670">
           <caret line="61" column="28" selection-start-line="61" selection-start-column="28" selection-end-line="61" selection-end-column="28" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -976,6 +1172,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.30458716" vertical-offset="3944" max-vertical-offset="4920">
           <caret line="288" column="30" selection-start-line="288" selection-start-column="30" selection-end-line="288" selection-end-column="30" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1013,6 +1210,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33333334" vertical-offset="816" max-vertical-offset="1950">
           <caret line="78" column="68" selection-start-line="78" selection-start-column="68" selection-end-line="78" selection-end-column="68" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1020,6 +1218,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33211008" vertical-offset="1799" max-vertical-offset="3330">
           <caret line="157" column="8" selection-start-line="157" selection-start-column="8" selection-end-line="157" selection-end-column="8" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1049,6 +1248,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.24770643" vertical-offset="0" max-vertical-offset="690">
           <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1090,40 +1290,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Graph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.3242188" vertical-offset="3328" max-vertical-offset="3840">
-          <caret line="6" column="28" selection-start-line="6" selection-start-column="28" selection-end-line="6" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.9882812" vertical-offset="0" max-vertical-offset="3255">
-          <caret line="108" column="54" selection-start-line="108" selection-start-column="54" selection-end-line="108" selection-end-column="54" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.84586465" vertical-offset="3525" max-vertical-offset="18000">
-          <caret line="296" column="70" selection-start-line="296" selection-start-column="70" selection-end-line="296" selection-end-column="70" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7956778" vertical-offset="0" max-vertical-offset="2850">
-          <caret line="41" column="93" selection-start-line="41" selection-start-column="93" selection-end-line="41" selection-end-column="93" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/UndirectedGraph.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="3.1316307" vertical-offset="71" max-vertical-offset="1890">
@@ -1148,14 +1314,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.31766918" vertical-offset="28706" max-vertical-offset="40770">
-          <caret line="1944" column="23" selection-start-line="1944" selection-start-column="23" selection-end-line="1944" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.7449541" vertical-offset="2939" max-vertical-offset="4935">
@@ -1174,12 +1332,206 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/MixedGraph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="4.5658154" vertical-offset="271" max-vertical-offset="2850">
+          <caret line="191" column="21" selection-start-line="191" selection-start-column="21" selection-end-line="191" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/MixedGraphGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.237721" vertical-offset="720" max-vertical-offset="2625">
+          <caret line="14" column="11" selection-start-line="14" selection-start-column="11" selection-end-line="14" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/impl/MutableGraph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33333334" vertical-offset="1611" max-vertical-offset="3465">
+          <caret line="125" column="16" selection-start-line="125" selection-start-column="16" selection-end-line="125" selection-end-column="16" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/exceptions/NegativeCycleException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8333333" vertical-offset="210" max-vertical-offset="780">
+          <caret line="45" column="60" selection-start-line="45" selection-start-column="60" selection-end-line="45" selection-end-column="60" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.1552795" vertical-offset="15" max-vertical-offset="14430">
+          <caret line="37" column="0" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.28195488" vertical-offset="11100" max-vertical-offset="15030">
-          <caret line="767" column="33" selection-start-line="767" selection-start-column="33" selection-end-line="767" selection-end-column="33" />
+        <state vertical-scroll-proportion="0.124223605" vertical-offset="11025" max-vertical-offset="15030">
+          <caret line="756" column="29" selection-start-line="756" selection-start-column="29" selection-end-line="756" selection-end-column="52" />
           <folding>
             <element signature="e#31545#31566#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/GraphGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33333334" vertical-offset="607" max-vertical-offset="1875">
+          <caret line="56" column="23" selection-start-line="56" selection-start-column="23" selection-end-line="56" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/core/VertexTestSuite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.0057805" vertical-offset="1356" max-vertical-offset="1875">
+          <caret line="35" column="72" selection-start-line="35" selection-start-column="72" selection-end-line="35" selection-end-column="72" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/core/FlowAlgorithmsTestSuite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7976879" vertical-offset="516" max-vertical-offset="1125">
+          <caret line="62" column="44" selection-start-line="62" selection-start-column="44" selection-end-line="62" selection-end-column="44" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/core/GraphGeneratorTestSuite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.2138728" vertical-offset="0" max-vertical-offset="945">
+          <caret line="53" column="35" selection-start-line="53" selection-start-column="35" selection-end-line="53" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/core/GraphTestSuite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.0867052" vertical-offset="1326" max-vertical-offset="2250">
+          <caret line="137" column="49" selection-start-line="137" selection-start-column="49" selection-end-line="137" selection-end-column="49" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/core/LinkTestSuite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.115606934" vertical-offset="45" max-vertical-offset="1440">
+          <caret line="17" column="13" selection-start-line="17" selection-start-column="13" selection-end-line="17" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/core/SingleVehicleSolverTestSuite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3102767" vertical-offset="2843" max-vertical-offset="4215">
+          <caret line="200" column="43" selection-start-line="200" selection-start-column="43" selection-end-line="200" selection-end-column="43" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/IndexedRecord.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33271027" vertical-offset="77" max-vertical-offset="1110">
+          <caret line="18" column="11" selection-start-line="18" selection-start-column="11" selection-end-line="18" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/DirectedGraphGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.25862068" vertical-offset="0" max-vertical-offset="2100">
+          <caret line="19" column="25" selection-start-line="19" selection-start-column="25" selection-end-line="19" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/graphgen/WindyGraphGenerator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.057471264" vertical-offset="105" max-vertical-offset="1995">
+          <caret line="18" column="22" selection-start-line="18" selection-start-column="22" selection-end-line="18" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/graph/util/CommonAlgorithms.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="22279" max-vertical-offset="45330">
+          <caret line="959" column="0" selection-start-line="959" selection-start-column="0" selection-end-line="959" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#3621#3630#0" expanded="true" />
+            <element signature="e#3686#3695#0" expanded="true" />
+            <element signature="e#3756#3764#0" expanded="true" />
+            <element signature="e#3821#3829#0" expanded="true" />
+            <element signature="e#22527#22545#0" expanded="true" />
+            <element signature="e#22650#22668#0" expanded="true" />
+            <element signature="e#22725#22743#0" expanded="true" />
+            <element signature="e#22793#22802#0" expanded="true" />
+            <element signature="e#23923#23936#0" expanded="true" />
+            <element signature="e#24036#24049#0" expanded="true" />
+            <element signature="e#24101#24114#0" expanded="true" />
+            <element signature="e#24164#24173#0" expanded="true" />
+            <element signature="e#30305#30314#0" expanded="true" />
+            <element signature="e#34629#34638#0" expanded="true" />
+            <element signature="e#39948#39957#0" expanded="true" />
+            <element signature="e#44264#44273#0" expanded="true" />
+            <element signature="e#49753#49762#0" expanded="true" />
+            <element signature="e#54108#54117#0" expanded="true" />
+            <element signature="e#58615#58624#0" expanded="true" />
+            <element signature="e#63745#63760#0" expanded="true" />
+            <element signature="e#67022#67037#0" expanded="true" />
+            <element signature="e#71500#71515#0" expanded="true" />
+            <element signature="e#74813#74828#0" expanded="true" />
+            <element signature="e#82235#82250#0" expanded="true" />
+            <element signature="e#82665#82674#0" expanded="true" />
+            <element signature="e#84704#84719#0" expanded="true" />
+            <element signature="e#85134#85143#0" expanded="true" />
+            <element signature="e#111399#111423#0" expanded="true" />
+            <element signature="e#111479#111497#0" expanded="true" />
+            <element signature="e#111556#111572#0" expanded="true" />
+            <element signature="e#111632#111648#0" expanded="true" />
+            <element signature="e#114690#114699#0" expanded="true" />
+            <element signature="e#120165#120174#0" expanded="true" />
+            <element signature="e#125090#125114#0" expanded="true" />
+            <element signature="e#126069#126078#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/core/ShortestPathsTestSuite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="3529" max-vertical-offset="6585">
+          <caret line="152" column="40" selection-start-line="152" selection-start-column="40" selection-end-line="152" selection-end-column="40" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#5842#5851#0" expanded="true" />
+            <element signature="e#9440#9449#0" expanded="true" />
+            <element signature="e#15097#15106#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/oarlib/core/Graph.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.37379575" vertical-offset="1619" max-vertical-offset="4050">
+          <caret line="107" column="39" selection-start-line="107" selection-start-column="39" selection-end-line="107" selection-end-column="39" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>

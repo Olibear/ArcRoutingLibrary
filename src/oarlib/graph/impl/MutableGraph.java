@@ -154,6 +154,13 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     }
 
     @Override
+    public E getEdge(int i) {
+        if (!mInternalEdgeMap.containsKey(i))
+            throw new IllegalArgumentException("The link with this id does not appear to exist in this graph.");
+        return mInternalEdgeMap.get(i);
+    }
+
+    @Override
     public void changeLinkId(int oldId, int newId) throws IllegalArgumentException {
         if (!mInternalEdgeMap.containsKey(oldId))
             throw new IllegalArgumentException("No link with the oldId specified exists in this graph.");
@@ -178,6 +185,13 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     @Override
     public void addVertex() {
         this.addVertex(this.constructVertex(""));
+    }
+
+    @Override
+    public V getVertex(int i) {
+        if(!mInternalVertexMap.containsKey(i))
+            throw new IllegalArgumentException("No vertex with the specified id exists in this graph.");
+        return mInternalVertexMap.get(i);
     }
 
 

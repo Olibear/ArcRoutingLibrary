@@ -103,6 +103,13 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     public abstract void addVertex();
 
     /**
+     * To query for a specific vertex in the graph, as opposed to having to create another local duplicate map.
+     * @param i - the id in the internal map of the graph for the desired vertex
+     * @return - the appropriate vertex
+     */
+    public abstract V getVertex(int i) throws IllegalArgumentException;
+
+    /**
      * To add an edge to the graph.  This updates the degrees of the vertices, and throws to the specific implementation of the graph.
      * Throws an InvalidEndpointsException if the endpoints haven't yet been added to the graph.
      *
@@ -175,6 +182,13 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
      * @throws IllegalArgumentException
      */
     public abstract void removeEdge(int i) throws IllegalArgumentException;
+
+    /**
+     * To query for a specific link in the graph, as opposed to having to create another local duplicate map.
+     * @param i - the internal id of the desired edge
+     * @throws IllegalArgumentException
+     */
+    public abstract E getEdge(int i) throws IllegalArgumentException;
 
     /**
      * To change the id of a link in the graph
