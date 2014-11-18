@@ -1,6 +1,8 @@
 package oarlib.core;
 
 import oarlib.exceptions.GraphInfeasibleException;
+import oarlib.problem.impl.MultiVehicleProblem;
+import org.apache.log4j.Logger;
 
 import java.util.Collection;
 
@@ -9,6 +11,8 @@ import java.util.Collection;
  * Created by Oliver Lum on 7/25/2014.
  */
 public abstract class MultiVehicleSolver {
+
+    private static final Logger LOGGER = Logger.getLogger(MultiVehicleSolver.class);
 
     protected Collection<Route> currSol;
 
@@ -19,7 +23,7 @@ public abstract class MultiVehicleSolver {
      */
     protected MultiVehicleSolver(MultiVehicleProblem instance) throws IllegalArgumentException {
         //make sure I'm a valid problem instance
-        if (!(instance.getType() == getProblemType())) {
+        if (!(instance.getProblemType() == getProblemType())) {
             throw new IllegalArgumentException("It appears that this problem does not match the problem type handled by this solver.");
         }
 
@@ -75,11 +79,11 @@ public abstract class MultiVehicleSolver {
             //run gpmetis
             String[] args1 = {"/Users/oliverlum/Downloads/metis-5.1.0/build/Darwin-x86_64/programs/gpmetis", filename, "" + numParts, "-contig", "-minconn", "-niter=1000", "-ncuts=1000", "-ufactor=1"};
             Runtime r = Runtime.getRuntime();
-            System.out.println("Start");
+            LOGGER.debug("Start");
             Process p = r.exec(args1);
             p.waitFor();
             int exitVal = p.exitValue();
-            System.out.println("Stop " + exitVal);
+            LOGGER.debug("Stop " + exitVal);
         } catch (Exception e) {
             e.printStackTrace();
         }

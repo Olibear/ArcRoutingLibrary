@@ -1,7 +1,10 @@
 package oarlib.graph.transform.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.*;
+import oarlib.core.Factory;
+import oarlib.core.Graph;
+import oarlib.core.Link;
+import oarlib.core.Vertex;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.GraphTransformer;
 import oarlib.link.impl.WindyEdge;

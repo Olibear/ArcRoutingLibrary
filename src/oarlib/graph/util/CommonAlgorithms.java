@@ -22,11 +22,13 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
 public class CommonAlgorithms {
 
+    private static final Logger LOGGER = Logger.getLogger(CommonAlgorithms.class);
     /**
      * Hierholzer's algorithm for determining an Euler tour through an directed Eulerian graph.
      *
@@ -705,7 +707,7 @@ public class CommonAlgorithms {
             if (v.getDelta() != 0)
                 return false;
             if (v.getDegree() == 0 && v.getInDegree() == 0) {
-                System.out.println("There's something wrong; a vertex is completely detached from the rest of the graph.");
+                LOGGER.warn("There's something wrong; a vertex is completely detached from the rest of the graph.");
                 return false;
             }
         }
@@ -832,7 +834,8 @@ public class CommonAlgorithms {
             do {
                 next = path[end];
                 problemPath.add(next);
-                problemEdgePath.add(edgePath[end]);
+                if (recordEdgePath)
+                    problemEdgePath.add(edgePath[end]);
                 counter++;
                 if (counter > n) {
                     continueSearching = true;
@@ -840,8 +843,8 @@ public class CommonAlgorithms {
                 }
             } while ((end = next) != start);
 
-            if(!continueSearching)
-                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+            if (!continueSearching)
+                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
         }
     }
 
@@ -947,7 +950,8 @@ public class CommonAlgorithms {
             do {
                 next = path[end];
                 problemPath.add(next);
-                problemEdgePath.add(edgePath[end]);
+                if (recordEdgePath)
+                    problemEdgePath.add(edgePath[end]);
                 counter++;
                 if (counter > n) {
                     continueSearching = true;
@@ -955,8 +959,8 @@ public class CommonAlgorithms {
                 }
             } while ((end = next) != start);
 
-            if(!continueSearching)
-                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+            if (!continueSearching)
+                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
 
         }
 
@@ -1058,7 +1062,7 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if(counter > lim)
+            if (counter > lim)
                 break;
         }
 
@@ -1085,7 +1089,8 @@ public class CommonAlgorithms {
             do {
                 next = path[end];
                 problemPath.add(next);
-                problemEdgePath.add(edgePath[end]);
+                if (recordEdgePath)
+                    problemEdgePath.add(edgePath[end]);
                 counter++;
                 if (counter > n) {
                     continueSearching = true;
@@ -1093,8 +1098,8 @@ public class CommonAlgorithms {
                 }
             } while ((end = next) != start);
 
-            if(!continueSearching)
-                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+            if (!continueSearching)
+                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
         }
     }
 
@@ -1177,7 +1182,7 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if(counter > lim)
+            if (counter > lim)
                 break;
         }
 
@@ -1204,7 +1209,8 @@ public class CommonAlgorithms {
             do {
                 next = path[end];
                 problemPath.add(next);
-                problemEdgePath.add(edgePath[end]);
+                if (recordEdgePath)
+                    problemEdgePath.add(edgePath[end]);
                 counter++;
                 if (counter > n) {
                     continueSearching = true;
@@ -1212,8 +1218,8 @@ public class CommonAlgorithms {
                 }
             } while ((end = next) != start);
 
-            if(!continueSearching)
-                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+            if (!continueSearching)
+                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
         }
 
     }
@@ -1314,7 +1320,7 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if(counter > lim)
+            if (counter > lim)
                 break;
         }
 
@@ -1341,7 +1347,8 @@ public class CommonAlgorithms {
             do {
                 next = path[end];
                 problemPath.add(next);
-                problemEdgePath.add(edgePath[end]);
+                if (recordEdgePath)
+                    problemEdgePath.add(edgePath[end]);
                 counter++;
                 if (counter > n) {
                     continueSearching = true;
@@ -1349,8 +1356,8 @@ public class CommonAlgorithms {
                 }
             } while ((end = next) != start);
 
-            if(!continueSearching)
-                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+            if (!continueSearching)
+                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
 
         }
     }
@@ -1436,7 +1443,7 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if(counter > lim)
+            if (counter > lim)
                 break;
         }
 
@@ -1463,7 +1470,8 @@ public class CommonAlgorithms {
             do {
                 next = path[end];
                 problemPath.add(next);
-                problemEdgePath.add(edgePath[end]);
+                if (recordEdgePath)
+                    problemEdgePath.add(edgePath[end]);
                 counter++;
                 if (counter > n) {
                     continueSearching = true;
@@ -1472,7 +1480,7 @@ public class CommonAlgorithms {
             } while ((end = next) != start);
 
             if (!continueSearching)
-                throw new NegativeCycleException(p, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
         }
 
     }

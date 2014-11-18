@@ -2,10 +2,10 @@ package oarlib.graph.impl;
 
 import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.Arc;
 import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
+import oarlib.link.impl.Arc;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;
@@ -15,7 +15,6 @@ import java.util.List;
 /**
  * Reperesentation of a Directed Graph; that is, it can only contain arcs, and directed vertices
  *
- * @param <A> Arc that this graph will use
  * @author Oliver
  */
 public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {

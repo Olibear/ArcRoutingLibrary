@@ -2,9 +2,9 @@ package oarlib.graph.transform.rebalance;
 
 import oarlib.core.Graph;
 import oarlib.core.Link;
-import oarlib.link.impl.WindyEdge;
 import oarlib.exceptions.FormatMismatchException;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.link.impl.WindyEdge;
 
 import java.util.HashMap;
 

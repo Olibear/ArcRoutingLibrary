@@ -8,13 +8,18 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.IndexedRecord;
 import oarlib.link.impl.Arc;
-import oarlib.problem.impl.MultiVehicleWRPP;
-import oarlib.problem.impl.WindyRPP;
+import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
+import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
+import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by oliverlum on 10/17/14.
@@ -24,6 +29,8 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
     MultiVehicleWRPP mInstance;
     WindyGraph mGraph;
     String mInstanceName;
+
+    private static final Logger LOGGER = Logger.getLogger(MultiWRPPSolver_Benavent.class);
 
     /**
      * Default constructor; must set problem instance.
@@ -75,7 +82,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
             gd.export(GraphDisplay.ExportType.PDF);
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error displaying graph.");
+            LOGGER.error("Error displaying graph.");
         }
 
         /*
@@ -86,12 +93,12 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
         return multiAns;
     }
 
-    private Collection<Route> splitRoute(Route singleAns) {
+    private Collection<Route> splitRoute(Route<DirectedVertex, Arc> singleAns) {
 
         try {
             //Compile the ordered list of required edges.
             ArrayList<Arc> orderedReqEdges = new ArrayList<Arc>();
-            for (Link<? extends Vertex> arc : singleAns.getRoute()) {
+            for (Arc arc : singleAns.getRoute()) {
                 if (arc.isRequired())
                     orderedReqEdges.add((Arc) arc);
             }
@@ -162,11 +169,10 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
             int counter = 0;
             int singleRouteCounter = 0;
             int curr, next, end, cost;
-            List<? extends Link<? extends Vertex>> singleRoute = singleAns.getRoute();
-            Link<? extends Vertex> linkToAdd;
+            List<Arc> singleRoute = singleAns.getRoute();
+            Arc linkToAdd;
             TIntObjectHashMap<WindyVertex> mVertices = mGraph.getInternalVertexMap();
             do {
-                //DirectedGraph toAddGraph = new DirectedGraph(mGraph.getVertices().size(), mGraph.getDepotId());
                 DirectedGraph toAddGraph = new DirectedGraph();
                 toAddGraph.setDepotId(mGraph.getDepotId());
                 for (int i = 1; i <= n; i++) {

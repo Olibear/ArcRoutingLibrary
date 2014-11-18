@@ -2,14 +2,16 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
-import oarlib.core.*;
+import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
+import oarlib.core.Route;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.WindyCPP;
+import oarlib.problem.impl.cpp.WindyCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;
 
@@ -202,21 +204,14 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver {
                     numFractional++;
                 }
             }
-            System.out.println(numFractional);
-            System.out.println("REALTALK TIME: " + time);
-            //return the answer
-            //ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
-            Tour eulerTour = new Tour();
-            //for (int i=0;i<ans.size();i++)
-            //{
-            //eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
-            //}
 
+            //return the answer
+            //Tour eulerTour = new Tour();
 
             //print the obj value.
             System.out.println(model.get(GRB.DoubleAttr.ObjVal));
 
-            return eulerTour;
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

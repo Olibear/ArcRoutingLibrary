@@ -1,8 +1,9 @@
-package oarlib.problem.impl;
+package oarlib.problem.impl.rpp;
 
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.problem.impl.RuralPostmanProblem;
 
 import java.util.Collection;
 
@@ -11,16 +12,14 @@ import java.util.Collection;
  *
  * @author oliverlum
  */
-public class DirectedRPP extends Problem {
-
-    private DirectedGraph mGraph;
+public class DirectedRPP extends RuralPostmanProblem<DirectedGraph> {
 
     public DirectedRPP(DirectedGraph g) {
         this(g, "");
     }
 
     public DirectedRPP(DirectedGraph g, String name) {
-        super(name);
+        super(g, name);
         mGraph = g;
     }
 
@@ -31,13 +30,8 @@ public class DirectedRPP extends Problem {
     }
 
     @Override
-    public Type getType() {
+    public Type getProblemType() {
         return Problem.Type.DIRECTED_RURAL_POSTMAN;
-    }
-
-    @Override
-    public DirectedGraph getGraph() {
-        return mGraph;
     }
 
 }

@@ -3,6 +3,7 @@ package oarlib.solver.impl;
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.core.Problem.Type;
+import oarlib.exceptions.NegativeCycleException;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
@@ -11,17 +12,20 @@ import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.WindyRPP;
+import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
 public class WRPPSolver_Win extends SingleVehicleSolver {
 
     WindyRPP mInstance;
+
+    private static final Logger LOGGER = Logger.getLogger(WRPPSolver_Win.class);
 
     public WRPPSolver_Win(WindyRPP instance) throws IllegalArgumentException {
         super(instance);
@@ -227,8 +231,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
      */
     public static void eliminateRedundantCycles(DirectedGraph ans, WindyGraph windyReq, WindyGraph orig) {
         try {
-			/*
-			 * Improvement Procedure 1
+            /*
+             * Improvement Procedure 1
 			 * Look for two-vertex cycles, and eliminate them.
 			 */
             TIntObjectHashMap<DirectedVertex> ansVertices = ans.getInternalVertexMap();
@@ -456,7 +460,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                         //add the shortest path from startId to endId
                         curr = startId;
                         end = endId;
-                        if(curr != end) {
+                        if (curr != end) {
                             do {
                                 next = path[end];
                                 nextEdge = edgePath[end];
@@ -480,7 +484,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                     //add the shortest path from startId to endId
                     curr = startId;
                     end = endId;
-                    if(curr != end) {
+                    if (curr != end) {
                         do {
                             next = path[end];
                             nextEdge = edgePath[end];
@@ -506,7 +510,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                         //add the shortest path from startId to endId
                         curr = startId;
                         end = endId;
-                        if(curr != end) {
+                        if (curr != end) {
                             do {
                                 next = path[end];
                                 nextEdge = edgePath[end];
@@ -631,7 +635,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
 
             //should be done now
             if (!CommonAlgorithms.isEulerian(ans)) {
-                System.out.println("The flow augmentation failed."); //should never happen
+                LOGGER.error("The flow augmentation failed."); //should never happen
                 CommonAlgorithms.isEulerian(ans);
             }
 
@@ -641,7 +645,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             for (Arc a : arcSet) {
                 cost += a.getCost();
             }
-            System.out.println("Cost is: " + cost);
+            LOGGER.debug("Cost is: " + cost);
 
             return ans;
 
@@ -687,7 +691,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             HashMap<Pair<Integer>, Edge> traverseIj = new HashMap<Pair<Integer>, Edge>(); //key is (i,j) where i < j, and value is true if the shortest average path cost is i to j, false if it's j to i
             Pair<Integer> candidateKey;
             for (UndirectedVertex v : oddVertices) {
-                CommonAlgorithms.dijkstrasAlgorithm(fullGraph,v.getMatchId(),dist,path,edgePath);
+                CommonAlgorithms.dijkstrasAlgorithm(fullGraph, v.getMatchId(), dist, path, edgePath);
                 for (UndirectedVertex v2 : oddVertices) {
                     //only add one edge per pair of vertices
                     if (v.getId() == v2.getId())
@@ -701,7 +705,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                 }
             }
 
-            for(Edge e: traverseIj.values())
+            for (Edge e : traverseIj.values())
                 matchingGraph.addEdge(e);
 
             Set<Pair<UndirectedVertex>> matchingSolution = CommonAlgorithms.minCostMatching(matchingGraph);
@@ -733,7 +737,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
 
             //should be Eulerian now
             if (!CommonAlgorithms.isEulerian(g))
-                System.out.println("The UCPP augmentation failed.");
+                LOGGER.error("The UCPP augmentation failed.");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -752,97 +756,96 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                 realIds[i] = i;
             }
 
-            int[][] dist = new int[n + 1][n + 1];
-            int[][] path = new int[n + 1][n + 1];
-            int[][] edgePath = new int[n + 1][n + 1];
+            int[] dist;
+            int[] path;
+            int[] edgePath;
             boolean foundImprovement = true;
-            int curr, end, next, maxFlow;
+            int maxFlow;
             TIntObjectHashMap<Arc> flowArcs = copy.getInternalEdgeMap();
             Arc temp, temp2;
             while (foundImprovement) {
                 foundImprovement = false;
-                dist = new int[n + 1][n + 1];
-                path = new int[n + 1][n + 1];
-                edgePath = new int[n + 1][n + 1];
+                dist = new int[n + 1];
+                path = new int[n + 1];
+                edgePath = new int[n + 1];
 
-                CommonAlgorithms.fwLeastCostPaths(copy, dist, path, edgePath);
-                for (int i = 1; i <= n; i++) {
-                    if (dist[i][i] < 0) {
-                        foundImprovement = true;
+                try {
+                    CommonAlgorithms.slfShortestPaths(copy, copy.getDepotId(), dist, path, edgePath);
+                } catch (NegativeCycleException e) {
 
-                        curr = i;
-                        end = i;
-                        maxFlow = Integer.MAX_VALUE;
-                        //calculate max flow we can push
-                        do {
-                            next = path[curr][end];
-                            temp = flowArcs.get(edgePath[curr][next]);
-                            if (temp.getCapacity() < maxFlow) {
-                                maxFlow = temp.getCapacity();
+                    foundImprovement = true;
+
+                    maxFlow = Integer.MAX_VALUE;
+                    //calculate max flow we can push
+                    int lim = e.getViolatingEdgePath().length;
+                    int[] problemEdgePath = e.getViolatingEdgePath();
+                    for (int i = 0; i < lim; i++) {
+                        temp = flowArcs.get(problemEdgePath[i]);
+                        if (temp.getCapacity() < maxFlow) {
+                            maxFlow = temp.getCapacity();
+                        }
+                    }
+
+                    //push it and manage residuals
+                    for (int i = 0; i < lim; i++) {
+                        //next = path[curr][end];
+                        temp = flowArcs.get(problemEdgePath[i]);
+
+                        if (artIds[temp.getMatchId()] == temp.getId()) // if we're artificial
+                        {
+                            ans[temp.getMatchId()] -= maxFlow;
+                            //if we don't have a real arc corresponding to this, then add one
+                            if (realIds[temp.getMatchId()] == 0) {
+                                temp2 = new Arc("real insertion", new Pair<DirectedVertex>(temp.getHead(), temp.getTail()), -temp.getCost());
+                                temp2.setCapacity(maxFlow);
+                                copy.addEdge(temp2, temp.getMatchId());
+                                realIds[temp.getMatchId()] = temp2.getId();
                             }
-                        } while ((curr = next) != end);
+                            //if we do have a real arc, update its capacity
+                            else {
+                                temp2 = flowArcs.get(realIds[temp.getMatchId()]);
+                                if (temp2.isCapacitySet())
+                                    temp2.setCapacity(temp2.getCapacity() + maxFlow);
+                            }
 
-                        curr = i;
-                        end = i;
-                        //push it and manage residuals
-                        do {
-                            next = path[curr][end];
-                            temp = flowArcs.get(edgePath[curr][next]);
+                            //update capacities
+                            temp.setCapacity(temp.getCapacity() - maxFlow);
+                            //remove if the capcity is zero
+                            if (temp.getCapacity() == 0) {
+                                artIds[temp.getMatchId()] = 0;
+                                copy.removeEdge(temp);
+                            }
+                        } else if (realIds[temp.getMatchId()] == temp.getId())//we're real
+                        {
+                            ans[temp.getMatchId()] += maxFlow;
+                            //if  we don't have an artificial arc corresponding to this, then add one
+                            if (artIds[temp.getMatchId()] == 0) {
+                                temp2 = new Arc("real insertion", new Pair<DirectedVertex>(temp.getHead(), temp.getTail()), -temp.getCost());
+                                temp2.setCapacity(maxFlow);
+                                copy.addEdge(temp2, temp.getMatchId());
+                                artIds[temp.getMatchId()] = temp2.getId();
+                            } else {
+                                temp2 = flowArcs.get(artIds[temp.getMatchId()]);
+                                temp2.setCapacity(temp2.getCapacity() + maxFlow);
+                            }
 
-                            if (artIds[temp.getMatchId()] == temp.getId()) // if we're artificial
+                            //update capacity of temp
+                            if (temp.isCapacitySet())//if no capacity set, then we assume infinite capacity
                             {
-                                ans[temp.getMatchId()] -= maxFlow;
-                                //if we don't have a real arc corresponding to this, then add one
-                                if (realIds[temp.getMatchId()] == 0) {
-                                    temp2 = new Arc("real insertion", new Pair<DirectedVertex>(temp.getHead(), temp.getTail()), -temp.getCost());
-                                    temp2.setCapacity(maxFlow);
-                                    copy.addEdge(temp2, temp.getMatchId());
-                                    realIds[temp.getMatchId()] = temp2.getId();
-                                }
-                                //if we do have a real arc, update its capacity
-                                else {
-                                    temp2 = flowArcs.get(realIds[temp.getMatchId()]);
-                                    if (temp2.isCapacitySet())
-                                        temp2.setCapacity(temp2.getCapacity() + maxFlow);
-                                }
-
-                                //update capacities
                                 temp.setCapacity(temp.getCapacity() - maxFlow);
                                 //remove if the capcity is zero
                                 if (temp.getCapacity() == 0) {
-                                    artIds[temp.getMatchId()] = 0;
+                                    realIds[temp.getMatchId()] = 0;
                                     copy.removeEdge(temp);
                                 }
-                            } else if (realIds[temp.getMatchId()] == temp.getId())//we're real
-                            {
-                                ans[temp.getMatchId()] += maxFlow;
-                                //if  we don't have an artificial arc corresponding to this, then add one
-                                if (artIds[temp.getMatchId()] == 0) {
-                                    temp2 = new Arc("real insertion", new Pair<DirectedVertex>(temp.getHead(), temp.getTail()), -temp.getCost());
-                                    temp2.setCapacity(maxFlow);
-                                    copy.addEdge(temp2, temp.getMatchId());
-                                    artIds[temp.getMatchId()] = temp2.getId();
-                                } else {
-                                    temp2 = flowArcs.get(artIds[temp.getMatchId()]);
-                                    temp2.setCapacity(temp2.getCapacity() + maxFlow);
-                                }
-
-                                //update capacity of temp
-                                if (temp.isCapacitySet())//if no capacity set, then we assume infinite capacity
-                                {
-                                    temp.setCapacity(temp.getCapacity() - maxFlow);
-                                    //remove if the capcity is zero
-                                    if (temp.getCapacity() == 0) {
-                                        realIds[temp.getMatchId()] = 0;
-                                        copy.removeEdge(temp);
-                                    }
-                                }
-                            } else {
-                                System.out.println("BADDD");
                             }
-                        } while ((curr = next) != end);
-
+                        } else {
+                            LOGGER.error("BADDD: In the third improvement procedure for Benavent's Solver, we have a flow arc that " +
+                                    "isn't recognized as real or artificial.");
+                        }
                     }
+
+
                 }
             }
 
@@ -885,33 +888,12 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                         reqIndices.remove(we.getId());
                     }
                 } else
-                    System.out.println("BAD"); //wut
+                    LOGGER.debug("We've got an edge that doesn't correspond to a link in the original graph...this is bad"); //wut
             }
             if (!foundCopy)
                 return false;
         }
         return reqIndices.size() <= 0;
-    }
-
-    private static double calculateAveragePathCost(WindyGraph g, int i, int j, int[][] path, int[][] edgePath) {
-        int curr, end, next, ans;
-        curr = i;
-        end = j;
-        ans = 0;
-        WindyEdge temp;
-        TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
-        do {
-            next = path[curr][end];
-            temp = indexedWindyEdges.get(edgePath[curr][end]);
-            if (temp == null) {
-                int edgeId = edgePath[curr][end];
-                int nextVertex = path[curr][end];
-                boolean sccs = CommonAlgorithms.isConnected(g);
-                System.out.println("Debug");
-            }
-            ans += temp.getCost() + temp.getReverseCost();
-        } while ((curr = next) != end);
-        return ans / 2.0;
     }
 
     private static double calculateAveragePathCost(WindyGraph g, int i, int j, int[] path, int[] edgePath) {
@@ -927,6 +909,48 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             ans += temp.getCost() + temp.getReverseCost();
         } while ((end = next) != start);
         return ans / 2.0;
+    }
+
+    public static Tour reclaimTour(Tour directedAns, WindyGraph g) {
+
+        Tour ans = new Tour();
+
+        List<? extends Link<? extends Vertex>> path = directedAns.getRoute();
+        List<WindyEdge> candidates;
+        int n = path.size();
+        int firstId, secondId, traversalCost;
+        boolean foundIt;
+
+        for(int i = 0; i < n; i++) {
+
+            Link<? extends Vertex> l = path.get(i);
+            firstId = l.getEndpoints().getFirst().getId();
+            secondId = l.getEndpoints().getSecond().getId();
+            traversalCost = l.getCost();
+            foundIt = false;
+
+            candidates = g.getVertex(firstId).getNeighbors().get(g.getVertex(secondId));
+
+            for(WindyEdge l2: candidates) {
+                if(l2.getEndpoints().getFirst().getId() == firstId && traversalCost == l2.getCost()) {
+                    ans.appendEdge(l2);
+                    foundIt = true;
+                    break;
+                }
+                else if(l2.getEndpoints().getFirst().getId() == secondId && traversalCost == l2.getReverseCost()) {
+                    ans.appendEdge(l2);
+                    foundIt = true;
+                    break;
+                }
+                if(!foundIt) {
+                    LOGGER.debug("It seems as though this solution is invalid(?)");
+                    return null;
+                }
+            }
+        }
+
+        return ans;
+
     }
 
     @Override
@@ -960,7 +984,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             //return the answer
             ArrayList<Integer> tour;
             tour = CommonAlgorithms.tryHierholzer(ans);
-            Tour eulerTour = new Tour();
+            Tour<DirectedVertex, Arc> eulerTour = new Tour<DirectedVertex, Arc>();
             TIntObjectHashMap<Arc> indexedEdges = ans.getInternalEdgeMap();
             for (int i = 0; i < tour.size(); i++) {
                 eulerTour.appendEdge(indexedEdges.get(tour.get(i)));

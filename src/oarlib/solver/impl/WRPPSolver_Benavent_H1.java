@@ -1,8 +1,10 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.*;
+import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
+import oarlib.core.Route;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -12,7 +14,7 @@ import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.WindyRPP;
+import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -94,7 +96,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
                 }
             }
 
-            for(Edge e: traverseIj.values())
+            for (Edge e : traverseIj.values())
                 matchingGraph.addEdge(e);
 
 
@@ -113,7 +115,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
                     end = p.getFirst().getMatchId();
                 }
 
-                CommonAlgorithms.dijkstrasAlgorithm(fullGraphCopy,curr,dist, path, edgePath);
+                CommonAlgorithms.dijkstrasAlgorithm(fullGraphCopy, curr, dist, path, edgePath);
 
                 do {
                     next = path[end];
@@ -269,8 +271,6 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
         TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
         do {
             next = path[end];
-            if(!indexedWindyEdges.containsKey(edgePath[end]))
-                System.out.println("Debug");
             temp = indexedWindyEdges.get(edgePath[end]);
             ans += temp.getCost() + temp.getReverseCost();
         } while ((end = next) != start);
@@ -316,7 +316,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
             if (!CommonAlgorithms.isEulerian(Gdr)) {
 
 				/*
-				 * Build Gaux, which is a graph that is the directed graph induced by copy, PLUS
+                 * Build Gaux, which is a graph that is the directed graph induced by copy, PLUS
 				 * an extra arc for each edge in E1 in the expensive direction, with cost = (cji - cij)/2.
 				 * The match ids here will be ids in copy for the inf. capacity arcs, and -1 for the
 				 * artificial ones.
@@ -353,7 +353,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
             ArrayList<Integer> tour;
             tour = CommonAlgorithms.tryHierholzer(ans);
 
-            Tour eulerTour = new Tour();
+            Tour<DirectedVertex, Arc> eulerTour = new Tour<DirectedVertex, Arc>();
             TIntObjectHashMap<Arc> indexedEdges = ans.getInternalEdgeMap();
             for (int i = 0; i < tour.size(); i++) {
                 eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
@@ -361,6 +361,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
 
             currSol = eulerTour;
 
+            //visualize it
             if (exportSolToPDF) {
                 try {
                     GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, ans, mInstance.getName() + "_" + eulerTour.getCost());

@@ -3,12 +3,15 @@ package oarlib.graph.impl;
 import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
-import oarlib.link.impl.MixedEdge;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
+import oarlib.link.impl.MixedEdge;
 import oarlib.vertex.impl.MixedVertex;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 
 /**

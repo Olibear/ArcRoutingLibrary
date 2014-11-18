@@ -2,10 +2,10 @@ package oarlib.graph.impl;
 
 import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.Edge;
 import oarlib.core.Graph;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
+import oarlib.link.impl.Edge;
 import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.ArrayList;
@@ -15,8 +15,6 @@ import java.util.List;
 /**
  * First attempts at an Undirected Graph.
  *
- * @param <V> - Vertex Class
- * @param <E> - Edge Class
  * @author Oliver
  */
 public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {

@@ -10,8 +10,9 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseMixedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.MixedCPP;
-import oarlib.problem.impl.MultiVehicleMCPP;
+import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.problem.impl.cpp.MixedCPP;
+import oarlib.problem.impl.multivehicle.MultiVehicleMCPP;
 
 import java.util.Collection;
 import java.util.HashMap;

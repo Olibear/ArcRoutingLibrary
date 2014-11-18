@@ -2,7 +2,6 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
-import oarlib.link.impl.MixedEdge;
 import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
 import oarlib.core.Route;
@@ -10,7 +9,8 @@ import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
-import oarlib.problem.impl.MixedCPP;
+import oarlib.link.impl.MixedEdge;
+import oarlib.problem.impl.cpp.MixedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.MixedVertex;
 
@@ -161,14 +161,13 @@ public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver {
 
             //now create the route
 
-
             //return the answer
-            //ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
+            ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
+            TIntObjectHashMap<MixedEdge> indexedEdges = copy.getInternalEdgeMap();
             Tour eulerTour = new Tour();
-            //for (int i=0;i<ans.size();i++)
-            //{
-            //eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
-            //}
+            for (int i=0;i<ans.size();i++) {
+                eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
+            }
 
             //print the obj value.
             System.out.println(arcCost + model.get(GRB.DoubleAttr.ObjVal));

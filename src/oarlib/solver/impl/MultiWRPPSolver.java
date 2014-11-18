@@ -17,10 +17,12 @@ import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
 import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.MultiVehicleWRPP;
-import oarlib.problem.impl.WindyRPP;
+import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
+import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,6 +38,8 @@ public class MultiWRPPSolver extends MultiVehicleSolver {
     private WindyGraph mGraph;
     private String mInstanceName;
     private boolean lastRun; // to control when to export
+
+    private static final Logger LOGGER = Logger.getLogger(MultiWRPPSolver.class);
 
     /**
      * Default constructor; must set problem instance.
@@ -221,7 +225,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver {
         start = System.currentTimeMillis();
         Route ret = solver.solve();
         end = System.currentTimeMillis();
-        System.out.println("It took " + (end - start) + " milliseconds to run the sub-solver.");
+        LOGGER.debug("It took " + (end - start) + " milliseconds to run the sub-solver.");
 
         //set the id map for the route
         int n = subgraph.getVertices().size();

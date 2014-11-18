@@ -1,10 +1,10 @@
 package oarlib.graph.graphgen;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.Arc;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
+import oarlib.link.impl.Arc;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;

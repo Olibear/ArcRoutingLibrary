@@ -1,8 +1,9 @@
-package oarlib.problem.impl;
+package oarlib.problem.impl.cpp;
 
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.problem.impl.ChinesePostmanProblem;
 
 import java.util.Collection;
 
@@ -11,16 +12,14 @@ import java.util.Collection;
  *
  * @author oliverlum
  */
-public class DirectedCPP extends Problem {
-
-    private DirectedGraph mGraph;
+public class DirectedCPP extends ChinesePostmanProblem<DirectedGraph> {
 
     public DirectedCPP(DirectedGraph g) {
         this(g, "");
     }
 
     public DirectedCPP(DirectedGraph g, String name) {
-        super(name);
+        super(g, name);
         mGraph = g;
     }
 
@@ -31,13 +30,8 @@ public class DirectedCPP extends Problem {
     }
 
     @Override
-    public Type getType() {
-        return Problem.Type.DIRECTED_CHINESE_POSTMAN;
-    }
-
-    @Override
-    public DirectedGraph getGraph() {
-        return mGraph;
+    public Type getProblemType() {
+        return Type.DIRECTED_CHINESE_POSTMAN;
     }
 
 }

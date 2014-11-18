@@ -1,12 +1,12 @@
 package oarlib.graph.io;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.link.impl.Edge;
 import oarlib.vertex.impl.UndirectedVertex;
 
 import java.io.PrintWriter;

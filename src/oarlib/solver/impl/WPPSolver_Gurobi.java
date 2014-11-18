@@ -6,11 +6,13 @@ import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
 import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
-import oarlib.link.impl.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.WindyCPP;
+import oarlib.link.impl.WindyEdge;
+import oarlib.problem.impl.cpp.WindyCPP;
 import oarlib.route.impl.Tour;
+
+import java.util.ArrayList;
 
 /**
  * @author oliverlum
@@ -113,16 +115,15 @@ public class WPPSolver_Gurobi extends SingleVehicleSolver {
 
             //return the answer
             //ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
-            Tour eulerTour = new Tour();
-            //for (int i=0;i<ans.size();i++)
-            //{
-            //eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
+            //Tour eulerTour = new Tour();
+            //for (int i=0;i<ans.size();i++) {
+                //eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
             //}
 
             //print the obj value.
             System.out.println(model.get(GRB.DoubleAttr.ObjVal));
 
-            return eulerTour;
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

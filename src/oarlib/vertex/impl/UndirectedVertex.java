@@ -1,7 +1,7 @@
 package oarlib.vertex.impl;
 
-import oarlib.link.impl.Edge;
 import oarlib.core.Vertex;
+import oarlib.link.impl.Edge;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class UndirectedVertex extends Vertex {
      * Adds an arc joining this vertex with v.
      *
      * @param v - the other endpoint of the arc.
-     * @param a - the arc to be added.
+     * @param e - the arc to be added.
      * @throws IllegalArgumentException - if the vertex isn't the other endpoint of the arc provided.
      */
     public void addToNeighbors(UndirectedVertex v, Edge e) throws IllegalArgumentException {

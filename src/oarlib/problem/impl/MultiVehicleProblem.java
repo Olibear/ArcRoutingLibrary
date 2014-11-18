@@ -1,4 +1,9 @@
-package oarlib.core;
+package oarlib.problem.impl;
+
+import oarlib.core.Graph;
+import oarlib.core.Link;
+import oarlib.core.Problem;
+import oarlib.core.Vertex;
 
 /**
  * Problem abstraction for capacitated problems.  This includes support for number of vehicles, or for vehicle capacity.
@@ -6,7 +11,7 @@ package oarlib.core;
  * <p/>
  * Created by Oliver Lum on 7/25/2014.
  */
-public abstract class MultiVehicleProblem extends Problem {
+public abstract class MultiVehicleProblem<S extends Graph<? extends Vertex, ? extends Link<? extends Vertex>>> extends Problem<S> {
 
     int mNumVehicles;
     int mCapacity;
@@ -19,8 +24,8 @@ public abstract class MultiVehicleProblem extends Problem {
      *
      * @param numVehicles - the number of routes allowed to exist in the final solution.
      */
-    protected MultiVehicleProblem(int numVehicles) {
-        super("");
+    protected MultiVehicleProblem(S graph, int numVehicles) {
+        super(graph, "");
         mNumVehicles = numVehicles;
         numVehiclesSet = true;
         capSet = false;
@@ -35,8 +40,8 @@ public abstract class MultiVehicleProblem extends Problem {
      * @param numVehicles - the number of routes allowed to exist in the final solution.
      * @param capacity    - the max capacity that a route in the solution is allowed to have
      */
-    protected MultiVehicleProblem(int numVehicles, int capacity) {
-        super("");
+    protected MultiVehicleProblem(S graph, int numVehicles, int capacity) {
+        super(graph, "");
         mCapacity = capacity;
         capSet = true;
         if (numVehicles > 0) {
@@ -57,8 +62,8 @@ public abstract class MultiVehicleProblem extends Problem {
      * @param capacity    - the max capacity that a route in the solution is allowed to have
      * @param name        - the instance name
      */
-    protected MultiVehicleProblem(int numVehicles, int capacity, String name) {
-        super(name);
+    protected MultiVehicleProblem(S graph, int numVehicles, int capacity, String name) {
+        super(graph, name);
         mCapacity = capacity;
         capSet = true;
         if (numVehicles > 0) {

@@ -13,22 +13,22 @@ import java.util.List;
  *
  * @author Oliver
  */
-public class Tour extends Route {
+public class Tour<V extends Vertex, E extends Link<V>> extends Route<V,E> {
 
-    private ArrayList<Link<? extends Vertex>> mRoute;
+    private ArrayList<E> mRoute;
 
     public Tour() {
         super();
-        mRoute = new ArrayList<Link<? extends Vertex>>();
+        mRoute = new ArrayList<E>();
     }
 
     @Override
-    public List<Link<? extends Vertex>> getRoute() {
+    public List<E> getRoute() {
         return mRoute;
     }
 
     @Override
-    public void appendEdge(Link<? extends Vertex> l) {
+    public void appendEdge(E l) {
         mRoute.add(l);
         mCost += l.getCost();
         if (l.isRequired())
@@ -36,7 +36,7 @@ public class Tour extends Route {
     }
 
     @Override
-    public boolean checkRoutes(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g) {
+    public boolean checkRoutes(Graph<V, E> g) {
         return mRoute.get(0).getEndpoints().getFirst().getId() == mRoute.get(mRoute.size() - 1).getEndpoints().getSecond().getId();
 
     }

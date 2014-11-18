@@ -1,14 +1,14 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
-import oarlib.problem.impl.DirectedRPP;
+import oarlib.link.impl.Arc;
+import oarlib.problem.impl.rpp.DirectedRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
@@ -193,8 +193,6 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
             headId = a.getHead().getId();
             for (int j = 1; j <= n; j++) {
                 if (tempCost == dist[tailId][j] + dist[j][headId]) {
-                    if (a.isRequired())
-                        System.out.println("Trying to remove req edges");
                     copy.removeEdge(a);
                     break;
                 }
@@ -398,7 +396,7 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
             }
 
             //now reproduce the solution in the original graph
-            Tour eulerTour = new Tour();
+            Tour<DirectedVertex,Arc> eulerTour = new Tour<DirectedVertex,Arc>();
             Arc temp;
             DirectedVertex dv1, dv2;
             TIntObjectHashMap<DirectedVertex> gc1Vertices = Gc1.getInternalVertexMap();

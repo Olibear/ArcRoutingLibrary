@@ -19,7 +19,7 @@ public abstract class SingleVehicleSolver {
      */
     protected SingleVehicleSolver(Problem instance) throws IllegalArgumentException {
         //make sure I'm a valid problem instance
-        if (!(instance.getType() == getProblemType())) {
+        if (!(instance.getProblemType() == getProblemType())) {
             throw new IllegalArgumentException("It appears that this problem does not match the problem type handled by this solver.");
         }
     }
@@ -57,7 +57,7 @@ public abstract class SingleVehicleSolver {
     /**
      * Specifies what type of problem this is a solver for.
      *
-     * @return
+     * @return - the problem type
      */
     public abstract Problem.Type getProblemType();
 

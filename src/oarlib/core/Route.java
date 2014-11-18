@@ -14,7 +14,7 @@ import java.util.Set;
  *
  * @author oliverlum
  */
-public abstract class Route {
+public abstract class Route<V extends Vertex, E extends Link<V>> {
 
     protected int mCost; // cost of the route
     protected int mReqCost;
@@ -50,12 +50,12 @@ public abstract class Route {
 
             HashMap<Integer, Integer> vertexMap = new HashMap<Integer, Integer>();
             Set<Integer> keySet = vertexMap.keySet();
-            List<? extends Link<? extends Vertex>> route = this.getRoute();
+            List<E> route = this.getRoute();
             int vertexIndex = 1;
             Vertex first, second;
             UndirectedVertex toAdd;
 
-            for (Link<? extends Vertex> l : route) {
+            for (E l : route) {
 
                 first = l.getEndpoints().getFirst();
                 if (!keySet.contains(first.getId())) {
@@ -119,14 +119,14 @@ public abstract class Route {
      *
      * @return List of edges to be traversed from first to last
      */
-    public abstract List<? extends Link<? extends Vertex>> getRoute();
+    public abstract List<E> getRoute();
 
     /**
      * Add a edge to the end of this route.
      *
      * @param l
      */
-    public abstract void appendEdge(Link<? extends Vertex> l);
+    public abstract void appendEdge(E l);
 
     /**
      * check to make sure that the route is actually a route, (i.e. that consecutive
@@ -135,16 +135,16 @@ public abstract class Route {
      *
      * @return true if route is feasible in the provided graph
      */
-    public abstract boolean checkRoutes(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g);
+    public abstract boolean checkRoutes(Graph<V,E> g);
 
     /**
      * Outputs a string representation of the route.
      */
     public String toString() {
         String ans = "";
-        List<? extends Link<? extends Vertex>> list = this.getRoute();
+        List<E> list = this.getRoute();
         int n = list.size();
-        Link<? extends Vertex> tempL, tempL2;
+        E tempL, tempL2;
         int prevId1, prevId2, prevAltId1, prevAltId2, prevIdReal, beginningCycleLength;
         Vertex tempV1, tempV2, tempV12, tempV22;
         boolean firstToSecond = false;

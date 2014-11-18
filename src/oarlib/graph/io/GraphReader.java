@@ -1,8 +1,6 @@
 package oarlib.graph.io;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.Arc;
-import oarlib.link.impl.Edge;
 import oarlib.core.Graph;
 import oarlib.exceptions.FormatMismatchException;
 import oarlib.exceptions.UnsupportedFormatException;
@@ -11,10 +9,13 @@ import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.Pair;
+import oarlib.link.impl.Arc;
+import oarlib.link.impl.Edge;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,6 +27,9 @@ import java.io.FileReader;
  * @author Oliver
  */
 public class GraphReader {
+
+    private static final Logger LOGGER = Logger.getLogger(GraphReader.class);
+
     private GraphFormat.Name mFormat;
 
     public GraphReader(GraphFormat.Name format) {
@@ -97,7 +101,7 @@ public class GraphReader {
                 //fmt
                 if (temp[2].charAt(2) == '0') {
                     hasEdgeWeights = false;
-                    System.out.println("This file does not contain information about edge weights.  The graph will attempt to be read, but this seems strange, as this is an Arc-Routing Library");
+                    LOGGER.warn("This file does not contain information about edge weights.  The graph will attempt to be read, but this seems strange, as this is an Arc-Routing Library");
                 }
                 if (temp[2].charAt(1) == '0')
                     hasVertexWeights = false;
@@ -108,7 +112,7 @@ public class GraphReader {
                 //nconn
                 numWeightsPerVertex = Integer.parseInt(temp[3]);
                 if (numWeightsPerVertex > 1)
-                    System.out.println("The graph specified in this file has multiple weights per vertex.  Currently, there is no support for multiple vertex weights, so only the first will be used.");
+                    LOGGER.warn("The graph specified in this file has multiple weights per vertex.  Currently, there is no support for multiple vertex weights, so only the first will be used.");
             }
             if (temp.length > 4) {
                 br.close();
@@ -458,7 +462,7 @@ public class GraphReader {
                     tempV = ansVertices.get(i);
                     temp = line.split("\\s+|:|\\)|,|\\(");
                     if (temp.length < 4)
-                        System.out.println("STOP HERE");
+                        LOGGER.debug("STOP HERE");
                     tempV.setCoordinates(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
                     i++;
                 }
@@ -599,7 +603,7 @@ public class GraphReader {
                     ans.addEdge(new Arc("Original", new Pair<DirectedVertex>(indexedVertices.get(Integer.parseInt(splitLine[0])), indexedVertices.get(Integer.parseInt(splitLine[1]))), Integer.parseInt(splitLine[2])));
                 }
                 if ((line = br.readLine()) != null) {
-                    System.out.println("Ignoring excess lines in file.  This could just be whitespace, but there are more lines than "
+                    LOGGER.debug("Ignoring excess lines in file.  This could just be whitespace, but there are more lines than "
                             + "are claimed in the header");
                 }
                 br.close();
@@ -626,7 +630,7 @@ public class GraphReader {
 
                 }
                 if ((line = br.readLine()) != null) {
-                    System.out.println("Ignoring excess lines in file.  This could just be whitespace, but there are more lines than "
+                    LOGGER.debug("Ignoring excess lines in file.  This could just be whitespace, but there are more lines than "
                             + "are claimed in the header");
                 }
                 br.close();

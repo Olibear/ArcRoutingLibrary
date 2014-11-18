@@ -1,9 +1,6 @@
 package oarlib.test;
 
 import gnu.trove.TIntObjectHashMap;
-import gurobi.*;
-import oarlib.link.impl.Arc;
-import oarlib.link.impl.Edge;
 import oarlib.core.Graph;
 import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
@@ -22,10 +19,19 @@ import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.IndexedRecord;
 import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
-import oarlib.problem.impl.*;
+import oarlib.link.impl.Arc;
+import oarlib.link.impl.Edge;
+import oarlib.problem.impl.cpp.MixedCPP;
+import oarlib.problem.impl.cpp.UndirectedCPP;
+import oarlib.problem.impl.cpp.WindyCPP;
+import oarlib.problem.impl.multivehicle.MultiVehicleMCPP;
+import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
+import oarlib.problem.impl.rpp.DirectedRPP;
+import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.solver.impl.*;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -36,6 +42,7 @@ import java.util.HashSet;
 public class
         GeneralTestbed {
 
+    private static final Logger LOGGER = Logger.getLogger(GeneralTestbed.class);
     /**
      * The main method.  This class contains a bunch of test / validation methods, and is meant to give examples of
      * how to use the architecture.
@@ -291,7 +298,7 @@ public class
                 int debugCounter = 0;
                 String output;
 
-                for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
+                for (BoundingBox bb : OSM_BoundingBoxes.BIG_INSTANCES) {
                     //if (debugCounter >= limForDebug)
                     //break;
                     debugCounter++;

@@ -1,14 +1,14 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.Edge;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
-import oarlib.problem.impl.UndirectedCPP;
+import oarlib.link.impl.Edge;
+import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.UndirectedVertex;
 
@@ -118,7 +118,7 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver {
             TIntObjectHashMap<Edge> indexedEdges = copy.getInternalEdgeMap();
             //return the answer
             ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
-            Tour eulerTour = new Tour();
+            Tour<UndirectedVertex, Edge> eulerTour = new Tour<UndirectedVertex, Edge>();
             for (int i = 0; i < ans.size(); i++) {
                 eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
             }

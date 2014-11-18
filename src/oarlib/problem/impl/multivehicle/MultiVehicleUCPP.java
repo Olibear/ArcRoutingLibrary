@@ -1,8 +1,8 @@
-package oarlib.problem.impl;
+package oarlib.problem.impl.multivehicle;
 
-import oarlib.core.MultiVehicleProblem;
 import oarlib.core.Route;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.problem.impl.MultiVehicleProblem;
 
 import java.util.Collection;
 
@@ -12,17 +12,15 @@ import java.util.Collection;
  * <p/>
  * Created by Oliver Lum on 7/25/2014.
  */
-public class MultiVehicleUCPP extends MultiVehicleProblem {
-
-    UndirectedGraph mGraph;
+public class MultiVehicleUCPP extends MultiVehicleProblem<UndirectedGraph> {
 
     public MultiVehicleUCPP(UndirectedGraph graph, int numVehicles) {
-        super(numVehicles);
+        super(graph, numVehicles);
         mGraph = graph;
     }
 
     @Override
-    public Type getType() {
+    public Type getProblemType() {
         return Type.UNDIRECTED_CHINESE_POSTMAN;
     }
 
@@ -33,11 +31,6 @@ public class MultiVehicleUCPP extends MultiVehicleProblem {
 
         //TODO: Now check for real.
         return false;
-    }
-
-    @Override
-    public UndirectedGraph getGraph() {
-        return mGraph;
     }
 
     @Override

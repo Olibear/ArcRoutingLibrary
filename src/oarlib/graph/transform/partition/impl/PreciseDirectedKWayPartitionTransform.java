@@ -1,10 +1,10 @@
 package oarlib.graph.transform.partition.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.Arc;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.transform.partition.PartitionTransformer;
 import oarlib.graph.transform.rebalance.CostRebalancer;
+import oarlib.link.impl.Arc;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;

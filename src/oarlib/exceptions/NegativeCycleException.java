@@ -37,12 +37,16 @@ public class NegativeCycleException extends Exception {
         edgePath = violatingEdgePath;
     }
 
-    public int getViolatingIndex(){
+    public int getViolatingIndex() {
         return violatingIndex;
     }
 
-    public int[] getViolatingPath() { return path; }
+    public int[] getViolatingPath() {
+        return path;
+    }
 
-    public int[] getViolatingEdgePath() { return edgePath; }
+    public int[] getViolatingEdgePath() {
+        return edgePath;
+    }
 }
 

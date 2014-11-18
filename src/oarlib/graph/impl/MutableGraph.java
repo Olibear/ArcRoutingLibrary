@@ -5,6 +5,7 @@ import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;
 import oarlib.exceptions.InvalidEndpointsException;
+
 import java.util.HashSet;
 
 
@@ -189,7 +190,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 
     @Override
     public V getVertex(int i) {
-        if(!mInternalVertexMap.containsKey(i))
+        if (!mInternalVertexMap.containsKey(i))
             throw new IllegalArgumentException("No vertex with the specified id exists in this graph.");
         return mInternalVertexMap.get(i);
     }

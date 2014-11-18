@@ -104,6 +104,7 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
 
     /**
      * To query for a specific vertex in the graph, as opposed to having to create another local duplicate map.
+     *
      * @param i - the id in the internal map of the graph for the desired vertex
      * @return - the appropriate vertex
      */
@@ -185,6 +186,7 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
 
     /**
      * To query for a specific link in the graph, as opposed to having to create another local duplicate map.
+     *
      * @param i - the internal id of the desired edge
      * @throws IllegalArgumentException
      */

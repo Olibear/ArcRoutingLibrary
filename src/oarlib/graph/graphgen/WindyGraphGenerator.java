@@ -1,10 +1,10 @@
 package oarlib.graph.graphgen;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.WindyEdge;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
+import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.HashSet;

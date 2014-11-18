@@ -1,10 +1,10 @@
 package oarlib.graph.graphgen;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.MixedEdge;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
+import oarlib.link.impl.MixedEdge;
 import oarlib.vertex.impl.MixedVertex;
 
 import java.util.ArrayList;

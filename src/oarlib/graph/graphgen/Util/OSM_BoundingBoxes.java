@@ -14,7 +14,7 @@ public class OSM_BoundingBoxes {
             //DC
             new BoundingBox(-77.035293, 38.930782, -77.024693, 38.936974, "Washington D.C."),
             //Paris
-            //new BoundingBox(2.284695, 48.867812, 2.303707, 48.878453, "Paris, France"),
+            new BoundingBox(2.284695, 48.867812, 2.303707, 48.878453, "Paris, France"),
             //London
             new BoundingBox(-.137157, 51.510221, -.126986, 51.518527, "London, UK"),
             //Istanbul
@@ -24,7 +24,7 @@ public class OSM_BoundingBoxes {
             //Auckland
             new BoundingBox(174.728553, -36.860062, 174.743359, -36.843990, "Auckland, Australia"),
             //Helsinki
-            //new BoundingBox(24.935060, 60.164540, 24.943771, 60.169360, "Helsinki, Finland"),
+            new BoundingBox(24.935060, 60.164540, 24.943771, 60.169360, "Helsinki, Finland"),
             //Calgary
             new BoundingBox(-114.090764, 51.037411, -114.061281, 51.049795, "Calgary, Canada"),
             //Vienna

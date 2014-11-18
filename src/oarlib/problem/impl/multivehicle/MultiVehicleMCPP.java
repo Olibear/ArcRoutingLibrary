@@ -1,8 +1,8 @@
-package oarlib.problem.impl;
+package oarlib.problem.impl.multivehicle;
 
-import oarlib.core.MultiVehicleProblem;
 import oarlib.core.Route;
 import oarlib.graph.impl.MixedGraph;
+import oarlib.problem.impl.MultiVehicleProblem;
 
 import java.util.Collection;
 
@@ -12,13 +12,11 @@ import java.util.Collection;
  * <p/>
  * Created by oliverlum on 8/12/14.
  */
-public class MultiVehicleMCPP extends MultiVehicleProblem {
-
-    MixedGraph mGraph;
+public class MultiVehicleMCPP extends MultiVehicleProblem<MixedGraph> {
 
     public MultiVehicleMCPP(MixedGraph graph, int numVehicles) {
 
-        super(numVehicles);
+        super(graph, numVehicles);
         mGraph = graph;
 
     }
@@ -38,12 +36,7 @@ public class MultiVehicleMCPP extends MultiVehicleProblem {
     }
 
     @Override
-    public MixedGraph getGraph() {
-        return mGraph;
-    }
-
-    @Override
-    public Type getType() {
+    public Type getProblemType() {
         return Type.MIXED_CHINESE_POSTMAN;
     }
 }

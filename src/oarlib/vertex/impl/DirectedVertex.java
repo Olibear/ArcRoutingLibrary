@@ -1,7 +1,7 @@
 package oarlib.vertex.impl;
 
-import oarlib.link.impl.Arc;
 import oarlib.core.Vertex;
+import oarlib.link.impl.Arc;
 
 import java.util.ArrayList;
 import java.util.HashMap;

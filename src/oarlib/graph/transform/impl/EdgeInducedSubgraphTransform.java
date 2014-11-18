@@ -1,7 +1,10 @@
 package oarlib.graph.transform.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.*;
+import oarlib.core.Factory;
+import oarlib.core.Graph;
+import oarlib.core.Link;
+import oarlib.core.Vertex;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
@@ -12,6 +15,7 @@ import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.DirectedVertex;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +31,8 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
     Factory<S> graphGen;
     HashSet<Integer> mEdges;
     boolean inclDepot;
+
+    private static final Logger LOGGER = Logger.getLogger(EdgeInducedSubgraphTransform.class);
 
     /**
      * This transformer takes the input graph and the specified edge ids, and returns the subgraph induced by said edges.
@@ -439,7 +445,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                             else
                                 vj.setDemand(1);
 
-                            System.out.println("Originally, component " + ans[i] + " was connected to component " + ans[j]);
+                            LOGGER.debug("Originally, component " + ans[i] + " was connected to component " + ans[j]);
                             alreadyAdded.add(tempKey);
                         }
                         continue;
@@ -488,7 +494,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                         ((WindyGraph) subgraph).addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), dup.getCost(), dup.getReverseCost(), false);
                     } else
                         subgraph.addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), costMap.get(tempKey), false);
-                    System.out.println("We're connecting component " + tempKey.getFirst() + " was connected to component " + tempKey.getSecond());
+                    LOGGER.debug("We're connecting component " + tempKey.getFirst() + " was connected to component " + tempKey.getSecond());
                 }
             }
 
@@ -579,7 +585,7 @@ public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements Grap
                             ((WindyGraph) subgraph).addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), dup.getCost(), dup.getReverseCost(), false);
                         } else
                             subgraph.addEdge(idConn.get(tempKey).getFirst(), idConn.get(tempKey).getSecond(), costMap.get(tempKey), false);
-                        System.out.println("We're connecting component " + tempKey.getFirst() + " was connected to component " + tempKey.getSecond());
+                        LOGGER.debug("We're connecting component " + tempKey.getFirst() + " was connected to component " + tempKey.getSecond());
                     }
                 }
 

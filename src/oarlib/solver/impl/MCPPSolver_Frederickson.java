@@ -1,7 +1,9 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.*;
+import oarlib.core.Problem;
+import oarlib.core.Route;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -10,11 +12,12 @@ import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.MixedEdge;
-import oarlib.problem.impl.MixedCPP;
+import oarlib.problem.impl.cpp.MixedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -30,6 +33,7 @@ import java.util.*;
 public class MCPPSolver_Frederickson extends SingleVehicleSolver {
 
     MixedCPP mInstance;
+    private static final Logger LOGGER = Logger.getLogger(MCPPSolver_Frederickson.class);
 
     public MCPPSolver_Frederickson(MixedCPP instance) throws IllegalArgumentException {
         super(instance);
@@ -381,7 +385,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
 
             //build M and U
             /*
-			 * the ith entry will be 1 if the flow solution included an arc along the ith edge (of input), (only
+             * the ith entry will be 1 if the flow solution included an arc along the ith edge (of input), (only
 			 * meaningful for undirected edges) from tail to head; -1 if it included one from head to tail.
 			 * This enables us to determine which are still left unoriented by this phase.
 			 */
@@ -540,9 +544,9 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             }
 
             ArrayList<Integer> tour;
-            Tour eulerTour = new Tour();
+            Tour<MixedVertex,MixedEdge> eulerTour = new Tour<MixedVertex,MixedEdge>();
             if (cost1 <= cost2) {
-                System.out.println("ans1 chosen: " + CommonAlgorithms.isStronglyConnected(ans1));
+                LOGGER.debug("ans1 chosen: " + CommonAlgorithms.isStronglyConnected(ans1));
                 tour = CommonAlgorithms.tryHierholzer(ans1);
                 TIntObjectHashMap<MixedEdge> indexedEdges = ans1.getInternalEdgeMap();
                 int tourSize = tour.size();
@@ -550,7 +554,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
                     eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
                 }
             } else {
-                System.out.println("ans2 chosen: " + CommonAlgorithms.isStronglyConnected(ans2));
+                LOGGER.debug("ans2 chosen: " + CommonAlgorithms.isStronglyConnected(ans2));
                 tour = CommonAlgorithms.tryHierholzer(ans2);
                 TIntObjectHashMap<MixedEdge> indexedEdges = ans2.getInternalEdgeMap();
                 int tourSize = tour.size();

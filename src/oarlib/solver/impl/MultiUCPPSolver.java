@@ -15,8 +15,8 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseUndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.MultiVehicleUCPP;
-import oarlib.problem.impl.UndirectedCPP;
+import oarlib.problem.impl.multivehicle.MultiVehicleUCPP;
+import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.Collection;

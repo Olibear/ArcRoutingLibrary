@@ -1,21 +1,20 @@
-package oarlib.problem.impl;
+package oarlib.problem.impl.rpp;
 
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.problem.impl.RuralPostmanProblem;
 
 import java.util.Collection;
 
-public class WindyRPP extends Problem {
-
-    WindyGraph mGraph;
+public class WindyRPP extends RuralPostmanProblem<WindyGraph> {
 
     public WindyRPP(WindyGraph g) {
         this(g, "");
     }
 
     public WindyRPP(WindyGraph g, String name) {
-        super(name);
+        super(g, name);
         mGraph = g;
     }
 
@@ -26,13 +25,8 @@ public class WindyRPP extends Problem {
     }
 
     @Override
-    public Type getType() {
+    public Type getProblemType() {
         return Problem.Type.WINDY_RURAL_POSTMAN;
-    }
-
-    @Override
-    public WindyGraph getGraph() {
-        return mGraph;
     }
 
 }

@@ -11,21 +11,24 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
-import oarlib.problem.impl.DirectedCPP;
-import oarlib.problem.impl.UndirectedCPP;
+import oarlib.problem.impl.cpp.DirectedCPP;
+import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.solver.impl.DCPPSolver_Edmonds;
 import oarlib.solver.impl.UCPPSolver_Edmonds;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import java.util.ArrayList;
+
 
 /**
  * Created by oliverlum on 11/11/14.
  */
 public class SingleVehicleSolverTestSuite {
 
+    private static final Logger LOGGER = Logger.getLogger(SingleVehicleSolverTestSuite.class);
     @Test
     public void testUCPPSolver(){
         try {
@@ -56,7 +59,7 @@ public class SingleVehicleSolverTestSuite {
                 myCost = 0;
                 trueCost = 0;
                 g = (UndirectedGraph) ugg.generateGraph(i, 10, true);
-                System.out.println("Generated undirected graph with n = " + i);
+                LOGGER.debug("Generated undirected graph with n = " + i);
                 if (CommonAlgorithms.isEulerian(g))
                     continue;
                 //copy for Gurobi to work on
@@ -66,7 +69,7 @@ public class SingleVehicleSolverTestSuite {
                 start = System.nanoTime();
                 validAns = validSolver.trySolve(); //my ans
                 end = System.nanoTime();
-                System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our UCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
+                LOGGER.debug("It took " + (end - start) / (1e6) + " milliseconds to run our UCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
 
                 myCost += validAns.getCost();
 
@@ -139,7 +142,7 @@ public class SingleVehicleSolverTestSuite {
                 }
                 model.optimize();
                 trueCost += model.get(GRB.DoubleAttr.ObjVal) / 2;
-                System.out.println("myCost = " + myCost + ", trueCost = " + trueCost);
+                LOGGER.debug("myCost = " + myCost + ", trueCost = " + trueCost);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -180,14 +183,14 @@ public class SingleVehicleSolverTestSuite {
                 //copy for gurobi to run on
                 g2 = g.getDeepCopy();
                 TIntObjectHashMap<DirectedVertex> indexedVertices = g2.getInternalVertexMap();
-                System.out.println("Generated directed graph with n = " + i);
+                LOGGER.debug("Generated directed graph with n = " + i);
 
                 validInstance = new DirectedCPP(g);
                 validSolver = new DCPPSolver_Edmonds(validInstance);
                 start = System.nanoTime();
                 validAns = validSolver.trySolve(); //my ans
                 end = System.nanoTime();
-                System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our DCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
+                LOGGER.debug("It took " + (end - start) / (1e6) + " milliseconds to run our DCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
 
                 myCost += validAns.getCost();
 
@@ -246,7 +249,7 @@ public class SingleVehicleSolverTestSuite {
                 }
                 model.optimize();
                 trueCost += model.get(GRB.DoubleAttr.ObjVal);
-                System.out.println("myCost = " + myCost + ", trueCost = " + trueCost);
+                LOGGER.debug("myCost = " + myCost + ", trueCost = " + trueCost);
             }
         } catch (Exception e) {
             e.printStackTrace();

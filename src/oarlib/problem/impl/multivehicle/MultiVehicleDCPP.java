@@ -1,20 +1,18 @@
-package oarlib.problem.impl;
+package oarlib.problem.impl.multivehicle;
 
-import oarlib.core.MultiVehicleProblem;
 import oarlib.core.Route;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.problem.impl.MultiVehicleProblem;
 
 import java.util.Collection;
 
 /**
  * Created by oliverlum on 8/5/14.
  */
-public class MultiVehicleDCPP extends MultiVehicleProblem {
-
-    DirectedGraph mGraph;
+public class MultiVehicleDCPP extends MultiVehicleProblem<DirectedGraph> {
 
     public MultiVehicleDCPP(DirectedGraph graph, int numVehicles) {
-        super(numVehicles);
+        super(graph, numVehicles);
         mGraph = graph;
     }
 
@@ -34,12 +32,7 @@ public class MultiVehicleDCPP extends MultiVehicleProblem {
     }
 
     @Override
-    public DirectedGraph getGraph() {
-        return mGraph;
-    }
-
-    @Override
-    public Type getType() {
+    public Type getProblemType() {
         return Type.DIRECTED_CHINESE_POSTMAN;
     }
 }

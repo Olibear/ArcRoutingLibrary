@@ -1,13 +1,13 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.link.impl.Arc;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.DirectedCPP;
+import oarlib.link.impl.Arc;
+import oarlib.problem.impl.cpp.DirectedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
@@ -81,7 +81,7 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
 
         // return the answer
         ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
-        Tour eulerTour = new Tour();
+        Tour<DirectedVertex, Arc> eulerTour = new Tour<DirectedVertex, Arc>();
         for (int i = 0; i < ans.size(); i++) {
             eulerTour.appendEdge(indexedArcs.get(ans.get(i)));
         }

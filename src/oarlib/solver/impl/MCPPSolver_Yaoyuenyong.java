@@ -1,9 +1,12 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.*;
+import oarlib.core.MultiEdge;
 import oarlib.core.MultiEdge.EDGETYPE;
+import oarlib.core.Problem;
 import oarlib.core.Problem.Type;
+import oarlib.core.Route;
+import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -12,13 +15,16 @@ import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.MixedEdge;
-import oarlib.problem.impl.MixedCPP;
+import oarlib.problem.impl.cpp.MixedCPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
 
@@ -32,7 +38,6 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
     /**
      * Eliminates directed cycles in the mixed graph if valid (that is, it only eliminates those cycles consisting entirely
      * of added edges, as specified by M and inMdubPrime)
-     *
      */
     private static void eliminateAddedDirectedCycles(int n, ArrayList<MultiEdge<MixedEdge>> edgeContainers) throws IllegalArgumentException {
         try {
@@ -151,9 +156,9 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
      * The first cost modification method proposed by Yaoyuenyong.  This reduces costs of edges / arcs added from evendegree's matching
      * procedure.  These graphs are used for shortest path costs only.
      *
-     * @param Gij  - the graph to be modified ( in almost all cases, the original graph G )
-     * @param Em   - An arraylist of edges (undirected) added to G during evendegree's matching phase.
-     * @param Am   - An arraylist of arcs (directed) added to G during evendegree's matching.
+     * @param Gij - the graph to be modified ( in almost all cases, the original graph G )
+     * @param Em  - An arraylist of edges (undirected) added to G during evendegree's matching phase.
+     * @param Am  - An arraylist of arcs (directed) added to G during evendegree's matching.
      */
     private static void CostMod1(MixedGraph Gij, ArrayList<MultiEdge<MixedEdge>> edgeContainers, ArrayList<MixedEdge> Em, ArrayList<MixedEdge> Am) throws IllegalArgumentException {
         try {
@@ -763,7 +768,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
 
             ArrayList<Integer> tour;
             tour = CommonAlgorithms.tryHierholzer(G);
-            Tour eulerTour = new Tour();
+            Tour<MixedVertex,MixedEdge> eulerTour = new Tour<MixedVertex,MixedEdge>();
             TIntObjectHashMap<MixedEdge> indexedEdges = G.getInternalEdgeMap();
             for (int k = 0; k < tour.size(); k++) {
                 eulerTour.appendEdge(indexedEdges.get(tour.get(k)));

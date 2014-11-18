@@ -8,16 +8,34 @@ import java.util.Collection;
  *
  * @author oliverlum
  */
-public abstract class Problem {
+public abstract class Problem<S extends Graph<? extends Vertex, ? extends Link<? extends Vertex>>> {
 
     protected String mName = "";
+    protected S mGraph;
 
-    protected Problem(String name) {
+    protected Problem(S graph, String name) {
         mName = name;
+        mGraph = graph;
     }
 
     public String getName() {
         return mName;
+    }
+
+    /**
+     * Retrieve the graph that has been associated with this Problem
+     *
+     * @return the graph
+     */
+    public S getGraph() {
+        return mGraph;
+    }
+
+    /**
+     * @return - The type of graph that this problem operates over.
+     */
+    public Graph.Type getGraphType() {
+        return mGraph.getType();
     }
 
     /**
@@ -27,17 +45,11 @@ public abstract class Problem {
      */
     public abstract boolean isFeasible(Collection<Route> routes);
 
-    /**
-     * Retrieve the graph that has been associated with this Problem
-     *
-     * @return the graph
-     */
-    public abstract Graph<?, ?> getGraph();
 
     /**
      * @return - The type of problem that this represents.
      */
-    public abstract Type getType();
+    public abstract Type getProblemType();
 
     public enum Type {
         DIRECTED_CHINESE_POSTMAN,

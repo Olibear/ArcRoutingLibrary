@@ -12,8 +12,9 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseDirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.problem.impl.DirectedCPP;
-import oarlib.problem.impl.MultiVehicleDCPP;
+import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.problem.impl.cpp.DirectedCPP;
+import oarlib.problem.impl.multivehicle.MultiVehicleDCPP;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.Collection;
@@ -61,7 +62,6 @@ public class MultiDCPPSolver extends MultiVehicleSolver {
         try {
 
             //partition
-            DirectedGraph mGraph = mInstance.getGraph();
             HashMap<Integer, Integer> sol = partition();
 
             HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
