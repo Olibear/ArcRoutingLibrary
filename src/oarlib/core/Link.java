@@ -2,6 +2,7 @@ package oarlib.core;
 
 import oarlib.exceptions.NoCapacitySetException;
 import oarlib.graph.util.Pair;
+import org.apache.log4j.Logger;
 
 /**
  * Link abstraction. Provides most general contract for all Link objects.
@@ -10,10 +11,11 @@ import oarlib.graph.util.Pair;
  */
 public abstract class Link<V extends Vertex> {
 
-    private static int counter = 1; //for assigning edge ids
+    //TODO: Rethink this architectre; consider creating an addToGraph method so that you can't do weird stuff with coupled vars
+
+    private static Logger LOGGER = Logger.getLogger(Link.class);
     protected boolean isFinalized; // should be true if in a graph, false oth.
     private String mLabel;
-    private int guid; //the idea is that this will be unique for all links, even between graphs
     private int mId; //while this will help us identify the 'same' link in different graphs (graph copies for instance)
     private int mGraphId;
     private int matchId;
@@ -23,6 +25,13 @@ public abstract class Link<V extends Vertex> {
     private boolean isDirected;
     private boolean isRequired;
     private boolean capacitySet;
+
+    public enum Type{
+        UNDIRECTED,
+        DIRECTED,
+        MIXED,
+        WINDY
+    }
 
     public Link(String label, Pair<V> endpoints, int cost) {
         this(label, endpoints, cost, true);
@@ -34,12 +43,10 @@ public abstract class Link<V extends Vertex> {
         setGraphId(-1);
         setMatchId(-1);
         setLabel(label);
-        setGuid(counter);
         setEndpoints(endpoints);
         setCost(cost);
         setRequired(required);
         capacitySet = false;
-        counter++;
     }
 
     /**
@@ -61,20 +68,16 @@ public abstract class Link<V extends Vertex> {
         this.mLabel = mLabel;
     }
 
-    public int getGuid() {
-        return guid;
-    }
-
-    public void setGuid(int mId) {
-        this.guid = mId;
-    }
-
     public Pair<V> getEndpoints() {
         return mEndpoints;
     }
 
-    public void setEndpoints(Pair<V> mEndpoints) {
-        this.mEndpoints = mEndpoints;
+    public boolean setEndpoints(Pair<V> mEndpoints) {
+        if(!isFinalized) {
+            this.mEndpoints = mEndpoints;
+            return true;
+        }
+        return false;
     }
 
     public int getCost() {
@@ -101,9 +104,11 @@ public abstract class Link<V extends Vertex> {
         return isDirected;
     }
 
-    public void setDirected(boolean isDirected) {
+    protected void setDirected(boolean isDirected) {
         this.isDirected = isDirected;
     }
+
+    public abstract boolean isWindy();
 
     public int getMatchId() {
         return matchId;
@@ -114,15 +119,19 @@ public abstract class Link<V extends Vertex> {
     }
 
     public int getCapacity() throws NoCapacitySetException {
-        if (!capacitySet)
+        if (!capacitySet) {
+            LOGGER.error("It does not appear as though capacity has been set for this link.");
             throw new NoCapacitySetException();
+        }
         return mCapacity;
     }
 
     public void setCapacity(int newCapacity) throws IllegalArgumentException {
         //negative capcity is not meaningful
-        if (newCapacity < 0)
+        if (newCapacity < 0) {
+            LOGGER.error("The capacity cannot be set to less than 0.");
             throw new IllegalArgumentException();
+        }
         capacitySet = true;
         mCapacity = newCapacity;
     }
@@ -162,5 +171,7 @@ public abstract class Link<V extends Vertex> {
     public String toString() {
         return this.getEndpoints().getFirst().getId() + "-" + this.getEndpoints().getSecond().getId();
     }
+
+    public abstract Type getLinkType();
 
 }

@@ -1,10 +1,15 @@
 package oarlib.core;
 
+import gnu.trove.TIntArrayList;
 import gnu.trove.TIntIntHashMap;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.link.impl.Arc;
+import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.UndirectedVertex;
+import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -16,9 +21,14 @@ import java.util.Set;
  */
 public abstract class Route<V extends Vertex, E extends Link<V>> {
 
+    private static final Logger LOGGER = Logger.getLogger(Route.class);
+
     protected int mCost; // cost of the route
     protected int mReqCost;
     protected TIntIntHashMap mCustomIDMap;
+    protected ArrayList<E> mRoute;
+    protected TIntArrayList compactRepresentation;
+    protected ArrayList<Boolean> compactTD;
 
     //default constructor
     protected Route() {
@@ -26,6 +36,9 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         mCost = 0;
         mReqCost = 0;
         mCustomIDMap = new TIntIntHashMap();
+        mRoute = new ArrayList<E>();
+        compactRepresentation = new TIntArrayList();
+        compactTD = new ArrayList<Boolean>();
 
     }
 
@@ -119,14 +132,138 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      *
      * @return List of edges to be traversed from first to last
      */
-    public abstract List<E> getRoute();
+    public List<E> getRoute() {
+        return mRoute;
+    }
+
+
+    /**
+     * Retrive a copy of the traversal direction arraylist.  An ith entry value of
+     * true means the ith entry of the compact route
+     * is traversed first -> second, false second -> first.
+     *
+     * @return List of booleans corresponding to whether or not the link is traversed 'forward.'
+     */
+    public ArrayList<Boolean> getCompactTraversalDirection(){
+        return compactTD;
+    }
 
     /**
      * Add a edge to the end of this route.
      *
      * @param l
      */
-    public abstract void appendEdge(E l);
+    public void appendEdge(E l) {
+
+            //TODO:Fix this make it less clunky, and to perhaps calculate the toString here, maybe a different WindyRoute class, maybe use isWindy property of links
+            boolean isWindy;
+            if(l.isWindy())
+                isWindy = true;
+            else
+                isWindy = false;
+
+            //check for a common endpoint
+            int lFirst = l.getEndpoints().getFirst().getId();
+            int lSecond = l.getEndpoints().getSecond().getId();
+
+            if(mRoute.size() == 0) {
+                mRoute.add(l);
+                return;
+            }
+
+
+            E temp = mRoute.get(mRoute.size()-1);
+            int tempFirst = temp.getEndpoints().getFirst().getId();
+            int tempSecond = temp.getEndpoints().getSecond().getId();
+
+            int trueCost;
+            if(mRoute.size() == 1) {
+                if(lFirst == tempFirst && isWindy) {
+                    trueCost = ((WindyEdge) temp).getReverseCost();
+                    if(temp.isRequired()) {
+                        mReqCost += trueCost;
+                        compactTD.add(false);
+                        compactRepresentation.add(temp.getId());
+                    }
+                }
+                else {
+                    trueCost = temp.getCost();
+                    if(temp.isRequired()) {
+                        mReqCost += trueCost;
+                        compactTD.add(true);
+                        compactRepresentation.add(temp.getId());
+                    }
+                }
+
+                mCost += trueCost;
+
+            }
+
+            //TODO: Check for directed contraints as well
+
+            if(!isWindy) {
+                trueCost = l.getCost();
+                if(l.isRequired())
+                    compactRepresentation.add(l.getId());
+            }
+            //check for same conn.
+            else if(lFirst == tempFirst && lSecond == tempSecond) {
+                boolean tempTD = !compactTD.get(compactTD.size()-1);
+                if(tempTD) {
+                    trueCost = l.getCost();
+                    if(l.isRequired()) {
+                        compactTD.add(true);
+                        compactRepresentation.add(l.getId());
+                    }
+                }
+                else {
+                    trueCost = ((WindyEdge)l).getReverseCost();
+                    if(l.isRequired()) {
+                        compactTD.add(false);
+                        compactRepresentation.add(l.getId());
+                    }
+                }
+            }
+            else if(lFirst == tempSecond && lSecond == tempFirst) {
+                boolean tempTD = compactTD.get(compactTD.size()-1);
+                if(tempTD) {
+                    trueCost = l.getCost();
+                    if(l.isRequired()) {
+                        compactTD.add(true);
+                        compactRepresentation.add(l.getId());
+                    }
+                }
+                else {
+                    trueCost = ((WindyEdge)l).getReverseCost();
+                    if(l.isRequired()) {
+                        compactTD.add(false);
+                        compactRepresentation.add(l.getId());
+                    }
+                }
+            }
+            else if(lFirst == tempFirst || lFirst == tempSecond) {
+                trueCost = l.getCost();
+                if(l.isRequired()) {
+                    compactTD.add(true);
+                    compactRepresentation.add(l.getId());
+                }
+            } else if(lSecond == tempFirst || lSecond == tempSecond) {
+                trueCost = ((WindyEdge)l).getReverseCost();
+                if(l.isRequired()) {
+                    compactTD.add(false);
+                    compactRepresentation.add(l.getId());
+                }
+            } else {
+                LOGGER.error("The link you're attempting to add doens't share an endpoint with the previous one.");
+                throw new IllegalArgumentException();
+            }
+
+            mRoute.add(l);
+            mCost += trueCost;
+            if (l.isRequired())
+                mReqCost += trueCost;
+
+    }
 
     /**
      * check to make sure that the route is actually a route, (i.e. that consecutive

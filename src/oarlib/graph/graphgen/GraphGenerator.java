@@ -1,9 +1,19 @@
 package oarlib.graph.graphgen;
 
 import oarlib.core.Graph;
+import org.apache.log4j.Logger;
 
-public abstract class GraphGenerator {
+import java.util.Random;
+
+
+public abstract class GraphGenerator<S extends Graph> {
+
+    private static final Logger LOGGER = Logger.getLogger(GraphGenerator.class);
+
+    private double defaultDensity;
     public GraphGenerator() {
+        Random rng = new Random();
+        defaultDensity = rng.nextDouble();
     }
 
     /**
@@ -13,8 +23,8 @@ public abstract class GraphGenerator {
      * @param n - number of vertices in the graph
      * @return - a graph with n vertices.
      */
-    public Graph<?, ?> generateGraph(int n) {
-        return this.generateGraph(n, -1, false, -1);
+    public S generateGraph(int n) {
+        return this.generateGraph(n, 10, false, defaultDensity);
     }
 
     /**
@@ -24,8 +34,8 @@ public abstract class GraphGenerator {
      * @param maxCost - the maximum cost that a link in this graph can have.  If this is set to a negative number, it is ignored.
      * @return - a graph with the specified properties.
      */
-    public Graph<?, ?> generateGraph(int n, int maxCost) {
-        return this.generateGraph(n, maxCost, false, -1);
+    public S generateGraph(int n, int maxCost) {
+        return this.generateGraph(n, maxCost, false, defaultDensity);
     }
 
     /**
@@ -37,7 +47,7 @@ public abstract class GraphGenerator {
      * @param connected - flag to enforce (strong) connectedness on the graph
      * @return - a graph with the specified properties.
      */
-    public Graph<?, ?> generateGraph(int n, int maxCost, boolean connected) {
+    public S generateGraph(int n, int maxCost, boolean connected) {
         return this.generateGraph(n, maxCost, connected, -1);
     }
 
@@ -49,12 +59,10 @@ public abstract class GraphGenerator {
      * @param n         - number of vertices in the graph
      * @param maxCost   - the maximum cost that a link in this graph can have
      * @param connected - flag to enforce (strong) connectedness on the graph
-     * @param density   - the approximate density of the graph, must be between [0,1], but connected will override this,
-     *                  so that a true connected flag will have at least the number of links required to make the graph connected.  If this
-     *                  is set to something outside of the range [0,1], then it is ignored.
+     * @param density   - the approximate density of the graph, must be between [0,1]
      * @return - a graph with the specified properties.
      */
-    public Graph<?, ?> generateGraph(int n, int maxCost, boolean connected, double density) {
+    public S generateGraph(int n, int maxCost, boolean connected, double density) {
         return this.generateGraph(n, maxCost, connected, density, false);
     }
 
@@ -66,13 +74,14 @@ public abstract class GraphGenerator {
      * @param n             - number of vertices in the graph
      * @param maxCost       - the maximum cost that a link in this graph can have
      * @param connected     - flag to enforce (strong) connectedness on the graph
-     * @param density       - the approximate density of the graph, must be between [0,1], but connected will override this,
-     *                      so that a true connected flag will have at least the number of links required to make the graph connected.  If this
-     *                      is set to something outside of the range [0,1], then it is ignored.
+     * @param density       - the approximate density of the graph, must be between [0,1]
      * @param positiveCosts - flag to enforce whether all edge weights are strictly positive.
      * @return - a graph with the specified properties.
      */
-    public abstract Graph<?, ?> generateGraph(int n, int maxCost, boolean connected, double density, boolean positiveCosts);
+    public S generateGraph(int n, int maxCost, boolean connected, double density, boolean positiveCosts) {
+        checkArgs(n, maxCost, density, positiveCosts);
+        return this.generateGraph(n,maxCost,connected,density,positiveCosts);
+    }
 
     /**
      * Randomly generates an Eulerian graph with n vertices.
@@ -80,8 +89,8 @@ public abstract class GraphGenerator {
      * @param n - number of vertices in the graph
      * @return - a graph with n vertices.
      */
-    public Graph<?, ?> generateEulerianGraph(int n) {
-        return this.generateEulerianGraph(n, -1, false, -1);
+    public S generateEulerianGraph(int n) {
+        return this.generateEulerianGraph(n, 10, false, defaultDensity);
     }
 
     /**
@@ -91,8 +100,8 @@ public abstract class GraphGenerator {
      * @param maxCost - the maximum cost that a link in this graph can have.  If this is set to a negative number, it is ignored.
      * @return - a graph with the specified properties.
      */
-    public Graph<?, ?> generateEulerianGraph(int n, int maxCost) {
-        return this.generateEulerianGraph(n, maxCost, false, -1);
+    public S generateEulerianGraph(int n, int maxCost) {
+        return this.generateEulerianGraph(n, maxCost, false, defaultDensity);
     }
 
     /**
@@ -104,8 +113,8 @@ public abstract class GraphGenerator {
      * @param connected - flag to enforce (strong) connectedness on the graph
      * @return - a graph with the specified properties.
      */
-    public Graph<?, ?> generateEulerianGraph(int n, int maxCost, boolean connected) {
-        return this.generateEulerianGraph(n, maxCost, connected, -1);
+    public S generateEulerianGraph(int n, int maxCost, boolean connected) {
+        return this.generateEulerianGraph(n, maxCost, connected, defaultDensity);
     }
 
     /**
@@ -116,10 +125,36 @@ public abstract class GraphGenerator {
      * @param n         - number of vertices in the graph
      * @param maxCost   - the maximum cost that a link in this graph can have
      * @param connected - flag to enforce (strong) connectedness on the graph
-     * @param density   - the approximate density of the graph, must be between [0,1], but connected will override this,
-     *                  so that a true connected flag will have at least the number of links required to make the graph connected.  If this
-     *                  is set to something outside of the range [0,1], then it is ignored.
+     * @param density   - the approximate density of the graph, must be between [0,1]
      * @return - a graph with the specified properties.
      */
-    public abstract Graph<?, ?> generateEulerianGraph(int n, int maxCost, boolean connected, double density);
+    public S generateEulerianGraph(int n, int maxCost, boolean connected, double density){
+        checkArgs(n, maxCost, density, false);
+        return this.generateEulerianGraph(n, maxCost, connected, density);
+    }
+
+    /**
+     * Check inputs to the graph generator methods
+     * @param n - number of vertices in the graph
+     * @param maxCost - the maximum cost that a link in this graph can have
+     * @param density - the approximate density of the graph, must be between [0,1]
+     * @param positiveCosts - flag to enforce whether all edge weights are strictly positive.
+     */
+    private static void checkArgs(int n, int maxCost, double density, boolean positiveCosts){
+        boolean problem = false;
+        if(n < 0) {
+            LOGGER.error("Cannot create a graph with negative number of vertices.");
+            problem = true;
+        }
+        if(density < 0 || density > 1){
+            LOGGER.error("Invalid density.");
+            problem = true;
+        }
+        if(positiveCosts && maxCost < 0){
+            LOGGER.error("Cannot enforce maxCost < 0 when positiveCosts flag is set to true.");
+            problem = true;
+        }
+        if(problem)
+            throw new IllegalArgumentException();
+    }
 }

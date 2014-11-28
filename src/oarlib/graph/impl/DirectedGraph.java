@@ -7,6 +7,7 @@ import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.vertex.impl.DirectedVertex;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,8 @@ import java.util.List;
  * @author Oliver
  */
 public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
+
+    private static final Logger LOGGER = Logger.getLogger(DirectedGraph.class);
 
     //constructors
     public DirectedGraph() {
@@ -65,8 +68,10 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
 
     @Override
     public void removeEdge(Arc e) throws IllegalArgumentException {
-        if (!this.getEdges().contains(e))
+        if (!this.getEdges().contains(e)) {
+            LOGGER.error("This graph does not appear to contain the specified arc.");
             throw new IllegalArgumentException();
+        }
         e.getTail().removeFromNeighbors(e.getHead(), e);
         DirectedVertex toUpdate = e.getTail();
         toUpdate.setOutDegree(toUpdate.getOutDegree() - 1);
@@ -134,8 +139,10 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
     @Override
     public Arc constructEdge(int i, int j, String desc, int cost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
+        }
         return new Arc(desc, new Pair<DirectedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost);
 
     }

@@ -41,4 +41,14 @@ public class Edge extends Link<UndirectedVertex> {
         return new Edge("copy", this.getEndpoints(), this.getCost());
     }
 
+    @Override
+    public boolean isWindy() {
+        return false;
+    }
+
+    @Override
+    public Type getLinkType() {
+        return Type.UNDIRECTED;
+    }
+
 }

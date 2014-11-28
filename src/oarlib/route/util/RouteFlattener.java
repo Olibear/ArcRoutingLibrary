@@ -9,12 +9,14 @@ import java.util.List;
 
 /**
  * Turns a route that consists of windy links into the compact Benavent representation (an ordered list of internal ids
- * that indicates the order that the required edges are traversed.
+ * that indicates the order that the required edges are traversed, (or vice versa for unflatten)
  * Created by oliverlum on 11/16/14.
  */
-public class FlattenWindyRoute {
+public class RouteFlattener {
 
-    public static TIntArrayList flattenWindyRoute(Route r) {
+    private RouteFlattener(){};
+
+    public static TIntArrayList flattenRoute(Route r) {
 
         TIntArrayList ans = new TIntArrayList();
 

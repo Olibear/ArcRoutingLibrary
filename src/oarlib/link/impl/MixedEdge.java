@@ -66,4 +66,14 @@ public class MixedEdge extends Link<MixedVertex> {
         return new MixedEdge("copy", this.getEndpoints(), this.getCost(), this.isDirected());
     }
 
+    @Override
+    public boolean isWindy() {
+        return false;
+    }
+
+    @Override
+    public Type getLinkType() {
+        return Type.MIXED;
+    }
+
 }

@@ -1,7 +1,6 @@
 package oarlib.improvements;
 
-import oarlib.core.Problem;
-import oarlib.core.Route;
+import oarlib.core.*;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -9,9 +8,9 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 11/16/14.
  */
-public abstract class IntraRouteImprovementProcedure<S extends Problem> extends ImprovementProcedure<S> {
-    protected IntraRouteImprovementProcedure(S p, Collection<Route> candidateRoute) {
-        super(p, candidateRoute);
+public abstract class IntraRouteImprovementProcedure<V extends Vertex, E extends Link<V>, G extends Graph<V,E>> extends ImprovementProcedure<V,E,G> {
+    protected IntraRouteImprovementProcedure(G g, Collection<Route<V, E>> candidateRoute) {
+        super(g, candidateRoute);
     }
     @Override
     public Collection<Route> improveSolution() {

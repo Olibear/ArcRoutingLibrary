@@ -1,6 +1,7 @@
 package oarlib.core;
 
 import oarlib.exceptions.WrongEdgeTypeException;
+import org.apache.log4j.Logger;
 
 /**
  * Originally intended as a way of keeping track of things in the Yaoyuenyong's algorithm,
@@ -9,6 +10,8 @@ import oarlib.exceptions.WrongEdgeTypeException;
  * @author oliverlum
  */
 public class MultiEdge<E extends Link<? extends Vertex>> {
+
+    private static final Logger LOGGER = Logger.getLogger(MultiEdge.class);
 
     private int numCopies; // how many copies does this edge represent (if this is zero, we still have the original)
     private E first; // the original edge / arc that this multi-edge represents
@@ -89,8 +92,10 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
             directedForward = true;
             directedBackward = false;
             numCopies = 0;
-        } else
-            throw new WrongEdgeTypeException("You may only direct a type A or type D edge.");
+        } else {
+            LOGGER.error("You may only direct a type A or type D edge.");
+            throw new WrongEdgeTypeException();
+        }
     }
 
     /**
@@ -110,8 +115,10 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
             directedForward = false;
             directedBackward = true;
             numCopies = 0;
-        } else
-            throw new WrongEdgeTypeException("You may only direct a type A or type D edge.");
+        } else {
+            LOGGER.error("You may only direct a type A or type D edge.");
+            throw new WrongEdgeTypeException();
+        }
 
     }
 
@@ -121,10 +128,14 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
      * @throws WrongEdgeTypeException - if this edge is of type A, or D an exception is thrown (since we don't know what direction to add the copy
      */
     public void addCopy() throws WrongEdgeTypeException {
-        if (myType == EDGETYPE.A)
-            throw new WrongEdgeTypeException("Cannot copy an undirected edge, direct it first");
-        else if (myType == EDGETYPE.D)
-            throw new WrongEdgeTypeException("Cannot copy a type D edge, please decide on a direction first");
+        if (myType == EDGETYPE.A) {
+            LOGGER.error("Cannot copy an undirected edge, direct it first");
+            throw new WrongEdgeTypeException();
+        }
+        else if (myType == EDGETYPE.D) {
+            LOGGER.error("Cannot copy a type D edge, please decide on a direction first");
+            throw new WrongEdgeTypeException();
+        }
             //state transitions
         else if (myType == EDGETYPE.B)
             myType = EDGETYPE.C;
@@ -139,8 +150,10 @@ public class MultiEdge<E extends Link<? extends Vertex>> {
      * @throws WrongEdgeTypeException - if the edge type is not B, then this operation is invalid
      */
     public void addReverseCopy() throws WrongEdgeTypeException {
-        if (myType != EDGETYPE.B)
-            throw new WrongEdgeTypeException("Can only add a reverse copy if we are of type B.");
+        if (myType != EDGETYPE.B) {
+            LOGGER.error("Can only add a reverse copy if we are of type B.");
+            throw new WrongEdgeTypeException();
+        }
         numCopies = -1;
         //edges of type D have no direction
         directedForward = false;

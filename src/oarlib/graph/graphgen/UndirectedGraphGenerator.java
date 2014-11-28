@@ -9,7 +9,7 @@ import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.HashSet;
 
-public class UndirectedGraphGenerator extends GraphGenerator {
+public class UndirectedGraphGenerator extends GraphGenerator<UndirectedGraph> {
 
     public UndirectedGraphGenerator() {
         super();
@@ -19,10 +19,7 @@ public class UndirectedGraphGenerator extends GraphGenerator {
     public UndirectedGraph generateGraph(int n, int maxCost, boolean connected,
                                          double density, boolean positiveCosts) throws IllegalArgumentException {
 
-
         //edge cases
-        if (n < 0)
-            throw new IllegalArgumentException();
         if (n == 0)
             return new UndirectedGraph();
 

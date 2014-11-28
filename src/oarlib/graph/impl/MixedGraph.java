@@ -7,6 +7,7 @@ import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.MixedEdge;
 import oarlib.vertex.impl.MixedVertex;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
 
+    private static Logger LOGGER = Logger.getLogger(MixedGraph.class);
 
     //constructors
     public MixedGraph() {
@@ -42,15 +44,19 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
     //===============================================
 
     public void addEdge(int i, int j, String desc, int cost, boolean isDirected) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
+        }
         this.addEdge(this.constructEdge(i, j, desc, cost, isDirected));
     }
 
     public MixedEdge constructEdge(int i, int j, String desc, int cost, boolean isDirected)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
+        }
         return new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, isDirected);
 
     }
@@ -69,8 +75,10 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
     @Override
     public void addEdge(MixedEdge e) throws InvalidEndpointsException {
         //handle the two different cases
-        if (!this.getVertices().contains(e.getEndpoints().getFirst()) || !this.getVertices().contains(e.getEndpoints().getSecond()))
+        if (!this.getVertices().contains(e.getEndpoints().getFirst()) || !this.getVertices().contains(e.getEndpoints().getSecond())) {
+            LOGGER.error("The specified endpoints do not appear to exist in this graph.");
             throw new InvalidEndpointsException();
+        }
         if (e.isDirected()) {
             e.getEndpoints().getFirst().addToNeighbors(e.getEndpoints().getSecond(), e);
             MixedVertex toUpdate = e.getEndpoints().getFirst();
@@ -105,8 +113,10 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
 
     @Override
     public void removeEdge(MixedEdge e) throws IllegalArgumentException {
-        if (!this.getEdges().contains(e))
+        if (!this.getEdges().contains(e)) {
+            LOGGER.error("This graph does not appear to contain the specified link.");
             throw new IllegalArgumentException();
+        }
         try {
             if (e.isDirected()) {
                 e.getEndpoints().getFirst().removeFromNeighbors(e.getEndpoints().getSecond(), e);
@@ -194,8 +204,10 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
     @Override
     public MixedEdge constructEdge(int i, int j, String desc, int cost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
+        }
         return new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost);
 
     }

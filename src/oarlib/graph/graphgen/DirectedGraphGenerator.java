@@ -10,7 +10,7 @@ import oarlib.vertex.impl.DirectedVertex;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class DirectedGraphGenerator extends GraphGenerator {
+public class DirectedGraphGenerator extends GraphGenerator<DirectedGraph> {
 
     public DirectedGraphGenerator() {
         super();
@@ -20,6 +20,9 @@ public class DirectedGraphGenerator extends GraphGenerator {
     public DirectedGraph generateGraph(int n, int maxCost, boolean connected,
                                        double density, boolean positiveCosts) {
         try {
+            //edge cases
+            if(n == 0)
+                return new DirectedGraph();
 
             //ans graph
             DirectedGraph ans = new DirectedGraph();
@@ -29,10 +32,6 @@ public class DirectedGraphGenerator extends GraphGenerator {
                 ans.addVertex(new DirectedVertex("Original"));
             }
             TIntObjectHashMap<DirectedVertex> indexedVertices = ans.getInternalVertexMap();
-
-            //figure out what is set
-            maxCost = (maxCost < 0) ? Integer.MAX_VALUE : maxCost;
-            density = (density > 0 && density < 1) ? density : Math.random();
 
             //add arcs randomly
             for (int j = 1; j <= n; j++) {

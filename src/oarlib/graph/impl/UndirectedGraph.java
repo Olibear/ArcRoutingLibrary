@@ -7,6 +7,7 @@ import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.Edge;
 import oarlib.vertex.impl.UndirectedVertex;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,9 @@ import java.util.List;
  * @author Oliver
  */
 public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
+
+    private static Logger LOGGER = Logger.getLogger(UndirectedGraph.class);
+
     //constructors
     public UndirectedGraph() {
         super();
@@ -62,8 +66,10 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
 
     @Override
     public void removeEdge(Edge e) throws IllegalArgumentException {
-        if (!this.getEdges().contains(e))
+        if (!this.getEdges().contains(e)) {
+            LOGGER.error("This graph does not appear to contain the specified link.");
             throw new IllegalArgumentException();
+        }
         Pair<UndirectedVertex> endpoints = e.getEndpoints();
         endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
         endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
@@ -125,8 +131,10 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
     @Override
     public Edge constructEdge(int i, int j, String desc, int cost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
+        }
         return new Edge(desc, new Pair<UndirectedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost);
     }
 

@@ -408,12 +408,6 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             //Improvement Procedure 3
             //compute an euler tour, and then replace non-req paths with shortest paths from the full graph
             ArrayList<Integer> tour = CommonAlgorithms.tryHierholzer(ans);
-            /*
-            Debug
-             */
-            Tour debug = new Tour();
-            for (int i = 0; i < tour.size(); i++)
-                debug.appendEdge(ans.getInternalEdgeMap().get(tour.get(i)));
 
             TIntObjectHashMap<Arc> ansArcs = ans.getInternalEdgeMap();
             TIntObjectHashMap<WindyEdge> origEdges = orig.getInternalEdgeMap();
@@ -911,7 +905,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
         return ans / 2.0;
     }
 
-    public static Tour reclaimTour(Tour directedAns, WindyGraph g) {
+    public static Route reclaimTour(Route directedAns, WindyGraph g) {
 
         Tour ans = new Tour();
 
@@ -942,10 +936,10 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
                     foundIt = true;
                     break;
                 }
-                if(!foundIt) {
-                    LOGGER.debug("It seems as though this solution is invalid(?)");
-                    return null;
-                }
+            }
+            if(!foundIt) {
+                LOGGER.error("It seems as though this solution is invalid(?)");
+                return null;
             }
         }
 

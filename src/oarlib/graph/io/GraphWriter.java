@@ -8,6 +8,7 @@ import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.link.impl.Edge;
 import oarlib.vertex.impl.UndirectedVertex;
+import org.apache.log4j.Logger;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -20,6 +21,9 @@ import java.util.HashMap;
  * @author Oliver
  */
 public class GraphWriter {
+
+    private static final Logger LOGGER = Logger.getLogger(GraphWriter.class);
+
     private GraphFormat.Name mFormat;
 
     public GraphWriter(GraphFormat.Name format) {
@@ -54,9 +58,10 @@ public class GraphWriter {
             default:
                 break;
         }
-        throw new UnsupportedFormatException("While the format seems to have been added to the Format.Name type list,"
+        LOGGER.error("While the format seems to have been added to the Format.Name type list,"
                 + " there doesn't seem to be an appropriate write method assigned to it.  Support is planned in the future," +
                 "but not currently available");
+        throw new UnsupportedFormatException();
     }
 
     private boolean writeMETISGraph(Graph<?, ?> g, String filename) {

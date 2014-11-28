@@ -59,4 +59,14 @@ public class WindyEdge extends Link<WindyVertex> {
         return new WindyEdge("copy", this.getEndpoints(), this.getCost(), this.getReverseCost(), this.isRequired());
     }
 
+    @Override
+    public boolean isWindy() {
+        return true;
+    }
+
+    @Override
+    public Type getLinkType() {
+        return Type.WINDY;
+    }
+
 }

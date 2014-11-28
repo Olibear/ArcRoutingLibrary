@@ -4,6 +4,8 @@ import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+import oarlib.link.impl.WindyEdge;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,24 +17,8 @@ import java.util.List;
  */
 public class Tour<V extends Vertex, E extends Link<V>> extends Route<V,E> {
 
-    private ArrayList<E> mRoute;
-
     public Tour() {
         super();
-        mRoute = new ArrayList<E>();
-    }
-
-    @Override
-    public List<E> getRoute() {
-        return mRoute;
-    }
-
-    @Override
-    public void appendEdge(E l) {
-        mRoute.add(l);
-        mCost += l.getCost();
-        if (l.isRequired())
-            mReqCost += l.getCost();
     }
 
     @Override

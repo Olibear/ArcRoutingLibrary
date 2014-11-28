@@ -37,10 +37,14 @@ public class CommonAlgorithms {
      * @throws IllegalArgumentException if the graph passed in is not Eulerian.
      */
     public static ArrayList<Integer> tryHierholzer(DirectedGraph eulerianGraph) throws IllegalArgumentException {
-        if (!isEulerian(eulerianGraph))
+        if (!isEulerian(eulerianGraph)) {
+            LOGGER.error("You are attempting to run hierholzer's algorithm on a non eulerian graph.");
             throw new IllegalArgumentException();
-        if (eulerianGraph.getEdges().size() == 0)
+        }
+        if (eulerianGraph.getEdges().size() == 0) {
+            LOGGER.debug("Running hierholzer's algorithm on an empty graph.");
             return new ArrayList<Integer>();
+        }
         return hierholzer(eulerianGraph, false);
     }
 
@@ -52,10 +56,14 @@ public class CommonAlgorithms {
      * @throws IllegalArgumentException if the graph passed in is not Eulerian.
      */
     public static ArrayList<Integer> tryHierholzer(UndirectedGraph eulerianGraph) throws IllegalArgumentException {
-        if (!isEulerian(eulerianGraph))
+        if (!isEulerian(eulerianGraph)) {
+            LOGGER.error("You are attempting to run hierholzer's algorithm on a non eulerian graph.");
             throw new IllegalArgumentException();
-        if (eulerianGraph.getEdges().size() == 0)
+        }
+        if (eulerianGraph.getEdges().size() == 0) {
+            LOGGER.debug("Running hierholzer's algorithm on an empty graph.");
             return new ArrayList<Integer>();
+        }
         return hierholzer(eulerianGraph, false);
     }
 
@@ -67,13 +75,19 @@ public class CommonAlgorithms {
      * @throws IllegalArgumentException if the graph passed in is not Eulerian.
      */
     public static ArrayList<Integer> tryHierholzer(MixedGraph eulerianGraph) throws IllegalArgumentException {
-        if (!isStronglyEulerian(eulerianGraph))
+        if (!isStronglyEulerian(eulerianGraph)) {
+            LOGGER.error("You are attempting to run hierholzer's algorithm on a non eulerian graph.");
             throw new IllegalArgumentException();
-        if (eulerianGraph.getEdges().size() == 0)
+        }
+        if (eulerianGraph.getEdges().size() == 0) {
+            LOGGER.debug("Running hierholzer's algorithm on an empty graph.");
             return new ArrayList<Integer>();
+        }
         DirectedGraph ans = CommonAlgorithms.directUndirectedCycles(eulerianGraph);
-        if (!isStronglyConnected(ans))
+        if (!isStronglyConnected(ans)) {
+            LOGGER.debug("You are attempting to run hierholzer's algorithm on a non-strongly connected graph.");
             throw new IllegalArgumentException();
+        }
         return hierholzer(ans, true);
     }
 
@@ -728,6 +742,8 @@ public class CommonAlgorithms {
         bellmanFordShortestPaths(g, sourceId, dist, path, null);
     }
 
+    //TODO: Add more overloads to alleviate memory constraints.
+
     /**
      * Implements the Bellman-Ford single-source shortest paths algorithm, (useful if facing negative edge weights, but only need a single-source algorithm).
      * Complexity is |V||E|.
@@ -737,10 +753,12 @@ public class CommonAlgorithms {
      * @param dist     - the ith entry contains the shortest distance from source to vetex i.
      * @param path     - the ith entry contains the previous vertex on the shortest path from source to vertex i.
      * @param edgePath - the ith entry contains the previous link on the shortest path from source to vertex i.
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException - if the argument arrays are of the incorrect size.
+     * @throws oarlib.exceptions.NegativeCycleException - if there is a negative cycle in the graph.  It will record this cycle in the exception.
      */
     public static void bellmanFordShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException, NegativeCycleException {
 
+        //throw to a special case if the edges have asymmetric costs
         if (g.getClass() == WindyGraph.class) {
             windyBellmanFord((WindyGraph) g, sourceId, dist, path, edgePath);
             return;
@@ -752,21 +770,25 @@ public class CommonAlgorithms {
             BIG += Math.abs(l.getCost());
         }
 
-        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
-            throw new IllegalArgumentException("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+            throw new IllegalArgumentException();
+        }
 
         //initialization
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
             throw new IllegalArgumentException("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+        }
 
         for (int i = 0; i <= n; i++) {
-            dist[i] = BIG;
-            path[i] = 0;
+            dist[i] = BIG; //init to a big value
+            path[i] = 0; //init to an arbitrary value
             if (recordEdgePath)
-                edgePath[i] = 0;
+                edgePath[i] = 0; //init to an arbitrary value
         }
-        dist[sourceId] = 0;
+        dist[sourceId] = 0; //dist to self = 0
 
         //relax edges
         TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
@@ -779,21 +801,32 @@ public class CommonAlgorithms {
         int minid = 0;
         int counter = 0;
         int lim = n * g.getEdges().size();
+        boolean searchForNegativeCycle = false;
+
+        //business logic
         while (!activeVertices.isEmpty()) {
-            u = indexedVertices.get(activeVertices.remove());
-            uid = u.getId();
-            active[uid] = false;
+            u = indexedVertices.get(activeVertices.remove()); // grab an active vertex
+            uid = u.getId(); //its id
+            active[uid] = false; //set it inactive
+
+            //cycle through u's neighbors
             for (Vertex v : u.getNeighbors().keySet()) {
-                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
-                min = Integer.MAX_VALUE;
-                vid = v.getId();
+                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v); //the links connecting u to v
+                min = Integer.MAX_VALUE; //init
+                vid = v.getId(); // v's id
+
+                //grab the cheapest link from u to v
                 for (Link<? extends Vertex> link : l) {
                     if (link.getCost() < min) {
                         min = link.getCost();
                         minid = link.getId();
                     }
                 }
+
+                //this is the cost of using this new path
                 alt = dist[uid] + min;
+
+                //if it's better,
                 if (alt < dist[vid]) {
                     //found a better path
                     dist[vid] = alt;
@@ -807,44 +840,55 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if (counter > lim)
+
+            //if we've relaxed more than ~ n times, that means we've got a negative cycle somewhere
+            if (counter > lim) {
+                searchForNegativeCycle = true;
                 break;
+            }
         }
 
-        int p, q, cost;
-        boolean continueSearching;
-        //check for negative cycles
-        for (Link<? extends Vertex> l : g.getEdges()) {
-            if (l.getCost() > 0)
-                continue;
+        if(searchForNegativeCycle) {
+            //let's construct it
+            int p, q, cost;
+            boolean continueSearching;
+            //check for negative cycles
+            for (Link<? extends Vertex> l : g.getEdges()) {
 
-            continueSearching = false;
+                //there has to be at least one link with negative cost in a negative cycle
+                if (l.getCost() > 0)
+                    continue;
 
-            p = l.getEndpoints().getFirst().getId();
-            q = l.getEndpoints().getSecond().getId();
+                continueSearching = false;
+
+                p = l.getEndpoints().getFirst().getId();
+                q = l.getEndpoints().getSecond().getId();
 
 
-            TIntArrayList problemPath = new TIntArrayList();
-            TIntArrayList problemEdgePath = new TIntArrayList();
+                TIntArrayList problemPath = new TIntArrayList();
+                TIntArrayList problemEdgePath = new TIntArrayList();
 
-            int start = q;
-            int end = q;
-            int next;
-            counter = 0;
-            do {
-                next = path[end];
-                problemPath.add(next);
-                if (recordEdgePath)
-                    problemEdgePath.add(edgePath[end]);
-                counter++;
-                if (counter > n) {
-                    continueSearching = true;
-                    break;
+                int start = q;
+                int end = q;
+                int next;
+                counter = 0;
+                do {
+                    next = path[end];
+                    problemPath.add(next);
+                    if (recordEdgePath)
+                        problemEdgePath.add(edgePath[end]);
+                    counter++;
+                    if (counter > n) {
+                        continueSearching = true;
+                        break;
+                    }
+                } while ((end = next) != start);
+
+                if (!continueSearching) {
+                    LOGGER.error("This graph has a negative cycle.  It is being logged.");
+                    throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
                 }
-            } while ((end = next) != start);
-
-            if (!continueSearching)
-                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+            }
         }
     }
 
@@ -868,13 +912,17 @@ public class CommonAlgorithms {
             return;
         }
 
-        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
-            throw new IllegalArgumentException("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+            throw new IllegalArgumentException();
+        }
 
         //initialization
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
-            throw new IllegalArgumentException("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
+            throw new IllegalArgumentException();
+        }
 
         for (int i = 0; i <= n; i++) {
             dist[i] = BIG;
@@ -895,6 +943,7 @@ public class CommonAlgorithms {
         int minid = 0;
         int counter = 0;
         int lim = n * virtual.getEdges().size();
+        boolean searchForNegativeCycle = false;
         while (!activeVertices.isEmpty()) {
             u = indexedVertices.get(activeVertices.remove());
             uid = u.getId();
@@ -923,45 +972,51 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if (counter > lim)
+            if (counter > lim) {
+                searchForNegativeCycle = true;
                 break;
+            }
         }
 
-        int p, q, cost;
-        boolean continueSearching;
-        //check for negative cycles
-        for (Link<? extends Vertex> l : virtual.getEdges()) {
-            if (l.getCost() > 0)
-                continue;
+        if(searchForNegativeCycle) {
+            int p, q, cost;
+            boolean continueSearching;
+            //check for negative cycles
+            for (Link<? extends Vertex> l : virtual.getEdges()) {
+                if (l.getCost() > 0)
+                    continue;
 
-            continueSearching = false;
+                continueSearching = false;
 
-            p = l.getEndpoints().getFirst().getId();
-            q = l.getEndpoints().getSecond().getId();
+                p = l.getEndpoints().getFirst().getId();
+                q = l.getEndpoints().getSecond().getId();
 
 
-            TIntArrayList problemPath = new TIntArrayList();
-            TIntArrayList problemEdgePath = new TIntArrayList();
+                TIntArrayList problemPath = new TIntArrayList();
+                TIntArrayList problemEdgePath = new TIntArrayList();
 
-            int start = q;
-            int end = q;
-            int next;
-            counter = 0;
-            do {
-                next = path[end];
-                problemPath.add(next);
-                if (recordEdgePath)
-                    problemEdgePath.add(edgePath[end]);
-                counter++;
-                if (counter > n) {
-                    continueSearching = true;
-                    break;
+                int start = q;
+                int end = q;
+                int next;
+                counter = 0;
+                do {
+                    next = path[end];
+                    problemPath.add(next);
+                    if (recordEdgePath)
+                        problemEdgePath.add(edgePath[end]);
+                    counter++;
+                    if (counter > n) {
+                        continueSearching = true;
+                        break;
+                    }
+                } while ((end = next) != start);
+
+                if (!continueSearching) {
+                    LOGGER.error("This graph contains a negative cycle.  It is being logged.");
+                    throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
                 }
-            } while ((end = next) != start);
 
-            if (!continueSearching)
-                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
-
+            }
         }
 
     }
@@ -1002,13 +1057,17 @@ public class CommonAlgorithms {
         for (Link<? extends Vertex> l : g.getEdges())
             BIG += Math.abs(l.getCost());
 
-        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
+        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         //initialization
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         for (int i = 0; i <= n; i++) {
             dist[i] = BIG;
@@ -1030,6 +1089,7 @@ public class CommonAlgorithms {
         int minid = 0;
         int counter = 0;
         int lim = n * g.getEdges().size();
+        boolean searchForNegativeCycle = false;
         while (!activeVertices.isEmpty()) {
             u = indexedVertices.get(activeVertices.remove());
             uid = u.getId();
@@ -1062,44 +1122,50 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if (counter > lim)
+            if (counter > lim) {
+                searchForNegativeCycle = true;
                 break;
+            }
         }
 
-        int p, q, cost;
-        boolean continueSearching;
-        //check for negative cycles
-        for (Link<? extends Vertex> l : g.getEdges()) {
-            if (l.getCost() > 0)
-                continue;
+        if(searchForNegativeCycle) {
+            int p, q, cost;
+            boolean continueSearching;
+            //check for negative cycles
+            for (Link<? extends Vertex> l : g.getEdges()) {
+                if (l.getCost() > 0)
+                    continue;
 
-            continueSearching = false;
+                continueSearching = false;
 
-            p = l.getEndpoints().getFirst().getId();
-            q = l.getEndpoints().getSecond().getId();
+                p = l.getEndpoints().getFirst().getId();
+                q = l.getEndpoints().getSecond().getId();
 
 
-            TIntArrayList problemPath = new TIntArrayList();
-            TIntArrayList problemEdgePath = new TIntArrayList();
+                TIntArrayList problemPath = new TIntArrayList();
+                TIntArrayList problemEdgePath = new TIntArrayList();
 
-            int start = q;
-            int end = q;
-            int next;
-            counter = 0;
-            do {
-                next = path[end];
-                problemPath.add(next);
-                if (recordEdgePath)
-                    problemEdgePath.add(edgePath[end]);
-                counter++;
-                if (counter > n) {
-                    continueSearching = true;
-                    break;
+                int start = q;
+                int end = q;
+                int next;
+                counter = 0;
+                do {
+                    next = path[end];
+                    problemPath.add(next);
+                    if (recordEdgePath)
+                        problemEdgePath.add(edgePath[end]);
+                    counter++;
+                    if (counter > n) {
+                        continueSearching = true;
+                        break;
+                    }
+                } while ((end = next) != start);
+
+                if (!continueSearching) {
+                    LOGGER.error("This graph contains a negative cycle.  It is being logged.");
+                    throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
                 }
-            } while ((end = next) != start);
-
-            if (!continueSearching)
-                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+            }
         }
     }
 
@@ -1122,13 +1188,17 @@ public class CommonAlgorithms {
             return;
         }
 
-        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
+        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         //initialization
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         for (int i = 0; i <= n; i++) {
             dist[i] = BIG;
@@ -1150,6 +1220,7 @@ public class CommonAlgorithms {
         int minid = 0;
         int counter = 0;
         int lim = n * virtual.getEdges().size();
+        boolean searchForNegativeCycle = false;
         while (!activeVertices.isEmpty()) {
             u = indexedVertices.get(activeVertices.remove());
             uid = u.getId();
@@ -1182,44 +1253,50 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if (counter > lim)
+            if (counter > lim) {
+                searchForNegativeCycle = true;
                 break;
+            }
         }
 
-        int p, q, cost;
-        boolean continueSearching;
-        //check for negative cycles
-        for (Link<? extends Vertex> l : virtual.getEdges()) {
-            if (l.getCost() > 0)
-                continue;
+        if(searchForNegativeCycle) {
+            int p, q, cost;
+            boolean continueSearching;
+            //check for negative cycles
+            for (Link<? extends Vertex> l : virtual.getEdges()) {
+                if (l.getCost() > 0)
+                    continue;
 
-            continueSearching = false;
+                continueSearching = false;
 
-            p = l.getEndpoints().getFirst().getId();
-            q = l.getEndpoints().getSecond().getId();
+                p = l.getEndpoints().getFirst().getId();
+                q = l.getEndpoints().getSecond().getId();
 
 
-            TIntArrayList problemPath = new TIntArrayList();
-            TIntArrayList problemEdgePath = new TIntArrayList();
+                TIntArrayList problemPath = new TIntArrayList();
+                TIntArrayList problemEdgePath = new TIntArrayList();
 
-            int start = q;
-            int end = q;
-            int next;
-            counter = 0;
-            do {
-                next = path[end];
-                problemPath.add(next);
-                if (recordEdgePath)
-                    problemEdgePath.add(edgePath[end]);
-                counter++;
-                if (counter > n) {
-                    continueSearching = true;
-                    break;
+                int start = q;
+                int end = q;
+                int next;
+                counter = 0;
+                do {
+                    next = path[end];
+                    problemPath.add(next);
+                    if (recordEdgePath)
+                        problemEdgePath.add(edgePath[end]);
+                    counter++;
+                    if (counter > n) {
+                        continueSearching = true;
+                        break;
+                    }
+                } while ((end = next) != start);
+
+                if (!continueSearching) {
+                    LOGGER.error("This graph contains a negative cycle. It is being logged.");
+                    throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
                 }
-            } while ((end = next) != start);
-
-            if (!continueSearching)
-                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+            }
         }
 
     }
@@ -1258,13 +1335,17 @@ public class CommonAlgorithms {
         for (Link<? extends Vertex> l : g.getEdges())
             BIG += Math.abs(l.getCost());
 
-        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
+        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         //initialization
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         for (int i = 0; i <= n; i++) {
             dist[i] = BIG;
@@ -1285,7 +1366,7 @@ public class CommonAlgorithms {
         int minid = 0;
         int counter = 0;
         int lim = n * g.getEdges().size();
-
+        boolean searchForNegativeCycles = false;
         while (!activeVertices.isEmpty()) {
             u = indexedVertices.get(activeVertices.remove());
             uid = u.getId();
@@ -1320,45 +1401,51 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if (counter > lim)
+            if (counter > lim) {
+                searchForNegativeCycles = true;
                 break;
+            }
         }
 
-        int p, q;
-        boolean continueSearching;
-        //check for negative cycles
-        for (Link<? extends Vertex> l : g.getEdges()) {
-            if (l.getCost() > 0)
-                continue;
+        if(searchForNegativeCycles) {
+            int p, q;
+            boolean continueSearching;
+            //check for negative cycles
+            for (Link<? extends Vertex> l : g.getEdges()) {
+                if (l.getCost() > 0)
+                    continue;
 
-            continueSearching = false;
+                continueSearching = false;
 
-            p = l.getEndpoints().getFirst().getId();
-            q = l.getEndpoints().getSecond().getId();
+                p = l.getEndpoints().getFirst().getId();
+                q = l.getEndpoints().getSecond().getId();
 
 
-            TIntArrayList problemPath = new TIntArrayList();
-            TIntArrayList problemEdgePath = new TIntArrayList();
+                TIntArrayList problemPath = new TIntArrayList();
+                TIntArrayList problemEdgePath = new TIntArrayList();
 
-            int start = q;
-            int end = q;
-            int next;
-            counter = 0;
-            do {
-                next = path[end];
-                problemPath.add(next);
-                if (recordEdgePath)
-                    problemEdgePath.add(edgePath[end]);
-                counter++;
-                if (counter > n) {
-                    continueSearching = true;
-                    break;
+                int start = q;
+                int end = q;
+                int next;
+                counter = 0;
+                do {
+                    next = path[end];
+                    problemPath.add(next);
+                    if (recordEdgePath)
+                        problemEdgePath.add(edgePath[end]);
+                    counter++;
+                    if (counter > n) {
+                        continueSearching = true;
+                        break;
+                    }
+                } while ((end = next) != start);
+
+                if (!continueSearching) {
+                    LOGGER.error("This graph contains a negative cycle.  It is being logged.");
+                    throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
                 }
-            } while ((end = next) != start);
 
-            if (!continueSearching)
-                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
-
+            }
         }
     }
 
@@ -1382,13 +1469,17 @@ public class CommonAlgorithms {
             return;
         }
 
-        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0)
+        if (dist.length != n + 1 || path.length != n + 1 || BIG < 0) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         //initialization
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("The input arrays to the Bellman-Ford procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         for (int i = 0; i <= n; i++) {
             dist[i] = BIG;
@@ -1409,6 +1500,7 @@ public class CommonAlgorithms {
         int minid = 0;
         int counter = 0;
         int lim = n * g.getEdges().size();
+        boolean searchForNegativeCycles = false;
         while (!activeVertices.isEmpty()) {
             u = indexedVertices.get(activeVertices.remove());
             uid = u.getId();
@@ -1443,46 +1535,51 @@ public class CommonAlgorithms {
                 }
             }
             counter++;
-            if (counter > lim)
+            if (counter > lim) {
+                searchForNegativeCycles = true;
                 break;
+            }
         }
 
-        int p, q, cost;
-        boolean continueSearching;
-        //check for negative cycles
-        for (Link<? extends Vertex> l : g.getEdges()) {
-            if (l.getCost() > 0)
-                continue;
+        if(searchForNegativeCycles) {
+            int p, q, cost;
+            boolean continueSearching;
+            //check for negative cycles
+            for (Link<? extends Vertex> l : g.getEdges()) {
+                if (l.getCost() > 0)
+                    continue;
 
-            continueSearching = false;
+                continueSearching = false;
 
-            p = l.getEndpoints().getFirst().getId();
-            q = l.getEndpoints().getSecond().getId();
+                p = l.getEndpoints().getFirst().getId();
+                q = l.getEndpoints().getSecond().getId();
 
 
-            TIntArrayList problemPath = new TIntArrayList();
-            TIntArrayList problemEdgePath = new TIntArrayList();
+                TIntArrayList problemPath = new TIntArrayList();
+                TIntArrayList problemEdgePath = new TIntArrayList();
 
-            int start = q;
-            int end = q;
-            int next;
-            counter = 0;
-            do {
-                next = path[end];
-                problemPath.add(next);
-                if (recordEdgePath)
-                    problemEdgePath.add(edgePath[end]);
-                counter++;
-                if (counter > n) {
-                    continueSearching = true;
-                    break;
+                int start = q;
+                int end = q;
+                int next;
+                counter = 0;
+                do {
+                    next = path[end];
+                    problemPath.add(next);
+                    if (recordEdgePath)
+                        problemEdgePath.add(edgePath[end]);
+                    counter++;
+                    if (counter > n) {
+                        continueSearching = true;
+                        break;
+                    }
+                } while ((end = next) != start);
+
+                if (!continueSearching) {
+                    LOGGER.error("This graph contains a negative cycle.  It is being logged.");
+                    throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
                 }
-            } while ((end = next) != start);
-
-            if (!continueSearching)
-                throw new NegativeCycleException(q, problemPath.toNativeArray(), problemEdgePath.toNativeArray(), "This graph contains a negative cycle.");
+            }
         }
-
     }
 
     /**
@@ -1501,8 +1598,10 @@ public class CommonAlgorithms {
     public static void dijkstrasWidestPathAlgorithmWithMaxPathCardinality(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, IndexedRecord<Integer>[] width, IndexedRecord<Integer>[] path, IndexedRecord<Integer>[] edgePath, int maxPathCardinality) throws IllegalArgumentException {
 
         int n = g.getVertices().size();
-        if (width.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+        if (width.length != n + 1 || path.length != n + 1 || edgePath.length != n + 1) {
+            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+            throw new IllegalArgumentException();
+        }
 
         //holds the remaining guys we need to process
         Stack<Integer> toProcess = new Stack<Integer>();
@@ -1604,12 +1703,16 @@ public class CommonAlgorithms {
             return;
         }
         int n = g.getVertices().size();
-        if (width.length != n + 1 || path.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+        if (width.length != n + 1 || path.length != n + 1) {
+            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+            throw new IllegalArgumentException();
+        }
 
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+            throw new IllegalArgumentException();
+        }
 
         //initialize
         PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new Utils.InverseDijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
@@ -1670,12 +1773,16 @@ public class CommonAlgorithms {
     private static void windyDijkstrasWidestPath(WindyGraph g, int sourceId, int[] width, int[] path, int[] edgePath) throws IllegalArgumentException {
 
         int n = g.getVertices().size();
-        if (width.length != n + 1 || path.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+        if (width.length != n + 1 || path.length != n + 1) {
+            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+            throw new IllegalArgumentException();
+        }
 
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+            throw new IllegalArgumentException();
+        }
 
         DirectedGraph virtual = new DirectedGraph(n);
 
@@ -1775,13 +1882,17 @@ public class CommonAlgorithms {
         }
 
         int n = g.getVertices().size();
-        if (dist.length != n + 1 || path.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+        if (dist.length != n + 1 || path.length != n + 1) {
+            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+            throw new IllegalArgumentException();
+        }
 
         //initialize
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+            throw new IllegalArgumentException();
+        }
 
         PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
         dist[sourceId] = 0;
@@ -1838,13 +1949,17 @@ public class CommonAlgorithms {
     private static void dijkstrasAlgorithmForWindyGraphs(WindyGraph g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
 
         int n = g.getVertices().size();
-        if (dist.length != n + 1 || path.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+        if (dist.length != n + 1 || path.length != n + 1) {
+            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+            throw new IllegalArgumentException();
+        }
 
         //initialize
         boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1)
-            throw new IllegalArgumentException("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
+            throw new IllegalArgumentException();
+        }
 
         DirectedGraph virtual = new DirectedGraph(n);
         try {
@@ -1916,11 +2031,15 @@ public class CommonAlgorithms {
 
         boolean recordEdgePath = (edgePath != null);
 
-        if (dist.length != n + 1 || path.length != n + 1)
+        if (dist.length != n + 1 || path.length != n + 1) {
+            LOGGER.error("The input arrays to the Floyd-Warshall least cost paths procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
-        if (recordEdgePath && edgePath.length != n + 1)
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("The input arrays to the Floyd-Warshall procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         try {
             //setup the digraph so and solve as normal; just use the match id for edgepath
@@ -2135,8 +2254,10 @@ public class CommonAlgorithms {
 	 * undirected cycles in the input graph, and directs them in an arbitrary direction.  
 	 */
     private static DirectedGraph directUndirectedCycles(MixedGraph input) throws IllegalArgumentException {
-        if (!CommonAlgorithms.isStronglyEulerian(input))
-            throw new IllegalArgumentException("Tried to run directUndirectedCycles on a non-eulerian Mixed Graph.");
+        if (!CommonAlgorithms.isStronglyEulerian(input)) {
+            LOGGER.error("Tried to run directUndirectedCycles on a non-eulerian Mixed Graph.");
+            throw new IllegalArgumentException();
+        }
         try {
             DirectedGraph ans = new DirectedGraph();
             UndirectedGraph temp = new UndirectedGraph();
@@ -2226,10 +2347,14 @@ public class CommonAlgorithms {
 
         boolean recordEdgePath = (edgePath != null);
 
-        if (dist.length != n + 1 || path.length != n + 1)
+        if (dist.length != n + 1 || path.length != n + 1) {
+            LOGGER.error("The input arrays to the Floyd-Warshall least cost paths procedure is not of the expected size.");
             throw new IllegalArgumentException();
-        if (recordEdgePath && edgePath.length != n + 1)
+        }
+        if (recordEdgePath && edgePath.length != n + 1) {
+            LOGGER.error("The input arrays to the Floyd-Warshall least cost paths procedure is not of the expected size.");
             throw new IllegalArgumentException();
+        }
 
         if (g.getClass() == WindyGraph.class) {
             windyFwLeastCostPaths((WindyGraph) g, dist, path, edgePath);
@@ -2574,8 +2699,11 @@ public class CommonAlgorithms {
         }
 
         //check for legality
-        if (dist[sinkId] == Integer.MAX_VALUE)
-            throw new IllegalArgumentException("Your graph is not connected, or this is not a valid flow problem");
+        if (dist[sinkId] == Integer.MAX_VALUE) {
+            LOGGER.error("Your graph is not connected, or this is not a valid flow problem");
+            throw new IllegalArgumentException();
+        }
+
 
         //start looking for augmenting paths
         int prev, prevEdge;
@@ -2715,8 +2843,10 @@ public class CommonAlgorithms {
             }
         }
 
-        if (-demand > supply || demand > 0)
+        if (-demand > supply || demand > 0) {
+            LOGGER.error("There is insufficient supply to meet demand.");
             throw new IllegalArgumentException();
+        }
 
         //greedily establish an initial feasible flow
         try {
@@ -2887,8 +3017,10 @@ public class CommonAlgorithms {
             HashSet<Integer> ans = new HashSet<Integer>();
 
             //error checking
-            if (root > n)
+            if (!g.getInternalEdgeMap().containsKey(root)) {
+                LOGGER.error("You had specified a root that is not in the graph.");
                 throw new IllegalArgumentException();
+            }
 
             //inputs to MSArbor
             int[] weights = new int[n * (n - 1)];

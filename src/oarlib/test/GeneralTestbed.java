@@ -31,6 +31,7 @@ import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.solver.impl.*;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -50,6 +51,7 @@ public class
      * @param args
      */
     public static void main(String[] args) {
+        BasicConfigurator.configure();
         //testSimpleGraphReader("/Users/File/Location/Of/A/Graph.txt");
         //validateEulerTour();
         //snippetUCPPSolver();
@@ -298,7 +300,7 @@ public class
                 int debugCounter = 0;
                 String output;
 
-                for (BoundingBox bb : OSM_BoundingBoxes.BIG_INSTANCES) {
+                for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
                     //if (debugCounter >= limForDebug)
                     //break;
                     debugCounter++;

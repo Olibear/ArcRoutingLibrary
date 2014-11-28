@@ -7,6 +7,7 @@ import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.WindyVertex;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.List;
 
 public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
 
+    private static final Logger LOGGER = Logger.getLogger(WindyGraph.class);
 
     //constructors
     public WindyGraph() {
@@ -66,16 +68,20 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
 
     public WindyEdge constructEdge(int i, int j, String desc, int cost, int reverseCost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size()) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
+        }
         return new WindyEdge(desc, new Pair<WindyVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, reverseCost);
 
     }
 
     public WindyEdge constructEdge(int i, int j, String desc, int cost, int reverseCost, boolean isRequired)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size()) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
+        }
         return new WindyEdge(desc, new Pair<WindyVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, reverseCost, isRequired);
 
     }
@@ -126,8 +132,10 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
 
     @Override
     public void removeEdge(WindyEdge e) throws IllegalArgumentException {
-        if (!this.getEdges().contains(e))
+        if (!this.getEdges().contains(e)) {
+            LOGGER.error("This graph does not appear to contain the specified link.");
             throw new IllegalArgumentException();
+        }
         Pair<WindyVertex> endpoints = e.getEndpoints();
         endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
         endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
@@ -175,8 +183,10 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
     @Override
     public WindyEdge constructEdge(int i, int j, String desc, int cost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size())
+        if (i > this.getVertices().size() || j > this.getVertices().size()) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
+        }
         return new WindyEdge(desc, new Pair<WindyVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, cost);
 
     }

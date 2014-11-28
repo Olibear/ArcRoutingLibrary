@@ -9,7 +9,7 @@ import oarlib.vertex.impl.WindyVertex;
 
 import java.util.HashSet;
 
-public class WindyGraphGenerator extends GraphGenerator {
+public class WindyGraphGenerator extends GraphGenerator<WindyGraph> {
 
     public WindyGraphGenerator() {
         super();
@@ -19,10 +19,7 @@ public class WindyGraphGenerator extends GraphGenerator {
     public WindyGraph generateGraph(int n, int maxCost, boolean connected,
                                     double density, boolean positiveCosts) throws IllegalArgumentException {
 
-
         //edge cases
-        if (n < 0)
-            throw new IllegalArgumentException();
         if (n == 0)
             return new WindyGraph();
 

@@ -63,4 +63,14 @@ public class Arc extends Link<DirectedVertex> {
         return new Arc("copy", this.getEndpoints(), this.getCost());
     }
 
+    @Override
+    public boolean isWindy() {
+        return false;
+    }
+
+    @Override
+    public Type getLinkType() {
+        return Type.DIRECTED;
+    }
+
 }

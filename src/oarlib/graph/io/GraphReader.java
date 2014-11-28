@@ -55,6 +55,7 @@ public class GraphReader {
             case Campos:
                 return readCamposGraph(fileName);
             case DIMACS_Modified:
+                //TODO: make a reader
                 break;
             case METIS:
                 return readMETISGraph(fileName);
@@ -62,9 +63,10 @@ public class GraphReader {
                 //TODO: I should probably write a reader for my own format
                 break;
         }
-        throw new UnsupportedFormatException("While the format seems to have been added to the Format.Name type list,"
+        LOGGER.error("While the format seems to have been added to the Format.Name type list,"
                 + " there doesn't seem to be an appropriate read method assigned to it.  Support is planned in the future," +
                 "but not currently available");
+        throw new UnsupportedFormatException();
     }
 
     private Graph<?, ?> readMETISGraph(String fileName) throws FormatMismatchException {
@@ -130,7 +132,8 @@ public class GraphReader {
             for (int i = 1; i <= n; i++) {
                 if ((line = br.readLine()) == null) {
                     br.close();
-                    throw new FormatMismatchException("This does not appear to be a valid METIS graph file.  There are not as many lines as vertices specified in the header.");
+                    LOGGER.error("This does not appear to be a valid METIS graph file.  There are not as many lines as vertices specified in the header.");
+                    throw new FormatMismatchException();
                 }
 
                 temp = line.split(",\\s+|:");
@@ -207,13 +210,15 @@ public class GraphReader {
                 line = br.readLine();
                 if (line == null) {
                     br.close();
-                    throw new FormatMismatchException("Not enough lines to match the claimed number of arcs");
+                    LOGGER.error("Not enough lines to match the claimed number of arcs");
+                    throw new FormatMismatchException();
                 }
 
                 temp = line.split(",");
                 if (temp.length < 4) {
                     br.close();
-                    throw new FormatMismatchException("This line doesn't have the required components.");
+                    LOGGER.error("This line doesn't have the required components.");
+                    throw new FormatMismatchException();
                 }
 
                 isReq = Integer.parseInt(temp[3].trim()) == 1;
@@ -300,7 +305,8 @@ public class GraphReader {
                 return ans;
             } else {
                 br.close();
-                throw new FormatMismatchException("Unrecognized Type.");
+                LOGGER.error("Unrecognized Type.");
+                throw new FormatMismatchException();
             }
 
         } catch (Exception e) {
@@ -330,7 +336,8 @@ public class GraphReader {
                         type = "WindyRural";
                     else {
                         br.close();
-                        throw new FormatMismatchException("We could not figure out what type of graph this is.");
+                        LOGGER.error("We could not figure out what type of graph this is.");
+                        throw new FormatMismatchException();
                     }
                 } else if (line.contains("VERTICES")) {
                     temp = line.split("\\s+|:");
@@ -351,7 +358,8 @@ public class GraphReader {
 
             if (n == 0 || m == 0) {
                 br.close();
-                throw new FormatMismatchException("We could not detect any vertices (edges) in the file.");
+                LOGGER.error("We could not detect any vertices (edges) in the file.");
+                throw new FormatMismatchException();
             }
             //now split off into types
             if (type.equals("Mixed")) {
@@ -549,7 +557,8 @@ public class GraphReader {
                 return ans;
             } else {
                 br.close();
-                throw new FormatMismatchException("We don't currently support the type of graph right now.");
+                LOGGER.error("We don't currently support the type of graph right now.");
+                throw new FormatMismatchException();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -567,12 +576,14 @@ public class GraphReader {
             type = br.readLine();
             if (type == null) {
                 br.close();
-                throw new FormatMismatchException("There were no readable lines in the file.");
+                LOGGER.error("There were no readable lines in the file.");
+                throw new FormatMismatchException();
             }
             header = br.readLine();
             if (header == null) {
                 br.close();
-                throw new FormatMismatchException("There was only one readable line in the file.");
+                LOGGER.error("There was only one readable line in the file.");
+                throw new FormatMismatchException();
             }
             String[] nm = header.split("\\s+");
             int n = Integer.parseInt(nm[0]);
@@ -592,13 +603,15 @@ public class GraphReader {
                     line = br.readLine();
                     if (line == null) {
                         br.close();
-                        throw new FormatMismatchException("There were not enough lines in the file to account for the number "
+                        LOGGER.error("There were not enough lines in the file to account for the number "
                                 + "of edges claimed in the header.");
+                        throw new FormatMismatchException();
                     }
                     splitLine = line.split("\\s+");
                     if (splitLine.length != 3) {
                         br.close();
-                        throw new FormatMismatchException("One of the edge lines had too many entries in it.");
+                        LOGGER.error("One of the edge lines had too many entries in it.");
+                        throw new FormatMismatchException();
                     }
                     ans.addEdge(new Arc("Original", new Pair<DirectedVertex>(indexedVertices.get(Integer.parseInt(splitLine[0])), indexedVertices.get(Integer.parseInt(splitLine[1]))), Integer.parseInt(splitLine[2])));
                 }
@@ -618,13 +631,15 @@ public class GraphReader {
                     line = br.readLine();
                     if (line == null) {
                         br.close();
-                        throw new FormatMismatchException("There were not enough lines in the file to account for the number "
+                        LOGGER.error("There were not enough lines in the file to account for the number "
                                 + "of edges claimed in the header.");
+                        throw new FormatMismatchException();
                     }
                     splitLine = line.split("\\s+");
                     if (splitLine.length != 3) {
                         br.close();
-                        throw new FormatMismatchException("One of the edge lines had too many entries in it.");
+                        LOGGER.error("One of the edge lines had too many entries in it.");
+                        throw new FormatMismatchException();
                     }
                     ans.addEdge(new Edge("Original", new Pair<UndirectedVertex>(indexedVertices.get(Integer.parseInt(splitLine[0])), indexedVertices.get(Integer.parseInt(splitLine[1]))), Integer.parseInt(splitLine[2])));
 
@@ -643,8 +658,9 @@ public class GraphReader {
             //Something is wrong
             else {
                 br.close();
-                throw new FormatMismatchException("The type specified in the first line of the DIMACS_Modified file was not recognized."
+                LOGGER.error("The type specified in the first line of the DIMACS_Modified file was not recognized."
                         + "  It should read either \"Directed\" \"Undirected\" \"Mixed\" or \"Windy\"");
+                throw new FormatMismatchException();
             }
             br.close();
             return null;

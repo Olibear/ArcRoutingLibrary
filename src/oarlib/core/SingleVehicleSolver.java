@@ -9,7 +9,6 @@ import oarlib.exceptions.GraphInfeasibleException;
  * @author oliverlum
  */
 public abstract class SingleVehicleSolver {
-
     protected Route currSol;
 
     /**

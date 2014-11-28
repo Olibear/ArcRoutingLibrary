@@ -1,16 +1,17 @@
 package core;
 
+import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.MixedEdge;
 import oarlib.link.impl.WindyEdge;
-import oarlib.graph.util.Pair;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by oliverlum on 11/3/14.
@@ -31,9 +32,6 @@ public class LinkTestSuite {
         assertEquals("Check cost:", 5, test.getCost());
         assertEquals("Check required:", false, test.isRequired());
         assertEquals("Check directed:", true, test.isDirected());
-
-        test.setDirected(false);
-        assertEquals("Check directed:", false, test.isDirected());
     }
 
     @Test
@@ -51,18 +49,15 @@ public class LinkTestSuite {
         assertEquals("Check required:", false, test.isRequired());
         assertEquals("Check directed:", false, test.isDirected());
 
-        test.setDirected(false);
-        assertEquals("Check directed:", false, test.isDirected());
-
     }
 
     @Test
-    public void createMixedEdge(){
+    public void createMixedEdge() {
 
         MixedVertex v1 = new MixedVertex("V1");
         MixedVertex v2 = new MixedVertex("V2");
 
-        MixedEdge test = new MixedEdge ("test", new Pair<MixedVertex>(v1, v2), 5, true, false);
+        MixedEdge test = new MixedEdge("test", new Pair<MixedVertex>(v1, v2), 5, true, false);
 
         assertEquals("Check label:", "test", test.getLabel());
         assertEquals("Check endpoints:", v1, test.getEndpoints().getFirst());
@@ -71,13 +66,10 @@ public class LinkTestSuite {
         assertEquals("Check required:", false, test.isRequired());
         assertEquals("Check directed:", true, test.isDirected());
 
-        test.setDirected(false);
-        assertEquals("Check directed:", false, test.isDirected());
-
     }
 
     @Test
-    public void createWindyEdge(){
+    public void createWindyEdge() {
 
         WindyVertex v1 = new WindyVertex("V1");
         WindyVertex v2 = new WindyVertex("V2");
@@ -91,9 +83,6 @@ public class LinkTestSuite {
         assertEquals("Check reverse cost:", 10, test.getReverseCost());
         assertEquals("Check required:", false, test.isRequired());
         assertEquals("Check directed:", false, test.isDirected());
-
-        test.setDirected(true);
-        assertEquals("Check directed:", true, test.isDirected());
 
     }
 

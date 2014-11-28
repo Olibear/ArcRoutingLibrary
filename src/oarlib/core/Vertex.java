@@ -2,6 +2,7 @@ package oarlib.core;
 
 import oarlib.exceptions.NoDemandSetException;
 import oarlib.graph.util.Pair;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ import java.util.Map;
  * @author oliverlum
  */
 public abstract class Vertex {
+
+    private static final Logger LOGGER = Logger.getLogger(Vertex.class);
 
     private static int counter = 1; //for assigning global vertex ids
     private String mLabel;
@@ -69,8 +72,10 @@ public abstract class Vertex {
     }
 
     public int getDemand() throws NoDemandSetException {
-        if (!demandSet)
+        if (!demandSet) {
+            LOGGER.error("It does not appear that demand is set.");
             throw new NoDemandSetException();
+        }
         return myDemand;
     }
 

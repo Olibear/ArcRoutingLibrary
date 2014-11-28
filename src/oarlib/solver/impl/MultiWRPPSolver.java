@@ -16,6 +16,8 @@ import oarlib.graph.transform.rebalance.CostRebalancer;
 import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
 import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.improvements.ImprovementProcedure;
+import oarlib.improvements.impl.TwoInterchange;
 import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
@@ -226,6 +228,16 @@ public class MultiWRPPSolver extends MultiVehicleSolver {
         Route ret = solver.solve();
         end = System.currentTimeMillis();
         LOGGER.debug("It took " + (end - start) + " milliseconds to run the sub-solver.");
+
+        //try improve
+        ArrayList<Route<WindyVertex, WindyEdge>> toImprove = new ArrayList<Route<WindyVertex, WindyEdge>>();
+        toImprove.add(WRPPSolver_Win.reclaimTour(ret,subgraph));
+        TwoInterchange ti = new TwoInterchange(subInstance.getGraph(), toImprove);
+        Collection<Route> improved = ti.improveSolution();
+
+        System.out.println(ret.toString());
+        for(Route r: improved)
+                System.out.println(r.toString());
 
         //set the id map for the route
         int n = subgraph.getVertices().size();

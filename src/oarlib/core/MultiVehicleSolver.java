@@ -24,7 +24,8 @@ public abstract class MultiVehicleSolver {
     protected MultiVehicleSolver(MultiVehicleProblem instance) throws IllegalArgumentException {
         //make sure I'm a valid problem instance
         if (!(instance.getProblemType() == getProblemType())) {
-            throw new IllegalArgumentException("It appears that this problem does not match the problem type handled by this solver.");
+            LOGGER.error("It appears that this problem does not match the problem type handled by this solver.");
+            throw new IllegalArgumentException();
         }
 
     }
@@ -35,8 +36,10 @@ public abstract class MultiVehicleSolver {
      * @return null if problem instance is not assigned, or solver failed.
      */
     public Collection<Route> trySolve() throws GraphInfeasibleException {
-        if (!checkGraphRequirements())
+        if (!checkGraphRequirements()) {
+            LOGGER.error("It does not appear as though it is possible to solve the problem on this graph.");
             throw new GraphInfeasibleException();
+        }
         return solve();
     }
 

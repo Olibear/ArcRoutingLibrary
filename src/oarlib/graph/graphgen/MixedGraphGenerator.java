@@ -10,7 +10,7 @@ import oarlib.vertex.impl.MixedVertex;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class MixedGraphGenerator extends GraphGenerator {
+public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
 
     public MixedGraphGenerator() {
         super();
@@ -21,8 +21,6 @@ public class MixedGraphGenerator extends GraphGenerator {
                                     double density, boolean positiveCosts) {
 
         //edge cases
-        if (n < 0)
-            throw new IllegalArgumentException();
         if (n == 0)
             return new MixedGraph();
 
