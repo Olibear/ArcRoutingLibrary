@@ -73,7 +73,7 @@ public abstract class Vertex {
 
     public int getDemand() throws NoDemandSetException {
         if (!demandSet) {
-            LOGGER.error("It does not appear that demand is set.");
+            //LOGGER.debug("It does not appear that demand is set.");
             throw new NoDemandSetException();
         }
         return myDemand;

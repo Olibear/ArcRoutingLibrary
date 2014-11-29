@@ -49,7 +49,7 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
 
             // defaults
             foundImprovement = false;
-            TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(record);
+            TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(record, true);
 
             int n = flattenedRoute.size();
 

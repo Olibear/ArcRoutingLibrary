@@ -50,7 +50,7 @@ public class OrInterchange extends IntraRouteImprovementProcedure<WindyVertex, W
 
             // defaults
             foundImprovement = false;
-            TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(record);
+            TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(record, true);
             ArrayList<Boolean> recordTraversalDirection = record.getCompactTraversalDirection();
 
             int n = flattenedRoute.size();
@@ -104,13 +104,14 @@ public class OrInterchange extends IntraRouteImprovementProcedure<WindyVertex, W
                         if (candidateCost < recordCost) {
                             recordCost = candidateCost;
                             newRecord = candidate;
-                            flattenedRoute = RouteFlattener.flattenRoute(record);
+                            flattenedRoute = RouteFlattener.flattenRoute(record, true);
                             foundImprovement = true;
                         }
                     }
                 }
             }
-            record = newRecord;
+            if(foundImprovement)
+                record = newRecord;
         }
 
         return record;

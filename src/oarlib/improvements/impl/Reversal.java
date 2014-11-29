@@ -14,7 +14,9 @@ import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.util.RouteFlattener;
 import oarlib.route.util.WindyRouteExpander;
 import oarlib.vertex.impl.WindyVertex;
+import org.apache.log4j.Logger;
 import org.apache.xpath.operations.Bool;
+import sun.reflect.generics.reflectiveObjects.LazyReflectiveObjectGenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +27,7 @@ import java.util.List;
  */
 public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
+    private static final Logger LOGGER = Logger.getLogger(Reversal.class);
 
     public Reversal(WindyGraph g, Collection<Route<WindyVertex, WindyEdge>> candidateRoute) {
         super(g, candidateRoute);
@@ -33,14 +36,19 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
     @Override
     protected Route improveRoute(Route r) {
 
-        TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(r);
+        TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(r, true);
 
         DirectedGraph optimalDirection = constructDirDAG(r, flattenedRoute);
 
         int m = flattenedRoute.size();
         ArrayList<Boolean> newDirection = determineDirection(optimalDirection, m);
 
-        return reconstructRoute(newDirection, flattenedRoute);
+        Route ret = reconstructRoute(newDirection, flattenedRoute);
+
+        LOGGER.debug("Original route cost: " + r.getCost());
+        LOGGER.debug("New route cost: " + ret.getCost());
+
+        return ret;
     }
 
     private DirectedGraph constructDirDAG(Route r, TIntArrayList flattenedRoute){
@@ -54,23 +62,34 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
 
         CommonAlgorithms.fwLeastCostPaths(mGraph, dist, path);
 
+        //self-distances need to be zero
+        for(int i = 1; i <= n; i++) {
+            if(dist[i][i] > 0)
+                dist[i][i] = 0;
+        }
+
         //check for argument legality
         int m = flattenedRoute.size();
 
         /*
          * In the following graph, the indexing is as follows:
-         * 1 - (2m + 1): These are i1, j1, i2, j2, ..., im, jm, im+1
-         * 2m + 2 - 4m + 2: These are j1', i1', j2', i2', ..., jm', im', jm+1'
+         * 1, 2: These are dummy nodes which we connect to represent the cost of going from the depot to i1 and j2 respectively
+         * 3 - (2m + 3): These are i1, j1, i2, j2, ..., im, jm, im+1
+         * 2m + 4 - 4m + 4: These are j1', i1', j2', i2', ..., jm', im', jm+1'
          */
-        DirectedGraph optimalDirection = new DirectedGraph(4 * m + 2);
+        DirectedGraph optimalDirection = new DirectedGraph(4 * m + 4);
         WindyEdge temp, temp2;
-        int tempIndex = 1;
+        int tempIndex = 3;
         int offset = 2 * m + 1;
         int currFirst, currSecond, nextFirst, nextSecond;
 
         try {
 
-            for (int i = 1; i < m; i++) {
+            temp = mGraph.getEdge(flattenedRoute.get(0));
+            optimalDirection.addEdge(1, 3, dist[mGraph.getDepotId()][temp.getEndpoints().getFirst().getId()]);
+            optimalDirection.addEdge(2, 2*m + 4, dist[mGraph.getDepotId()][temp.getEndpoints().getSecond().getId()]);
+
+            for (int i = 0; i < m; i++) {
 
                 temp = mGraph.getEdge(flattenedRoute.get(i));
                 currFirst = temp.getEndpoints().getFirst().getId();
@@ -80,18 +99,21 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
                 optimalDirection.addEdge(tempIndex, tempIndex + 1, temp.getCost());
                 optimalDirection.addEdge(tempIndex + offset, tempIndex + offset + 1, temp.getReverseCost());
 
-                if(i+1 == m)
-                    temp2 = mGraph.getEdge(flattenedRoute.get(0));
-                else
+                if(i + 1 == m) {
+                    nextFirst = mGraph.getDepotId();
+                    nextSecond = mGraph.getDepotId();
+                }
+                else {
                     temp2 = mGraph.getEdge(flattenedRoute.get(i+1));
-                nextFirst = temp2.getEndpoints().getFirst().getId();
-                nextSecond = temp2.getEndpoints().getSecond().getId();
+                    nextFirst = temp2.getEndpoints().getFirst().getId();
+                    nextSecond = temp2.getEndpoints().getSecond().getId();
+                }
 
                 //add the shortest path arcs
-                optimalDirection.addEdge(tempIndex + 1, tempIndex + offset + 2, dist[currSecond][nextFirst]);
-                optimalDirection.addEdge(tempIndex + 1, tempIndex + offset + 3, dist[currSecond][nextSecond]);
-                optimalDirection.addEdge(tempIndex + offset + 1, tempIndex + offset + 2, dist[currFirst][nextFirst]);
-                optimalDirection.addEdge(tempIndex + offset + 1, tempIndex + offset + 3, dist[currFirst][nextSecond]);
+                optimalDirection.addEdge(tempIndex + 1, tempIndex + 2, dist[currSecond][nextFirst]);
+                optimalDirection.addEdge(tempIndex + 1, tempIndex + offset + 2, dist[currSecond][nextSecond]);
+                optimalDirection.addEdge(tempIndex + offset + 1, tempIndex  + 2, dist[currFirst][nextFirst]);
+                optimalDirection.addEdge(tempIndex + offset + 1, tempIndex + offset + 2, dist[currFirst][nextSecond]);
 
                 tempIndex += 2;
             }
@@ -112,31 +134,36 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
         int[] path = new int[n+1];
         int[] dist2 = new int[n+1];
         int[] path2 = new int[n+1];
+        int[] truePath;
 
         CommonAlgorithms.dijkstrasAlgorithm(g, 1, dist, path);
-        CommonAlgorithms.dijkstrasAlgorithm(g, 2 * m + 2, dist2, path2);
+        CommonAlgorithms.dijkstrasAlgorithm(g, 2, dist2, path2);
 
         int start, end, next;
-        boolean matters = true;
+        boolean matters = false;
 
         //figure out which path
-        if(dist[2 * m + 1] < dist2[4 * m + 2]) {
+        if(dist[2 * m + 3] < dist2[4 * m + 4]) {
             start = 1;
-            end = 2 * m + 1;
+            end = 2 * m + 3;
+            truePath = path;
+            LOGGER.debug("The expected cost is: " + dist[end]);
         } else {
-            start = 2 * m + 2;
-            end = 4 * m + 2;
+            start = 2;
+            end = 4 * m + 4;
+            truePath = path2;
+            LOGGER.debug("The expected cost is: " + dist2[end]);
         }
 
         //figure out the path
-        int threshold = 2 * m + 1;
+        int threshold = 2 * m + 3;
         do {
-            next = path[end];
+            next = truePath[end];
             if(matters) {
                 if(next < threshold)
-                    ans.add(true);
+                    ans.add(0,true);
                 else
-                    ans.add(false);
+                    ans.add(0,false);
             }
             matters = !matters;
         } while((end = next) != start);

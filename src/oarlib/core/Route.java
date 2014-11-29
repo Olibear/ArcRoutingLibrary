@@ -1,6 +1,7 @@
 package oarlib.core;
 
 import gnu.trove.TIntArrayList;
+import gnu.trove.TIntHashSet;
 import gnu.trove.TIntIntHashMap;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.UndirectedGraph;
@@ -29,6 +30,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     protected ArrayList<E> mRoute;
     protected TIntArrayList compactRepresentation;
     protected ArrayList<Boolean> compactTD;
+    private TIntHashSet alreadyTraversed;
 
     //default constructor
     protected Route() {
@@ -39,6 +41,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         mRoute = new ArrayList<E>();
         compactRepresentation = new TIntArrayList();
         compactTD = new ArrayList<Boolean>();
+        alreadyTraversed = new TIntHashSet();
 
     }
 
@@ -128,13 +131,20 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     }
 
     /**
-     * Retrieve a copy of the current route.
+     * Retrieve the current route.
      *
      * @return List of edges to be traversed from first to last
      */
     public List<E> getRoute() {
         return mRoute;
     }
+
+    /**
+     * Retrive the compact representation of this route
+     *
+     * @return List of ids that should correpsond to flattening the route.
+     */
+    public TIntArrayList getCompactRepresentation(){ return compactRepresentation; }
 
 
     /**
@@ -180,18 +190,20 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             if(mRoute.size() == 1) {
                 if(lFirst == tempFirst && isWindy) {
                     trueCost = ((WindyEdge) temp).getReverseCost();
-                    if(temp.isRequired()) {
+                    if(temp.isRequired() && !alreadyTraversed.contains(temp.getId())) {
                         mReqCost += trueCost;
                         compactTD.add(false);
                         compactRepresentation.add(temp.getId());
+                        alreadyTraversed.add(temp.getId());
                     }
                 }
                 else {
                     trueCost = temp.getCost();
-                    if(temp.isRequired()) {
+                    if(temp.isRequired() && !alreadyTraversed.contains(temp.getId())) {
                         mReqCost += trueCost;
                         compactTD.add(true);
                         compactRepresentation.add(temp.getId());
+                        alreadyTraversed.add(temp.getId());
                     }
                 }
 
@@ -203,24 +215,28 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
 
             if(!isWindy) {
                 trueCost = l.getCost();
-                if(l.isRequired())
+                if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                     compactRepresentation.add(l.getId());
+                    alreadyTraversed.add(l.getId());
+                }
             }
             //check for same conn.
             else if(lFirst == tempFirst && lSecond == tempSecond) {
                 boolean tempTD = !compactTD.get(compactTD.size()-1);
                 if(tempTD) {
                     trueCost = l.getCost();
-                    if(l.isRequired()) {
+                    if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                         compactTD.add(true);
                         compactRepresentation.add(l.getId());
+                        alreadyTraversed.add(l.getId());
                     }
                 }
                 else {
                     trueCost = ((WindyEdge)l).getReverseCost();
-                    if(l.isRequired()) {
+                    if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                         compactTD.add(false);
                         compactRepresentation.add(l.getId());
+                        alreadyTraversed.add(l.getId());
                     }
                 }
             }
@@ -228,30 +244,34 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                 boolean tempTD = compactTD.get(compactTD.size()-1);
                 if(tempTD) {
                     trueCost = l.getCost();
-                    if(l.isRequired()) {
+                    if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                         compactTD.add(true);
                         compactRepresentation.add(l.getId());
+                        alreadyTraversed.add(l.getId());
                     }
                 }
                 else {
                     trueCost = ((WindyEdge)l).getReverseCost();
-                    if(l.isRequired()) {
+                    if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                         compactTD.add(false);
                         compactRepresentation.add(l.getId());
+                        alreadyTraversed.add(l.getId());
                     }
                 }
             }
             else if(lFirst == tempFirst || lFirst == tempSecond) {
                 trueCost = l.getCost();
-                if(l.isRequired()) {
+                if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                     compactTD.add(true);
                     compactRepresentation.add(l.getId());
+                    alreadyTraversed.add(l.getId());
                 }
             } else if(lSecond == tempFirst || lSecond == tempSecond) {
                 trueCost = ((WindyEdge)l).getReverseCost();
-                if(l.isRequired()) {
+                if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                     compactTD.add(false);
                     compactRepresentation.add(l.getId());
+                    alreadyTraversed.add(l.getId());
                 }
             } else {
                 LOGGER.error("The link you're attempting to add doens't share an endpoint with the previous one.");
