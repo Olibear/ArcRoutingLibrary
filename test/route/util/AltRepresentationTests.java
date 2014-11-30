@@ -4,8 +4,8 @@ import gnu.trove.TIntArrayList;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.problem.impl.rpp.WindyRPP;
+import oarlib.route.util.RouteExpander;
 import oarlib.route.util.RouteFlattener;
-import oarlib.route.util.WindyRouteExpander;
 import oarlib.solver.impl.WRPPSolver_Benavent_H1;
 import oarlib.solver.impl.WRPPSolver_Win;
 import org.apache.log4j.BasicConfigurator;
@@ -15,6 +15,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Test suite to test operations over alternate representations of routes, (e.g. the compact
+ * representation suggested by Benavent et al. (2005) New Heuristic Algorithms For the Windy
+ * Rural Postman Problem.
+ * <p/>
  * Created by oliverlum on 11/22/14.
  */
 public class AltRepresentationTests {
@@ -37,7 +41,7 @@ public class AltRepresentationTests {
 
             WindyRPP testProb = new WindyRPP(testGraph, "test instance");
             WRPPSolver_Benavent_H1 testSolver = new WRPPSolver_Benavent_H1(testProb, false);
-            WindyRouteExpander wre = new WindyRouteExpander(testGraph);
+            RouteExpander wre = new RouteExpander(testGraph);
 
             Route testAns = WRPPSolver_Win.reclaimTour(testSolver.trySolve(), testGraph);
             LOGGER.debug("Test ans:" + testAns.toString());

@@ -14,6 +14,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Test suite for methods internal to our link objects.
+ * <p/>
  * Created by oliverlum on 11/3/14.
  */
 public class LinkTestSuite {

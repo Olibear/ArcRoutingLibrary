@@ -1,26 +1,20 @@
 package oarlib.improvements.impl;
 
 import gnu.trove.TIntArrayList;
-import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.core.Vertex;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.rpp.WindyRPP;
+import oarlib.route.util.RouteExpander;
 import oarlib.route.util.RouteFlattener;
-import oarlib.route.util.WindyRouteExpander;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
-import org.apache.xpath.operations.Bool;
-import sun.reflect.generics.reflectiveObjects.LazyReflectiveObjectGenerator;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by oliverlum on 11/16/14.
@@ -34,7 +28,7 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
     }
 
     @Override
-    protected Route improveRoute(Route r) {
+    protected Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
         TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(r, true);
 
@@ -51,20 +45,20 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
         return ret;
     }
 
-    private DirectedGraph constructDirDAG(Route r, TIntArrayList flattenedRoute){
+    private DirectedGraph constructDirDAG(Route<WindyVertex, WindyEdge> r, TIntArrayList flattenedRoute) {
 
         WindyGraph mGraph = getGraph();
         int n = mGraph.getVertices().size();
 
         //calculate shortest paths
-        int[][] dist = new int[n+1][n+1];
-        int[][] path = new int[n+1][n+1];
+        int[][] dist = new int[n + 1][n + 1];
+        int[][] path = new int[n + 1][n + 1];
 
         CommonAlgorithms.fwLeastCostPaths(mGraph, dist, path);
 
         //self-distances need to be zero
-        for(int i = 1; i <= n; i++) {
-            if(dist[i][i] > 0)
+        for (int i = 1; i <= n; i++) {
+            if (dist[i][i] > 0)
                 dist[i][i] = 0;
         }
 
@@ -87,7 +81,7 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
 
             temp = mGraph.getEdge(flattenedRoute.get(0));
             optimalDirection.addEdge(1, 3, dist[mGraph.getDepotId()][temp.getEndpoints().getFirst().getId()]);
-            optimalDirection.addEdge(2, 2*m + 4, dist[mGraph.getDepotId()][temp.getEndpoints().getSecond().getId()]);
+            optimalDirection.addEdge(2, 2 * m + 4, dist[mGraph.getDepotId()][temp.getEndpoints().getSecond().getId()]);
 
             for (int i = 0; i < m; i++) {
 
@@ -99,12 +93,11 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
                 optimalDirection.addEdge(tempIndex, tempIndex + 1, temp.getCost());
                 optimalDirection.addEdge(tempIndex + offset, tempIndex + offset + 1, temp.getReverseCost());
 
-                if(i + 1 == m) {
+                if (i + 1 == m) {
                     nextFirst = mGraph.getDepotId();
                     nextSecond = mGraph.getDepotId();
-                }
-                else {
-                    temp2 = mGraph.getEdge(flattenedRoute.get(i+1));
+                } else {
+                    temp2 = mGraph.getEdge(flattenedRoute.get(i + 1));
                     nextFirst = temp2.getEndpoints().getFirst().getId();
                     nextSecond = temp2.getEndpoints().getSecond().getId();
                 }
@@ -112,7 +105,7 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
                 //add the shortest path arcs
                 optimalDirection.addEdge(tempIndex + 1, tempIndex + 2, dist[currSecond][nextFirst]);
                 optimalDirection.addEdge(tempIndex + 1, tempIndex + offset + 2, dist[currSecond][nextSecond]);
-                optimalDirection.addEdge(tempIndex + offset + 1, tempIndex  + 2, dist[currFirst][nextFirst]);
+                optimalDirection.addEdge(tempIndex + offset + 1, tempIndex + 2, dist[currFirst][nextFirst]);
                 optimalDirection.addEdge(tempIndex + offset + 1, tempIndex + offset + 2, dist[currFirst][nextSecond]);
 
                 tempIndex += 2;
@@ -130,10 +123,10 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
         ArrayList<Boolean> ans = new ArrayList<Boolean>();
 
         int n = g.getVertices().size();
-        int[] dist = new int[n+1];
-        int[] path = new int[n+1];
-        int[] dist2 = new int[n+1];
-        int[] path2 = new int[n+1];
+        int[] dist = new int[n + 1];
+        int[] path = new int[n + 1];
+        int[] dist2 = new int[n + 1];
+        int[] path2 = new int[n + 1];
         int[] truePath;
 
         CommonAlgorithms.dijkstrasAlgorithm(g, 1, dist, path);
@@ -143,7 +136,7 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
         boolean matters = false;
 
         //figure out which path
-        if(dist[2 * m + 3] < dist2[4 * m + 4]) {
+        if (dist[2 * m + 3] < dist2[4 * m + 4]) {
             start = 1;
             end = 2 * m + 3;
             truePath = path;
@@ -159,14 +152,14 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
         int threshold = 2 * m + 3;
         do {
             next = truePath[end];
-            if(matters) {
-                if(next < threshold)
-                    ans.add(0,true);
+            if (matters) {
+                if (next < threshold)
+                    ans.add(0, true);
                 else
-                    ans.add(0,false);
+                    ans.add(0, false);
             }
             matters = !matters;
-        } while((end = next) != start);
+        } while ((end = next) != start);
 
 
         return ans;
@@ -174,8 +167,8 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
 
     private Route reconstructRoute(ArrayList<Boolean> newDirection, TIntArrayList origRoute) {
 
-        WindyRouteExpander wre = new WindyRouteExpander(getGraph());
-        return wre.unflattenRoute(origRoute,newDirection);
+        RouteExpander wre = new RouteExpander(getGraph());
+        return wre.unflattenRoute(origRoute, newDirection);
 
     }
 

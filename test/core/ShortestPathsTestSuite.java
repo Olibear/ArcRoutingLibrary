@@ -7,6 +7,7 @@ import oarlib.graph.graphgen.WindyGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -15,9 +16,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
+ * Test suite for our various shortest path methods.
+ * <p/>
  * Created by oliverlum on 11/11/14.
  */
 public class ShortestPathsTestSuite {
+
+    private static final Logger LOGGER = Logger.getLogger(ShortestPathsTestSuite.class);
 
     @Test
     public void testDijkstras() {
@@ -43,7 +48,7 @@ public class ShortestPathsTestSuite {
             CommonAlgorithms.dijkstrasAlgorithm(testGraph, i, ddist, dpath);
             //check
             for (int j = 1; j <= 100; j++) {
-                if(i == j)
+                if (i == j)
                     continue;
                 assertEquals("Check distance: ", true, ddist[j] == dist[i][j]);
             }
@@ -69,7 +74,7 @@ public class ShortestPathsTestSuite {
             CommonAlgorithms.dijkstrasAlgorithm(testGraph2, i, ddist2, dpath2);
             //check
             for (int j = 1; j <= 100; j++) {
-                if(i == j)
+                if (i == j)
                     continue;
                 assertEquals("Check distance: ", ddist2[j], dist2[i][j]);
             }
@@ -100,7 +105,7 @@ public class ShortestPathsTestSuite {
                 CommonAlgorithms.bellmanFordShortestPaths(testGraph, i, ddist, dpath);
                 //check
                 for (int j = 1; j <= 100; j++) {
-                    if(i == j)
+                    if (i == j)
                         continue;
                     assertEquals("Check distance: ", true, ddist[j] == dist[i][j]);
                 }
@@ -126,7 +131,7 @@ public class ShortestPathsTestSuite {
                 CommonAlgorithms.bellmanFordShortestPaths(testGraph2, i, ddist2, dpath2);
                 //check
                 for (int j = 1; j <= 100; j++) {
-                    if(i == j)
+                    if (i == j)
                         continue;
                     assertEquals("Check distance: ", true, ddist2[j] == dist2[i][j]);
                 }
@@ -195,7 +200,7 @@ public class ShortestPathsTestSuite {
                 CommonAlgorithms.slfShortestPaths(testGraph, i, ddist, dpath);
                 //check
                 for (int j = 1; j <= 100; j++) {
-                    if(i == j)
+                    if (i == j)
                         continue;
                     assertEquals("Check distance: ", true, ddist[j] == dist[i][j]);
                 }
@@ -221,7 +226,7 @@ public class ShortestPathsTestSuite {
                 CommonAlgorithms.slfShortestPaths(testGraph2, i, ddist2, dpath2);
                 //check
                 for (int j = 1; j <= 100; j++) {
-                    if(i == j)
+                    if (i == j)
                         continue;
                     assertEquals("Check distance: ", true, ddist2[j] == dist2[i][j]);
                 }
@@ -287,10 +292,10 @@ public class ShortestPathsTestSuite {
             CommonAlgorithms.fwLeastCostPaths(testGraph, dist, path, edgePath);
 
             //validate via spot check
-            assertEquals("Spot checking the Floyd Warshall distance matrix.",1,dist[2][1]);
-            assertEquals("Spot checking the Floyd Warshall distance matrix.",1,dist[2][4]);
-            assertEquals("Spot checking the Floyd Warshall distance matrix.",2,dist[3][2]);
-            assertEquals("Spot checking the Floyd Warshall distance matrix.",3,dist[1][4]);
+            assertEquals("Spot checking the Floyd Warshall distance matrix.", 1, dist[2][1]);
+            assertEquals("Spot checking the Floyd Warshall distance matrix.", 1, dist[2][4]);
+            assertEquals("Spot checking the Floyd Warshall distance matrix.", 2, dist[3][2]);
+            assertEquals("Spot checking the Floyd Warshall distance matrix.", 3, dist[1][4]);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -303,14 +308,14 @@ public class ShortestPathsTestSuite {
     @Test
     public void testWidestPath() {
 
-        try{
+        try {
 
             WindyGraph testGraph = new WindyGraph(5);
-            testGraph.addEdge(1,2,4);
-            testGraph.addEdge(2,3,5);
-            testGraph.addEdge(3,4,2);
-            testGraph.addEdge(4,5,4);
-            testGraph.addEdge(3,5,3);
+            testGraph.addEdge(1, 2, 4);
+            testGraph.addEdge(2, 3, 5);
+            testGraph.addEdge(3, 4, 2);
+            testGraph.addEdge(4, 5, 4);
+            testGraph.addEdge(3, 5, 3);
 
             int[] width = new int[6];
             int[] path = new int[6];
@@ -319,7 +324,7 @@ public class ShortestPathsTestSuite {
             CommonAlgorithms.dijkstrasWidestPathAlgorithm(testGraph, 1, width, path, edgePath);
 
             //validate
-            assertEquals("Check the width of the widest path.",3, width[5]);
+            assertEquals("Check the width of the widest path.", 3, width[5]);
             assertEquals("Check the path of the widest path.", 3, path[5]);
             assertEquals("Check the edgePath of the widest path.", 5, edgePath[5]);
 
@@ -359,7 +364,7 @@ public class ShortestPathsTestSuite {
                 CommonAlgorithms.papeShortestPaths(testGraph, i, ddist, dpath);
                 //check
                 for (int j = 1; j <= 100; j++) {
-                    if(i == j)
+                    if (i == j)
                         continue;
                     assertEquals("Check distance: ", ddist[j], dist[i][j]);
                 }
@@ -385,7 +390,7 @@ public class ShortestPathsTestSuite {
                 CommonAlgorithms.papeShortestPaths(testGraph2, i, ddist2, dpath2);
                 //check
                 for (int j = 1; j <= 100; j++) {
-                    if(i == j)
+                    if (i == j)
                         continue;
                     assertEquals("Check distance: ", ddist2[j], dist2[i][j]);
                 }

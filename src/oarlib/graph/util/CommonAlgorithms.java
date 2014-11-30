@@ -2341,6 +2341,7 @@ public class CommonAlgorithms {
         }
     }
 
+    //TODO: get rid of ?'s in arguments for tighter coupling
     public static void fwLeastCostPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int[][] dist, int[][] path, int[][] edgePath) throws IllegalArgumentException {
         //initialize dist and path
         int n = g.getVertices().size();

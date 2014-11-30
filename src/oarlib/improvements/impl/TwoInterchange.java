@@ -7,8 +7,8 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
 import oarlib.route.impl.Tour;
+import oarlib.route.util.RouteExpander;
 import oarlib.route.util.RouteFlattener;
-import oarlib.route.util.WindyRouteExpander;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -34,14 +34,14 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
     }
 
     @Override
-    protected Route improveRoute(Route r) {
+    protected Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
         Route record = r;
         int recordCost = r.getCost();
         int temp, temp2, candidateCost;
         Boolean tempForward, tempForward2;
 
-        WindyRouteExpander wre = new WindyRouteExpander(getGraph());
+        RouteExpander wre = new RouteExpander(getGraph());
         boolean foundImprovement = true;
 
         Route newRecord = null;

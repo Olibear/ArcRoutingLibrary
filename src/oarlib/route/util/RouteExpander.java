@@ -1,7 +1,9 @@
 package oarlib.route.util;
 
 import gnu.trove.TIntArrayList;
-import oarlib.core.Route;
+import oarlib.core.Graph;
+import oarlib.core.Link;
+import oarlib.core.Vertex;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.WindyEdge;
@@ -13,16 +15,16 @@ import java.util.ArrayList;
 /**
  * Created by oliverlum on 11/20/14.
  */
-public class WindyRouteExpander {
+public class RouteExpander<G extends Graph> {
 
-    private static final Logger LOGGER = Logger.getLogger(WindyRouteExpander.class);
+    private static final Logger LOGGER = Logger.getLogger(RouteExpander.class);
 
-    WindyGraph mGraph;
+    G mGraph;
     int[][] dist;
     int[][] path;
     int[][] edgePath;
 
-    public WindyRouteExpander(WindyGraph g){
+    public RouteExpander(G g){
 
         mGraph = g;
 
@@ -48,7 +50,7 @@ public class WindyRouteExpander {
 
         int prev = mGraph.getDepotId();
         int to, nextPrev, curr, next, end;
-        WindyEdge temp;
+        Link<? extends Vertex> temp;
         for(int i = 0; i < flattenedRoute.size(); i++) {
             temp = mGraph.getEdge(flattenedRoute.get(i));
             if(!temp.isRequired())

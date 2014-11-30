@@ -1,17 +1,14 @@
 package oarlib.improvements.impl;
 
 import gnu.trove.TIntArrayList;
-import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.core.Vertex;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.impl.Tour;
+import oarlib.route.util.RouteExpander;
 import oarlib.route.util.RouteFlattener;
-import oarlib.route.util.WindyRouteExpander;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -36,13 +33,13 @@ public class OrInterchange extends IntraRouteImprovementProcedure<WindyVertex, W
     private static final int M = 11;
 
     @Override
-    protected Route improveRoute(Route r) {
+    protected Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
         Route record = r;
         int recordCost = r.getCost();
         int candidateCost;
 
-        WindyRouteExpander wre = new WindyRouteExpander(getGraph());
+        RouteExpander wre = new RouteExpander(getGraph());
         boolean foundImprovement = true;
 
         Route newRecord = null;

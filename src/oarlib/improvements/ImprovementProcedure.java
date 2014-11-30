@@ -65,6 +65,6 @@ public abstract class ImprovementProcedure<V extends Vertex, E extends Link<V>, 
         return mGraph;
     }
 
-    public abstract Collection<Route> improveSolution();
+    public abstract Collection<Route<V,E>> improveSolution();
 
 }

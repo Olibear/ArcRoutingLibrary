@@ -14,15 +14,18 @@ import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
+ * Test suite for methods internal to our vertex objects.
+ * <p/>
  * Created by oliverlum on 11/3/14.
  */
 public class VertexTestSuite {
 
     @Test
-    public void createDirectedVertex(){
+    public void createDirectedVertex() {
 
         try {
             DirectedVertex v1 = new DirectedVertex("v1");
@@ -52,7 +55,7 @@ public class VertexTestSuite {
     }
 
     @Test
-    public void createUndirectedVertex(){
+    public void createUndirectedVertex() {
 
         try {
             UndirectedVertex v1 = new UndirectedVertex("v1");
@@ -79,7 +82,7 @@ public class VertexTestSuite {
     }
 
     @Test
-    public void createMixedVertex(){
+    public void createMixedVertex() {
 
         try {
             MixedVertex v1 = new MixedVertex("v1");
@@ -107,7 +110,7 @@ public class VertexTestSuite {
     }
 
     @Test
-    public void createWindyVertex(){
+    public void createWindyVertex() {
 
         try {
             WindyVertex v1 = new WindyVertex("v1");
@@ -118,7 +121,7 @@ public class VertexTestSuite {
             test.addVertex(v2);
 
             WindyEdge a1 = new WindyEdge("a1", new Pair<WindyVertex>(v1, v2), 5, 10, false);
-            WindyEdge a2 = new WindyEdge("a2", new Pair<WindyVertex>(v1, v2), 5, 10,  true);
+            WindyEdge a2 = new WindyEdge("a2", new Pair<WindyVertex>(v1, v2), 5, 10, true);
 
             test.addEdge(a1);
             test.addEdge(a2);

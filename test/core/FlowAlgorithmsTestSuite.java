@@ -14,14 +14,16 @@ import java.util.Random;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Test suite for our min cost flow algorithms, and any other flow problems in the future.
+ * <p/>
  * Created by oliverlum on 11/11/14.
  */
 public class FlowAlgorithmsTestSuite {
 
     @Test
-    public void testMinCostFlow(){
+    public void testMinCostFlow() {
         DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-        DirectedGraph testGraph = (DirectedGraph)dgg.generateGraph(100,50,true,.5,true);
+        DirectedGraph testGraph = dgg.generateGraph(100, 50, true, .5, true);
         Random r = new Random();
         DirectedVertex v1, v2;
 
@@ -45,7 +47,7 @@ public class FlowAlgorithmsTestSuite {
 
         int[][] dist = new int[101][101];
         int[][] path = new int[101][101];
-        CommonAlgorithms.fwLeastCostPaths(testGraph,dist,path);
+        CommonAlgorithms.fwLeastCostPaths(testGraph, dist, path);
 
         //cross-validate
         int[] flowanswer = CommonAlgorithms.shortestSuccessivePathsMinCostNetworkFlow(testGraph);
@@ -54,12 +56,12 @@ public class FlowAlgorithmsTestSuite {
         //compare costs
         int m = testGraph.getEdges().size();
         int cost1 = 0;
-        for(int i = 1; i <= m; i ++) {
+        for (int i = 1; i <= m; i++) {
             cost1 += flowanswer[i] * testGraph.getEdge(i).getCost();
         }
 
         int cost2 = 0;
-        for(Pair<Integer> key: flowanswer2.keySet()) {
+        for (Pair<Integer> key : flowanswer2.keySet()) {
             cost2 += flowanswer2.get(key) * dist[key.getFirst()][key.getSecond()];
         }
 

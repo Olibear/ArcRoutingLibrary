@@ -235,7 +235,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver {
         ArrayList<Route<WindyVertex, WindyEdge>> toImprove = new ArrayList<Route<WindyVertex, WindyEdge>>();
         toImprove.add(WRPPSolver_Win.reclaimTour(ret,subgraph));
         OrInterchange oi = new OrInterchange(subInstance.getGraph(), toImprove);
-        Collection<Route> improved = oi.improveSolution();
+        Collection<Route<WindyVertex, WindyEdge>> improved = oi.improveSolution();
 
         System.out.println(ret.toString());
         for(Route r: improved) {

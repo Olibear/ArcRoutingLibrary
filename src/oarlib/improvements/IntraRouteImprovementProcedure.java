@@ -13,11 +13,11 @@ public abstract class IntraRouteImprovementProcedure<V extends Vertex, E extends
         super(g, candidateRoute);
     }
     @Override
-    public Collection<Route> improveSolution() {
-        HashSet<Route> ans = new HashSet<Route>();
+    public Collection<Route<V, E>> improveSolution() {
+        HashSet<Route<V,E>> ans = new HashSet<Route<V,E>>();
         for(Route r: getInitialSol())
             ans.add(improveRoute(r));
         return ans;
     }
-    protected abstract Route improveRoute(Route r);
+    protected abstract Route<V,E> improveRoute(Route<V,E> r);
 }

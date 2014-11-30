@@ -23,6 +23,7 @@ import java.util.Set;
 public abstract class Route<V extends Vertex, E extends Link<V>> {
 
     private static final Logger LOGGER = Logger.getLogger(Route.class);
+    private static int routeIDCounter = 1;
 
     protected int mCost; // cost of the route
     protected int mReqCost;
@@ -31,6 +32,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     protected TIntArrayList compactRepresentation;
     protected ArrayList<Boolean> compactTD;
     private TIntHashSet alreadyTraversed;
+    private int mGlobalId;
 
     //default constructor
     protected Route() {
@@ -42,6 +44,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         compactRepresentation = new TIntArrayList();
         compactTD = new ArrayList<Boolean>();
         alreadyTraversed = new TIntHashSet();
+        mGlobalId = routeIDCounter++;
 
     }
 
@@ -137,6 +140,15 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      */
     public List<E> getRoute() {
         return mRoute;
+    }
+
+    /**
+     * Retrive the route id for this route.
+     *
+     * @return a unique id for this route.
+     */
+    public int getGlobalId() {
+        return mGlobalId;
     }
 
     /**

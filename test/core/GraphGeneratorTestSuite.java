@@ -14,6 +14,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Test suite for the graph generator classes.
+ * <p/>
  * Created by oliverlum on 11/11/14.
  */
 public class GraphGeneratorTestSuite {
@@ -25,9 +27,9 @@ public class GraphGeneratorTestSuite {
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .001.
          */
-        UndirectedGraph g = (UndirectedGraph) ugg.generateGraph(1000, 10, true, .001);
-        assertEquals("Check connectivity:",true, CommonAlgorithms.isConnected(g));
-        assertEquals("Check n:",1000,g.getVertices().size());
+        UndirectedGraph g = ugg.generateGraph(1000, 10, true, .001);
+        assertEquals("Check connectivity:", true, CommonAlgorithms.isConnected(g));
+        assertEquals("Check n:", 1000, g.getVertices().size());
     }
 
     @Test
@@ -37,9 +39,9 @@ public class GraphGeneratorTestSuite {
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .001.
          */
-        DirectedGraph g = (DirectedGraph) dgg.generateGraph(1000, 10, true, .001);
-        assertEquals("Check connectivity:",true, CommonAlgorithms.isStronglyConnected(g));
-        assertEquals("Check n:",1000,g.getVertices().size());
+        DirectedGraph g = dgg.generateGraph(1000, 10, true, .001);
+        assertEquals("Check connectivity:", true, CommonAlgorithms.isStronglyConnected(g));
+        assertEquals("Check n:", 1000, g.getVertices().size());
     }
 
     @Test
@@ -49,9 +51,9 @@ public class GraphGeneratorTestSuite {
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .001.
          */
-        MixedGraph g = (MixedGraph) mgg.generateGraph(1000, 10, true, .001);
-        assertEquals("Check connectivity:",true, CommonAlgorithms.isStronglyConnected(g));
-        assertEquals("Check n:",1000,g.getVertices().size());
+        MixedGraph g = mgg.generateGraph(1000, 10, true, .001);
+        assertEquals("Check connectivity:", true, CommonAlgorithms.isStronglyConnected(g));
+        assertEquals("Check n:", 1000, g.getVertices().size());
     }
 
     @Test
@@ -61,8 +63,8 @@ public class GraphGeneratorTestSuite {
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .001.
          */
-        WindyGraph g = (WindyGraph) wgg.generateGraph(1000, 10, true, .001);
-        assertEquals("Check connectivity:",true, CommonAlgorithms.isConnected(g));
-        assertEquals("Check n:",1000,g.getVertices().size());
+        WindyGraph g = wgg.generateGraph(1000, 10, true, .001);
+        assertEquals("Check connectivity:", true, CommonAlgorithms.isConnected(g));
+        assertEquals("Check n:", 1000, g.getVertices().size());
     }
 }

@@ -24,13 +24,16 @@ import java.util.ArrayList;
 
 
 /**
+ * Suite of unit tests to verify the functionality of the single vehicle solvers.
+ * <p/>
  * Created by oliverlum on 11/11/14.
  */
 public class SingleVehicleSolverTestSuite {
 
     private static final Logger LOGGER = Logger.getLogger(SingleVehicleSolverTestSuite.class);
+
     @Test
-    public void testUCPPSolver(){
+    public void testUCPPSolver() {
         try {
             UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
             UndirectedGraph g;
@@ -58,7 +61,7 @@ public class SingleVehicleSolverTestSuite {
             for (int i = 2; i < 150; i += 10) {
                 myCost = 0;
                 trueCost = 0;
-                g = (UndirectedGraph) ugg.generateGraph(i, 10, true);
+                g = ugg.generateGraph(i, 10, true);
                 LOGGER.debug("Generated undirected graph with n = " + i);
                 if (CommonAlgorithms.isEulerian(g))
                     continue;
@@ -150,7 +153,7 @@ public class SingleVehicleSolverTestSuite {
     }
 
     @Test
-    public void testDCPPSolver(){
+    public void testDCPPSolver() {
         try {
             DirectedGraph g;
             DirectedGraph g2;
@@ -177,7 +180,7 @@ public class SingleVehicleSolverTestSuite {
             for (int i = 2; i < 150; i += 10) {
                 myCost = 0;
                 trueCost = 0;
-                g = (DirectedGraph) dgg.generateGraph(i, 10, true);
+                g = dgg.generateGraph(i, 10, true);
                 if (CommonAlgorithms.isEulerian(g))
                     continue;
                 //copy for gurobi to run on
@@ -257,22 +260,22 @@ public class SingleVehicleSolverTestSuite {
     }
 
     @Test
-    public void testFredericksonMCPPSolver(){
+    public void testFredericksonMCPPSolver() {
 
     }
 
     @Test
-    public void testYaoyuenyongMCPPSolver(){
+    public void testYaoyuenyongMCPPSolver() {
 
     }
 
     @Test
-    public void testWinWRPPSolver(){
+    public void testWinWRPPSolver() {
 
     }
 
     @Test
-    public void testBenaventWRPPSolver(){
+    public void testBenaventWRPPSolver() {
 
     }
 }
