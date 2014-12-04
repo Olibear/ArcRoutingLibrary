@@ -17,9 +17,7 @@ import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
 import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.improvements.ImprovementProcedure;
-import oarlib.improvements.impl.OrInterchange;
-import oarlib.improvements.impl.Reversal;
-import oarlib.improvements.impl.TwoInterchange;
+import oarlib.improvements.impl.*;
 import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
@@ -127,6 +125,15 @@ public class MultiWRPPSolver extends MultiVehicleSolver {
                     ans.add(route(partitions.get(part)));
                 }
 
+                //try improve
+                ArrayList<Route<WindyVertex, WindyEdge>> toImprove = new ArrayList<Route<WindyVertex,WindyEdge>>();
+                Route temp;
+                for(Route r: ans) {
+                    toImprove.add(WRPPSolver_Win.reclaimTour(r, mGraph));
+                }
+                Change1to1 ip = new Change1to1(mGraph, toImprove);
+                Collection<Route<WindyVertex, WindyEdge>> improved = ip.improveSolution();
+
                 //DEBUG: display routes
                 int routeCounter = 1;
                 int minCost = Integer.MAX_VALUE;
@@ -230,26 +237,6 @@ public class MultiWRPPSolver extends MultiVehicleSolver {
         Route ret = solver.solve();
         end = System.currentTimeMillis();
         LOGGER.debug("It took " + (end - start) + " milliseconds to run the sub-solver.");
-
-        //try improve
-        ArrayList<Route<WindyVertex, WindyEdge>> toImprove = new ArrayList<Route<WindyVertex, WindyEdge>>();
-        toImprove.add(WRPPSolver_Win.reclaimTour(ret,subgraph));
-        OrInterchange oi = new OrInterchange(subInstance.getGraph(), toImprove);
-        Collection<Route<WindyVertex, WindyEdge>> improved = oi.improveSolution();
-
-        System.out.println(ret.toString());
-        for(Route r: improved) {
-            System.out.println(r.toString());
-        }
-
-        //set the id map for the route
-        int n = subgraph.getVertices().size();
-        TIntObjectHashMap<WindyVertex> indexedVertices = subgraph.getInternalVertexMap();
-        TIntIntHashMap customIDMap = new TIntIntHashMap();
-        for (int i = 1; i <= n; i++) {
-            customIDMap.put(i, indexedVertices.get(i).getMatchId());
-        }
-        ret.setMapping(customIDMap);
 
         return ret;
     }

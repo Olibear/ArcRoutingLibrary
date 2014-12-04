@@ -200,7 +200,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
 
             int trueCost;
             if(mRoute.size() == 1) {
-                if(lFirst == tempFirst && isWindy) {
+                if((lFirst == tempFirst || lSecond == tempFirst) && isWindy) {
                     trueCost = ((WindyEdge) temp).getReverseCost();
                     if(temp.isRequired() && !alreadyTraversed.contains(temp.getId())) {
                         mReqCost += trueCost;

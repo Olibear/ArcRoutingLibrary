@@ -21,7 +21,8 @@ import java.util.Collection;
  * Created by oliverlum on 11/20/14.
  */
 public class Change2to0 extends InterRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
-    protected Change2to0(WindyGraph g, Collection<Route<WindyVertex, WindyEdge>> candidateRoute) {
+
+    public Change2to0(WindyGraph g, Collection<Route<WindyVertex, WindyEdge>> candidateRoute) {
         super(g, candidateRoute);
     }
 
@@ -52,10 +53,12 @@ public class Change2to0 extends InterRouteImprovementProcedure<WindyVertex, Wind
                 continue;
 
             //business logic
-            int lim = longestRoute.getCompactRepresentation().size();
+            int lim = longestRoute.getCompactRepresentation().size()-1;
             int lim2 = r.getCompactRepresentation().size()-1;
             CompactMove<WindyVertex, WindyEdge> temp, temp2;
             ArrayList<CompactMove<WindyVertex, WindyEdge>> moveList = new ArrayList<CompactMove<WindyVertex, WindyEdge>>();
+            int savings;
+            Collection<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
 
             for(int i = 0; i < lim; i++) {
                 for (int j = 0; j < lim2; j++) {
@@ -64,15 +67,19 @@ public class Change2to0 extends InterRouteImprovementProcedure<WindyVertex, Wind
                     moveList.clear();
                     moveList.add(temp);
                     moveList.add(temp2);
-                    if(mover.evalComplexMove(moveList,initialSol) < 0) {
+                    savings = mover.evalComplexMove(moveList, initialSol);
+                    if(savings < 0) {
+                        System.out.println("Savings: " + savings);
                         TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList);
                         for(Route r2: initialSol) {
                             if(routesToChange.containsKey(r2.getGlobalId())) {
-                                initialSol.remove(r2);
-                                initialSol.add(routesToChange.get(r2.getGlobalId()));
+                                ans.add(routesToChange.get(r2.getGlobalId()));
+                            }
+                            else {
+                                ans.add(r2);
                             }
                         }
-                        return initialSol;
+                        return ans;
                     }
                 }
             }

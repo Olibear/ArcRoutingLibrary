@@ -32,6 +32,11 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
         edgePath = new int[n + 1][n + 1];
 
         CommonAlgorithms.fwLeastCostPaths(g, dist, path, edgePath);
+
+        //zero out self-distances
+        for(int i = 1 ; i <= n; i++) {
+            dist[i][i] = 0;
+        }
     }
 
     /**
@@ -43,14 +48,24 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
     //TODO: add objective function type
     public int evalComplexMove(ArrayList<CompactMove<V, E>> moveList, Collection<Route<V,E>> routes) throws IllegalArgumentException {
 
+        if(moveList.size() == 0)
+            return 0;
+
         int ans;
 
         TIntIntHashMap costMap = new TIntIntHashMap();
+        TIntObjectHashMap<TIntArrayList> compactReps = new TIntObjectHashMap<TIntArrayList>();
+        TIntObjectHashMap<ArrayList<Boolean>> compactTDs = new TIntObjectHashMap<ArrayList<Boolean>>();
+
         int tempCost;
         int max = Integer.MIN_VALUE;
+        String origCost = "";
         for(Route<V,E> r : routes) {
             tempCost = r.getCost();
             costMap.put(r.getGlobalId(),tempCost);
+            compactReps.put(r.getGlobalId(), new TIntArrayList(r.getCompactRepresentation().toNativeArray()));
+            compactTDs.put(r.getGlobalId(), new ArrayList<Boolean>(r.getCompactTraversalDirection()));
+            origCost += "Originally, route: " + r.getGlobalId() + " had cost: " + tempCost + "\n";
             if(tempCost > max) {
                 max = tempCost;
             }
@@ -59,25 +74,58 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
         ans = max;
 
         int size = moveList.size();
-        Pair<Integer> change;
+        Pair<Integer> change = new Pair<Integer>(0,0);
         int tempId;
         CompactMove<V,E> tempMove;
+        boolean forward;
+        int tempLinkId;
 
         for (int i = 0; i < size; i++) {
+
             tempMove = moveList.get(i);
-            change = assessMoveCost(tempMove);
+            TIntArrayList flatFrom = compactReps.get(tempMove.getFrom().getGlobalId());
+            TIntArrayList flatTo = compactReps.get(tempMove.getTo().getGlobalId());
+            ArrayList<Boolean> fromDir = compactTDs.get(tempMove.getFrom().getGlobalId());
+            ArrayList<Boolean> toDir = compactTDs.get(tempMove.getTo().getGlobalId());
+            int fromPos = tempMove.getFromPos();
+            int toPos = tempMove.getToPos();
+
+            forward = assessMoveCost(flatFrom, fromDir, flatTo, toDir, fromPos, toPos, change);
+            tempMove.setPrudentDirection(forward);
             tempId = tempMove.getFrom().getGlobalId();
             costMap.put(tempId, costMap.get(tempId) - change.getFirst());
             tempId = tempMove.getTo().getGlobalId();
             costMap.put(tempId, costMap.get(tempId) + change.getSecond());
+
+            //make the mods for future moves
+
+            //remove link
+            tempLinkId = flatFrom.get(tempMove.getFromPos());
+            fromDir.remove(tempMove.getFromPos());
+            flatFrom.remove(tempMove.getFromPos());
+
+            //add it back
+            flatTo.insert(tempMove.getToPos(), tempLinkId);
+            toDir.add(tempMove.getToPos(), forward);
+
+
         }
 
+        String expectedCosts = "";
+        expectedCosts += "Predicted costs: \n";
         //for min max
         max = Integer.MIN_VALUE;
-        for(int i: costMap.getValues()) {
-            if(i > max)
-                max = i;
+        for(int i: costMap.keys()) {
+            expectedCosts += "Global id: " + i + " cost: " + costMap.get(i) + "\n";
+            if(costMap.get(i) > max)
+                max = costMap.get(i);
         }
+        expectedCosts += "End predicted costs.\n";
+
+        if(max - ans < 0) {
+            System.out.println(origCost + expectedCosts);
+        }
+
         return max - ans;
     }
 
@@ -106,32 +154,29 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
             flatFrom.remove(currMove.getFromPos());
             ans.put(currFrom.getGlobalId(), re.unflattenRoute(flatFrom,newFromDir));
 
+            System.out.println("The route with id: " + currFrom.getGlobalId() + " was replaced with a route costing: " + re.unflattenRoute(flatFrom,newFromDir).getCost());
+
             currTo = currMove.getTo();
             flatTo = currTo.getCompactRepresentation();
             flatTo.insert(currMove.getToPos(), currLinkId);
             newToDir = currTo.getCompactTraversalDirection();
-            newToDir.add(currMove.getToPos(),currMove.isPrudentDirection());
-            ans.put(currTo.getGlobalId(), re.unflattenRoute(flatTo,newToDir));
+            newToDir.add(currMove.getToPos(), currMove.isPrudentDirection());
+            ans.put(currTo.getGlobalId(), re.unflattenRoute(flatTo, newToDir));
+
+            System.out.println("The route with id: " + currTo.getGlobalId() + " was replaced with a route costing: " + re.unflattenRoute(flatTo, newToDir).getCost());
 
         }
 
         return ans;
     }
 
-    private Pair<Integer> assessMoveCost(CompactMove<V,E> move) {
-        Pair<Integer> ans = new Pair<Integer>(0,0);
+    private boolean assessMoveCost(TIntArrayList fromList, ArrayList<Boolean> fromDir, TIntArrayList toList, ArrayList<Boolean> toDir, int fromPos, int toPos, Pair<Integer> ans) {
+        Pair<Integer> ans1 = new Pair<Integer>(0,0);
         Pair<Integer> ans2 = new Pair<Integer>(0,0);
 
-        Route<V,E> from = move.getFrom();
-        Route<V,E> to = move.getTo();
-        TIntArrayList fromList = from.getCompactRepresentation();
-        ArrayList<Boolean> fromDir = from.getCompactTraversalDirection();
-        TIntArrayList toList = to.getCompactRepresentation();
-        ArrayList<Boolean> toDir = to.getCompactTraversalDirection();
-
-        int prevId, nextId, currFirst, currSecond, currCost, currCostAlt, alt1, alt2;
-        int fromPos = move.getFromPos();
-        int toPos = move.getToPos();
+        int prevId, nextId, currFirst, currSecond, currCost, currCostAlt;
+        if(fromPos >= fromList.size())
+            System.out.println("DEubg");
         E curr = mGraph.getEdge(fromList.get(fromPos));
         boolean isDirected = curr.isDirected();
 
@@ -158,9 +203,9 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
             prevId = mGraph.getDepotId();
 
             if(fromDir.get(fromPos + 1))
-                nextId = mGraph.getEdge(fromList.get(fromPos + 1)).getEndpoints().getSecond().getId();
-            else
                 nextId = mGraph.getEdge(fromList.get(fromPos + 1)).getEndpoints().getFirst().getId();
+            else
+                nextId = mGraph.getEdge(fromList.get(fromPos + 1)).getEndpoints().getSecond().getId();
 
         } else if(fromPos == fromList.size() - 1) {
             nextId = mGraph.getDepotId();
@@ -177,25 +222,24 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
                 prevId = mGraph.getEdge(fromList.get(fromPos - 1)).getEndpoints().getFirst().getId();
 
             if(fromDir.get(fromPos + 1))
-                nextId = mGraph.getEdge(fromList.get(fromPos + 1)).getEndpoints().getSecond().getId();
-            else
                 nextId = mGraph.getEdge(fromList.get(fromPos + 1)).getEndpoints().getFirst().getId();
+            else
+                nextId = mGraph.getEdge(fromList.get(fromPos + 1)).getEndpoints().getSecond().getId();
         }
 
-        ans.setFirst(dist[prevId][currFirst] + dist[currSecond][nextId] + currCost);
-        ans2.setFirst(dist[prevId][currSecond] + dist[currFirst][nextId] + currCostAlt);
-
+        ans1.setFirst(dist[prevId][currFirst] + dist[currSecond][nextId] + currCost - dist[prevId][nextId]);
+        ans2.setFirst(ans1.getFirst()); //the savings is fixed by the current orientation
 
         //addition cost
         if(toPos == 0) {
             prevId = mGraph.getDepotId();
 
-            if(toDir.get(toPos + 1))
-                nextId = mGraph.getEdge(toList.get(toPos + 1)).getEndpoints().getSecond().getId();
+            if(toDir.get(toPos))
+                nextId = mGraph.getEdge(toList.get(toPos)).getEndpoints().getFirst().getId();
             else
-                nextId = mGraph.getEdge(toList.get(toPos + 1)).getEndpoints().getFirst().getId();
+                nextId = mGraph.getEdge(toList.get(toPos)).getEndpoints().getSecond().getId();
 
-        } else if(toPos == toList.size() - 1) {
+        } else if(toPos == toList.size()) {
             nextId = mGraph.getDepotId();
 
             if(toDir.get(toPos - 1))
@@ -209,29 +253,32 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
             else
                 prevId = mGraph.getEdge(toList.get(toPos - 1)).getEndpoints().getFirst().getId();
 
-            if(toDir.get(toPos + 1))
-                nextId = mGraph.getEdge(toList.get(toPos + 1)).getEndpoints().getSecond().getId();
+            if(toDir.get(toPos))
+                nextId = mGraph.getEdge(toList.get(toPos)).getEndpoints().getFirst().getId();
             else
-                nextId = mGraph.getEdge(toList.get(toPos + 1)).getEndpoints().getFirst().getId();
+                nextId = mGraph.getEdge(toList.get(toPos)).getEndpoints().getSecond().getId();
         }
 
-        ans.setSecond(dist[prevId][currFirst] + dist[currSecond][nextId] + currCost);
-        ans2.setSecond(dist[prevId][currSecond] + dist[currFirst][nextId] + currCostAlt);
+        ans1.setSecond(dist[prevId][currFirst] + dist[currSecond][nextId] + currCost - dist[prevId][nextId]);
+        ans2.setSecond(dist[prevId][currSecond] + dist[currFirst][nextId] + currCostAlt - dist[prevId][nextId]);
 
         //TODO: we need to pick the better direction, which will depend on objective function type
         if(!isDirected) {
-            if(Math.max(ans.getFirst(), ans.getSecond()) < Math.max(ans2.getFirst(), ans2.getSecond())) {
-                move.setPrudentDirection(true);
-                return ans;
+            if(ans.getSecond() < ans2.getSecond()) {
+                ans.setFirst(ans1.getFirst());
+                ans.setSecond(ans1.getSecond());
+                return fromDir.get(fromPos);
             }
             else {
-                move.setPrudentDirection(false);
-                return ans2;
+                ans.setFirst(ans2.getFirst());
+                ans.setSecond(ans2.getSecond());
+                return !fromDir.get(fromPos);
             }
         }
 
-
-        return ans;
+        ans.setFirst(ans1.getFirst());
+        ans.setSecond(ans1.getSecond());
+        return true;
     }
 
 }

@@ -28,12 +28,12 @@ public class CompactMove<V extends Vertex, E extends Link<V>>  {
         int toSize = mTo.getCompactRepresentation().size();
 
         if(fromPos < 0 || fromPos >= fromSize) {
-            LOGGER.error("This is an invalid position.  Remember, this argument is intended to be from the flattened representation.");
-            throw new IllegalArgumentException();
+            LOGGER.warn("This is an invalid position in the route.  This move may be legal if it is chained together with others.  Remember, this argument is intended to be from the flattened representation.");
+            //throw new IllegalArgumentException();
         }
-        if(toPos < 0 || toPos >= toSize) {
-            LOGGER.error("This is an invalid position.  Remember, this argument is intended to be from the flattened representation.");
-            throw new IllegalArgumentException();
+        if(toPos < 0 || toPos > toSize) {
+            LOGGER.warn("This is an invalid position in the route.  This move may be legal if it is chained together with others.  Remember, this argument is intended to be from the flattened representation.");
+            //throw new IllegalArgumentException();
         }
 
         mFromPos = fromPos;

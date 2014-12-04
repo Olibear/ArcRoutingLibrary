@@ -192,9 +192,10 @@ public class OSM_Fetcher {
             } catch (Exception e) {
                 System.out.println("Error querying the URL.  If there is another stable server, we shall attempt to query it.");
                 e.printStackTrace();
-                return null;
             }
         }
+
+        System.out.println("All URLs could not be queried.");
 
         needToGen = false;
         mGraph = ans;
