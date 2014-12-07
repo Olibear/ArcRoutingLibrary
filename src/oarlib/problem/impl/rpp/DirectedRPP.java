@@ -3,7 +3,9 @@ package oarlib.problem.impl.rpp;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.link.impl.Arc;
 import oarlib.problem.impl.RuralPostmanProblem;
+import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.Collection;
 
@@ -12,7 +14,7 @@ import java.util.Collection;
  *
  * @author oliverlum
  */
-public class DirectedRPP extends RuralPostmanProblem<DirectedGraph> {
+public class DirectedRPP extends RuralPostmanProblem<DirectedVertex, Arc, DirectedGraph> {
 
     public DirectedRPP(DirectedGraph g) {
         this(g, "");

@@ -9,11 +9,11 @@ import org.apache.log4j.Logger;
 /**
  * Created by oliverlum on 11/16/14.
  */
-public abstract class ChinesePostmanProblem<S extends Graph<? extends Vertex, ? extends Link<? extends Vertex>>> extends Problem<S> {
+public abstract class ChinesePostmanProblem<V extends Vertex, E extends Link<V>, G extends Graph<V,E>> extends Problem<V,E,G> {
 
     private static final Logger LOGGER = Logger.getLogger(ChinesePostmanProblem.class);
 
-    protected ChinesePostmanProblem(S graph, String name){
+    protected ChinesePostmanProblem(G graph, String name){
         super(graph, name);
         for(Link l: graph.getEdges())
             if(!l.isRequired())

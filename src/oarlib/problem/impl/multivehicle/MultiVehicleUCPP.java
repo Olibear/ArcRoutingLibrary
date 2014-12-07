@@ -2,7 +2,9 @@ package oarlib.problem.impl.multivehicle;
 
 import oarlib.core.Route;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.link.impl.Edge;
 import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.Collection;
 
@@ -12,7 +14,7 @@ import java.util.Collection;
  * <p/>
  * Created by Oliver Lum on 7/25/2014.
  */
-public class MultiVehicleUCPP extends MultiVehicleProblem<UndirectedGraph> {
+public class MultiVehicleUCPP extends MultiVehicleProblem<UndirectedVertex, Edge, UndirectedGraph> {
 
     public MultiVehicleUCPP(UndirectedGraph graph, int numVehicles) {
         super(graph, numVehicles);

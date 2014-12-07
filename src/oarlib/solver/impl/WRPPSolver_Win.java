@@ -9,6 +9,7 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
+import oarlib.graph.util.Utils;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
@@ -21,7 +22,7 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 
-public class WRPPSolver_Win extends SingleVehicleSolver {
+public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex,WindyEdge,WindyGraph> {
 
     WindyRPP mInstance;
 
@@ -905,48 +906,6 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
         return ans / 2.0;
     }
 
-    public static Route reclaimTour(Route directedAns, WindyGraph g) {
-
-        Tour ans = new Tour();
-
-        List<? extends Link<? extends Vertex>> path = directedAns.getRoute();
-        List<WindyEdge> candidates;
-        int n = path.size();
-        int firstId, secondId, traversalCost;
-        boolean foundIt;
-
-        for(int i = 0; i < n; i++) {
-
-            Link<? extends Vertex> l = path.get(i);
-            firstId = l.getEndpoints().getFirst().getId();
-            secondId = l.getEndpoints().getSecond().getId();
-            traversalCost = l.getCost();
-            foundIt = false;
-
-            candidates = g.getVertex(firstId).getNeighbors().get(g.getVertex(secondId));
-
-            for(WindyEdge l2: candidates) {
-                if(l2.getEndpoints().getFirst().getId() == firstId && traversalCost == l2.getCost()) {
-                    ans.appendEdge(l2);
-                    foundIt = true;
-                    break;
-                }
-                else if(l2.getEndpoints().getFirst().getId() == secondId && traversalCost == l2.getReverseCost()) {
-                    ans.appendEdge(l2);
-                    foundIt = true;
-                    break;
-                }
-            }
-            if(!foundIt) {
-                LOGGER.error("It seems as though this solution is invalid(?)");
-                return null;
-            }
-        }
-
-        return ans;
-
-    }
-
     @Override
     protected WindyRPP getInstance() {
         return mInstance;
@@ -983,7 +942,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
             for (int i = 0; i < tour.size(); i++) {
                 eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
             }
-            currSol = eulerTour;
+            mInstance.setSol(Utils.reclaimTour(eulerTour, mInstance.getGraph()));
             return eulerTour;
         } catch (Exception e) {
             e.printStackTrace();
@@ -997,27 +956,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver {
     }
 
     @Override
-    public String printCurrentSol() throws IllegalStateException {
-        if (currSol == null)
-            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
-
-        String ans = "WRPPSolver_Win: Printing current solution...";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
-        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
-        ans += "Route Cost: " + currSol.getCost() + "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "\n";
-        ans += currSol.toString();
-        ans += "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        return ans;
-
+    public String getSolverName() {
+        return "Win's Heuristic for the Windy Rural Postman Problem";
     }
 
     @Override

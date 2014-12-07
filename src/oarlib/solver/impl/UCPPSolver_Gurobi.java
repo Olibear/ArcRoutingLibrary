@@ -16,7 +16,7 @@ import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.ArrayList;
 
-public class UCPPSolver_Gurobi extends SingleVehicleSolver {
+public class UCPPSolver_Gurobi extends SingleVehicleSolver<UndirectedVertex, Edge, UndirectedGraph> {
 
     UndirectedCPP mInstance;
 
@@ -171,6 +171,11 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver {
     @Override
     public String printCurrentSol() throws IllegalStateException {
         return "This solver does not support printing.";
+    }
+
+    @Override
+    public String getSolverName() {
+        return "An Exact Integer Programming Solver for the Undirected Chinese Postman Problem";
     }
 
 }

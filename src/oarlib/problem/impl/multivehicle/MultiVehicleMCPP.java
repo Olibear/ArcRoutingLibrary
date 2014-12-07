@@ -2,7 +2,9 @@ package oarlib.problem.impl.multivehicle;
 
 import oarlib.core.Route;
 import oarlib.graph.impl.MixedGraph;
+import oarlib.link.impl.MixedEdge;
 import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.vertex.impl.MixedVertex;
 
 import java.util.Collection;
 
@@ -12,7 +14,7 @@ import java.util.Collection;
  * <p/>
  * Created by oliverlum on 8/12/14.
  */
-public class MultiVehicleMCPP extends MultiVehicleProblem<MixedGraph> {
+public class MultiVehicleMCPP extends MultiVehicleProblem<MixedVertex, MixedEdge, MixedGraph> {
 
     public MultiVehicleMCPP(MixedGraph graph, int numVehicles) {
 

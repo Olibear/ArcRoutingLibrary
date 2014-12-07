@@ -165,4 +165,9 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver {
         return "This solver does not support printing.";
     }
 
+    @Override
+    public String getSolverName() {
+        return "Edmonds' Integer Programming Solver for the Directed Chinese Postman Problem";
+    }
+
 }

@@ -3,11 +3,13 @@ package oarlib.problem.impl.rpp;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.RuralPostmanProblem;
+import oarlib.vertex.impl.WindyVertex;
 
 import java.util.Collection;
 
-public class WindyRPP extends RuralPostmanProblem<WindyGraph> {
+public class WindyRPP extends RuralPostmanProblem<WindyVertex, WindyEdge, WindyGraph> {
 
     public WindyRPP(WindyGraph g) {
         this(g, "");

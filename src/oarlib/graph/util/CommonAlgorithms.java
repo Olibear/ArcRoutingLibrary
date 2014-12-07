@@ -112,8 +112,8 @@ public class CommonAlgorithms {
         //initialize current position variables
         Map<? extends Vertex, ? extends List<? extends Link<? extends Vertex>>> currNeighbors = start.getNeighbors();
         Vertex currVertex = start;
-        Vertex prevVertex = null;
-        Link<? extends Vertex> currEdge = new Arc("dummy", null, 0);
+        Vertex prevVertex;
+        Link<? extends Vertex> currEdge;
         Iterator<Vertex> vertexIter;
         boolean nextStart = true;
 

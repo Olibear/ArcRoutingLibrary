@@ -10,11 +10,10 @@ import java.util.Collection;
  * Solver abstraction.  Most general contract that Multivehicle solvers must fulfill.
  * Created by Oliver Lum on 7/25/2014.
  */
-public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>> {
+public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G extends Graph<V,E>> {
 
     private static final Logger LOGGER = Logger.getLogger(MultiVehicleSolver.class);
-
-    protected Collection<Route<V,E>> currSol;
+    MultiVehicleProblem<V,E,G> mInstance;
 
     /**
      * Default constructor; must set problem instance.
@@ -27,6 +26,7 @@ public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>> {
             LOGGER.error("It appears that this problem does not match the problem type handled by this solver.");
             throw new IllegalArgumentException();
         }
+        mInstance = instance;
 
     }
 
@@ -100,5 +100,79 @@ public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>> {
      * @return - a string representation of the current solution
      * @throws IllegalStateException - if solve hasn't been called yet
      */
-    public abstract String printCurrentSol() throws IllegalStateException;
+    public String printCurrentSol() throws IllegalStateException {
+
+        Collection<Route<V,E>> currSol = mInstance.getSol();
+
+        if (currSol == null)
+            LOGGER.error("It does not appear as though this solver has been run yet!",new IllegalStateException());
+
+        int tempCost;
+        int numZeroRoutes = 0;
+        int totalCost = 0;
+        int minLength = Integer.MAX_VALUE;
+        int maxLength = Integer.MIN_VALUE;
+        double percentVariance, averageCost, averageCostNoEmpty;
+        double deviationFromAverage, deviationFromAverageNoEmpty;
+        int addedCost = 0;
+
+        for (Link l : mInstance.getGraph().getEdges())
+            addedCost -= l.getCost();
+
+
+        String ans = "=======================================================";
+        ans += "\n";
+        ans += "\n";
+        ans += "CapacitatedDCPPSolver: Printing current solution...";
+        ans += "\n";
+        ans += "\n";
+        ans += "=======================================================";
+        for (Route<V, E> r : currSol) {
+            //gather metrics
+            tempCost = r.getCost();
+
+            if (tempCost == 0)
+                numZeroRoutes++;
+
+            if (tempCost < minLength)
+                minLength = tempCost;
+
+            if (tempCost > maxLength)
+                maxLength = tempCost;
+
+            totalCost += tempCost;
+
+            ans += "\n";
+            ans += "Route: " + r.toString() + "\n";
+            ans += "Route Cost: " + tempCost + "\n";
+            ans += "\n";
+        }
+
+        percentVariance = ((double) maxLength - minLength) / maxLength;
+        averageCost = (double) totalCost / currSol.size();
+        averageCostNoEmpty = (double) totalCost / (currSol.size() - numZeroRoutes);
+        deviationFromAverage = ((double) maxLength - averageCost) / maxLength;
+        deviationFromAverageNoEmpty = ((double) maxLength - averageCostNoEmpty) / maxLength;
+        addedCost += totalCost;
+
+
+        ans += "=======================================================";
+        ans += "\n";
+        ans += "\n";
+        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
+        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
+        ans += "Max Route Length: " + maxLength + "\n";
+        ans += "Min Route Length: " + minLength + "\n";
+        ans += "Average Route Length: " + averageCost + "\n";
+        ans += "Average RouteLength (excluding empty): " + averageCostNoEmpty + "\n";
+        ans += "% variance: " + 100.0 * percentVariance + "\n";
+        ans += "% deviation from average length: " + 100.0 * deviationFromAverage + "\n";
+        ans += "% deviation from average length (excluding empty): " + 100.0 * deviationFromAverageNoEmpty + "\n";
+        ans += "Added cost: " + addedCost + "\n";
+        ans += "\n";
+        ans += "\n";
+        ans += "=======================================================";
+
+        return ans;
+    }
 }

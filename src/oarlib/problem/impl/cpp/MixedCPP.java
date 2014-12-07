@@ -3,11 +3,13 @@ package oarlib.problem.impl.cpp;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.MixedGraph;
+import oarlib.link.impl.MixedEdge;
 import oarlib.problem.impl.ChinesePostmanProblem;
+import oarlib.vertex.impl.MixedVertex;
 
 import java.util.Collection;
 
-public class MixedCPP extends ChinesePostmanProblem<MixedGraph> {
+public class MixedCPP extends ChinesePostmanProblem<MixedVertex, MixedEdge, MixedGraph> {
 
     public MixedCPP(MixedGraph g) {
         this(g, "");

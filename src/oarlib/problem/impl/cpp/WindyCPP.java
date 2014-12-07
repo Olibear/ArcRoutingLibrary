@@ -3,11 +3,13 @@ package oarlib.problem.impl.cpp;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.ChinesePostmanProblem;
+import oarlib.vertex.impl.WindyVertex;
 
 import java.util.Collection;
 
-public class WindyCPP extends ChinesePostmanProblem<WindyGraph> {
+public class WindyCPP extends ChinesePostmanProblem<WindyVertex, WindyEdge, WindyGraph> {
 
     public WindyCPP(WindyGraph g) {
         this(g, "");

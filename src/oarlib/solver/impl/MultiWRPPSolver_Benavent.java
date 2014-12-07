@@ -10,6 +10,7 @@ import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.IndexedRecord;
+import oarlib.graph.util.Utils;
 import oarlib.improvements.metaheuristics.impl.BenaventIPFramework;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.WindyEdge;
@@ -29,7 +30,7 @@ import java.util.Stack;
 /**
  * Created by oliverlum on 10/17/14.
  */
-public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, WindyEdge> {
+public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
     MultiVehicleWRPP mInstance;
     WindyGraph mGraph;
@@ -101,9 +102,9 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
 
         ArrayList<Route<WindyVertex, WindyEdge>> finalAns = new ArrayList<Route<WindyVertex, WindyEdge>>();
         for(Route<DirectedVertex, Arc> r: multiAns) {
-            finalAns.add(WRPPSolver_Win.reclaimTour(r, copy));
+            finalAns.add(Utils.reclaimTour(r, mGraph));
         }
-        currSol = finalAns;
+        mInstance.setSol(finalAns);
 
         BenaventIPFramework improver = new BenaventIPFramework(mInstance.getGraph(), finalAns, mInstance.getmNumVehicles());
 
@@ -268,8 +269,11 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
 
     @Override
     public String printCurrentSol() throws IllegalStateException {
+
+        Collection<Route<WindyVertex,WindyEdge>> currSol = mInstance.getSol();
+
         if (currSol == null)
-            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
+            LOGGER.error("It does not appear as though this solver has been run yet!",new IllegalStateException());
 
         int tempCost;
         int numZeroRoutes = 0;

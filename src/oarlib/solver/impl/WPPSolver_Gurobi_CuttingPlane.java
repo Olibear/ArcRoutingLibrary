@@ -26,7 +26,7 @@ import java.util.HashSet;
  *         c_ij: the cost of going from vertex i to vertex j
  *         x_ij: the number of times an edge is traversed from vertex i to vertex j is included in the augmentation
  */
-public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver {
+public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver<WindyVertex,WindyEdge,WindyGraph> {
 
     WindyCPP mInstance;
 
@@ -332,6 +332,11 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver {
     @Override
     public String printCurrentSol() throws IllegalStateException {
         return "This solver does not support printing.";
+    }
+
+    @Override
+    public String getSolverName() {
+        return "A Linear Programming Cutting Plane Heuristic for the Windy Postman Problem";
     }
 
 }

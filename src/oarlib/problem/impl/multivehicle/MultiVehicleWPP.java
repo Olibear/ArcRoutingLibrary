@@ -2,14 +2,16 @@ package oarlib.problem.impl.multivehicle;
 
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.vertex.impl.WindyVertex;
 
 import java.util.Collection;
 
 /**
  * Created by oliverlum on 8/14/14.
  */
-public class MultiVehicleWPP extends MultiVehicleProblem<WindyGraph> {
+public class MultiVehicleWPP extends MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> {
 
     public MultiVehicleWPP(WindyGraph graph, int numVehicles) {
         super(graph, numVehicles);

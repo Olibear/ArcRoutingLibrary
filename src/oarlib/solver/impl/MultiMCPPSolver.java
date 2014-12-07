@@ -3,6 +3,7 @@ package oarlib.solver.impl;
 import oarlib.core.*;
 import oarlib.graph.factory.impl.MixedGraphFactory;
 import oarlib.graph.impl.MixedGraph;
+import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphWriter;
 import oarlib.graph.io.PartitionFormat;
@@ -23,7 +24,7 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 8/12/14.
  */
-public class MultiMCPPSolver extends MultiVehicleSolver<MixedVertex, MixedEdge> {
+public class MultiMCPPSolver extends MultiVehicleSolver<MixedVertex, MixedEdge, MixedGraph> {
 
     MultiVehicleMCPP mInstance;
 
@@ -78,7 +79,7 @@ public class MultiMCPPSolver extends MultiVehicleSolver<MixedVertex, MixedEdge> 
                 ans.add(route(partitions.get(part)));
             }
 
-            currSol = ans;
+            mInstance.setSol(ans);
             return ans;
 
 
@@ -143,79 +144,5 @@ public class MultiMCPPSolver extends MultiVehicleSolver<MixedVertex, MixedEdge> 
         Route ret = solver.solve();
 
         return ret;
-    }
-
-    @Override
-    public String printCurrentSol() throws IllegalStateException {
-        if (currSol == null)
-            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
-
-        int tempCost;
-        int numZeroRoutes = 0;
-        int totalCost = 0;
-        int minLength = Integer.MAX_VALUE;
-        int maxLength = Integer.MIN_VALUE;
-        double percentVariance, averageCost, averageCostNoEmpty;
-        double deviationFromAverage, deviationFromAverageNoEmpty;
-        int addedCost = 0;
-
-        for (Link l : mInstance.getGraph().getEdges())
-            addedCost -= l.getCost();
-
-
-        String ans = "=======================================================";
-        ans += "\n";
-        ans += "\n";
-        ans += "CapacitatedDCPPSolver: Printing current solution...";
-        ans += "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        for (Route<MixedVertex, MixedEdge> r : currSol) {
-            //gather metrics
-            tempCost = r.getCost();
-
-            if (tempCost == 0)
-                numZeroRoutes++;
-
-            if (tempCost < minLength)
-                minLength = tempCost;
-
-            if (tempCost > maxLength)
-                maxLength = tempCost;
-
-            totalCost += tempCost;
-
-            ans += "\n";
-            ans += "Route: " + r.toString() + "\n";
-            ans += "Route Cost: " + tempCost + "\n";
-            ans += "\n";
-        }
-
-        percentVariance = ((double) maxLength - minLength) / maxLength;
-        averageCost = (double) totalCost / currSol.size();
-        averageCostNoEmpty = (double) totalCost / (currSol.size() - numZeroRoutes);
-        deviationFromAverage = ((double) maxLength - averageCost) / maxLength;
-        deviationFromAverageNoEmpty = ((double) maxLength - averageCostNoEmpty) / maxLength;
-        addedCost += totalCost;
-
-
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "\n";
-        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
-        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
-        ans += "Max Route Length: " + maxLength + "\n";
-        ans += "Min Route Length: " + minLength + "\n";
-        ans += "Average Route Length: " + averageCost + "\n";
-        ans += "Average RouteLength (excluding empty): " + averageCostNoEmpty + "\n";
-        ans += "% variance: " + 100.0 * percentVariance + "\n";
-        ans += "% deviation from average length: " + 100.0 * deviationFromAverage + "\n";
-        ans += "% deviation from average length (excluding empty): " + 100.0 * deviationFromAverageNoEmpty + "\n";
-        ans += "Added cost: " + addedCost + "\n";
-        ans += "\n";
-        ans += "\n";
-        ans += "=======================================================";
-
-        return ans;
     }
 }

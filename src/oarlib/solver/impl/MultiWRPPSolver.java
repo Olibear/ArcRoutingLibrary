@@ -16,6 +16,7 @@ import oarlib.graph.transform.rebalance.CostRebalancer;
 import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
 import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.graph.util.Utils;
 import oarlib.improvements.ImprovementProcedure;
 import oarlib.improvements.impl.*;
 import oarlib.link.impl.WindyEdge;
@@ -34,7 +35,7 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 8/14/14.
  */
-public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge> {
+public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
     private MultiVehicleWRPP mInstance;
     private WindyGraph mGraph;
@@ -129,7 +130,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge> 
                 ArrayList<Route<WindyVertex, WindyEdge>> toImprove = new ArrayList<Route<WindyVertex,WindyEdge>>();
                 Route temp;
                 for(Route r: ans) {
-                    toImprove.add(WRPPSolver_Win.reclaimTour(r, mGraph));
+                    toImprove.add(Utils.reclaimTour(r, mGraph));
                 }
                 Change1to1 ip = new Change1to1(mGraph, toImprove);
                 Collection<Route<WindyVertex, WindyEdge>> improved = ip.improveSolution();
@@ -161,7 +162,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge> 
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, mGraph, mInstanceName);
             gd.exportWithPartition(GraphDisplay.ExportType.PDF, bestSol);
 
-            currSol = record;
+            mInstance.setSol(record);
             return record;
         } catch (Exception e) {
             e.printStackTrace();
@@ -243,8 +244,11 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge> 
 
     @Override
     public String printCurrentSol() throws IllegalStateException {
+
+        Collection<Route<WindyVertex,WindyEdge>> currSol = mInstance.getSol();
+
         if (currSol == null)
-            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
+            LOGGER.error("It does not appear as though this solver has been run yet!",new IllegalStateException());
 
         int tempCost;
         int numZeroRoutes = 0;

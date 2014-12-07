@@ -11,7 +11,7 @@ import oarlib.core.Vertex;
  * <p/>
  * Created by Oliver Lum on 7/25/2014.
  */
-public abstract class MultiVehicleProblem<S extends Graph<? extends Vertex, ? extends Link<? extends Vertex>>> extends Problem<S> {
+public abstract class MultiVehicleProblem<V extends Vertex, E extends Link<V>, G extends Graph<V,E>> extends Problem<V,E,G> {
 
     int mNumVehicles;
     int mCapacity;
@@ -24,7 +24,7 @@ public abstract class MultiVehicleProblem<S extends Graph<? extends Vertex, ? ex
      *
      * @param numVehicles - the number of routes allowed to exist in the final solution.
      */
-    protected MultiVehicleProblem(S graph, int numVehicles) {
+    protected MultiVehicleProblem(G graph, int numVehicles) {
         super(graph, "");
         mNumVehicles = numVehicles;
         numVehiclesSet = true;
@@ -40,7 +40,7 @@ public abstract class MultiVehicleProblem<S extends Graph<? extends Vertex, ? ex
      * @param numVehicles - the number of routes allowed to exist in the final solution.
      * @param capacity    - the max capacity that a route in the solution is allowed to have
      */
-    protected MultiVehicleProblem(S graph, int numVehicles, int capacity) {
+    protected MultiVehicleProblem(G graph, int numVehicles, int capacity) {
         super(graph, "");
         mCapacity = capacity;
         capSet = true;
@@ -62,7 +62,7 @@ public abstract class MultiVehicleProblem<S extends Graph<? extends Vertex, ? ex
      * @param capacity    - the max capacity that a route in the solution is allowed to have
      * @param name        - the instance name
      */
-    protected MultiVehicleProblem(S graph, int numVehicles, int capacity, String name) {
+    protected MultiVehicleProblem(G graph, int numVehicles, int capacity, String name) {
         super(graph, name);
         mCapacity = capacity;
         capSet = true;

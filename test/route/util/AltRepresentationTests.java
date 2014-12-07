@@ -3,11 +3,11 @@ package route.util;
 import gnu.trove.TIntArrayList;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.graph.util.Utils;
 import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.util.RouteExpander;
 import oarlib.route.util.RouteFlattener;
 import oarlib.solver.impl.WRPPSolver_Benavent_H1;
-import oarlib.solver.impl.WRPPSolver_Win;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class AltRepresentationTests {
             WRPPSolver_Benavent_H1 testSolver = new WRPPSolver_Benavent_H1(testProb, false);
             RouteExpander wre = new RouteExpander(testGraph);
 
-            Route testAns = WRPPSolver_Win.reclaimTour(testSolver.trySolve(), testGraph);
+            Route testAns = Utils.reclaimTour(testSolver.trySolve(), testGraph);
             LOGGER.debug("Test ans:" + testAns.toString());
             LOGGER.debug("Test cost: " + testAns.getCost());
             TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(testAns);

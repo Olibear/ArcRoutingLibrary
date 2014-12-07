@@ -1,5 +1,8 @@
 package oarlib.core;
 
+import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -8,14 +11,19 @@ import java.util.Collection;
  *
  * @author oliverlum
  */
-public abstract class Problem<S extends Graph<? extends Vertex, ? extends Link<? extends Vertex>>> {
+public abstract class Problem<V extends Vertex, E extends Link<V>, G extends Graph<V,E>>{
+
+    private static final Logger LOGGER = Logger.getLogger(Problem.class);
 
     protected String mName = "";
-    protected S mGraph;
+    protected G mGraph;
+    protected Collection<Route<V,E>> mSol;
+    protected boolean solved;
 
-    protected Problem(S graph, String name) {
+    protected Problem(G graph, String name) {
         mName = name;
         mGraph = graph;
+        solved = false;
     }
 
     public String getName() {
@@ -27,7 +35,7 @@ public abstract class Problem<S extends Graph<? extends Vertex, ? extends Link<?
      *
      * @return the graph
      */
-    public S getGraph() {
+    public G getGraph() {
         return mGraph;
     }
 
@@ -36,6 +44,25 @@ public abstract class Problem<S extends Graph<? extends Vertex, ? extends Link<?
      */
     public Graph.Type getGraphType() {
         return mGraph.getType();
+    }
+
+    public Collection<Route<V,E>> getSol(){
+        if(!solved) {
+            LOGGER.error("No solution has been set for this problem yet.");
+        }
+        return mSol;
+    }
+
+    public void setSol(Collection<Route<V,E>> newSol) {
+        mSol = newSol;
+        solved = true;
+    }
+
+    public void setSol(Route<V,E> newSol) {
+        ArrayList<Route<V,E>> container = new ArrayList<Route<V,E>>();
+        container.add(newSol);
+        mSol = container;
+        solved = true;
     }
 
     /**

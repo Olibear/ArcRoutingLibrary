@@ -11,6 +11,7 @@ import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.cpp.WindyCPP;
 import oarlib.route.impl.Tour;
+import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
 
@@ -22,7 +23,7 @@ import java.util.ArrayList;
  *         c_ij: the cost of going from vertex i to vertex j
  *         x_ij: the number of times an edge is traversed from vertex i to vertex j is included in the augmentation
  */
-public class WPPSolver_Gurobi extends SingleVehicleSolver {
+public class WPPSolver_Gurobi extends SingleVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
     WindyCPP mInstance;
 
@@ -138,6 +139,11 @@ public class WPPSolver_Gurobi extends SingleVehicleSolver {
     @Override
     public String printCurrentSol() throws IllegalStateException {
         return "This solver does not support printing.";
+    }
+
+    @Override
+    public String getSolverName() {
+        return "An Exact Integer Programming Solver for the Windy Postman Problem";
     }
 
 }

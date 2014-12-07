@@ -7,10 +7,14 @@ import oarlib.improvements.ImprovementProcedure;
 import oarlib.improvements.impl.Benavent_VND1;
 import oarlib.improvements.impl.Benavent_VND2;
 import oarlib.improvements.impl.Simplification;
+import oarlib.improvements.perturbation.TwoSwapPerturb;
 import oarlib.improvements.util.Utils;
 import oarlib.link.impl.WindyEdge;
+import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
+import oarlib.solver.impl.MultiWRPPSolver_Benavent;
 import oarlib.vertex.impl.WindyVertex;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -71,12 +75,11 @@ public class BenaventIPFramework extends ImprovementProcedure<WindyVertex, Windy
                 perturbed = perturbation.improveRoute(collapsed);
 
                 //resplit
-
                 MultiVehicleWRPP tempInstance = new MultiVehicleWRPP(getGraph(), numVehicles);
                 MultiWRPPSolver_Benavent splitter = new MultiWRPPSolver_Benavent(tempInstance);
 
                 ArrayList<Route<WindyVertex, WindyEdge>> container = new ArrayList<Route<WindyVertex, WindyEdge>>();
-                splitter.splitRoute();*/
+                //splitter.splitRoute();*/
 
 
                 //apply the intraroute IPs on each of the routes

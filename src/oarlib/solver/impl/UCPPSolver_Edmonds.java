@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-public class UCPPSolver_Edmonds extends SingleVehicleSolver {
+public class UCPPSolver_Edmonds extends SingleVehicleSolver<UndirectedVertex, Edge, UndirectedGraph> {
 
     UndirectedCPP mInstance;
 
@@ -122,7 +122,7 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver {
             for (int i = 0; i < ans.size(); i++) {
                 eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
             }
-            currSol = eulerTour;
+            mInstance.setSol(eulerTour);
             return eulerTour;
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,27 +136,8 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver {
     }
 
     @Override
-    public String printCurrentSol() throws IllegalStateException {
-        if (currSol == null)
-            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
-
-        String ans = "UCPPSolver_Edmonds: Printing current solution...";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
-        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
-        ans += "Route Cost: " + currSol.getCost() + "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "\n";
-        ans += currSol.toString();
-        ans += "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        return ans;
-
+    public String getSolverName() {
+        return "Edmonds' Exact Undirected Chinese Postman Solver";
     }
 
     @Override

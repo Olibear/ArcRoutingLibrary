@@ -3,7 +3,9 @@ package oarlib.problem.impl.cpp;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.link.impl.Arc;
 import oarlib.problem.impl.ChinesePostmanProblem;
+import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.Collection;
 
@@ -12,7 +14,7 @@ import java.util.Collection;
  *
  * @author oliverlum
  */
-public class DirectedCPP extends ChinesePostmanProblem<DirectedGraph> {
+public class DirectedCPP extends ChinesePostmanProblem<DirectedVertex, Arc, DirectedGraph> {
 
     public DirectedCPP(DirectedGraph g) {
         this(g, "");

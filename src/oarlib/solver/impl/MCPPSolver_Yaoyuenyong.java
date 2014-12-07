@@ -774,7 +774,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
                 eulerTour.appendEdge(indexedEdges.get(tour.get(k)));
             }
 
-            currSol = eulerTour;
+            mInstance.setSol(eulerTour);
             return eulerTour;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -793,29 +793,9 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
     }
 
     @Override
-    public String printCurrentSol() throws IllegalStateException {
-        if (currSol == null)
-            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
-
-        String ans = "MCPPSolver_Yaoyuenyong: Printing current solution...";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
-        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
-        ans += "Route Cost: " + currSol.getCost() + "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "\n";
-        ans += currSol.toString();
-        ans += "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        return ans;
-
+    public String getSolverName() {
+        return "Yaoyuenyong's Mixed Chinese Postman Heuristic Solver";
     }
-
 
     @Override
     protected boolean checkGraphRequirements() {

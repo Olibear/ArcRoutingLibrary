@@ -11,6 +11,7 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
+import oarlib.graph.util.Utils;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
@@ -22,7 +23,7 @@ import oarlib.vertex.impl.WindyVertex;
 
 import java.util.*;
 
-public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
+public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
     private static final double K = .2; //parameter fixed by computational experiments done by Benavent
     WindyRPP mInstance;
@@ -359,7 +360,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
                 eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
             }
 
-            currSol = eulerTour;
+            mInstance.setSol(Utils.reclaimTour(eulerTour, mInstance.getGraph()));
 
             //visualize it
             if (exportSolToPDF) {
@@ -386,27 +387,8 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver {
     }
 
     @Override
-    public String printCurrentSol() throws IllegalStateException {
-        if (currSol == null)
-            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
-
-        String ans = "WRPPSolver_Benavent_H1: Printing current solution...";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
-        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
-        ans += "Route Cost: " + currSol.getCost() + "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "\n";
-        ans += currSol.toString();
-        ans += "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        return ans;
-
+    public String getSolverName() {
+        return "Benavent's H1 Heuristic for the Windy Rural Postman Problem";
     }
 
     @Override

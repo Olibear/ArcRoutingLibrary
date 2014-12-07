@@ -189,4 +189,9 @@ public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver {
         return "This solver does not support printing.";
     }
 
+    @Override
+    public String getSolverName() {
+        return "Christofides' Integer Programming Solver for the Mixed Chinese Postman";
+    }
+
 }

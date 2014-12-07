@@ -562,7 +562,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
                     eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
                 }
             }
-            currSol = eulerTour;
+            mInstance.setSol(eulerTour);
             return eulerTour;
 
         } catch (Exception e) {
@@ -577,26 +577,8 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
     }
 
     @Override
-    public String printCurrentSol() throws IllegalStateException {
-        if (currSol == null)
-            throw new IllegalStateException("It does not appear as though this solver has been run yet!");
-
-        String ans = "MCPPSolver_Frederickson: Printing current solution...";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "Vertices: " + mInstance.getGraph().getVertices().size() + "\n";
-        ans += "Edges: " + mInstance.getGraph().getEdges().size() + "\n";
-        ans += "Route Cost: " + currSol.getCost() + "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        ans += "\n";
-        ans += "\n";
-        ans += currSol.toString();
-        ans += "\n";
-        ans += "\n";
-        ans += "=======================================================";
-        return ans;
+    public String getSolverName() {
+        return "Frederickson's Mixed Chinese Postman Heuristic";
     }
 
     @Override
