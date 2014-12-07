@@ -10,11 +10,11 @@ import java.util.Collection;
  * Solver abstraction.  Most general contract that Multivehicle solvers must fulfill.
  * Created by Oliver Lum on 7/25/2014.
  */
-public abstract class MultiVehicleSolver {
+public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>> {
 
     private static final Logger LOGGER = Logger.getLogger(MultiVehicleSolver.class);
 
-    protected Collection<Route> currSol;
+    protected Collection<Route<V,E>> currSol;
 
     /**
      * Default constructor; must set problem instance.
@@ -35,7 +35,7 @@ public abstract class MultiVehicleSolver {
      *
      * @return null if problem instance is not assigned, or solver failed.
      */
-    public Collection<Route> trySolve() throws GraphInfeasibleException {
+    public Collection<Route<V,E>> trySolve() throws GraphInfeasibleException {
         if (!checkGraphRequirements()) {
             LOGGER.error("It does not appear as though it is possible to solve the problem on this graph.");
             throw new GraphInfeasibleException();
@@ -60,7 +60,7 @@ public abstract class MultiVehicleSolver {
      *
      * @return The set of routes the solver has concluded is best.
      */
-    protected abstract Collection<Route> solve();
+    protected abstract Collection<Route<V,E>> solve();
 
     /**
      * Specifies what type of problem this is a solver for.

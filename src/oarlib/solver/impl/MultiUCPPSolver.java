@@ -15,9 +15,12 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseUndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.link.impl.Edge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.multivehicle.MultiVehicleUCPP;
 import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.vertex.impl.UndirectedVertex;
+import oarlib.vertex.impl.WindyVertex;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,7 +29,7 @@ import java.util.HashSet;
 /**
  * Created by Oliver Lum on 7/25/2014.
  */
-public class MultiUCPPSolver extends MultiVehicleSolver {
+public class MultiUCPPSolver extends MultiVehicleSolver<UndirectedVertex, Edge> {
 
     MultiVehicleUCPP mInstance;
 
@@ -60,7 +63,7 @@ public class MultiUCPPSolver extends MultiVehicleSolver {
     }
 
     @Override
-    protected Collection<Route> solve() {
+    protected Collection<Route<UndirectedVertex, Edge>> solve() {
 
         try {
 
@@ -77,7 +80,7 @@ public class MultiUCPPSolver extends MultiVehicleSolver {
             }
 
 
-            HashSet<Route> ans = new HashSet<Route>();
+            HashSet<Route<UndirectedVertex, Edge>> ans = new HashSet<Route<UndirectedVertex, Edge>>();
             //now create the subgraphs
             for (Integer part : partitions.keySet()) {
                 ans.add(route(partitions.get(part)));
@@ -190,7 +193,7 @@ public class MultiUCPPSolver extends MultiVehicleSolver {
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";
-        for (Route r : currSol) {
+        for (Route<UndirectedVertex, Edge> r : currSol) {
             //gather metrics
             tempCost = r.getCost();
 

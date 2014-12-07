@@ -34,7 +34,7 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
     }
 
     @Override
-    protected Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
+    public Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
         Route record = r;
         int recordCost = r.getCost();
@@ -76,15 +76,15 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
                     if (candidateCost < recordCost) {
                         recordCost = candidateCost;
                         newRecord = candidate;
-                        flattenedRoute = RouteFlattener.flattenRoute(record);
                         foundImprovement = true;
                     }
 
                 }
             }
 
-            if(foundImprovement)
+            if(foundImprovement) {
                 record = newRecord;
+            }
         }
 
         return record;

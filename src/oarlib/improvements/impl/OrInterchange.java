@@ -33,7 +33,7 @@ public class OrInterchange extends IntraRouteImprovementProcedure<WindyVertex, W
     private static final int M = 11;
 
     @Override
-    protected Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
+    public Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
         Route record = r;
         int recordCost = r.getCost();

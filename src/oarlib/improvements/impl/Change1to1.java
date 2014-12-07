@@ -75,12 +75,12 @@ public class Change1to1 extends InterRouteImprovementProcedure<WindyVertex, Wind
                             else
                                 ans.add(r2);
                         }
-                        return initialSol;
+                        return ans;
 
                     }
                 }
             }
         }
-        return null;
+        return initialSol;
     }
 }

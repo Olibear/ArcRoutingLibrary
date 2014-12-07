@@ -21,6 +21,8 @@ import oarlib.graph.util.MSArbor;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
+import oarlib.link.impl.MixedEdge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.cpp.MixedCPP;
 import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.problem.impl.cpp.WindyCPP;
@@ -30,9 +32,10 @@ import oarlib.problem.impl.rpp.DirectedRPP;
 import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.solver.impl.*;
 import oarlib.vertex.impl.DirectedVertex;
+import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import oarlib.vertex.impl.WindyVertex;
+import org.apache.log4j.*;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -51,7 +54,11 @@ public class
      * @param args
      */
     public static void main(String[] args) {
-        BasicConfigurator.configure();
+        Logger rootLogger = Logger.getRootLogger();
+        rootLogger.setLevel(Level.ERROR);
+        PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
+        rootLogger.addAppender(new ConsoleAppender(layout));
+
         //testSimpleGraphReader("/Users/File/Location/Of/A/Graph.txt");
         //validateEulerTour();
         //snippetUCPPSolver();
@@ -107,7 +114,7 @@ public class
         try {
             MultiVehicleWRPP wrpp;
             MultiWRPPSolver_Benavent wrppSolver;
-            Collection<Route> ans;
+            Collection<Route<WindyVertex, WindyEdge>> ans;
 
             GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
 
@@ -184,7 +191,7 @@ public class
     private static void testGraphDisplay() {
         try {
             DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-            DirectedGraph dGraph = (DirectedGraph) dgg.generateGraph(100, 5, true, .005);
+            DirectedGraph dGraph = dgg.generateGraph(100, 5, true, .005);
 
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, dGraph, "test");
             gd.export(GraphDisplay.ExportType.PDF);
@@ -250,7 +257,7 @@ public class
             try {
                 MultiVehicleMCPP validMInstance;
                 MultiMCPPSolver validMSolver;
-                Collection<Route> validMAns;
+                Collection<Route<MixedVertex, MixedEdge>> validMAns;
 
                 File testInstanceFolder = new File(instanceFolder);
                 long start;
@@ -290,8 +297,8 @@ public class
                 System.out.println("========================================================");
 
                 MultiVehicleWRPP validWInstance;
-                MultiWRPPSolver validWSolver;
-                Collection<Route> validWAns;
+                MultiWRPPSolver_Benavent validWSolver;
+                Collection<Route<WindyVertex, WindyEdge>> validWAns;
                 PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
 
 
@@ -309,7 +316,7 @@ public class
                     WindyGraph g = fetcher.queryForGraph();
 
                     validWInstance = new MultiVehicleWRPP(g, 5);
-                    validWSolver = new MultiWRPPSolver(validWInstance, bb.getTitle());
+                    validWSolver = new MultiWRPPSolver_Benavent(validWInstance, bb.getTitle());
                     start = System.nanoTime();
                     validWAns = validWSolver.trySolve();
                     end = System.nanoTime();
@@ -544,7 +551,7 @@ public class
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .5.
          */
-        UndirectedGraph g = (UndirectedGraph) ugg.generateGraph(1000, 10, true, .5);
+        UndirectedGraph g = ugg.generateGraph(1000, 10, true, .5);
     }
 
     /**
@@ -864,7 +871,7 @@ public class
             boolean tourOK;
             for (int i = 10; i < 150; i += 10) {
                 tourOK = false;
-                g = (UndirectedGraph) ugg.generateEulerianGraph(i, 10, true);
+                g = ugg.generateEulerianGraph(i, 10, true);
                 System.out.println("Undirected graph of size " + i + " is Eulerian? " + CommonAlgorithms.isEulerian(g));
                 startTime = System.nanoTime();
                 ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(g);
@@ -921,7 +928,7 @@ public class
                 HashSet<Integer> used = new HashSet<Integer>();
                 TIntObjectHashMap<Arc> indexedEdges = g2.getInternalEdgeMap();
                 Arc curr = null;
-                Arc prev = null;
+                Arc prev;
                 //make sure it's a real tour
                 for (int j = 0; j < ans.size(); j++) {
                     // can't walk the same edge

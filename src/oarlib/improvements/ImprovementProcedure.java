@@ -31,23 +31,6 @@ public abstract class ImprovementProcedure<V extends Vertex, E extends Link<V>, 
             problem = true;
         }
 
-        for(Route<? extends Vertex, ? extends Link<? extends Vertex>> r: candidateSol) {
-            if(r.getRoute().size() == 0)
-                continue;
-            Link rSample = r.getRoute().get(0);
-            for(Link gSample: g.getEdges()) {
-                if(!(rSample.getClass() == gSample.getClass())) {
-                    LOGGER.error("There seems to be a type mismatch between the links contained in this solution, and the graph type.");
-                    problem = true;
-                    break;
-                }
-                else {
-                    problem = false;
-                    break;
-                }
-            }
-        }
-
         if(problem)
             throw new IllegalArgumentException();
 

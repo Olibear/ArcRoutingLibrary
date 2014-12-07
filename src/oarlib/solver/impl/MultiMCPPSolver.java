@@ -10,9 +10,11 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseMixedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.link.impl.MixedEdge;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.problem.impl.cpp.MixedCPP;
 import oarlib.problem.impl.multivehicle.MultiVehicleMCPP;
+import oarlib.vertex.impl.MixedVertex;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,7 +23,7 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 8/12/14.
  */
-public class MultiMCPPSolver extends MultiVehicleSolver {
+public class MultiMCPPSolver extends MultiVehicleSolver<MixedVertex, MixedEdge> {
 
     MultiVehicleMCPP mInstance;
 
@@ -54,7 +56,7 @@ public class MultiMCPPSolver extends MultiVehicleSolver {
     }
 
     @Override
-    protected Collection<Route> solve() {
+    protected Collection<Route<MixedVertex, MixedEdge>> solve() {
 
         try {
 
@@ -71,7 +73,7 @@ public class MultiMCPPSolver extends MultiVehicleSolver {
             }
 
             //now create the subgraphs
-            HashSet<Route> ans = new HashSet<Route>();
+            HashSet<Route<MixedVertex, MixedEdge>> ans = new HashSet<Route<MixedVertex, MixedEdge>>();
             for (Integer part : partitions.keySet()) {
                 ans.add(route(partitions.get(part)));
             }
@@ -168,7 +170,7 @@ public class MultiMCPPSolver extends MultiVehicleSolver {
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";
-        for (Route r : currSol) {
+        for (Route<MixedVertex, MixedEdge> r : currSol) {
             //gather metrics
             tempCost = r.getCost();
 

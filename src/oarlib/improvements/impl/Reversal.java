@@ -28,10 +28,12 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
     }
 
     @Override
-    protected Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
+    public Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
         TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(r, true);
 
+        if(flattenedRoute.size() == 0)
+            System.out.println("Debug");
         DirectedGraph optimalDirection = constructDirDAG(r, flattenedRoute);
 
         int m = flattenedRoute.size();

@@ -12,6 +12,7 @@ import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseDirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.link.impl.Arc;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.problem.impl.cpp.DirectedCPP;
 import oarlib.problem.impl.multivehicle.MultiVehicleDCPP;
@@ -24,7 +25,7 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 8/5/14.
  */
-public class MultiDCPPSolver extends MultiVehicleSolver {
+public class MultiDCPPSolver extends MultiVehicleSolver<DirectedVertex, Arc> {
 
     MultiVehicleDCPP mInstance;
 
@@ -57,7 +58,7 @@ public class MultiDCPPSolver extends MultiVehicleSolver {
     }
 
     @Override
-    protected Collection<Route> solve() {
+    protected Collection<Route<DirectedVertex, Arc>> solve() {
 
         try {
 
@@ -73,7 +74,7 @@ public class MultiDCPPSolver extends MultiVehicleSolver {
             }
 
             //now create the subgraphs
-            HashSet<Route> ans = new HashSet<Route>();
+            HashSet<Route<DirectedVertex, Arc>> ans = new HashSet<Route<DirectedVertex, Arc>>();
             for (Integer part : partitions.keySet()) {
                 ans.add(route(partitions.get(part)));
             }
@@ -179,7 +180,7 @@ public class MultiDCPPSolver extends MultiVehicleSolver {
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";
-        for (Route r : currSol) {
+        for (Route<DirectedVertex, Arc> r : currSol) {
             //gather metrics
             tempCost = r.getCost();
 

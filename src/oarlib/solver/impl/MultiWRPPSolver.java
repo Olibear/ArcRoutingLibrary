@@ -34,7 +34,7 @@ import java.util.HashSet;
 /**
  * Created by oliverlum on 8/14/14.
  */
-public class MultiWRPPSolver extends MultiVehicleSolver {
+public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge> {
 
     private MultiVehicleWRPP mInstance;
     private WindyGraph mGraph;
@@ -75,10 +75,10 @@ public class MultiWRPPSolver extends MultiVehicleSolver {
     }
 
     @Override
-    protected Collection<Route> solve() {
+    protected Collection<Route<WindyVertex, WindyEdge>> solve() {
 
         int bestObj = Integer.MAX_VALUE;
-        ArrayList<Route> record = new ArrayList<Route>();
+        ArrayList<Route<WindyVertex, WindyEdge>> record = new ArrayList<Route<WindyVertex, WindyEdge>>();
 
         try {
 
@@ -91,7 +91,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver {
             HashMap<Integer, Integer> sol = partition(null);
             HashMap<Integer, Integer> bestSol = new HashMap<Integer, Integer>();
 
-            ArrayList<Route> ans = new ArrayList<Route>();
+            ArrayList<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
             int maxCost = 0;
             int numRebalances = 2;
             for (int j = 1; j <= numRebalances; j++) {
@@ -269,7 +269,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver {
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";
-        for (Route r : currSol) {
+        for (Route<WindyVertex, WindyEdge> r : currSol) {
             //gather metrics
             tempCost = r.getCost();
 

@@ -1,13 +1,18 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.*;
+import oarlib.core.Link;
+import oarlib.core.MultiVehicleSolver;
+import oarlib.core.Problem;
+import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.IndexedRecord;
+import oarlib.improvements.metaheuristics.impl.BenaventIPFramework;
 import oarlib.link.impl.Arc;
+import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
 import oarlib.problem.impl.rpp.WindyRPP;
@@ -24,7 +29,7 @@ import java.util.Stack;
 /**
  * Created by oliverlum on 10/17/14.
  */
-public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
+public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, WindyEdge> {
 
     MultiVehicleWRPP mInstance;
     WindyGraph mGraph;
@@ -37,6 +42,10 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
      *
      * @param instance - instance for which this is a solver
      */
+    public MultiWRPPSolver_Benavent(MultiVehicleWRPP instance) throws IllegalArgumentException {
+        this(instance, "");
+    }
+
     public MultiWRPPSolver_Benavent(MultiVehicleWRPP instance, String instanceName) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
@@ -63,7 +72,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
     }
 
     @Override
-    protected Collection<Route> solve() {
+    protected Collection<Route<WindyVertex, WindyEdge>> solve() {
         //Solve the single-vehicle WRPP instance, and then split it into K routes by the process discussed in Lacomme, Prins, and Ramdane-Cherif
         WindyGraph copy = mGraph.getDeepCopy();
 
@@ -88,19 +97,29 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
         /*
          * now split it
          */
-        Collection<Route> multiAns = splitRoute(singleAns);
+        Collection<Route<DirectedVertex, Arc>> multiAns = splitRoute(singleAns, mInstance);
 
-        return multiAns;
+        ArrayList<Route<WindyVertex, WindyEdge>> finalAns = new ArrayList<Route<WindyVertex, WindyEdge>>();
+        for(Route<DirectedVertex, Arc> r: multiAns) {
+            finalAns.add(WRPPSolver_Win.reclaimTour(r, copy));
+        }
+        currSol = finalAns;
+
+        BenaventIPFramework improver = new BenaventIPFramework(mInstance.getGraph(), finalAns, mInstance.getmNumVehicles());
+
+        return improver.improveSolution();
     }
 
-    private Collection<Route> splitRoute(Route<DirectedVertex, Arc> singleAns) {
+    public static Collection<Route<DirectedVertex, Arc>> splitRoute(Route<DirectedVertex, Arc> singleAns, MultiVehicleWRPP mInstance) {
 
         try {
+            WindyGraph mGraph = mInstance.getGraph();
+
             //Compile the ordered list of required edges.
             ArrayList<Arc> orderedReqEdges = new ArrayList<Arc>();
             for (Arc arc : singleAns.getRoute()) {
                 if (arc.isRequired())
-                    orderedReqEdges.add((Arc) arc);
+                    orderedReqEdges.add(arc);
             }
 
             //Compute shortest path distances in the full graph
@@ -158,14 +177,13 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
             Stack<Integer> stoppingPoints = new Stack<Integer>();
 
             int prev = m + 1;
-            Tour temp;
             int numSteps = width[prev].getRecordKey();
             do {
                 stoppingPoints.push(prev);
                 prev = widestPath[prev].getEntry(numSteps--);
             } while (prev != 1);
 
-            ArrayList<Route> ans = new ArrayList<Route>();
+            ArrayList<Route<DirectedVertex, Arc>> ans = new ArrayList<Route<DirectedVertex, Arc>>();
             int counter = 0;
             int singleRouteCounter = 0;
             int curr, next, end, cost;
@@ -220,7 +238,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
                 //add the route
                 ArrayList<Integer> tour = CommonAlgorithms.tryHierholzer(toAddGraph);
                 TIntObjectHashMap<Arc> indexedArcs = toAddGraph.getInternalEdgeMap();
-                Tour toAdd = new Tour();
+                Tour<DirectedVertex, Arc> toAdd = new Tour<DirectedVertex, Arc>();
                 for (int i = 0; i < tour.size(); i++) {
                     toAdd.appendEdge(indexedArcs.get(tour.get(i)));
                 }
@@ -235,8 +253,6 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
                 if (r.getCost() > max)
                     max = r.getCost();
             }
-
-            currSol = ans;
 
             return ans;
         } catch (Exception e) {
@@ -278,7 +294,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver {
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";
-        for (Route r : currSol) {
+        for (Route<WindyVertex, WindyEdge> r : currSol) {
             //gather metrics
             tempCost = r.getCost();
 
