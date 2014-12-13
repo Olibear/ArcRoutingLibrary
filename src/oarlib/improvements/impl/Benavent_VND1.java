@@ -6,6 +6,7 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.WindyVertex;
+import org.apache.log4j.Logger;
 
 import java.util.Collection;
 
@@ -14,8 +15,13 @@ import java.util.Collection;
  */
 public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
-    public Benavent_VND1(WindyGraph windyGraph, Collection<Route<WindyVertex, WindyEdge>> candidateSol) {
-        super(windyGraph, candidateSol);
+    private static Logger LOGGER = Logger.getLogger(Benavent_VND1.class);
+
+    public Benavent_VND1(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
+        super(problem);
+    }
+    public Benavent_VND1(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, initialSol);
     }
 
     @Override
@@ -26,13 +32,36 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
     @Override
     public Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
-        OrInterchange oi = new OrInterchange(getGraph(), getInitialSol());
-        Route<WindyVertex, WindyEdge> postIP1 = oi.improveRoute(r);
-        Reversal reversal = new Reversal(getGraph(), getInitialSol());
-        Route<WindyVertex, WindyEdge> postIP2 = reversal.improveRoute(postIP1);
-        TwoInterchange ti = new TwoInterchange(getGraph(), getInitialSol());
-        Route<WindyVertex, WindyEdge> postIP3 = ti.improveRoute(postIP2);
+        int currBest = r.getCost();
+        Route<WindyVertex, WindyEdge> ans = null;
 
-        return postIP3;
+        while (true) {
+            OrInterchange oi = new OrInterchange(getProblem());
+            Route<WindyVertex, WindyEdge> postIP1 = oi.improveRoute(r);
+            LOGGER.info("VND1-ip1 obj value: " + postIP1.getCost());
+            if(postIP1.getCost() < currBest) {
+                currBest = postIP1.getCost();
+                continue;
+            }
+
+            Reversal reversal = new Reversal(getProblem());
+            Route<WindyVertex, WindyEdge> postIP2 = reversal.improveRoute(postIP1);
+            LOGGER.info("VND1-ip2 obj value: " + postIP1.getCost());
+            if(postIP2.getCost() < currBest) {
+                currBest = postIP2.getCost();
+                continue;
+            }
+
+            TwoInterchange ti = new TwoInterchange(getProblem());
+            ans = ti.improveRoute(postIP2);
+            LOGGER.info("VND1-ip3 obj value: " + postIP1.getCost());
+            if(ans.getCost() < currBest) {
+                currBest = ans.getCost();
+                continue;
+            }
+            break;
+        }
+
+        return ans;
     }
 }

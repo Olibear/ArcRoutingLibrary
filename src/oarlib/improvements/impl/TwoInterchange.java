@@ -24,8 +24,11 @@ import java.util.Collection;
  */
 public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
-    public TwoInterchange(WindyGraph g, Collection<Route<WindyVertex, WindyEdge>> candidateRoute) {
-        super(g, candidateRoute);
+    public TwoInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
+        super(problem);
+    }
+    public TwoInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, initialSol);
     }
 
     @Override

@@ -22,8 +22,11 @@ import java.util.Collection;
  */
 public class Change1to0 extends InterRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
-    public Change1to0(WindyGraph g, Collection<Route<WindyVertex, WindyEdge>> candidateRoute) {
-        super(g, candidateRoute);
+    public Change1to0(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
+        super(problem);
+    }
+    public Change1to0(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, initialSol);
     }
 
     @Override
@@ -67,7 +70,7 @@ public class Change1to0 extends InterRouteImprovementProcedure<WindyVertex, Wind
                     moveList.add(temp);
                     savings = mover.evalComplexMove(moveList, initialSol);
                     if(savings < 0) {
-                        System.out.println("Savings: " + savings);
+                        //System.out.println("Savings: " + savings);
                         TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList);
                         for(Route r2: initialSol) {
                             if(routesToChange.containsKey(r2.getGlobalId())) {

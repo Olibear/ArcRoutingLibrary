@@ -25,8 +25,11 @@ import java.util.Collection;
 public class OrInterchange extends IntraRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
 
-    public OrInterchange(WindyGraph g, Collection<Route<WindyVertex, WindyEdge>> candidateRoute) {
-        super(g, candidateRoute);
+    public OrInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
+        super(problem);
+    }
+    public OrInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, initialSol);
     }
 
     private static final int L = 4;

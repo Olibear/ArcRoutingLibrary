@@ -55,7 +55,7 @@ public class
      */
     public static void main(String[] args) {
         Logger rootLogger = Logger.getRootLogger();
-        rootLogger.setLevel(Level.ERROR);
+        rootLogger.setLevel(Level.INFO);
         PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
         rootLogger.addAppender(new ConsoleAppender(layout));
 
@@ -297,7 +297,7 @@ public class
                 System.out.println("========================================================");
 
                 MultiVehicleWRPP validWInstance;
-                MultiWRPPSolver_Benavent validWSolver;
+                MultiWRPPSolver validWSolver;
                 Collection<Route<WindyVertex, WindyEdge>> validWAns;
                 PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
 
@@ -316,11 +316,12 @@ public class
                     WindyGraph g = fetcher.queryForGraph();
 
                     validWInstance = new MultiVehicleWRPP(g, 5);
-                    validWSolver = new MultiWRPPSolver_Benavent(validWInstance, bb.getTitle());
+                    validWSolver = new MultiWRPPSolver(validWInstance, bb.getTitle());
                     start = System.nanoTime();
                     validWAns = validWSolver.trySolve();
                     end = System.nanoTime();
-                    System.out.println("It took " + (end - start) + " milliseconds to run the solver on this instance.");
+                    System.out.println("It took " + (end - start)/1000000000 + " seconds to run the solver on this instance.");
+                    pw.println("It took " + (end - start)/1000000000 + " seconds to run the solver on this instance.");
 
                     routeCounter = 1;
                     int maxCost = 0;

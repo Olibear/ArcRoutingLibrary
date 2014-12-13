@@ -1,17 +1,21 @@
 package oarlib.improvements.util;
 
+import com.sun.xml.internal.rngom.digested.DValuePattern;
 import gnu.trove.TIntArrayList;
 import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+import oarlib.graph.impl.DirectedGraph;
+import oarlib.link.impl.Arc;
+import oarlib.link.impl.WindyEdge;
+import oarlib.route.impl.Tour;
 import oarlib.route.util.RouteExpander;
+import oarlib.vertex.impl.DirectedVertex;
+import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.*;
 
 /**
  * Created by oliverlum on 11/29/14.
@@ -86,6 +90,47 @@ public class Utils {
         }
 
         return re.unflattenRoute(flatGlobal, globalDir);
+    }
+
+    public static Tour<DirectedVertex, Arc> convertWindyTourToDirectedTour(Route<WindyVertex, WindyEdge> origRoute) {
+        int maxId = Integer.MIN_VALUE;
+        List<WindyEdge> path = origRoute.getRoute();
+
+        int firstId, secondId;
+        for(WindyEdge we: path) {
+            firstId = we.getEndpoints().getFirst().getId();
+            secondId = we.getEndpoints().getSecond().getId();
+            if(firstId > maxId){
+                maxId = firstId;
+            }
+            if(secondId > maxId){
+                maxId = secondId;
+            }
+        }
+
+        DirectedGraph ansGraph = new DirectedGraph(maxId);
+        Tour<DirectedVertex, Arc> ans = new Tour<DirectedVertex, Arc>();
+        ArrayList<Boolean> td = origRoute.getTraversalDirection();
+
+        try {
+            int limi = path.size();
+            WindyEdge temp;
+            for (int i = 0; i < limi; i++) {
+                temp = path.get(i);
+                if (td.get(i)) {
+                    ansGraph.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), temp.getCost());
+                    ans.appendEdge(ansGraph.getEdge(i+1));
+                } else {
+                    ansGraph.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), temp.getReverseCost());
+                    ans.appendEdge(ansGraph.getEdge(i+1));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return ans;
     }
 
 }

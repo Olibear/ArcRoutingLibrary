@@ -8,7 +8,10 @@ import java.util.Collection;
  * Created by oliverlum on 11/19/14.
  */
 public abstract class InterRouteImprovementProcedure<V extends Vertex, E extends Link<V>, G extends Graph<V,E>> extends ImprovementProcedure<V,E,G> {
-    protected InterRouteImprovementProcedure(G g, Collection<Route<V,E>> candidateRoute) {
-        super(g, candidateRoute);
+    protected InterRouteImprovementProcedure(Problem<V,E,G> problem) {
+        super(problem);
+    }
+    protected InterRouteImprovementProcedure(Problem<V,E,G> problem, Collection<Route<V,E>> initialSol) {
+        super(problem, initialSol);
     }
 }

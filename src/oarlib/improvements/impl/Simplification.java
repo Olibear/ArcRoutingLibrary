@@ -20,8 +20,11 @@ import java.util.Collection;
  */
 public class Simplification extends InterRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
-    public Simplification(WindyGraph windyGraph, Collection<Route<WindyVertex, WindyEdge>> candidateSol) {
-        super(windyGraph, candidateSol);
+    public Simplification(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
+        super(problem);
+    }
+    public Simplification(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, initialSol);
     }
 
     @Override
@@ -58,7 +61,12 @@ public class Simplification extends InterRouteImprovementProcedure<WindyVertex, 
         RouteExpander<WindyGraph> re = new RouteExpander<WindyGraph>(getGraph());
 
         TIntHashSet coveredReqEdges = new TIntHashSet();
+        int counter = 0;
+
         while (newId != longestRouteId) {
+
+            if(counter > 50)
+                break;
 
             //compile a list of all the required edges traversed by the other routes
             coveredReqEdges.clear();
@@ -91,6 +99,8 @@ public class Simplification extends InterRouteImprovementProcedure<WindyVertex, 
             //find the new longest
             longestRoute = Utils.findLongestRoute(ans);
             longestRouteId = longestRoute.getGlobalId();
+
+            counter++;
         }
 
         return ans;

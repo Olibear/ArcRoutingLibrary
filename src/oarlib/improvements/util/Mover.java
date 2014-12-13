@@ -11,6 +11,7 @@ import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.WindyEdge;
 import oarlib.route.util.RouteExpander;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 
@@ -23,6 +24,7 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
     private int[][] dist;
     private int[][] path;
     private int[][] edgePath;
+    private static final Logger LOGGER = Logger.getLogger(Mover.class);
 
     public Mover(G g) {
         mGraph = g;
@@ -90,6 +92,13 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
             int fromPos = tempMove.getFromPos();
             int toPos = tempMove.getToPos();
 
+            if(tempMove.getFrom().getGlobalId() == tempMove.getTo().getGlobalId()) {
+                if(tempMove.getFromPos() < tempMove.getToPos())
+                    toPos++;
+                else if(tempMove.getFromPos() == tempMove.getToPos())
+                    continue;
+            }
+
             forward = assessMoveCost(flatFrom, fromDir, flatTo, toDir, fromPos, toPos, change);
             tempMove.setPrudentDirection(forward);
             tempId = tempMove.getFrom().getGlobalId();
@@ -123,7 +132,7 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
         expectedCosts += "End predicted costs.\n";
 
         if(max - ans < 0) {
-            System.out.println(origCost + expectedCosts);
+            LOGGER.debug(origCost + expectedCosts);
         }
 
         return max - ans;
@@ -154,16 +163,24 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
             flatFrom.remove(currMove.getFromPos());
             ans.put(currFrom.getGlobalId(), re.unflattenRoute(flatFrom,newFromDir));
 
-            System.out.println("The route with id: " + currFrom.getGlobalId() + " was replaced with a route costing: " + re.unflattenRoute(flatFrom,newFromDir).getCost());
+            LOGGER.debug("The route with id: " + currFrom.getGlobalId() + " was replaced with a route costing: " + re.unflattenRoute(flatFrom,newFromDir).getCost());
 
             currTo = currMove.getTo();
-            flatTo = currTo.getCompactRepresentation();
-            flatTo.insert(currMove.getToPos(), currLinkId);
-            newToDir = currTo.getCompactTraversalDirection();
-            newToDir.add(currMove.getToPos(), currMove.isPrudentDirection());
-            ans.put(currTo.getGlobalId(), re.unflattenRoute(flatTo, newToDir));
+            if(currTo.getGlobalId() != currFrom.getGlobalId()) {
+                flatTo = currTo.getCompactRepresentation();
+                flatTo.insert(currMove.getToPos(), currLinkId);
+                newToDir = currTo.getCompactTraversalDirection();
+                newToDir.add(currMove.getToPos(), currMove.isPrudentDirection());
+                ans.put(currTo.getGlobalId(), re.unflattenRoute(flatTo, newToDir));
+            } else {
+                flatTo = flatFrom;
+                flatTo.insert(currMove.getToPos(), currLinkId);
+                newToDir = newFromDir;
+                newToDir.add(currMove.getToPos(), currMove.isPrudentDirection());
+                ans.put(currTo.getGlobalId(), re.unflattenRoute(flatTo, newToDir));
+            }
 
-            System.out.println("The route with id: " + currTo.getGlobalId() + " was replaced with a route costing: " + re.unflattenRoute(flatTo, newToDir).getCost());
+            LOGGER.debug("The route with id: " + currTo.getGlobalId() + " was replaced with a route costing: " + re.unflattenRoute(flatTo, newToDir).getCost());
 
         }
 
@@ -175,8 +192,6 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
         Pair<Integer> ans2 = new Pair<Integer>(0,0);
 
         int prevId, nextId, currFirst, currSecond, currCost, currCostAlt;
-        if(fromPos >= fromList.size())
-            System.out.println("DEubg");
         E curr = mGraph.getEdge(fromList.get(fromPos));
         boolean isDirected = curr.isDirected();
 

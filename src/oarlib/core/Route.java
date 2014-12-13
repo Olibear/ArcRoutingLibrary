@@ -10,10 +10,7 @@ import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.UndirectedVertex;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Route abstraction. Most general contract that routes must fulfill.
@@ -29,10 +26,17 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     protected int mReqCost;
     protected TIntIntHashMap mCustomIDMap;
     protected ArrayList<E> mRoute;
+    protected ArrayList<Boolean> traversalDirection;
     protected TIntArrayList compactRepresentation;
     protected ArrayList<Boolean> compactTD;
     private TIntHashSet alreadyTraversed;
     private int mGlobalId;
+
+    // some vars to deal with weird initial cases where it's impossible to determine the direction greedily in the
+    // beginning until an edge not attached to the depot is added.
+    protected boolean directionDetermined;
+
+
 
     //default constructor
     protected Route() {
@@ -41,10 +45,12 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         mReqCost = 0;
         mCustomIDMap = new TIntIntHashMap();
         mRoute = new ArrayList<E>();
+        traversalDirection = new ArrayList<Boolean>();
         compactRepresentation = new TIntArrayList();
         compactTD = new ArrayList<Boolean>();
         alreadyTraversed = new TIntHashSet();
         mGlobalId = routeIDCounter++;
+        directionDetermined = false;
 
     }
 
@@ -170,6 +176,8 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         return compactTD;
     }
 
+    public ArrayList<Boolean> getTraversalDirection() { return traversalDirection; }
+
     /**
      * Add a edge to the end of this route.
      *
@@ -177,7 +185,6 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      */
     public void appendEdge(E l) {
 
-            //TODO:Fix this make it less clunky, and to perhaps calculate the toString here, maybe a different WindyRoute class, maybe use isWindy property of links
             boolean isWindy;
             if(l.isWindy())
                 isWindy = true;
@@ -202,6 +209,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             if(mRoute.size() == 1) {
                 if((lFirst == tempFirst || lSecond == tempFirst) && isWindy) {
                     trueCost = ((WindyEdge) temp).getReverseCost();
+                    traversalDirection.add(false);
                     if(temp.isRequired() && !alreadyTraversed.contains(temp.getId())) {
                         mReqCost += trueCost;
                         compactTD.add(false);
@@ -211,6 +219,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                 }
                 else {
                     trueCost = temp.getCost();
+                    traversalDirection.add(true);
                     if(temp.isRequired() && !alreadyTraversed.contains(temp.getId())) {
                         mReqCost += trueCost;
                         compactTD.add(true);
@@ -221,6 +230,49 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
 
                 mCost += trueCost;
 
+            }
+
+            if(!directionDetermined) {
+                if(!((lFirst == tempFirst && lSecond == tempSecond) || (lSecond == tempFirst && lFirst == tempSecond))) {
+                    //see if we need to reverse
+                    if((traversalDirection.get(traversalDirection.size()-1) && !((lSecond == tempSecond) || (lFirst == tempSecond)))
+                            || (!traversalDirection.get(traversalDirection.size()-1) && !((lSecond == tempFirst) || (lFirst == tempFirst)))) {
+                        //reverse everyone prior in Traversal Dir and compact Traversal Dir
+                        int limi = traversalDirection.size();
+                        boolean tempDir;
+                        E tempE;
+                        int tempCostMod;
+                        for(int i = 0; i < limi; i ++) {
+                            tempDir = traversalDirection.get(i);
+                            traversalDirection.set(i,!tempDir);
+
+                            if(isWindy) {
+                                //fix costs
+                                if (tempDir) {
+                                    tempE = mRoute.get(i);
+                                    tempCostMod = ((WindyEdge)tempE).getReverseCost() - tempE.getCost();
+                                    mCost += tempCostMod;
+                                    if(tempE.isRequired())
+                                        mReqCost += tempCostMod;
+                                }
+                                else {
+                                    tempE = mRoute.get(i);
+                                    tempCostMod = tempE.getCost() - ((WindyEdge)tempE).getReverseCost();
+                                    mCost += tempCostMod;
+                                    if(tempE.isRequired())
+                                        mReqCost += tempCostMod;
+                                }
+                            }
+                        }
+
+                        limi = compactTD.size();
+                        for(int i = 0; i < limi; i ++) {
+                            compactTD.set(i,!compactTD.get(i));
+                        }
+                    }
+
+                    directionDetermined = true;
+                }
             }
 
             //TODO: Check for directed contraints as well
@@ -234,9 +286,10 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             }
             //check for same conn.
             else if(lFirst == tempFirst && lSecond == tempSecond) {
-                boolean tempTD = !compactTD.get(compactTD.size()-1);
+                boolean tempTD = !traversalDirection.get(traversalDirection.size()-1);
                 if(tempTD) {
                     trueCost = l.getCost();
+                    traversalDirection.add(true);
                     if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                         compactTD.add(true);
                         compactRepresentation.add(l.getId());
@@ -245,6 +298,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                 }
                 else {
                     trueCost = ((WindyEdge)l).getReverseCost();
+                    traversalDirection.add(false);
                     if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                         compactTD.add(false);
                         compactRepresentation.add(l.getId());
@@ -253,9 +307,10 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                 }
             }
             else if(lFirst == tempSecond && lSecond == tempFirst) {
-                boolean tempTD = compactTD.get(compactTD.size()-1);
+                boolean tempTD = traversalDirection.get(traversalDirection.size()-1);
                 if(tempTD) {
                     trueCost = l.getCost();
+                    traversalDirection.add(true);
                     if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                         compactTD.add(true);
                         compactRepresentation.add(l.getId());
@@ -264,6 +319,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                 }
                 else {
                     trueCost = ((WindyEdge)l).getReverseCost();
+                    traversalDirection.add(false);
                     if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                         compactTD.add(false);
                         compactRepresentation.add(l.getId());
@@ -273,6 +329,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             }
             else if(lFirst == tempFirst || lFirst == tempSecond) {
                 trueCost = l.getCost();
+                traversalDirection.add(true);
                 if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                     compactTD.add(true);
                     compactRepresentation.add(l.getId());
@@ -280,6 +337,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                 }
             } else if(lSecond == tempFirst || lSecond == tempSecond) {
                 trueCost = ((WindyEdge)l).getReverseCost();
+                traversalDirection.add(false);
                 if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
                     compactTD.add(false);
                     compactRepresentation.add(l.getId());

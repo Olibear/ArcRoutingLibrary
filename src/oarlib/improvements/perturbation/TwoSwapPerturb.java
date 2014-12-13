@@ -21,8 +21,11 @@ import java.util.Random;
  */
 public class TwoSwapPerturb extends IntraRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
     
-    public TwoSwapPerturb(WindyGraph windyGraph, Collection<Route<WindyVertex, WindyEdge>> candidateRoute) {
-        super(windyGraph, candidateRoute);
+    public TwoSwapPerturb(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
+        super(problem);
+    }
+    public TwoSwapPerturb(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, initialSol);
     }
 
     @Override
@@ -37,7 +40,7 @@ public class TwoSwapPerturb extends IntraRouteImprovementProcedure<WindyVertex, 
 
         Random rng = new Random();
         List<WindyEdge> rPath = r.getRoute();
-        int routeLength = rPath.size();
+        int routeLength = r.getCompactRepresentation().size();
         int index1 = rng.nextInt(routeLength);
         int index2 = rng.nextInt(routeLength);
 
@@ -50,7 +53,10 @@ public class TwoSwapPerturb extends IntraRouteImprovementProcedure<WindyVertex, 
         ArrayList<CompactMove<WindyVertex, WindyEdge>> moveList = new ArrayList<CompactMove<WindyVertex, WindyEdge>>();
         //swap them
         temp = new CompactMove<WindyVertex, WindyEdge>(r, r, index1, index2);
-        temp2 = new CompactMove<WindyVertex, WindyEdge>(r, r, index2 + 1, index1);
+        if(index1 < index2)
+            temp2 = new CompactMove<WindyVertex, WindyEdge>(r, r, index2 - 1 , index1);
+        else
+            temp2 = new CompactMove<WindyVertex, WindyEdge>(r, r, index2 + 1, index1);//or + 1
         moveList.add(temp);
         moveList.add(temp2);
 

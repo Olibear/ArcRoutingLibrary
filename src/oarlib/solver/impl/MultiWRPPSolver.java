@@ -126,20 +126,8 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                     ans.add(route(partitions.get(part)));
                 }
 
-                //try improve
-                ArrayList<Route<WindyVertex, WindyEdge>> toImprove = new ArrayList<Route<WindyVertex,WindyEdge>>();
-                Route temp;
-                for(Route r: ans) {
-                    toImprove.add(Utils.reclaimTour(r, mGraph));
-                }
-                Change1to1 ip = new Change1to1(mGraph, toImprove);
-                Collection<Route<WindyVertex, WindyEdge>> improved = ip.improveSolution();
-
-                //DEBUG: display routes
-                int routeCounter = 1;
                 int minCost = Integer.MAX_VALUE;
                 int tempCost;
-                int numReqLinks;
 
                 maxCost = 0;
                 for (Route r : ans) {
@@ -328,6 +316,8 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         ans += "% deviation from average length: " + 100.0 * deviationFromAverage + "\n";
         ans += "% deviation from average length (excluding empty): " + 100.0 * deviationFromAverageNoEmpty + "\n";
         ans += "Added cost: " + addedCost + "\n";
+        ans += "ROI: " + Utils.calcROI(currSol, mGraph) + "\n";
+        ans += "ATD: " + Utils.calcATD(currSol, mGraph) + "\n";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";

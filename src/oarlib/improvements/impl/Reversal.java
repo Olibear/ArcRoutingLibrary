@@ -23,17 +23,17 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
 
     private static final Logger LOGGER = Logger.getLogger(Reversal.class);
 
-    public Reversal(WindyGraph g, Collection<Route<WindyVertex, WindyEdge>> candidateRoute) {
-        super(g, candidateRoute);
+    public Reversal(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
+        super(problem);
+    }
+    public Reversal(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, initialSol);
     }
 
     @Override
     public Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
         TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(r, true);
-
-        if(flattenedRoute.size() == 0)
-            System.out.println("Debug");
         DirectedGraph optimalDirection = constructDirDAG(r, flattenedRoute);
 
         int m = flattenedRoute.size();
@@ -142,12 +142,10 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
             start = 1;
             end = 2 * m + 3;
             truePath = path;
-            LOGGER.debug("The expected cost is: " + dist[end]);
         } else {
             start = 2;
             end = 4 * m + 4;
             truePath = path2;
-            LOGGER.debug("The expected cost is: " + dist2[end]);
         }
 
         //figure out the path
