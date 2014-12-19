@@ -1,6 +1,5 @@
 package oarlib.improvements.util;
 
-import com.sun.xml.internal.rngom.digested.DValuePattern;
 import gnu.trove.TIntArrayList;
 import oarlib.core.Graph;
 import oarlib.core.Link;

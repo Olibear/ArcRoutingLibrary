@@ -1,57 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-  <component name="EclipseModuleManager">
-    <libelement value="file://$USER_HOME$/Desktop/gurobi.jar" />
-    <src_description expected_position="0">
-      <src_folder value="file://$MODULE_DIR$/src" expected_position="0" />
-    </src_description>
-  </component>
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
-    <output url="file://$MODULE_DIR$/bin" />
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
     </content>
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
-    <orderEntry type="module-library" exported="">
-      <library name="gurobi.jar">
-        <CLASSES>
-          <root url="file://$USER_HOME$/Desktop/gurobi.jar" />
-          <root url="jar://$USER_HOME$/Desktop/gurobi.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/External Jars (Redistributable)/junit-4.11.jar!/" />
-          <root url="jar://$MODULE_DIR$/External Jars (Redistributable)/hamcrest-core-1.3.jar!/" />
-          <root url="jar://$MODULE_DIR$/External Jars (Redistributable)/gephi-toolkit.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/External Jars (Redistributable)/trove-3.0.3-src.jar!/" />
-          <root url="jar://$MODULE_DIR$/External Jars (Redistributable)/gephi-toolkit.jar!/" />
-          <root url="file://$MODULE_DIR$/src" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="library" exported="" name="gephi-toolkit" level="project" />
-    <orderEntry type="library" exported="" name="trove-3.0.3-src" level="project" />
-    <orderEntry type="library" exported="" name="hamcrest-core-1.3" level="project" />
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/External Jars (Redistributable)/log4j-1.2.17.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="External Jars (Redistributable)" level="project" />
   </component>
 </module>
-
