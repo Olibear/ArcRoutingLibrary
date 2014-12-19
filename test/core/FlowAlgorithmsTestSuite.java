@@ -1,7 +1,7 @@
 package core;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.graph.graphgen.DirectedGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
@@ -22,7 +22,7 @@ public class FlowAlgorithmsTestSuite {
 
     @Test
     public void testMinCostFlow() {
-        DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+        DirectedErdosRenyiGraphGenerator dgg = new DirectedErdosRenyiGraphGenerator();
         DirectedGraph testGraph = dgg.generateGraph(100, 50, true, .5, true);
         Random r = new Random();
         DirectedVertex v1, v2;

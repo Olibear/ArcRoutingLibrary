@@ -1,4 +1,4 @@
-package oarlib.graph.graphgen;
+package oarlib.graph.graphgen.erdosrenyi;
 
 import gnu.trove.TIntObjectHashMap;
 import oarlib.graph.impl.MixedGraph;
@@ -10,15 +10,15 @@ import oarlib.vertex.impl.MixedVertex;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
+public class MixedErdosRenyiGraphGenerator extends ErdosRenyiGraphGenerator<MixedGraph> {
 
-    public MixedGraphGenerator() {
+    public MixedErdosRenyiGraphGenerator() {
         super();
     }
 
     @Override
-    public MixedGraph generateGraph(int n, int maxCost, boolean connected,
-                                    double density, boolean positiveCosts) {
+    public MixedGraph generate(int n, int maxCost, boolean connected,
+                                    double density, double reqDensity, boolean positiveCosts) {
 
         //edge cases
         if (n == 0)
@@ -26,17 +26,10 @@ public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
 
         try {
             //ans graph
-            MixedGraph ans = new MixedGraph();
-
-            //set up the vertices
-            for (int i = 0; i < n; i++) {
-                ans.addVertex(new MixedVertex("Original"));
-            }
+            MixedGraph ans = new MixedGraph(n);
 
             if (n == 1)
                 return ans;
-
-            TIntObjectHashMap<MixedVertex> indexedVertices = ans.getInternalVertexMap();
 
             //figure out what is set
             maxCost = (maxCost < 0) ? Integer.MAX_VALUE : maxCost;
@@ -44,6 +37,8 @@ public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
 
             double rand;
             boolean isDirected;
+            boolean isReq;
+            int coeff;
             int m = 0; // since we set up the directed representation of this to determine connectedness, then m will not just be the number of edges
             //randomly add edges
             for (int j = 2; j <= n; j++) {
@@ -53,10 +48,20 @@ public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
                     m = isDirected ? m + 1 : m + 2;
                     //add the arc with probability density
                     if (rand < density) {
-                        if (positiveCosts)
-                            ans.addEdge(new MixedEdge("Original", new Pair<MixedVertex>(indexedVertices.get(k), indexedVertices.get(j)), 1 + (int) Math.round((maxCost - 1) * Math.random())));
+                        if(Math.random() < reqDensity)
+                            isReq = true;
                         else
-                            ans.addEdge(new MixedEdge("Original", new Pair<MixedVertex>(indexedVertices.get(k), indexedVertices.get(j)), (int) Math.round(maxCost * rand), isDirected));
+                            isReq = false;
+
+                        if (positiveCosts)
+                            ans.addEdge(k,j, 1 + (int) Math.round((maxCost - 1) * Math.random()), isReq);
+                        else {
+                            if(Math.random() < .5)
+                                coeff = 1;
+                            else
+                                coeff = -1;
+                            ans.addEdge(k, j, (int) Math.round(maxCost * rand) * coeff, isDirected, isReq);
+                        }
                     }
                 }
             }
@@ -84,14 +89,11 @@ public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
                     //keep track of who we've already connected up.  If we haven't connected vertex i yet, then add connections to/from lastcandidate
                     //(the last guy we connected) to currcandidate (whichever vertex belongs to a CC we haven't connected yet.
                     HashSet<Integer> alreadyIntegrated = new HashSet<Integer>();
-                    MixedVertex lastCandidate = indexedVertices.get(1);
-                    MixedVertex currCandidate;
                     for (int i = 1; i < component.length; i++) {
                         if (alreadyIntegrated.contains(component[i]))
                             continue;
                         alreadyIntegrated.add(component[i]);
-                        currCandidate = indexedVertices.get(i);
-                        ans.addEdge(new MixedEdge("To ensure connectivity.", new Pair<MixedVertex>(lastCandidate, currCandidate), (int) Math.round(Math.random() * maxCost)));
+                        ans.addEdge(1, i, (int) Math.round(Math.random() * maxCost));
                     }
                 }
             }
@@ -104,7 +106,7 @@ public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
     }
 
     @Override
-    public MixedGraph generateEulerianGraph(int n, int maxCost,
+    public MixedGraph generateEulerian(int n, int maxCost,
                                             boolean connected, double density) {
         try {
             MixedGraph g = this.generateGraph(n, maxCost, connected, density, false);
@@ -131,7 +133,7 @@ public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
                     //add enough arcs to zero vplus
                     k = vplus.getDelta();
                     for (j = 0; j < k; j++) {
-                        g.addEdge(new MixedEdge("to make Eulerian", new Pair<MixedVertex>(vplus, vminus), (int) Math.round(maxCost * Math.random()), true));
+                        g.addEdge(iplus, iminus, (int) Math.round(maxCost * Math.random()), true);
                     }
                     //increment the vplus counter
                     iplus++;
@@ -139,7 +141,7 @@ public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
                     //add enough arcs to zero vminus
                     k = -vminus.getDelta();
                     for (j = 0; j < k; j++) {
-                        g.addEdge(new MixedEdge("to make Eulerian", new Pair<MixedVertex>(vplus, vminus), (int) Math.round(maxCost * Math.random()), true));
+                        g.addEdge(iplus, iminus, (int) Math.round(maxCost * Math.random()), true);
                     }
                     //increment the vminus counter
                     iminus++;
@@ -156,7 +158,7 @@ public class MixedGraphGenerator extends GraphGenerator<MixedGraph> {
                     if (v.getDegree() % 2 == 1) {
                         //either set temp, or connect it with temp
                         if (lookingForPartner) {
-                            g.addEdge(new MixedEdge("to make Eulerian", new Pair<MixedVertex>(temp, v), (int) Math.round(maxCost * Math.random())));
+                            g.addEdge(temp.getId(), v.getId(), (int) Math.round(maxCost * Math.random()));
                             lookingForPartner = false;
                         } else {
                             temp = v;

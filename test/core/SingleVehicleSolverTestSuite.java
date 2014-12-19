@@ -4,8 +4,8 @@ import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
 import oarlib.core.Route;
-import oarlib.graph.graphgen.DirectedGraphGenerator;
-import oarlib.graph.graphgen.UndirectedGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
@@ -35,7 +35,7 @@ public class SingleVehicleSolverTestSuite {
     @Test
     public void testUCPPSolver() {
         try {
-            UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+            UndirectedErdosRenyiGraphGenerator ugg = new UndirectedErdosRenyiGraphGenerator();
             UndirectedGraph g;
             UndirectedGraph g2;
             UndirectedCPP validInstance;
@@ -157,7 +157,7 @@ public class SingleVehicleSolverTestSuite {
         try {
             DirectedGraph g;
             DirectedGraph g2;
-            DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+            DirectedErdosRenyiGraphGenerator dgg = new DirectedErdosRenyiGraphGenerator();
             DirectedCPP validInstance;
             DCPPSolver_Edmonds validSolver;
             Route validAns;

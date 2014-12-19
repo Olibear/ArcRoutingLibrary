@@ -1,16 +1,17 @@
 package oarlib.core;
 
 import gnu.trove.TIntArrayList;
-import gnu.trove.TIntHashSet;
 import gnu.trove.TIntIntHashMap;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.UndirectedGraph;
-import oarlib.link.impl.Arc;
 import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.UndirectedVertex;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Route abstraction. Most general contract that routes must fulfill.
@@ -23,13 +24,13 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     private static int routeIDCounter = 1;
 
     protected int mCost; // cost of the route
-    protected int mReqCost;
-    protected TIntIntHashMap mCustomIDMap;
-    protected ArrayList<E> mRoute;
-    protected ArrayList<Boolean> traversalDirection;
-    protected TIntArrayList compactRepresentation;
-    protected ArrayList<Boolean> compactTD;
-    private TIntHashSet alreadyTraversed;
+    protected int mServCost; // cost of the serviced links in the route
+    protected TIntIntHashMap mCustomIDMap; // 1-1 map that allows toString to correspond vertices in another graph than the one that the links come from.
+    protected ArrayList<E> mRoute; // the ordered of links that comprise this route
+    protected ArrayList<Boolean> traversalDirection; // the ith entry is true if the ith link in the route is traversed from first to second
+    protected TIntArrayList compactRepresentation; // the ith entry is link id of the ith serviced link
+    protected ArrayList<Boolean> compactTD; // the ith entry is true if the ith serviced link is traversed first to second
+    protected ArrayList<Boolean> servicing; //the ith entry is true if we're servicing the ith link in the route
     private int mGlobalId;
 
     // some vars to deal with weird initial cases where it's impossible to determine the direction greedily in the
@@ -37,18 +38,17 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     protected boolean directionDetermined;
 
 
-
     //default constructor
     protected Route() {
 
         mCost = 0;
-        mReqCost = 0;
+        mServCost = 0;
         mCustomIDMap = new TIntIntHashMap();
         mRoute = new ArrayList<E>();
         traversalDirection = new ArrayList<Boolean>();
         compactRepresentation = new TIntArrayList();
         compactTD = new ArrayList<Boolean>();
-        alreadyTraversed = new TIntHashSet();
+        servicing = new ArrayList<Boolean>();
         mGlobalId = routeIDCounter++;
         directionDetermined = false;
 
@@ -120,7 +120,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      * @return the cost of the required links on the route
      */
     public int getReqCost() {
-        return mReqCost;
+        return mServCost;
     }
 
     /**
@@ -162,8 +162,18 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      *
      * @return List of ids that should correpsond to flattening the route.
      */
-    public TIntArrayList getCompactRepresentation(){ return compactRepresentation; }
+    public TIntArrayList getCompactRepresentation() {
+        return compactRepresentation;
+    }
 
+    /**
+     * Retrive a list of booleans, where the ith entry is true if we service the ith link in the route
+     *
+     * @return List of booleans corresponding to whether or not the link is serviced in this route.
+     */
+    public ArrayList<Boolean> getServicingList(){
+        return servicing;
+    }
 
     /**
      * Retrive a copy of the traversal direction arraylist.  An ith entry value of
@@ -172,186 +182,183 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      *
      * @return List of booleans corresponding to whether or not the link is traversed 'forward.'
      */
-    public ArrayList<Boolean> getCompactTraversalDirection(){
+    public ArrayList<Boolean> getCompactTraversalDirection() {
         return compactTD;
     }
 
-    public ArrayList<Boolean> getTraversalDirection() { return traversalDirection; }
+    public ArrayList<Boolean> getTraversalDirection() {
+        return traversalDirection;
+    }
+
+    public void appendEdge(E l) throws IllegalArgumentException {
+        appendEdge(l, l.isRequired());
+    }
 
     /**
      * Add a edge to the end of this route.
      *
-     * @param l
+     * @param l       - the link to be added
+     * @param service - true if l is going to be serviced by this route.
      */
-    public void appendEdge(E l) {
+    public void appendEdge(E l, boolean service) throws IllegalArgumentException {
 
-            boolean isWindy;
-            if(l.isWindy())
-                isWindy = true;
-            else
-                isWindy = false;
+        if(service && !l.isRequired())
+            LOGGER.error("You cannot service a link that does not demand service.", new IllegalArgumentException());
 
-            //check for a common endpoint
-            int lFirst = l.getEndpoints().getFirst().getId();
-            int lSecond = l.getEndpoints().getSecond().getId();
+        boolean isWindy;
+        if (l.isWindy())
+            isWindy = true;
+        else
+            isWindy = false;
 
-            if(mRoute.size() == 0) {
-                mRoute.add(l);
-                return;
-            }
+        //check for a common endpoint
+        int lFirst = l.getEndpoints().getFirst().getId();
+        int lSecond = l.getEndpoints().getSecond().getId();
+
+        if (mRoute.size() == 0) {
+            mRoute.add(l);
+            return;
+        }
 
 
-            E temp = mRoute.get(mRoute.size()-1);
-            int tempFirst = temp.getEndpoints().getFirst().getId();
-            int tempSecond = temp.getEndpoints().getSecond().getId();
+        E temp = mRoute.get(mRoute.size() - 1);
+        int tempFirst = temp.getEndpoints().getFirst().getId();
+        int tempSecond = temp.getEndpoints().getSecond().getId();
 
-            int trueCost;
-            if(mRoute.size() == 1) {
-                if((lFirst == tempFirst || lSecond == tempFirst) && isWindy) {
-                    trueCost = ((WindyEdge) temp).getReverseCost();
-                    traversalDirection.add(false);
-                    if(temp.isRequired() && !alreadyTraversed.contains(temp.getId())) {
-                        mReqCost += trueCost;
-                        compactTD.add(false);
-                        compactRepresentation.add(temp.getId());
-                        alreadyTraversed.add(temp.getId());
-                    }
-                }
-                else {
-                    trueCost = temp.getCost();
-                    traversalDirection.add(true);
-                    if(temp.isRequired() && !alreadyTraversed.contains(temp.getId())) {
-                        mReqCost += trueCost;
-                        compactTD.add(true);
-                        compactRepresentation.add(temp.getId());
-                        alreadyTraversed.add(temp.getId());
-                    }
-                }
-
-                mCost += trueCost;
-
-            }
-
-            if(!directionDetermined) {
-                if(!((lFirst == tempFirst && lSecond == tempSecond) || (lSecond == tempFirst && lFirst == tempSecond))) {
-                    //see if we need to reverse
-                    if((traversalDirection.get(traversalDirection.size()-1) && !((lSecond == tempSecond) || (lFirst == tempSecond)))
-                            || (!traversalDirection.get(traversalDirection.size()-1) && !((lSecond == tempFirst) || (lFirst == tempFirst)))) {
-                        //reverse everyone prior in Traversal Dir and compact Traversal Dir
-                        int limi = traversalDirection.size();
-                        boolean tempDir;
-                        E tempE;
-                        int tempCostMod;
-                        for(int i = 0; i < limi; i ++) {
-                            tempDir = traversalDirection.get(i);
-                            traversalDirection.set(i,!tempDir);
-
-                            if(isWindy) {
-                                //fix costs
-                                if (tempDir) {
-                                    tempE = mRoute.get(i);
-                                    tempCostMod = ((WindyEdge)tempE).getReverseCost() - tempE.getCost();
-                                    mCost += tempCostMod;
-                                    if(tempE.isRequired())
-                                        mReqCost += tempCostMod;
-                                }
-                                else {
-                                    tempE = mRoute.get(i);
-                                    tempCostMod = tempE.getCost() - ((WindyEdge)tempE).getReverseCost();
-                                    mCost += tempCostMod;
-                                    if(tempE.isRequired())
-                                        mReqCost += tempCostMod;
-                                }
-                            }
-                        }
-
-                        limi = compactTD.size();
-                        for(int i = 0; i < limi; i ++) {
-                            compactTD.set(i,!compactTD.get(i));
-                        }
-                    }
-
-                    directionDetermined = true;
-                }
-            }
-
-            //TODO: Check for directed contraints as well
-
-            if(!isWindy) {
-                trueCost = l.getCost();
-                if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
-                    compactRepresentation.add(l.getId());
-                    alreadyTraversed.add(l.getId());
-                }
-            }
-            //check for same conn.
-            else if(lFirst == tempFirst && lSecond == tempSecond) {
-                boolean tempTD = !traversalDirection.get(traversalDirection.size()-1);
-                if(tempTD) {
-                    trueCost = l.getCost();
-                    traversalDirection.add(true);
-                    if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
-                        compactTD.add(true);
-                        compactRepresentation.add(l.getId());
-                        alreadyTraversed.add(l.getId());
-                    }
-                }
-                else {
-                    trueCost = ((WindyEdge)l).getReverseCost();
-                    traversalDirection.add(false);
-                    if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
-                        compactTD.add(false);
-                        compactRepresentation.add(l.getId());
-                        alreadyTraversed.add(l.getId());
-                    }
-                }
-            }
-            else if(lFirst == tempSecond && lSecond == tempFirst) {
-                boolean tempTD = traversalDirection.get(traversalDirection.size()-1);
-                if(tempTD) {
-                    trueCost = l.getCost();
-                    traversalDirection.add(true);
-                    if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
-                        compactTD.add(true);
-                        compactRepresentation.add(l.getId());
-                        alreadyTraversed.add(l.getId());
-                    }
-                }
-                else {
-                    trueCost = ((WindyEdge)l).getReverseCost();
-                    traversalDirection.add(false);
-                    if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
-                        compactTD.add(false);
-                        compactRepresentation.add(l.getId());
-                        alreadyTraversed.add(l.getId());
-                    }
-                }
-            }
-            else if(lFirst == tempFirst || lFirst == tempSecond) {
-                trueCost = l.getCost();
-                traversalDirection.add(true);
-                if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
-                    compactTD.add(true);
-                    compactRepresentation.add(l.getId());
-                    alreadyTraversed.add(l.getId());
-                }
-            } else if(lSecond == tempFirst || lSecond == tempSecond) {
-                trueCost = ((WindyEdge)l).getReverseCost();
+        int trueCost;
+        if (mRoute.size() == 1) {
+            if ((lFirst == tempFirst || lSecond == tempFirst) && isWindy) {
+                trueCost = ((WindyEdge) temp).getReverseCost();
                 traversalDirection.add(false);
-                if(l.isRequired() && !alreadyTraversed.contains(l.getId())) {
+                if (temp.isRequired() && service) {
+                    mServCost += trueCost;
                     compactTD.add(false);
-                    compactRepresentation.add(l.getId());
-                    alreadyTraversed.add(l.getId());
+                    compactRepresentation.add(temp.getId());
                 }
             } else {
-                LOGGER.error("The link you're attempting to add doens't share an endpoint with the previous one.");
-                throw new IllegalArgumentException();
+                trueCost = temp.getCost();
+                traversalDirection.add(true);
+                if (temp.isRequired() && service) {
+                    mServCost += trueCost;
+                    compactTD.add(true);
+                    compactRepresentation.add(temp.getId());
+                }
             }
 
-            mRoute.add(l);
+            servicing.add(service);
             mCost += trueCost;
-            if (l.isRequired())
-                mReqCost += trueCost;
+
+        }
+
+        if (!directionDetermined) {
+            if (!((lFirst == tempFirst && lSecond == tempSecond) || (lSecond == tempFirst && lFirst == tempSecond))) {
+                //see if we need to reverse
+                if ((traversalDirection.get(traversalDirection.size() - 1) && !((lSecond == tempSecond) || (lFirst == tempSecond)))
+                        || (!traversalDirection.get(traversalDirection.size() - 1) && !((lSecond == tempFirst) || (lFirst == tempFirst)))) {
+                    //reverse everyone prior in Traversal Dir and compact Traversal Dir
+                    int limi = traversalDirection.size();
+                    boolean tempDir;
+                    E tempE;
+                    int tempCostMod;
+                    for (int i = 0; i < limi; i++) {
+                        tempDir = traversalDirection.get(i);
+                        traversalDirection.set(i, !tempDir);
+
+                        if (isWindy) {
+                            //fix costs
+                            if (tempDir) {
+                                tempE = mRoute.get(i);
+                                tempCostMod = ((WindyEdge) tempE).getReverseCost() - tempE.getCost();
+                                mCost += tempCostMod;
+                                if (tempE.isRequired())
+                                    mServCost += tempCostMod;
+                            } else {
+                                tempE = mRoute.get(i);
+                                tempCostMod = tempE.getCost() - ((WindyEdge) tempE).getReverseCost();
+                                mCost += tempCostMod;
+                                if (tempE.isRequired())
+                                    mServCost += tempCostMod;
+                            }
+                        }
+                    }
+
+                    limi = compactTD.size();
+                    for (int i = 0; i < limi; i++) {
+                        compactTD.set(i, !compactTD.get(i));
+                    }
+                }
+
+                directionDetermined = true;
+            }
+        }
+
+        //TODO: Check for directed contraints as well
+
+        if (!isWindy) {
+            trueCost = l.getCost();
+            if (l.isRequired() && service) {
+                compactRepresentation.add(l.getId());
+            }
+        }
+        //check for same conn.
+        else if (lFirst == tempFirst && lSecond == tempSecond) {
+            boolean tempTD = !traversalDirection.get(traversalDirection.size() - 1);
+            if (tempTD) {
+                trueCost = l.getCost();
+                traversalDirection.add(true);
+                if (l.isRequired() && service) {
+                    compactTD.add(true);
+                    compactRepresentation.add(l.getId());
+                }
+            } else {
+                trueCost = ((WindyEdge) l).getReverseCost();
+                traversalDirection.add(false);
+                if (l.isRequired()) {
+                    compactTD.add(false);
+                    compactRepresentation.add(l.getId());
+                }
+            }
+        } else if (lFirst == tempSecond && lSecond == tempFirst) {
+            boolean tempTD = traversalDirection.get(traversalDirection.size() - 1);
+            if (tempTD) {
+                trueCost = l.getCost();
+                traversalDirection.add(true);
+                if (l.isRequired() && service) {
+                    compactTD.add(true);
+                    compactRepresentation.add(l.getId());
+                }
+            } else {
+                trueCost = ((WindyEdge) l).getReverseCost();
+                traversalDirection.add(false);
+                if (l.isRequired() && service) {
+                    compactTD.add(false);
+                    compactRepresentation.add(l.getId());
+                }
+            }
+        } else if (lFirst == tempFirst || lFirst == tempSecond) {
+            trueCost = l.getCost();
+            traversalDirection.add(true);
+            if (l.isRequired() && service) {
+                compactTD.add(true);
+                compactRepresentation.add(l.getId());
+            }
+        } else if (lSecond == tempFirst || lSecond == tempSecond) {
+            trueCost = ((WindyEdge) l).getReverseCost();
+            traversalDirection.add(false);
+            if (l.isRequired() && service) {
+                compactTD.add(false);
+                compactRepresentation.add(l.getId());
+            }
+        } else {
+            LOGGER.error("The link you're attempting to add doens't share an endpoint with the previous one.");
+            throw new IllegalArgumentException();
+        }
+
+        servicing.add(service);
+        mRoute.add(l);
+        mCost += trueCost;
+        if (l.isRequired() && service)
+            mServCost += trueCost;
 
     }
 
@@ -362,7 +369,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      *
      * @return true if route is feasible in the provided graph
      */
-    public abstract boolean checkRoutes(Graph<V,E> g);
+    public abstract boolean checkRoutes(Graph<V, E> g);
 
     /**
      * Outputs a string representation of the route.

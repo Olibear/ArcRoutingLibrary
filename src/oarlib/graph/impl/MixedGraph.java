@@ -61,6 +61,25 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
 
     }
 
+    public MixedEdge constructEdge(int i, int j, String desc, int cost, boolean isDirected, boolean isRequired)
+            throws InvalidEndpointsException {
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
+            throw new InvalidEndpointsException();
+        }
+        MixedEdge ret = new MixedEdge(desc, new Pair<MixedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, isDirected);
+        ret.setRequired(isRequired);
+        return ret;
+
+    }
+
+    public void addEdge(int i, int j, int cost, boolean isDirected, boolean isRequired) throws InvalidEndpointsException {
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+            throw new InvalidEndpointsException();
+        MixedEdge temp = this.constructEdge(i, j, "", cost, isDirected, isRequired);
+        this.addEdge(temp);
+    }
+
     //===============================================
     //
     // Graph Overrides

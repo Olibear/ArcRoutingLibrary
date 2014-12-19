@@ -71,11 +71,11 @@ public class RouteExpander<G extends Graph> {
             if(curr != end) {
                 do {
                     next = path[curr][end];
-                    ans.appendEdge(mGraph.getEdge(edgePath[curr][end]));
+                    ans.appendEdge(mGraph.getEdge(edgePath[curr][end]), false);
                 } while ((curr = next) != end);
             }
 
-            ans.appendEdge(temp);
+            ans.appendEdge(temp, temp.isRequired());
             prev = nextPrev;
 
         }
@@ -87,7 +87,7 @@ public class RouteExpander<G extends Graph> {
         if(curr != end) {
             do {
                 next = path[curr][end];
-                ans.appendEdge(mGraph.getEdge(edgePath[curr][end]));
+                ans.appendEdge(mGraph.getEdge(edgePath[curr][end]), false);
             } while ((curr = next) != end);
         }
 

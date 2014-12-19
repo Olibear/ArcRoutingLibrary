@@ -2,8 +2,8 @@ package core;
 
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.exceptions.NegativeCycleException;
-import oarlib.graph.graphgen.DirectedGraphGenerator;
-import oarlib.graph.graphgen.WindyGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.WindyErdosRenyiGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
@@ -33,7 +33,7 @@ public class ShortestPathsTestSuite {
         //                   Directed Case
         //
         // ======================================================
-        DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+        DirectedErdosRenyiGraphGenerator dgg = new DirectedErdosRenyiGraphGenerator();
         DirectedGraph testGraph = dgg.generateGraph(100, 50, true, .5, true);
 
         //control
@@ -59,7 +59,7 @@ public class ShortestPathsTestSuite {
         //                     Windy Case
         //
         // ======================================================
-        WindyGraphGenerator wgg = new WindyGraphGenerator();
+        WindyErdosRenyiGraphGenerator wgg = new WindyErdosRenyiGraphGenerator();
         WindyGraph testGraph2 = wgg.generateGraph(100, 50, true, .5, true);
 
         //control
@@ -90,7 +90,7 @@ public class ShortestPathsTestSuite {
             //                    Directed Case
             //
             // ======================================================
-            DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+            DirectedErdosRenyiGraphGenerator dgg = new DirectedErdosRenyiGraphGenerator();
             DirectedGraph testGraph = dgg.generateGraph(100, 50, true, .5, true);
 
             //control
@@ -116,7 +116,7 @@ public class ShortestPathsTestSuite {
             //                      Windy Case
             //
             // ======================================================
-            WindyGraphGenerator wgg = new WindyGraphGenerator();
+            WindyErdosRenyiGraphGenerator wgg = new WindyErdosRenyiGraphGenerator();
             WindyGraph testGraph2 = wgg.generateGraph(100, 50, true, .5, true);
 
             //control
@@ -185,7 +185,7 @@ public class ShortestPathsTestSuite {
             //                    Directed Case
             //
             // ======================================================
-            DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+            DirectedErdosRenyiGraphGenerator dgg = new DirectedErdosRenyiGraphGenerator();
             DirectedGraph testGraph = dgg.generateGraph(100, 50, true, .5, true);
 
             //control
@@ -211,7 +211,7 @@ public class ShortestPathsTestSuite {
             //                      Windy Case
             //
             // ======================================================
-            WindyGraphGenerator wgg = new WindyGraphGenerator();
+            WindyErdosRenyiGraphGenerator wgg = new WindyErdosRenyiGraphGenerator();
             WindyGraph testGraph2 = wgg.generateGraph(100, 50, true, .5, true);
 
             //control
@@ -349,7 +349,7 @@ public class ShortestPathsTestSuite {
             //                    Directed Case
             //
             // ======================================================
-            DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+            DirectedErdosRenyiGraphGenerator dgg = new DirectedErdosRenyiGraphGenerator();
             DirectedGraph testGraph = dgg.generateGraph(100, 50, true, .5, true);
 
             //control
@@ -375,7 +375,7 @@ public class ShortestPathsTestSuite {
             //                      Windy Case
             //
             // ======================================================
-            WindyGraphGenerator wgg = new WindyGraphGenerator();
+            WindyErdosRenyiGraphGenerator wgg = new WindyErdosRenyiGraphGenerator();
             WindyGraph testGraph2 = wgg.generateGraph(100, 50, true, .5, true);
 
             //control

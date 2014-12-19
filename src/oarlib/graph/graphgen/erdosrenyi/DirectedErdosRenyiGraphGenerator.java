@@ -1,4 +1,4 @@
-package oarlib.graph.graphgen;
+package oarlib.graph.graphgen.erdosrenyi;
 
 import gnu.trove.TIntObjectHashMap;
 import oarlib.graph.impl.DirectedGraph;
@@ -10,40 +10,46 @@ import oarlib.vertex.impl.DirectedVertex;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class DirectedGraphGenerator extends GraphGenerator<DirectedGraph> {
+public class DirectedErdosRenyiGraphGenerator extends ErdosRenyiGraphGenerator<DirectedGraph> {
 
-    public DirectedGraphGenerator() {
+    public DirectedErdosRenyiGraphGenerator() {
         super();
     }
 
     @Override
-    public DirectedGraph generateGraph(int n, int maxCost, boolean connected,
-                                       double density, boolean positiveCosts) {
+    public DirectedGraph generate(int n, int maxCost, boolean connected,
+                                       double density, double reqDensity, boolean positiveCosts) {
         try {
             //edge cases
             if(n == 0)
                 return new DirectedGraph();
 
             //ans graph
-            DirectedGraph ans = new DirectedGraph();
-
-            //set up the vertices
-            for (int i = 0; i < n; i++) {
-                ans.addVertex(new DirectedVertex("Original"));
-            }
-            TIntObjectHashMap<DirectedVertex> indexedVertices = ans.getInternalVertexMap();
+            DirectedGraph ans = new DirectedGraph(n);
 
             //add arcs randomly
+            boolean req;
+            int coeff;
             for (int j = 1; j <= n; j++) {
                 for (int k = 1; k <= n; k++) {
                     if (j == k)
                         continue;
                     //add the arc with probability density
                     if (Math.random() < density) {
-                        if (positiveCosts)
-                            ans.addEdge(new Arc("Original", new Pair<DirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), 1 + (int) Math.round((maxCost - 1) * Math.random())));
+                        if(Math.random() <= reqDensity)
+                            req = true;
                         else
-                            ans.addEdge(new Arc("Original", new Pair<DirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), (int) Math.round(maxCost * Math.random())));
+                        req = false;
+
+                        if (positiveCosts)
+                            ans.addEdge(k, j, 1 + (int) Math.round((maxCost - 1) * Math.random()),req);
+                        else {
+                            if(Math.random() < .5)
+                                coeff = 1;
+                            else
+                                coeff = -1;
+                            ans.addEdge(k, j, (int) Math.round(maxCost * Math.random()) * coeff, req);
+                        }
                     }
                 }
             }
@@ -66,15 +72,12 @@ public class DirectedGraphGenerator extends GraphGenerator<DirectedGraph> {
                     //keep track of who we've already connected up.  If we haven't connected vertex i yet, then add connections to/from lastcandidate
                     //(the last guy we connected) to currcandidate (whichever vertex belongs to a CC we haven't connected yet.
                     HashSet<Integer> alreadyIntegrated = new HashSet<Integer>();
-                    DirectedVertex lastCandidate = indexedVertices.get(1);
-                    DirectedVertex currCandidate;
                     for (int i = 1; i < component.length; i++) {
                         if (alreadyIntegrated.contains(component[i]))
                             continue;
                         alreadyIntegrated.add(component[i]);
-                        currCandidate = indexedVertices.get(i);
-                        ans.addEdge(new Arc("To ensure connectivity.", new Pair<DirectedVertex>(lastCandidate, currCandidate), (int) Math.round(Math.random() * maxCost)));
-                        ans.addEdge(new Arc("To ensure connectivity.", new Pair<DirectedVertex>(currCandidate, lastCandidate), (int) Math.round(Math.random() * maxCost)));
+                        ans.addEdge(1, i, (int) Math.round(Math.random() * maxCost));
+                        ans.addEdge(i, 1, (int) Math.round(Math.random() * maxCost));
                     }
                 }
             }
@@ -87,7 +90,7 @@ public class DirectedGraphGenerator extends GraphGenerator<DirectedGraph> {
     }
 
     @Override
-    public DirectedGraph generateEulerianGraph(int n, int maxCost,
+    public DirectedGraph generateEulerian(int n, int maxCost,
                                                boolean connected, double density) {
         try {
             DirectedGraph g = this.generateGraph(n, maxCost, connected, density, false);
@@ -114,7 +117,7 @@ public class DirectedGraphGenerator extends GraphGenerator<DirectedGraph> {
                     //add enough arcs to zero vplus
                     k = vplus.getDelta();
                     for (j = 0; j < k; j++) {
-                        g.addEdge(new Arc("to make Eulerian", new Pair<DirectedVertex>(vplus, vminus), (int) Math.round(maxCost * Math.random())));
+                        g.addEdge(iplus, iminus, (int) Math.round(maxCost * Math.random()));
                     }
                     //increment the vplus counter
                     iplus++;
@@ -122,7 +125,7 @@ public class DirectedGraphGenerator extends GraphGenerator<DirectedGraph> {
                     //add enough arcs to zero vminus
                     k = -vminus.getDelta();
                     for (j = 0; j < k; j++) {
-                        g.addEdge(new Arc("to make Eulerian", new Pair<DirectedVertex>(vplus, vminus), (int) Math.round(maxCost * Math.random())));
+                        g.addEdge(iplus, iminus, (int) Math.round(maxCost * Math.random()));
                     }
                     //increment the vminus counter
                     iminus++;

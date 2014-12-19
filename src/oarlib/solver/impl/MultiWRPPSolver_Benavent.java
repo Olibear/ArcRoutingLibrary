@@ -124,8 +124,12 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
             }
         }
 
-        mInstance.setSol(ans);
-        return ans;
+        ArrayList<Route<WindyVertex, WindyEdge>> reclaimedAns = new ArrayList<Route<WindyVertex, WindyEdge>>();
+        for(Route r: ans)
+            reclaimedAns.add(Utils.reclaimTour(r, mGraph));
+
+        mInstance.setSol(reclaimedAns);
+        return reclaimedAns;
     }
 
     public static Collection<Route<DirectedVertex, Arc>> splitRoute(Route<DirectedVertex, Arc> singleAns, WindyGraph graph, int numVehicles) {

@@ -90,6 +90,8 @@ public class OrInterchange extends IntraRouteImprovementProcedure<WindyVertex, W
                         } else if(k > 0) {
                             for(int l = 0; l < k; l++) {
                                 toMoveIndex = candidateRoute.get(i+j);
+                                if(candidateTraversalDirection.size() == 0)
+                                    System.out.println("DEBUG");
                                 toMoveDirection = candidateTraversalDirection.get(i+j);
                                 candidateRoute.remove(i+j);
                                 candidateTraversalDirection.remove(i+j);

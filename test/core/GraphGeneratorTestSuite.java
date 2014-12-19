@@ -1,9 +1,9 @@
 package core;
 
-import oarlib.graph.graphgen.DirectedGraphGenerator;
-import oarlib.graph.graphgen.MixedGraphGenerator;
-import oarlib.graph.graphgen.UndirectedGraphGenerator;
-import oarlib.graph.graphgen.WindyGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.MixedErdosRenyiGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.WindyErdosRenyiGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -22,7 +22,7 @@ public class GraphGeneratorTestSuite {
 
     @Test
     public void testUndirectedGraphGenerator() {
-        UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+        UndirectedErdosRenyiGraphGenerator ugg = new UndirectedErdosRenyiGraphGenerator();
         /**
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .001.
@@ -34,7 +34,7 @@ public class GraphGeneratorTestSuite {
 
     @Test
     public void testDirectedGraphGenerator() {
-        DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+        DirectedErdosRenyiGraphGenerator dgg = new DirectedErdosRenyiGraphGenerator();
         /**
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .001.
@@ -46,7 +46,7 @@ public class GraphGeneratorTestSuite {
 
     @Test
     public void testMixedGraphGenerator() {
-        MixedGraphGenerator mgg = new MixedGraphGenerator();
+        MixedErdosRenyiGraphGenerator mgg = new MixedErdosRenyiGraphGenerator();
         /**
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .001.
@@ -58,7 +58,7 @@ public class GraphGeneratorTestSuite {
 
     @Test
     public void testWindyGraphGenerator() {
-        WindyGraphGenerator wgg = new WindyGraphGenerator();
+        WindyErdosRenyiGraphGenerator wgg = new WindyErdosRenyiGraphGenerator();
         /**
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .001.

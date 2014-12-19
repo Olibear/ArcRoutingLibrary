@@ -1,8 +1,10 @@
 package oarlib.solver.impl;
 
-import gnu.trove.TIntIntHashMap;
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.*;
+import oarlib.core.Link;
+import oarlib.core.MultiVehicleSolver;
+import oarlib.core.Problem;
+import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.factory.impl.WindyGraphFactory;
 import oarlib.graph.impl.WindyGraph;
@@ -17,9 +19,9 @@ import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
 import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Utils;
-import oarlib.improvements.ImprovementProcedure;
-import oarlib.improvements.impl.*;
+import oarlib.improvements.metaheuristics.impl.OnePassBenaventIPFramework;
 import oarlib.link.impl.WindyEdge;
+import oarlib.objfunc.ObjectiveFunction;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
 import oarlib.problem.impl.rpp.WindyRPP;
@@ -79,38 +81,30 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
     protected Collection<Route<WindyVertex, WindyEdge>> solve() {
 
         int bestObj = Integer.MAX_VALUE;
-        ArrayList<Route<WindyVertex, WindyEdge>> record = new ArrayList<Route<WindyVertex, WindyEdge>>();
+        Collection<Route<WindyVertex, WindyEdge>> record = new ArrayList<Route<WindyVertex, WindyEdge>>();
 
         try {
 
             //partition
-            int reqCounter = 0;
-            for (WindyEdge we : mGraph.getEdges()) {
-                if (we.isRequired())
-                    reqCounter++;
-            }
             HashMap<Integer, Integer> sol = partition(null);
             HashMap<Integer, Integer> bestSol = new HashMap<Integer, Integer>();
 
             ArrayList<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
-            int maxCost = 0;
-            int numRebalances = 2;
-            for (int j = 1; j <= numRebalances; j++) {
+            int maxCost;
+            int numRuns = 2;
+            for (int j = 1; j <= numRuns; j++) {
 
-                if (j == numRebalances)
+                if (j == numRuns)
                     lastRun = true;
+
                 mGraph = mInstance.getGraph();
 
                 HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
-                TIntObjectHashMap<WindyEdge> mGraphEdges = mGraph.getInternalEdgeMap();
-                HashSet<Integer> nonReqEdges = new HashSet<Integer>();
 
                 for (Integer i : sol.keySet()) {
                     if (!partitions.containsKey(sol.get(i)))
                         partitions.put(sol.get(i), new HashSet<Integer>());
                     partitions.get(sol.get(i)).add(i);
-                    if (!mGraphEdges.get(i).isRequired())
-                        nonReqEdges.add(i);
                 }
 
                 //now create the subgraphs
@@ -118,37 +112,33 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                 for (Integer part : partitions.keySet()) {
                     if (partitions.get(part).isEmpty())
                         continue;
-                    //put in all the non-required ones
-                    for (Integer id : nonReqEdges) {
-                        partitions.get(part).add(id);
-                    }
-
                     ans.add(route(partitions.get(part)));
                 }
 
-                int minCost = Integer.MAX_VALUE;
-                int tempCost;
+                //improvement
+                //OnePassBenaventIPFramework improver = new OnePassBenaventIPFramework(mInstance, ans);
+                //Collection<Route<WindyVertex, WindyEdge>> improved = improver.improveSolution();
 
-                maxCost = 0;
-                for (Route r : ans) {
-                    tempCost = r.getCost();
-                    if (tempCost > maxCost)
-                        maxCost = tempCost;
-                    if (tempCost < minCost)
-                        minCost = tempCost;
-                }
+                maxCost = Utils.getObjectiveValue(ans, ObjectiveFunction.MAX);
 
+                //record keeping
                 if (maxCost < bestObj) {
                     bestObj = maxCost;
                     bestSol = sol;
                     record = ans;
                 }
 
+                //TODO: Learn the .01
                 sol = partition(new DuplicateEdgeCostRebalancer(mGraph, new IndividualDistanceToDepotRebalancer(mGraph, .01)));
             }
 
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, mGraph, mInstanceName);
+            //TODO: change to reflect improvements
             gd.exportWithPartition(GraphDisplay.ExportType.PDF, bestSol);
+
+            //ArrayList<Route<WindyVertex, WindyEdge>> reclaimedAns = new ArrayList<Route<WindyVertex, WindyEdge>>();
+            //for(Route r: record)
+                //reclaimedAns.add(Utils.reclaimTour(r,mGraph));
 
             mInstance.setSol(record);
             return record;
@@ -227,16 +217,16 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         end = System.currentTimeMillis();
         LOGGER.debug("It took " + (end - start) + " milliseconds to run the sub-solver.");
 
-        return ret;
+        return ret; //Utils.reclaimTour(ret, mGraph);
     }
 
     @Override
     public String printCurrentSol() throws IllegalStateException {
 
-        Collection<Route<WindyVertex,WindyEdge>> currSol = mInstance.getSol();
+        Collection<Route<WindyVertex, WindyEdge>> currSol = mInstance.getSol();
 
         if (currSol == null)
-            LOGGER.error("It does not appear as though this solver has been run yet!",new IllegalStateException());
+            LOGGER.error("It does not appear as though this solver has been run yet!", new IllegalStateException());
 
         int tempCost;
         int numZeroRoutes = 0;

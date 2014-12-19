@@ -1,4 +1,4 @@
-package oarlib.graph.graphgen;
+package oarlib.graph.graphgen.erdosrenyi;
 
 import oarlib.core.Graph;
 import org.apache.log4j.Logger;
@@ -6,12 +6,13 @@ import org.apache.log4j.Logger;
 import java.util.Random;
 
 
-public abstract class GraphGenerator<S extends Graph> {
+public abstract class ErdosRenyiGraphGenerator<S extends Graph> {
 
-    private static final Logger LOGGER = Logger.getLogger(GraphGenerator.class);
+    private static final Logger LOGGER = Logger.getLogger(ErdosRenyiGraphGenerator.class);
 
     private double defaultDensity;
-    public GraphGenerator() {
+
+    public ErdosRenyiGraphGenerator() {
         Random rng = new Random();
         defaultDensity = rng.nextDouble();
     }
@@ -28,10 +29,10 @@ public abstract class GraphGenerator<S extends Graph> {
     }
 
     /**
-     * Randomly generates a graph with n vertices, and max edge cost of maxCost.
+     * Randomly generates an Erdos-Renyi graph with n vertices, and max edge cost of maxCost.
      *
      * @param n       - number of vertices in the graph
-     * @param maxCost - the maximum cost that a link in this graph can have.  If this is set to a negative number, it is ignored.
+     * @param maxCost - the maximum (magnitude) that the cost of a link in this graph can have
      * @return - a graph with the specified properties.
      */
     public S generateGraph(int n, int maxCost) {
@@ -39,11 +40,11 @@ public abstract class GraphGenerator<S extends Graph> {
     }
 
     /**
-     * Randomly generates a graph with n vertices, and max edge cost of maxCost.
+     * Randomly generates an Erdos-Renyi graph with n vertices, and max edge cost of maxCost.
      * If the connected flag is true, then we ensure that the number (strongly) connected components is 1.
      *
      * @param n         - number of vertices in the graph
-     * @param maxCost   - the maximum cost that a link in this graph can have. If this is set to a negative number, it is ignored.
+     * @param maxCost   - the maximum (magnitude) that the cost of a link in this graph can have
      * @param connected - flag to enforce (strong) connectedness on the graph
      * @return - a graph with the specified properties.
      */
@@ -52,12 +53,12 @@ public abstract class GraphGenerator<S extends Graph> {
     }
 
     /**
-     * Randomly generates a graph with n vertices, and max edge cost of maxCost.
+     * Randomly generates an Erdos-Renyi graph with n vertices, and max edge cost of maxCost.
      * If the connected flag is true, then we ensure that the number (strongly) connected components is 1.
      * The density specified will be the probability that a link from vertex i to vertex j is included.
      *
      * @param n         - number of vertices in the graph
-     * @param maxCost   - the maximum cost that a link in this graph can have
+     * @param maxCost   - the maximum (magnitude) that the cost of a link in this graph can have
      * @param connected - flag to enforce (strong) connectedness on the graph
      * @param density   - the approximate density of the graph, must be between [0,1]
      * @return - a graph with the specified properties.
@@ -67,21 +68,41 @@ public abstract class GraphGenerator<S extends Graph> {
     }
 
     /**
-     * Randomly generates a graph with n vertices, and max edge cost of maxCost.
+     * Randomly generates an Erdos-Renyi graph with n vertices, and max edge cost of maxCost.
      * If the connected flag is true, then we ensure that the number (strongly) connected components is 1.
      * The density specified will be the probability that a link from vertex i to vertex j is included.
      *
      * @param n             - number of vertices in the graph
-     * @param maxCost       - the maximum cost that a link in this graph can have
+     * @param maxCost       - the maximum (magnitude) that the cost of a link in this graph can have
      * @param connected     - flag to enforce (strong) connectedness on the graph
      * @param density       - the approximate density of the graph, must be between [0,1]
      * @param positiveCosts - flag to enforce whether all edge weights are strictly positive.
      * @return - a graph with the specified properties.
      */
     public S generateGraph(int n, int maxCost, boolean connected, double density, boolean positiveCosts) {
-        checkArgs(n, maxCost, density, positiveCosts);
-        return this.generateGraph(n,maxCost,connected,density,positiveCosts);
+        return this.generateGraph(n, maxCost, connected, density, 1, positiveCosts);
     }
+
+    /**
+     * Randomly generates an Erdos-Renyi graph with n vertices, and max edge cost of maxCost.
+     * If the connected flag is true, then we ensure that the number (strongly) connected components is 1.
+     * The density specified will be the probability that a link from vertex i to vertex j is included
+     * (similarly for reqDensity).
+     *
+     * @param n             - number of vertices in the graph
+     * @param maxCost       - the maximum (magnitude) that the cost of a link in this graph can have
+     * @param connected     - flag to enforce (strong) connectedness on the graph
+     * @param density       - the approximate density of the graph, must be between [0,1]
+     * @param reqDensity    - the probability that a link will be required in the graph.
+     * @param positiveCosts - flag to enforce whether all edge weights are strictly positive.
+     * @return - a graph with the specified properties.
+     */
+    public S generateGraph(int n, int maxCost, boolean connected, double density, double reqDensity, boolean positiveCosts) {
+        checkArgs(n, maxCost, density);
+        return this.generate(n, maxCost, connected, density, reqDensity, positiveCosts);
+    }
+
+    protected abstract S generate(int n, int maxCost, boolean connected, double density, double reqDensity, boolean positiveCosts);
 
     /**
      * Randomly generates an Eulerian graph with n vertices.
@@ -97,7 +118,7 @@ public abstract class GraphGenerator<S extends Graph> {
      * Randomly generates an Eulerian graph with n vertices, and max edge cost of maxCost.
      *
      * @param n       - number of vertices in the graph
-     * @param maxCost - the maximum cost that a link in this graph can have.  If this is set to a negative number, it is ignored.
+     * @param maxCost - the maximum (magnitude) that the cost of a link in this graph can have
      * @return - a graph with the specified properties.
      */
     public S generateEulerianGraph(int n, int maxCost) {
@@ -109,7 +130,7 @@ public abstract class GraphGenerator<S extends Graph> {
      * If the connected flag is true, then we ensure that the number (strongly) connected components is 1.
      *
      * @param n         - number of vertices in the graph
-     * @param maxCost   - the maximum cost that a link in this graph can have. If this is set to a negative number, it is ignored.
+     * @param maxCost   - the maximum (magnitude) that the cost of a link in this graph can have
      * @param connected - flag to enforce (strong) connectedness on the graph
      * @return - a graph with the specified properties.
      */
@@ -123,38 +144,40 @@ public abstract class GraphGenerator<S extends Graph> {
      * The density specified will be the probability that a link from vertex i to vertex j is included.
      *
      * @param n         - number of vertices in the graph
-     * @param maxCost   - the maximum cost that a link in this graph can have
+     * @param maxCost   - the maximum (magnitude) that the cost of a link in this graph can have
      * @param connected - flag to enforce (strong) connectedness on the graph
      * @param density   - the approximate density of the graph, must be between [0,1]
      * @return - a graph with the specified properties.
      */
-    public S generateEulerianGraph(int n, int maxCost, boolean connected, double density){
-        checkArgs(n, maxCost, density, false);
-        return this.generateEulerianGraph(n, maxCost, connected, density);
+    public S generateEulerianGraph(int n, int maxCost, boolean connected, double density) {
+        checkArgs(n, maxCost, density);
+        return this.generateEulerian(n, maxCost, connected, density);
     }
+
+    protected abstract S generateEulerian(int n, int maxCost, boolean connected, double density);
 
     /**
      * Check inputs to the graph generator methods
-     * @param n - number of vertices in the graph
-     * @param maxCost - the maximum cost that a link in this graph can have
+     *
+     * @param n       - number of vertices in the graph
+     * @param maxCost - the maximum (magnitude) that the cost of a link in this graph can have
      * @param density - the approximate density of the graph, must be between [0,1]
-     * @param positiveCosts - flag to enforce whether all edge weights are strictly positive.
      */
-    private static void checkArgs(int n, int maxCost, double density, boolean positiveCosts){
+    private static void checkArgs(int n, int maxCost, double density) {
         boolean problem = false;
-        if(n < 0) {
+        if (n < 0) {
             LOGGER.error("Cannot create a graph with negative number of vertices.");
             problem = true;
         }
-        if(density < 0 || density > 1){
+        if (density < 0 || density > 1) {
             LOGGER.error("Invalid density.");
             problem = true;
         }
-        if(positiveCosts && maxCost < 0){
-            LOGGER.error("Cannot enforce maxCost < 0 when positiveCosts flag is set to true.");
+        if (maxCost < 0) {
+            LOGGER.error("maxCost is a cardinality argument; it should not be signed.");
             problem = true;
         }
-        if(problem)
+        if (problem)
             throw new IllegalArgumentException();
     }
 }

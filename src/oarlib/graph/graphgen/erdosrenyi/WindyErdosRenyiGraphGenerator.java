@@ -1,55 +1,66 @@
-package oarlib.graph.graphgen;
+package oarlib.graph.graphgen.erdosrenyi;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.graph.impl.UndirectedGraph;
+import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
-import oarlib.link.impl.Edge;
-import oarlib.vertex.impl.UndirectedVertex;
+import oarlib.link.impl.WindyEdge;
+import oarlib.vertex.impl.WindyVertex;
 
 import java.util.HashSet;
 
-public class UndirectedGraphGenerator extends GraphGenerator<UndirectedGraph> {
+public class WindyErdosRenyiGraphGenerator extends ErdosRenyiGraphGenerator<WindyGraph> {
 
-    public UndirectedGraphGenerator() {
+    public WindyErdosRenyiGraphGenerator() {
         super();
     }
 
     @Override
-    public UndirectedGraph generateGraph(int n, int maxCost, boolean connected,
-                                         double density, boolean positiveCosts) throws IllegalArgumentException {
+    public WindyGraph generate(int n, int maxCost, boolean connected,
+                                    double density, double reqDensity, boolean positiveCosts) throws IllegalArgumentException {
 
         //edge cases
         if (n == 0)
-            return new UndirectedGraph();
+            return new WindyGraph();
 
         try {
             //ans graph
-            UndirectedGraph ans = new UndirectedGraph();
-
-            //set up the vertices
-            for (int i = 0; i < n; i++) {
-                ans.addVertex(new UndirectedVertex("Original"));
-            }
+            WindyGraph ans = new WindyGraph(n);
 
             if (n == 1)
                 return ans;
-
-            TIntObjectHashMap<UndirectedVertex> indexedVertices = ans.getInternalVertexMap();
 
             //figure out what is set
             maxCost = (maxCost < 0) ? Integer.MAX_VALUE : maxCost;
             density = (density > 0 && density < 1) ? density : Math.random();
 
+
             //randomly add edges
+            boolean isReq;
+            int cost, reverseCost;
+            int coeff;
             for (int j = 2; j <= n; j++) {
                 for (int k = 1; k < j; k++) {
                     //add the arc with probability density
                     if (Math.random() < density) {
-                        if (positiveCosts)
-                            ans.addEdge(new Edge("Original", new Pair<UndirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), 1 + (int) Math.round((maxCost - 1) * Math.random())));
+                        if(Math.random() < reqDensity)
+                            isReq = true;
                         else
-                            ans.addEdge(new Edge("Original", new Pair<UndirectedVertex>(indexedVertices.get(k), indexedVertices.get(j)), (int) Math.round(maxCost * Math.random())));
+                            isReq = false;
+
+                        if (positiveCosts) {
+                            cost = 1 + (int) Math.round((maxCost - 1) * Math.random());
+                            reverseCost = 1 + (int) Math.round((maxCost - 1) * Math.random());
+                        } else {
+                            if(Math.random() < .5)
+                                coeff = 1;
+                            else
+                                coeff = -1;
+
+                            cost = (int) Math.round(maxCost * Math.random()) * coeff;
+                            reverseCost = (int) Math.round(maxCost * Math.random()) * coeff;
+                        }
+                        ans.addEdge(k, j, cost, reverseCost, isReq);
                     }
                 }
             }
@@ -61,7 +72,7 @@ public class UndirectedGraphGenerator extends GraphGenerator<UndirectedGraph> {
                 int m = ans.getEdges().size();
                 int[] nodei = new int[m + 1];
                 int[] nodej = new int[m + 1];
-                for (Edge e : ans.getEdges()) {
+                for (WindyEdge e : ans.getEdges()) {
                     nodei[e.getId()] = e.getEndpoints().getFirst().getId();
                     nodej[e.getId()] = e.getEndpoints().getSecond().getId();
                 }
@@ -71,15 +82,14 @@ public class UndirectedGraphGenerator extends GraphGenerator<UndirectedGraph> {
                     //keep track of who we've already connected up.  If we haven't connected vertex i yet, then add connections to/from lastcandidate
                     //(the last guy we connected) to currcandidate (whichever vertex belongs to a CC we haven't connected yet.
                     HashSet<Integer> alreadyIntegrated = new HashSet<Integer>();
-                    UndirectedVertex lastCandidate = indexedVertices.get(1);
-                    alreadyIntegrated.add(component[1]);
-                    UndirectedVertex currCandidate;
-                    for (int i = 2; i < component.length; i++) {
+                    WindyVertex currCandidate;
+                    for (int i = 1; i < component.length; i++) {
                         if (alreadyIntegrated.contains(component[i]))
                             continue;
                         alreadyIntegrated.add(component[i]);
-                        currCandidate = indexedVertices.get(i);
-                        ans.addEdge(new Edge("To ensure connectivity.", new Pair<UndirectedVertex>(lastCandidate, currCandidate), (int) Math.round(Math.random() * maxCost)));
+                        cost = (int) Math.round(Math.random() * maxCost);
+                        reverseCost = (int) Math.round(Math.random() * maxCost);
+                        ans.addEdge(1, i, cost, reverseCost);
                     }
                 }
             }
@@ -92,19 +102,22 @@ public class UndirectedGraphGenerator extends GraphGenerator<UndirectedGraph> {
     }
 
     @Override
-    public UndirectedGraph generateEulerianGraph(int n, int maxCost,
-                                                 boolean connected, double density) {
+    public WindyGraph generateEulerian(int n, int maxCost,
+                                            boolean connected, double density) {
         try {
-            UndirectedGraph g = this.generateGraph(n, maxCost, connected, density, false);
+            WindyGraph g = this.generateGraph(n, maxCost, connected, density, false);
             //make Eulerian
-            UndirectedVertex temp = null;
+            WindyVertex temp = null;
             boolean lookingForPartner = false;
-            for (UndirectedVertex v : g.getVertices()) {
+            int cost, reverseCost;
+            for (WindyVertex v : g.getVertices()) {
                 //if odd degree
                 if (v.getDegree() % 2 == 1) {
                     //either set temp, or connect it with temp
                     if (lookingForPartner) {
-                        g.addEdge(new Edge("to make Eulerian", new Pair<UndirectedVertex>(temp, v), (int) Math.round(maxCost * Math.random())));
+                        cost = (int) Math.round(maxCost * Math.random());
+                        reverseCost = (int) Math.round(maxCost * Math.random());
+                        g.addEdge(temp.getId(), v.getId(), cost, reverseCost);
                         lookingForPartner = false;
                     } else {
                         temp = v;

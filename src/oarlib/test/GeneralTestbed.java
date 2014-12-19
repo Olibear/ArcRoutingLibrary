@@ -4,9 +4,9 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
-import oarlib.graph.graphgen.DirectedGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.OSM_Fetcher;
-import oarlib.graph.graphgen.UndirectedGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.Util.BoundingBox;
 import oarlib.graph.graphgen.Util.OSM_BoundingBoxes;
 import oarlib.graph.impl.DirectedGraph;
@@ -72,7 +72,7 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Desktop/kwrpp_big.txt");
+        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Desktop/kwrpp_weird.txt");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
@@ -190,7 +190,7 @@ public class
     @SuppressWarnings("unused")
     private static void testGraphDisplay() {
         try {
-            DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+            DirectedErdosRenyiGraphGenerator dgg = new DirectedErdosRenyiGraphGenerator();
             DirectedGraph dGraph = dgg.generateGraph(100, 5, true, .005);
 
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, dGraph, "test");
@@ -547,7 +547,7 @@ public class
      */
     @SuppressWarnings("unused")
     private static void testUndirectedGraphGenerator() {
-        UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+        UndirectedErdosRenyiGraphGenerator ugg = new UndirectedErdosRenyiGraphGenerator();
         /**
          * Request a graph with 1000 nodes, edge cost from {0,1,...,10} that is
          * connected, and density roughly .5.
@@ -865,7 +865,7 @@ public class
     @SuppressWarnings("unused")
     private static void validateEulerTour() {
         try {
-            UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
+            UndirectedErdosRenyiGraphGenerator ugg = new UndirectedErdosRenyiGraphGenerator();
             UndirectedGraph g;
             long startTime;
             long endTime;
@@ -911,7 +911,7 @@ public class
                 System.out.println("tourOK: " + tourOK);
             }
 
-            DirectedGraphGenerator dgg = new DirectedGraphGenerator();
+            DirectedErdosRenyiGraphGenerator dgg = new DirectedErdosRenyiGraphGenerator();
             DirectedGraph g2;
             for (int i = 10; i < 150; i += 10) {
                 tourOK = false;

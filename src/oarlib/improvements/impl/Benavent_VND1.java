@@ -36,7 +36,7 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
         Route<WindyVertex, WindyEdge> ans = null;
 
         while (true) {
-            OrInterchange oi = new OrInterchange(getProblem());
+            OrInterchange oi = new OrInterchange(getProblem(), getInitialSol());
             Route<WindyVertex, WindyEdge> postIP1 = oi.improveRoute(r);
             LOGGER.info("VND1-ip1 obj value: " + postIP1.getCost());
             if(postIP1.getCost() < currBest) {
@@ -44,7 +44,7 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
                 continue;
             }
 
-            Reversal reversal = new Reversal(getProblem());
+            Reversal reversal = new Reversal(getProblem(), getInitialSol());
             Route<WindyVertex, WindyEdge> postIP2 = reversal.improveRoute(postIP1);
             LOGGER.info("VND1-ip2 obj value: " + postIP1.getCost());
             if(postIP2.getCost() < currBest) {
@@ -52,7 +52,7 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
                 continue;
             }
 
-            TwoInterchange ti = new TwoInterchange(getProblem());
+            TwoInterchange ti = new TwoInterchange(getProblem(), getInitialSol());
             ans = ti.improveRoute(postIP2);
             LOGGER.info("VND1-ip3 obj value: " + postIP1.getCost());
             if(ans.getCost() < currBest) {
