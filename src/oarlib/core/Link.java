@@ -26,13 +26,6 @@ public abstract class Link<V extends Vertex> {
     private boolean isRequired;
     private boolean capacitySet;
 
-    public enum Type{
-        UNDIRECTED,
-        DIRECTED,
-        MIXED,
-        WINDY
-    }
-
     public Link(String label, Pair<V> endpoints, int cost) {
         this(label, endpoints, cost, true);
     }
@@ -56,13 +49,13 @@ public abstract class Link<V extends Vertex> {
      */
     public abstract Link<V> getCopy();
 
-    //==================================
-    // Getters and Setters
-    //==================================
-
     public String getLabel() {
         return mLabel;
     }
+
+    //==================================
+    // Getters and Setters
+    //==================================
 
     public void setLabel(String mLabel) {
         this.mLabel = mLabel;
@@ -90,6 +83,14 @@ public abstract class Link<V extends Vertex> {
 
     public int getId() {
         return mId;
+    }
+
+    public int getFirstEndpointId() {
+        return mEndpoints.getFirst().getId();
+    }
+
+    public int getSecondEndpointId() {
+        return mEndpoints.getSecond().getId();
     }
 
     public boolean setId(int mId) {
@@ -173,5 +174,12 @@ public abstract class Link<V extends Vertex> {
     }
 
     public abstract Type getLinkType();
+
+    public enum Type {
+        UNDIRECTED,
+        DIRECTED,
+        MIXED,
+        WINDY
+    }
 
 }

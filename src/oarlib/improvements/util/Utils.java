@@ -14,7 +14,10 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by oliverlum on 11/29/14.
@@ -110,6 +113,7 @@ public class Utils {
         DirectedGraph ansGraph = new DirectedGraph(maxId);
         Tour<DirectedVertex, Arc> ans = new Tour<DirectedVertex, Arc>();
         ArrayList<Boolean> td = origRoute.getTraversalDirection();
+        ArrayList<Boolean> service = origRoute.getServicingList();
 
         try {
             int limi = path.size();
@@ -117,11 +121,11 @@ public class Utils {
             for (int i = 0; i < limi; i++) {
                 temp = path.get(i);
                 if (td.get(i)) {
-                    ansGraph.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), temp.getCost());
-                    ans.appendEdge(ansGraph.getEdge(i+1));
+                    ansGraph.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), temp.getCost(), temp.isRequired());
+                    ans.appendEdge(ansGraph.getEdge(i + 1), service.get(i));
                 } else {
-                    ansGraph.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), temp.getReverseCost());
-                    ans.appendEdge(ansGraph.getEdge(i+1));
+                    ansGraph.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), temp.getReverseCost(), temp.isRequired());
+                    ans.appendEdge(ansGraph.getEdge(i + 1), service.get(i));
                 }
             }
         } catch (Exception e) {

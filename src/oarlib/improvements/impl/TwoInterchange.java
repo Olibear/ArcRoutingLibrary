@@ -8,7 +8,6 @@ import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
 import oarlib.route.impl.Tour;
 import oarlib.route.util.RouteExpander;
-import oarlib.route.util.RouteFlattener;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
 
             // defaults
             foundImprovement = false;
-            TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(record, true);
+            TIntArrayList flattenedRoute = record.getCompactRepresentation();
 
             int n = flattenedRoute.size();
 

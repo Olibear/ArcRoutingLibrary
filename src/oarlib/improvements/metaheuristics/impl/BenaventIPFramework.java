@@ -27,8 +27,8 @@ import java.util.Collection;
  */
 public class BenaventIPFramework extends ImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
-    MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> mProblem;
     private static final Logger LOGGER = Logger.getLogger(BenaventIPFramework.class);
+    MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> mProblem;
 
     public BenaventIPFramework(MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);
@@ -51,6 +51,12 @@ public class BenaventIPFramework extends ImprovementProcedure<WindyVertex, Windy
         Collection<Route<WindyVertex, WindyEdge>> initialSol = getInitialSol();
         Collection<Route<WindyVertex, WindyEdge>> currSol, globalBest, postSimplify;
         Route<WindyVertex, WindyEdge> perturbed;
+
+        int debug = 0;
+        for (Route<WindyVertex, WindyEdge> r : initialSol)
+            for (Boolean service : r.getServicingList())
+                if (service)
+                    debug++;
 
         int nIter = 2; //num perturbations
         globalBest = initialSol;

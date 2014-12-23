@@ -1,7 +1,6 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Link;
 import oarlib.core.MultiVehicleSolver;
 import oarlib.core.Problem;
 import oarlib.core.Route;
@@ -19,7 +18,6 @@ import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
 import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Utils;
-import oarlib.improvements.metaheuristics.impl.OnePassBenaventIPFramework;
 import oarlib.link.impl.WindyEdge;
 import oarlib.objfunc.ObjectiveFunction;
 import oarlib.problem.impl.MultiVehicleProblem;
@@ -39,12 +37,11 @@ import java.util.HashSet;
  */
 public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
+    private static final Logger LOGGER = Logger.getLogger(MultiWRPPSolver.class);
     private MultiVehicleWRPP mInstance;
     private WindyGraph mGraph;
     private String mInstanceName;
     private boolean lastRun; // to control when to export
-
-    private static final Logger LOGGER = Logger.getLogger(MultiWRPPSolver.class);
 
     /**
      * Default constructor; must set problem instance.
@@ -136,10 +133,6 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             //TODO: change to reflect improvements
             gd.exportWithPartition(GraphDisplay.ExportType.PDF, bestSol);
 
-            //ArrayList<Route<WindyVertex, WindyEdge>> reclaimedAns = new ArrayList<Route<WindyVertex, WindyEdge>>();
-            //for(Route r: record)
-                //reclaimedAns.add(Utils.reclaimTour(r,mGraph));
-
             mInstance.setSol(record);
             return record;
         } catch (Exception e) {
@@ -163,7 +156,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             //transform the graph
             WindyGraph vWeightedTest = transformer.transformGraph();
 
-            String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
+            String filename = "C:\\Users\\Oliver\\Desktop\\RandomGraph.graph";
 
             //write it to a file
             GraphWriter gw = new GraphWriter(GraphFormat.Name.METIS);
@@ -238,8 +231,8 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         int addedCost = 0;
         int origTotalCost;
 
-        for (Link l : mInstance.getGraph().getEdges())
-            addedCost -= l.getCost();
+        for (WindyEdge l : mInstance.getGraph().getEdges())
+            addedCost -= (l.getCost() + l.getReverseCost()) / 2;
 
         origTotalCost = -1 * addedCost;
 

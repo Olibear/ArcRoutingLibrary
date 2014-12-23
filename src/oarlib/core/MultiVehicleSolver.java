@@ -80,7 +80,7 @@ public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G 
     protected void runMetis(int numParts, String filename) {
         try {
             //run gpmetis
-            String[] args1 = {"/Users/oliverlum/Downloads/metis-5.1.0/build/Darwin-x86_64/programs/gpmetis", filename, "" + numParts, "-contig", "-minconn", "-niter=1000", "-ncuts=1000", "-ufactor=1"};
+            String[] args1 = {"C:\\Users\\Oliver\\Documents\\GitHub\\metis\\build\\windows\\programs\\Release\\gpmetis", filename, "" + numParts, "-contig", "-minconn", "-niter=1000", "-ncuts=1000", "-ufactor=1"};
             Runtime r = Runtime.getRuntime();
             LOGGER.debug("Start");
             Process p = r.exec(args1);

@@ -122,7 +122,8 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
                     next = path[end];
                     nextEdge = edgePath[end];
                     temp = indexedEdges.get(nextEdge);
-                    g.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "to make even", temp.getCost(), temp.getReverseCost(), nextEdge, temp.isRequired());
+                    //g.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "to make even", temp.getCost(), temp.getReverseCost(), nextEdge, temp.isRequired());
+                    g.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "to make even", temp.getCost(), temp.getReverseCost(), nextEdge, false);
                 } while ((end = next) != curr);
             }
         } catch (Exception e) {
@@ -287,7 +288,6 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
     protected Route solve() {
         try {
             WindyGraph copy = mInstance.getGraph().getDeepCopy();
-
 			/*
              * Connect up the required components of the graph, just as in WRPP1.
 			 * Match ids in windyReq correspond to edge ids in copy after this.
@@ -346,8 +346,8 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
 			 * to coerce the matching to use these.
 			 */
             eulerAugment(copy, windyReq, L);
-
             DirectedGraph ans = WRPPSolver_Win.constructOptimalWindyTour(windyReq);
+
             ans.setDepotId(copy.getDepotId());
             WRPPSolver_Win.eliminateRedundantCycles(ans, windyReq, copy);
 

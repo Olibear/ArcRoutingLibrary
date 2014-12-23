@@ -24,7 +24,7 @@ public class UndirectedRectangularGraphGenerator extends RectangularGraphGenerat
 
         int index = 1;
         int cost, coeff;
-        int rngCeiling = maxCost+1;
+        int rngCeiling = maxCost;
 
         try {
             for (int i = 0; i < n; i++) {
@@ -37,35 +37,35 @@ public class UndirectedRectangularGraphGenerator extends RectangularGraphGenerat
 
                     //cost
                     if (positiveCosts) {
-                        cost = rng.nextInt(rngCeiling);
+                        cost = rng.nextInt(rngCeiling) + 1;
                     }
                     else {
-                        if (Math.random() < .5)
+                        if (rng.nextDouble() < .5)
                             coeff = 1;
                         else
                             coeff = -1;
-                        cost = rng.nextInt(rngCeiling) * coeff;
+                        cost = (rng.nextInt(rngCeiling) + 1) * coeff;
                     }
 
                     //add horizontal edges
                     if (j > 0) {
-                        ans.addEdge(index, index - 1, cost, Math.random() < reqDensity);
+                        ans.addEdge(index, index - 1, cost, rng.nextDouble() < reqDensity);
                     }
 
                     //cost
                     if (positiveCosts) {
-                        cost = rng.nextInt(rngCeiling);
+                        cost = rng.nextInt(rngCeiling) + 1;
                     }
                     else {
-                        if (Math.random() < .5)
+                        if (rng.nextDouble() < .5)
                             coeff = 1;
                         else
                             coeff = -1;
-                        cost = rng.nextInt(rngCeiling) * coeff;
+                        cost = (rng.nextInt(rngCeiling) + 1) * coeff;
                     }
                     //add vertical edges
                     if(i > 0) {
-                        ans.addEdge(index, index - n, cost, Math.random() < reqDensity);
+                        ans.addEdge(index, index - n, cost, rng.nextDouble() < reqDensity);
                     }
 
                     index++;

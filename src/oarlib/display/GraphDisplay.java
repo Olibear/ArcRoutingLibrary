@@ -321,7 +321,7 @@ public class GraphDisplay {
         //Export
         ExportController ec = Lookup.getDefault().lookup(ExportController.class);
         try {
-            ec.exportFile(new File("/Users/oliverlum/Downloads/Plots/" + mInstanceName + "autolayout.pdf"));
+            ec.exportFile(new File("C:\\Users\\Oliver\\Downloads\\Plots\\" + mInstanceName + "autolayout.pdf"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }

@@ -9,7 +9,6 @@ import oarlib.improvements.InterRouteImprovementProcedure;
 import oarlib.improvements.util.Utils;
 import oarlib.link.impl.WindyEdge;
 import oarlib.route.util.RouteExpander;
-import oarlib.route.util.RouteFlattener;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -73,12 +72,12 @@ public class Simplification extends InterRouteImprovementProcedure<WindyVertex, 
             for (Route<WindyVertex, WindyEdge> r : ans) {
                 if(r.getGlobalId() == longestRouteId)
                     continue;
-                TIntArrayList flatR = RouteFlattener.flattenRoute(r);
+                TIntArrayList flatR = r.getCompactRepresentation();
                 coveredReqEdges.addAll(flatR.toNativeArray());
             }
 
             //remove them from the longest route
-            TIntArrayList flatLongest = RouteFlattener.flattenRoute(longestRoute, true);
+            TIntArrayList flatLongest = new TIntArrayList(longestRoute.getCompactRepresentation().toNativeArray());
             ArrayList<Boolean> longestTD = new ArrayList<Boolean>(longestRoute.getCompactTraversalDirection());
             int size = flatLongest.size();
             for (int i = 0; i < size; i++) {

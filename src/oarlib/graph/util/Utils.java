@@ -15,42 +15,6 @@ public class Utils {
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class);
 
-    public static class DijkstrasComparator implements Comparator<Pair<Integer>> {
-        @Override
-        public int compare(Pair<Integer> arg0, Pair<Integer> arg1) {
-            if (arg0.getSecond() > arg1.getSecond())
-                return 1;
-            else if (arg0.getSecond() < arg1.getSecond())
-                return -1;
-            return 0;
-        }
-    }
-
-    public static class InverseDijkstrasComparator implements Comparator<Pair<Integer>> {
-        @Override
-        public int compare(Pair<Integer> arg0, Pair<Integer> arg1) {
-            if (arg0.getSecond() < arg1.getSecond())
-                return 1;
-            else if (arg0.getSecond() > arg1.getSecond())
-                return -1;
-            return 0;
-        }
-    }
-
-    public static class DijkstrasComparatorForRecords implements Comparator<UnmatchedPair<Integer, IndexedRecord<Integer>>> {
-        @Override
-        public int compare(UnmatchedPair<Integer, IndexedRecord<Integer>> arg0, UnmatchedPair<Integer, IndexedRecord<Integer>> arg1) {
-            return arg0.getSecond().getRecord().compareTo(arg1.getSecond().getRecord());
-        }
-    }
-
-    public static class InverseDijkstrasComparatorForRecords implements Comparator<UnmatchedPair<Integer, IndexedRecord<Integer>>> {
-        @Override
-        public int compare(UnmatchedPair<Integer, IndexedRecord<Integer>> arg0, UnmatchedPair<Integer, IndexedRecord<Integer>> arg1) {
-            return arg1.getSecond().getRecord().compareTo(arg0.getSecond().getRecord());
-        }
-    }
-
     public static <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> Route reclaimTour(Route<? extends Vertex, ? extends Link<? extends Vertex>> origAns, G g) {
 
         Tour ans = new Tour();
@@ -75,6 +39,8 @@ public class Utils {
                 continue;
 
             for (Link<? extends Vertex> l2 : candidates) {
+                if (l.isRequired() && !l2.isRequired())
+                    continue;
                 if (l2.getEndpoints().getFirst().getId() == firstId && traversalCost == l2.getCost()) {
                     ans.appendEdge(l2, l.isRequired());
                     foundIt = true;
@@ -135,17 +101,18 @@ public class Utils {
         int tempBest;
         List<E> temp;
         ArrayList<Boolean> tempService;
-        for(Route r: sol) {
+        for (Route r : sol) {
             temp = r.getRoute();
             tempService = r.getServicingList();
             for (int i = 0; i < temp.size(); i++) {
-                if(!tempService.get(i))
+                if (!tempService.get(i))
                     continue;
+                numTasks++;
                 E l = temp.get(i);
                 int a = l.getEndpoints().getFirst().getId();
                 int b = l.getEndpoints().getSecond().getId();
                 for (int j = 0; j < temp.size(); j++) {
-                    if(!tempService.get(j))
+                    if (!tempService.get(j))
                         continue;
                     E m = temp.get(j);
                     if (l.getId() == m.getId())
@@ -240,6 +207,42 @@ public class Utils {
                 min = tempCost;
         }
         return (100 * max / min) - 100;
+    }
+
+    public static class DijkstrasComparator implements Comparator<Pair<Integer>> {
+        @Override
+        public int compare(Pair<Integer> arg0, Pair<Integer> arg1) {
+            if (arg0.getSecond() > arg1.getSecond())
+                return 1;
+            else if (arg0.getSecond() < arg1.getSecond())
+                return -1;
+            return 0;
+        }
+    }
+
+    public static class InverseDijkstrasComparator implements Comparator<Pair<Integer>> {
+        @Override
+        public int compare(Pair<Integer> arg0, Pair<Integer> arg1) {
+            if (arg0.getSecond() < arg1.getSecond())
+                return 1;
+            else if (arg0.getSecond() > arg1.getSecond())
+                return -1;
+            return 0;
+        }
+    }
+
+    public static class DijkstrasComparatorForRecords implements Comparator<UnmatchedPair<Integer, IndexedRecord<Integer>>> {
+        @Override
+        public int compare(UnmatchedPair<Integer, IndexedRecord<Integer>> arg0, UnmatchedPair<Integer, IndexedRecord<Integer>> arg1) {
+            return arg0.getSecond().getRecord().compareTo(arg1.getSecond().getRecord());
+        }
+    }
+
+    public static class InverseDijkstrasComparatorForRecords implements Comparator<UnmatchedPair<Integer, IndexedRecord<Integer>>> {
+        @Override
+        public int compare(UnmatchedPair<Integer, IndexedRecord<Integer>> arg0, UnmatchedPair<Integer, IndexedRecord<Integer>> arg1) {
+            return arg1.getSecond().getRecord().compareTo(arg0.getSecond().getRecord());
+        }
     }
 
 

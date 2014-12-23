@@ -3,8 +3,6 @@ package oarlib.graph.graphgen.rectangular;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.vertex.impl.WindyVertex;
 
-import java.util.Random;
-
 /**
  * Created by oliverlum on 12/14/14.
  */
@@ -16,14 +14,12 @@ public class WindyRectangularGraphGenerator extends RectangularGraphGenerator<Wi
         if(n == 1)
             return new WindyGraph(1);
 
-        Random rng = new Random();
-
         WindyGraph ans = new WindyGraph((int)Math.pow(n,2));
         double interval = 100.0/(n - 1);
 
         int index = 1;
         int cost, revCost, coeff;
-        int rngCeiling = maxCost+1;
+        int rngCeiling = maxCost;
 
         try {
             for (int i = 0; i < n; i++) {
@@ -36,39 +32,39 @@ public class WindyRectangularGraphGenerator extends RectangularGraphGenerator<Wi
 
                     //cost
                     if (positiveCosts) {
-                        cost = rng.nextInt(rngCeiling);
-                        revCost = rng.nextInt(rngCeiling);
+                        cost = rng.nextInt(rngCeiling) + 1;
+                        revCost = rng.nextInt(rngCeiling) + 1;
                     }
                     else {
-                        if (Math.random() < .5)
+                        if (rng.nextDouble() < .5)
                             coeff = 1;
                         else
                             coeff = -1;
-                        cost = rng.nextInt(rngCeiling) * coeff;
-                        revCost = rng.nextInt(rngCeiling) * coeff;
+                        cost = (rng.nextInt(rngCeiling) + 1) * coeff;
+                        revCost = (rng.nextInt(rngCeiling) + 1) * coeff;
                     }
 
                     //add horizontal edges
                     if (j > 0) {
-                        ans.addEdge(index, index - 1, cost, revCost, Math.random() < reqDensity);
+                        ans.addEdge(index, index - 1, cost, revCost, rng.nextDouble() < reqDensity);
                     }
 
                     //cost
                     if (positiveCosts) {
-                        cost = rng.nextInt(rngCeiling);
-                        revCost = rng.nextInt(rngCeiling);
+                        cost = rng.nextInt(rngCeiling) + 1;
+                        revCost = rng.nextInt(rngCeiling) + 1;
                     }
                     else {
-                        if (Math.random() < .5)
+                        if (rng.nextDouble() < .5)
                             coeff = 1;
                         else
                             coeff = -1;
-                        cost = rng.nextInt(rngCeiling) * coeff;
-                        revCost = rng.nextInt(rngCeiling) * coeff;
+                        cost = (rng.nextInt(rngCeiling) + 1) * coeff;
+                        revCost = (rng.nextInt(rngCeiling) + 1) * coeff;
                     }
                     //add vertical edges
                     if(i > 0) {
-                        ans.addEdge(index, index - n, cost, revCost, Math.random() < reqDensity);
+                        ans.addEdge(index, index - n, cost, revCost, rng.nextDouble() < reqDensity);
                     }
 
                     index++;

@@ -6,7 +6,6 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.Utils;
 import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.util.RouteExpander;
-import oarlib.route.util.RouteFlattener;
 import oarlib.solver.impl.WRPPSolver_Benavent_H1;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
@@ -46,7 +45,7 @@ public class AltRepresentationTests {
             Route testAns = Utils.reclaimTour(testSolver.trySolve(), testGraph);
             LOGGER.debug("Test ans:" + testAns.toString());
             LOGGER.debug("Test cost: " + testAns.getCost());
-            TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(testAns);
+            TIntArrayList flattenedRoute = testAns.getCompactRepresentation();
             LOGGER.debug("Flattened Rep: " + flattenedRoute.toString());
             Route unflattened = wre.unflattenRoute(flattenedRoute, testAns.getCompactTraversalDirection());
             LOGGER.debug("Unflattened Route: " + unflattened.toString());

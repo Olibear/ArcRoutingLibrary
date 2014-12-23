@@ -33,32 +33,41 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
     public Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
         int currBest = r.getCost();
-        Route<WindyVertex, WindyEdge> ans = null;
+        Route<WindyVertex, WindyEdge> ans = r;
+
+        int debug = 0;
+        for (Boolean service : r.getServicingList())
+            if (service)
+                debug++;
 
         while (true) {
             OrInterchange oi = new OrInterchange(getProblem(), getInitialSol());
-            Route<WindyVertex, WindyEdge> postIP1 = oi.improveRoute(r);
+            Route<WindyVertex, WindyEdge> postIP1 = oi.improveRoute(ans);
             LOGGER.info("VND1-ip1 obj value: " + postIP1.getCost());
             if(postIP1.getCost() < currBest) {
                 currBest = postIP1.getCost();
+                ans = postIP1;
                 continue;
             }
 
             Reversal reversal = new Reversal(getProblem(), getInitialSol());
-            Route<WindyVertex, WindyEdge> postIP2 = reversal.improveRoute(postIP1);
-            LOGGER.info("VND1-ip2 obj value: " + postIP1.getCost());
+            Route<WindyVertex, WindyEdge> postIP2 = reversal.improveRoute(ans);
+            LOGGER.info("VND1-ip2 obj value: " + postIP2.getCost());
             if(postIP2.getCost() < currBest) {
                 currBest = postIP2.getCost();
+                ans = postIP2;
                 continue;
             }
 
             TwoInterchange ti = new TwoInterchange(getProblem(), getInitialSol());
-            ans = ti.improveRoute(postIP2);
-            LOGGER.info("VND1-ip3 obj value: " + postIP1.getCost());
-            if(ans.getCost() < currBest) {
-                currBest = ans.getCost();
+            Route<WindyVertex, WindyEdge> postIP3 = ti.improveRoute(ans);
+            LOGGER.info("VND1-ip3 obj value: " + postIP3.getCost());
+            if (postIP3.getCost() < currBest) {
+                currBest = postIP3.getCost();
+                ans = postIP3;
                 continue;
             }
+
             break;
         }
 

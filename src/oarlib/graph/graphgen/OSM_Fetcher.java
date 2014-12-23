@@ -168,11 +168,16 @@ public class OSM_Fetcher {
                     }
 
                     WindyEdge temp;
+                    WindyVertex tempFirst, tempSecond;
                     boolean isReq;
                     for (int j = 1; j <= m; j++) {
                         temp = ansEdges.get(j);
                         isReq = rng.nextDouble() > .5;
                         if (maxPart.contains(temp.getEndpoints().getFirst().getId()) && maxPart.contains(temp.getEndpoints().getSecond().getId())) {
+                            tempFirst = trueAns.getVertex(temp.getEndpoints().getFirst().getMatchId());
+                            tempSecond = trueAns.getVertex(temp.getEndpoints().getSecond().getMatchId());
+                            if (tempFirst.getNeighbors().containsKey(tempSecond))//don't create a multigraph
+                                continue;
                             trueAns.addEdge(temp.getEndpoints().getFirst().getMatchId(), temp.getEndpoints().getSecond().getMatchId(), temp.getCost(), temp.getReverseCost(), isReq);
                         }
 

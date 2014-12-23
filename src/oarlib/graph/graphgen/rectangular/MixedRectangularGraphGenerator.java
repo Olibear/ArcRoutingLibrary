@@ -24,7 +24,7 @@ public class MixedRectangularGraphGenerator extends RectangularGraphGenerator<Mi
 
         int index = 1;
         int cost, coeff;
-        int rngCeiling = maxCost+1;
+        int rngCeiling = maxCost;
 
         try {
             for (int i = 0; i < n; i++) {
@@ -37,45 +37,45 @@ public class MixedRectangularGraphGenerator extends RectangularGraphGenerator<Mi
 
                     //cost
                     if (positiveCosts) {
-                        cost = rng.nextInt(rngCeiling);
+                        cost = rng.nextInt(rngCeiling) + 1;
                     }
                     else {
-                        if (Math.random() < .5)
+                        if (rng.nextDouble() < .5)
                             coeff = 1;
                         else
                             coeff = -1;
-                        cost = rng.nextInt(rngCeiling) * coeff;
+                        cost = (rng.nextInt(rngCeiling) + 1) * coeff;
                     }
 
                     //add horizontal edges
                     if (j > 0) {
-                        if(Math.random() < .5) {
-                            ans.addEdge(index, index - 1, cost, true, Math.random() < reqDensity);
-                            ans.addEdge(index - 1, index, cost, true, Math.random() < reqDensity);
+                        if (rng.nextDouble() < .5) {
+                            ans.addEdge(index, index - 1, cost, true, rng.nextDouble() < reqDensity);
+                            ans.addEdge(index - 1, index, cost, true, rng.nextDouble() < reqDensity);
                         }
                         else
-                            ans.addEdge(index, index - 1, cost, false, Math.random() < reqDensity);
+                            ans.addEdge(index, index - 1, cost, false, rng.nextDouble() < reqDensity);
                     }
 
                     //cost
                     if (positiveCosts) {
-                        cost = rng.nextInt(rngCeiling);
+                        cost = rng.nextInt(rngCeiling) + 1;
                     }
                     else {
-                        if (Math.random() < .5)
+                        if (rng.nextDouble() < .5)
                             coeff = 1;
                         else
                             coeff = -1;
-                        cost = rng.nextInt(rngCeiling) * coeff;
+                        cost = (rng.nextInt(rngCeiling) + 1) * coeff;
                     }
                     //add vertical edges
                     if(i > 0) {
-                        if(Math.random() < .5) {
-                            ans.addEdge(index, index - n, cost, true, Math.random() < reqDensity);
-                            ans.addEdge(index - n, index, cost, true, Math.random() < reqDensity);
+                        if (rng.nextDouble() < .5) {
+                            ans.addEdge(index, index - n, cost, true, rng.nextDouble() < reqDensity);
+                            ans.addEdge(index - n, index, cost, true, rng.nextDouble() < reqDensity);
                         }
                         else
-                            ans.addEdge(index, index - n, cost, false, Math.random() < reqDensity);
+                            ans.addEdge(index, index - n, cost, false, rng.nextDouble() < reqDensity);
                     }
 
                     index++;

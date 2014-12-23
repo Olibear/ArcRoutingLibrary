@@ -4,11 +4,11 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
-import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.OSM_Fetcher;
-import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.Util.BoundingBox;
 import oarlib.graph.graphgen.Util.OSM_BoundingBoxes;
+import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
+import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -35,7 +35,10 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
-import org.apache.log4j.*;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -72,7 +75,7 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Desktop/kwrpp_weird.txt");
+        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "C:\\Users\\Oliver\\Desktop\\kwrpp_rectangular_2.txt");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
@@ -264,7 +267,7 @@ public class
                 long end;
 
                 //run on all instances in the folder
-                for (final File testInstance : testInstanceFolder.listFiles()) {
+                /*for (final File testInstance : testInstanceFolder.listFiles()) {
                     String temp = testInstance.getName();
                     System.out.println(temp);
                     if (temp.equals(".DS_Store"))
@@ -288,7 +291,7 @@ public class
                         }
                         System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
                     }
-                }
+                }*/
 
                 //WINDY
 
@@ -307,10 +310,8 @@ public class
                 int debugCounter = 0;
                 String output;
 
+
                 for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
-                    //if (debugCounter >= limForDebug)
-                    //break;
-                    debugCounter++;
 
                     OSM_Fetcher fetcher = new OSM_Fetcher(bb);
                     WindyGraph g = fetcher.queryForGraph();
@@ -341,6 +342,37 @@ public class
                     System.out.println(output);
                     pw.println(output);
                 }
+
+                //now do the rectangular instances
+                /*for(int i = 1; i <= 10; i++) {
+                    WindyRectangularGraphGenerator wrg = new WindyRectangularGraphGenerator();
+                    WindyGraph g = wrg.generateGraph(25 - i, 10, .8, true);
+
+                    validWInstance = new MultiVehicleWRPP(g, 5);
+                    validWSolver = new MultiWRPPSolver(validWInstance, "Random Instance " + i);
+                    start = System.nanoTime();
+                    validWAns = validWSolver.trySolve();
+                    end = System.nanoTime();
+                    System.out.println("It took " + (end - start)/1000000000 + " seconds to run the solver on this instance.");
+                    pw.println("It took " + (end - start)/1000000000 + " seconds to run the solver on this instance.");
+
+                    routeCounter = 1;
+                    int maxCost = 0;
+                    int minCost = Integer.MAX_VALUE;
+                    int tempCost;
+
+                    for (Route<WindyVertex, WindyEdge> r : validWAns) {
+                        tempCost = r.getCost();
+                        if (tempCost > maxCost)
+                            maxCost = tempCost;
+                        if (tempCost < minCost)
+                            minCost = tempCost;
+                    }
+
+                    output = validWSolver.printCurrentSol();
+                    System.out.println(output);
+                    pw.println(output);
+                }*/
 
                 pw.close();
 

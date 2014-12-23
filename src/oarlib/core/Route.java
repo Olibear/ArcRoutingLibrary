@@ -31,11 +31,10 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     protected TIntArrayList compactRepresentation; // the ith entry is link id of the ith serviced link
     protected ArrayList<Boolean> compactTD; // the ith entry is true if the ith serviced link is traversed first to second
     protected ArrayList<Boolean> servicing; //the ith entry is true if we're servicing the ith link in the route
-    private int mGlobalId;
-
     // some vars to deal with weird initial cases where it's impossible to determine the direction greedily in the
     // beginning until an edge not attached to the depot is added.
     protected boolean directionDetermined;
+    private int mGlobalId;
 
 
     //default constructor
@@ -194,6 +193,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         appendEdge(l, l.isRequired());
     }
 
+    //TODO: dedup internal
     /**
      * Add a edge to the end of this route.
      *
@@ -216,6 +216,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         int lSecond = l.getEndpoints().getSecond().getId();
 
         if (mRoute.size() == 0) {
+            servicing.add(service);
             mRoute.add(l);
             return;
         }
@@ -230,7 +231,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             if ((lFirst == tempFirst || lSecond == tempFirst) && isWindy) {
                 trueCost = ((WindyEdge) temp).getReverseCost();
                 traversalDirection.add(false);
-                if (temp.isRequired() && service) {
+                if (temp.isRequired() && servicing.get(0)) {
                     mServCost += trueCost;
                     compactTD.add(false);
                     compactRepresentation.add(temp.getId());
@@ -238,14 +239,13 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             } else {
                 trueCost = temp.getCost();
                 traversalDirection.add(true);
-                if (temp.isRequired() && service) {
+                if (temp.isRequired() && servicing.get(0)) {
                     mServCost += trueCost;
                     compactTD.add(true);
                     compactRepresentation.add(temp.getId());
                 }
             }
 
-            servicing.add(service);
             mCost += trueCost;
 
         }
@@ -313,7 +313,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             } else {
                 trueCost = ((WindyEdge) l).getReverseCost();
                 traversalDirection.add(false);
-                if (l.isRequired()) {
+                if (l.isRequired() && service) {
                     compactTD.add(false);
                     compactRepresentation.add(l.getId());
                 }

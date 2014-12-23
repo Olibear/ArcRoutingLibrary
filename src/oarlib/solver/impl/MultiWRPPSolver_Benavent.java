@@ -1,7 +1,6 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Link;
 import oarlib.core.MultiVehicleSolver;
 import oarlib.core.Problem;
 import oarlib.core.Route;
@@ -33,11 +32,10 @@ import java.util.Stack;
  */
 public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
+    private static final Logger LOGGER = Logger.getLogger(MultiWRPPSolver_Benavent.class);
     MultiVehicleWRPP mInstance;
     WindyGraph mGraph;
     String mInstanceName;
-
-    private static final Logger LOGGER = Logger.getLogger(MultiWRPPSolver_Benavent.class);
 
     /**
      * Default constructor; must set problem instance.
@@ -55,91 +53,19 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
         mInstanceName = instanceName;
     }
 
-    @Override
-    protected boolean checkGraphRequirements() {
-        //make sure the graph is connected
-        if (mInstance.getGraph() == null)
-            return false;
-        else {
-            WindyGraph mGraph = mInstance.getGraph();
-            if (!CommonAlgorithms.isConnected(mGraph))
-                return false;
-        }
-        return true;
-    }
-
-    @Override
-    protected MultiVehicleProblem getInstance() {
-        return mInstance;
-    }
-
-    @Override
-    protected Collection<Route<WindyVertex, WindyEdge>> solve() {
-
-        int nsol = 10; //number of sols to gen
-        int bestObj = Integer.MAX_VALUE;
-        Collection<Route<WindyVertex, WindyEdge>> ans = null;
-
-        for(int MS = 0; MS < nsol; MS ++) {
-            //Solve the single-vehicle WRPP instance, and then split it into K routes by the process discussed in Lacomme, Prins, and Ramdane-Cherif
-            WindyGraph copy = mGraph.getDeepCopy();
-
-        /*
-         * Solve the WRPP instance
-         */
-            WindyRPP singleProblem = new WindyRPP(copy);
-            WRPPSolver_Benavent_H1 singleSolver = new WRPPSolver_Benavent_H1(singleProblem);
-            Route singleAns = singleSolver.solve();
-
-        /*
-         * Display it
-         */
-            try {
-                GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, copy, mInstanceName);
-                gd.export(GraphDisplay.ExportType.PDF);
-            } catch (Exception e) {
-                e.printStackTrace();
-                LOGGER.error("Error displaying graph.");
-            }
-
-        /*
-         * now split it
-         */
-            Collection<Route<DirectedVertex, Arc>> multiAns = splitRoute(singleAns, mInstance.getGraph(), mInstance.getmNumVehicles());
-
-            ArrayList<Route<WindyVertex, WindyEdge>> initialSol = new ArrayList<Route<WindyVertex, WindyEdge>>();
-            for (Route<DirectedVertex, Arc> r : multiAns) {
-                initialSol.add(Utils.reclaimTour(r, mGraph));
-            }
-
-            mInstance.setSol(initialSol);
-
-            BenaventIPFramework improver = new BenaventIPFramework(mInstance);
-
-            Collection<Route<WindyVertex, WindyEdge>> improvedFinalAns = improver.improveSolution();
-            int improvedObj = Utils.getObjectiveValue(improvedFinalAns, ObjectiveFunction.MAX);
-            if(improvedObj < bestObj) {
-                ans = improvedFinalAns;
-                bestObj = improvedObj;
-            }
-        }
-
-        ArrayList<Route<WindyVertex, WindyEdge>> reclaimedAns = new ArrayList<Route<WindyVertex, WindyEdge>>();
-        for(Route r: ans)
-            reclaimedAns.add(Utils.reclaimTour(r, mGraph));
-
-        mInstance.setSol(reclaimedAns);
-        return reclaimedAns;
-    }
-
     public static Collection<Route<DirectedVertex, Arc>> splitRoute(Route<DirectedVertex, Arc> singleAns, WindyGraph graph, int numVehicles) {
 
         try {
             //Compile the ordered list of required edges.
+
+            ArrayList<Boolean> service = singleAns.getServicingList();
+
             ArrayList<Arc> orderedReqEdges = new ArrayList<Arc>();
-            for (Arc arc : singleAns.getRoute()) {
-                if (arc.isRequired())
-                    orderedReqEdges.add(arc);
+            List<Arc> singleRoute = singleAns.getRoute();
+            int singleRouteSize = singleRoute.size();
+            for (int i = 0; i < singleRouteSize; i++) {
+                if (service.get(i))
+                    orderedReqEdges.add(singleRoute.get(i));
             }
 
             //Compute shortest path distances in the full graph
@@ -207,7 +133,6 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
             int counter = 0;
             int singleRouteCounter = 0;
             int curr, next, end, cost;
-            List<Arc> singleRoute = singleAns.getRoute();
             Arc linkToAdd;
             TIntObjectHashMap<WindyVertex> mVertices = graph.getInternalVertexMap();
             do {
@@ -236,10 +161,18 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
 
                 //add guys from single route
                 end = stoppingPoints.pop();
+                boolean required;
+                //while (counter != end - 2) {
                 while (singleRoute.get(singleRouteCounter).getId() != orderedReqEdges.get(end - 2).getId()) {
                     //add singleRoute.get(singleRouteCounter) to the path
                     linkToAdd = singleRoute.get(singleRouteCounter);
-                    toAddGraph.addEdge(linkToAdd.getEndpoints().getFirst().getId(), linkToAdd.getEndpoints().getSecond().getId(), linkToAdd.getCost(), linkToAdd.isRequired());
+                    if (singleRoute.get(singleRouteCounter).getId() == orderedReqEdges.get(counter).getId()) {
+                        required = true;
+                        counter++;
+                    } else
+                        required = false;
+
+                    toAddGraph.addEdge(linkToAdd.getEndpoints().getFirst().getId(), linkToAdd.getEndpoints().getSecond().getId(), linkToAdd.getCost(), required);
                     singleRouteCounter++;
                 }
 
@@ -284,6 +217,88 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
     }
 
     @Override
+    protected boolean checkGraphRequirements() {
+        //make sure the graph is connected
+        if (mInstance.getGraph() == null)
+            return false;
+        else {
+            WindyGraph mGraph = mInstance.getGraph();
+            if (!CommonAlgorithms.isConnected(mGraph))
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    protected MultiVehicleProblem getInstance() {
+        return mInstance;
+    }
+
+    @Override
+    protected Collection<Route<WindyVertex, WindyEdge>> solve() {
+
+        int debug = 0;
+        for (WindyEdge we : mGraph.getEdges())
+            if (we.isRequired())
+                debug++;
+
+        int nsol = 10; //number of sols to gen
+        int bestObj = Integer.MAX_VALUE;
+        Collection<Route<WindyVertex, WindyEdge>> ans = null;
+
+        for (int MS = 0; MS < nsol; MS++) {
+            //Solve the single-vehicle WRPP instance, and then split it into K routes by the process discussed in Lacomme, Prins, and Ramdane-Cherif
+            WindyGraph copy = mGraph.getDeepCopy();
+
+        /*
+         * Solve the WRPP instance
+         */
+            WindyRPP singleProblem = new WindyRPP(copy);
+            WRPPSolver_Benavent_H1 singleSolver = new WRPPSolver_Benavent_H1(singleProblem);
+            Route singleAns = singleSolver.solve();
+
+        /*
+         * Display it
+         */
+            try {
+                GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, copy, mInstanceName);
+                gd.export(GraphDisplay.ExportType.PDF);
+            } catch (Exception e) {
+                e.printStackTrace();
+                LOGGER.error("Error displaying graph.");
+            }
+
+        /*
+         * now split it
+         */
+            Collection<Route<DirectedVertex, Arc>> multiAns = splitRoute(singleAns, mInstance.getGraph(), mInstance.getmNumVehicles());
+
+            ArrayList<Route<WindyVertex, WindyEdge>> initialSol = new ArrayList<Route<WindyVertex, WindyEdge>>();
+            for (Route<DirectedVertex, Arc> r : multiAns) {
+                initialSol.add(Utils.reclaimTour(r, mGraph));
+            }
+
+            mInstance.setSol(initialSol);
+
+            BenaventIPFramework improver = new BenaventIPFramework(mInstance);
+
+            Collection<Route<WindyVertex, WindyEdge>> improvedFinalAns = improver.improveSolution();
+            int improvedObj = Utils.getObjectiveValue(initialSol, ObjectiveFunction.MAX);
+            if (improvedObj < bestObj) {
+                ans = improvedFinalAns;
+                bestObj = improvedObj;
+            }
+        }
+
+        ArrayList<Route<WindyVertex, WindyEdge>> reclaimedAns = new ArrayList<Route<WindyVertex, WindyEdge>>();
+        for (Route r : ans)
+            reclaimedAns.add(Utils.reclaimTour(r, mGraph));
+
+        mInstance.setSol(reclaimedAns);
+        return reclaimedAns;
+    }
+
+    @Override
     public Problem.Type getProblemType() {
         return Problem.Type.WINDY_RURAL_POSTMAN;
     }
@@ -306,8 +321,8 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
         int addedCost = 0;
         int origTotalCost;
 
-        for (Link l : mInstance.getGraph().getEdges())
-            addedCost -= l.getCost();
+        for (WindyEdge l : mInstance.getGraph().getEdges())
+            addedCost -= (l.getCost() + l.getReverseCost()) / 2;
 
         origTotalCost = -1 * addedCost;
 

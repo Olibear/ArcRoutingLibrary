@@ -9,7 +9,6 @@ import oarlib.graph.util.CommonAlgorithms;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
 import oarlib.route.util.RouteExpander;
-import oarlib.route.util.RouteFlattener;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
@@ -33,7 +32,7 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
     @Override
     public Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
 
-        TIntArrayList flattenedRoute = RouteFlattener.flattenRoute(r, true);
+        TIntArrayList flattenedRoute = r.getCompactRepresentation();
         DirectedGraph optimalDirection = constructDirDAG(r, flattenedRoute);
 
         int m = flattenedRoute.size();

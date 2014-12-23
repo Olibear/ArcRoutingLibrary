@@ -10,5 +10,4 @@ public enum ObjectiveFunction {
     SUM, //length of the sum of the routes
     AVG, //avg. length of a route
     DEV, //% deviation between min and max of the route
-
 }
