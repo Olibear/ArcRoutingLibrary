@@ -18,8 +18,10 @@ import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
 import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Utils;
+import oarlib.improvements.metaheuristics.impl.OnePassBenaventIPFramework;
 import oarlib.link.impl.WindyEdge;
-import oarlib.objfunc.ObjectiveFunction;
+import oarlib.objfunc.AverageTraversalObjectiveFunction;
+import oarlib.objfunc.RouteOverlapObjectiveFunction;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
 import oarlib.problem.impl.rpp.WindyRPP;
@@ -77,7 +79,11 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
     @Override
     protected Collection<Route<WindyVertex, WindyEdge>> solve() {
 
-        int bestObj = Integer.MAX_VALUE;
+        //double upperBound = .02;
+        //double lowerBound = 0;
+        //double bestUpperBound = 0;
+        //double bestLowerBound = 0;
+        double bestObj = Integer.MAX_VALUE;
         Collection<Route<WindyVertex, WindyEdge>> record = new ArrayList<Route<WindyVertex, WindyEdge>>();
 
         try {
@@ -87,12 +93,19 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             HashMap<Integer, Integer> bestSol = new HashMap<Integer, Integer>();
 
             ArrayList<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
-            int maxCost;
-            int numRuns = 2;
+            double maxCost;
+            double upperBound = .03;
+            double lowerBound = .01;
+            double numRuns = 10;
+            double interval = (upperBound - lowerBound) / numRuns;
             for (int j = 1; j <= numRuns; j++) {
 
                 if (j == numRuns)
                     lastRun = true;
+
+                //TODO: Learn the .01
+                //double weight = (lowerBound + upperBound)/2.0;
+                sol = partition(new DuplicateEdgeCostRebalancer(mGraph, new IndividualDistanceToDepotRebalancer(mGraph, lowerBound + j * interval)));
 
                 mGraph = mInstance.getGraph();
 
@@ -113,25 +126,42 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                 }
 
                 //improvement
-                //OnePassBenaventIPFramework improver = new OnePassBenaventIPFramework(mInstance, ans);
-                //Collection<Route<WindyVertex, WindyEdge>> improved = improver.improveSolution();
+                OnePassBenaventIPFramework improver = new OnePassBenaventIPFramework(mInstance, ans);
+                Collection<Route<WindyVertex, WindyEdge>> improved = improver.improveSolution();
 
-                maxCost = Utils.getObjectiveValue(ans, ObjectiveFunction.MAX);
+                maxCost = mInstance.getObjectiveFunction().evaluate(improved);
 
                 //record keeping
                 if (maxCost < bestObj) {
                     bestObj = maxCost;
                     bestSol = sol;
-                    record = ans;
+                    record = improved;
+                    /*bestLowerBound = lowerBound;
+                    bestUpperBound = upperBound;
+                    lowerBound = weight;
+                    if(upperBound - lowerBound < .001)
+                        upperBound = upperBound * 2.0;*/
+                } else {
+                    /*upperBound = weight;
+                    if(upperBound - lowerBound < .001)
+                        lowerBound = lowerBound / 2.0;*/
                 }
-
-                //TODO: Learn the .01
-                sol = partition(new DuplicateEdgeCostRebalancer(mGraph, new IndividualDistanceToDepotRebalancer(mGraph, .01)));
             }
 
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, mGraph, mInstanceName);
-            //TODO: change to reflect improvements
             gd.exportWithPartition(GraphDisplay.ExportType.PDF, bestSol);
+
+            for (Route<WindyVertex, WindyEdge> r : record) {
+                try {
+                    GraphDisplay gd2 = new GraphDisplay(GraphDisplay.Layout.YifanHu, mGraph, mInstance.getName() + "_" + r.getCost());
+                    gd2.exportRoute(GraphDisplay.ExportType.PDF, r);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
 
             mInstance.setSol(record);
             return record;
@@ -202,7 +232,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
         //now solve the WPP on it
         WindyRPP subInstance = new WindyRPP(subgraph, mInstanceName);
-        WRPPSolver_Benavent_H1 solver = new WRPPSolver_Benavent_H1(subInstance, lastRun);
+        WRPPSolver_Benavent_H1 solver = new WRPPSolver_Benavent_H1(subInstance, false);
 
         long start, end;
         start = System.currentTimeMillis();
@@ -210,7 +240,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         end = System.currentTimeMillis();
         LOGGER.debug("It took " + (end - start) + " milliseconds to run the sub-solver.");
 
-        return ret; //Utils.reclaimTour(ret, mGraph);
+        return Utils.reclaimTour(ret, mGraph);
     }
 
     @Override
@@ -299,8 +329,8 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         ans += "% deviation from average length: " + 100.0 * deviationFromAverage + "\n";
         ans += "% deviation from average length (excluding empty): " + 100.0 * deviationFromAverageNoEmpty + "\n";
         ans += "Added cost: " + addedCost + "\n";
-        ans += "ROI: " + Utils.calcROI(currSol, mGraph) + "\n";
-        ans += "ATD: " + Utils.calcATD(currSol, mGraph) + "\n";
+        ans += "ROI: " + new RouteOverlapObjectiveFunction(mGraph).evaluate(currSol) + "\n";
+        ans += "ATD: " + new AverageTraversalObjectiveFunction(mGraph).evaluate(currSol) + "\n";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";

@@ -3,6 +3,7 @@ package oarlib.problem.impl.multivehicle;
 import oarlib.core.Route;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.link.impl.MixedEdge;
+import oarlib.objfunc.MaxObjectiveFunction;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.vertex.impl.MixedVertex;
 
@@ -18,14 +19,9 @@ public class MultiVehicleMCPP extends MultiVehicleProblem<MixedVertex, MixedEdge
 
     public MultiVehicleMCPP(MixedGraph graph, int numVehicles) {
 
-        super(graph, numVehicles);
+        super(graph, numVehicles, new MaxObjectiveFunction());
         mGraph = graph;
 
-    }
-
-    @Override
-    public CapacitatedObjective getObjectiveType() {
-        return CapacitatedObjective.MinMax;
     }
 
     @Override

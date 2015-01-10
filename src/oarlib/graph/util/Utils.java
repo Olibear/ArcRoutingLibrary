@@ -5,11 +5,11 @@ import oarlib.core.Link;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
 import oarlib.link.impl.WindyEdge;
-import oarlib.objfunc.ObjectiveFunction;
 import oarlib.route.impl.Tour;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 
 public class Utils {
 
@@ -64,149 +64,6 @@ public class Utils {
 
         return ans;
 
-    }
-
-    public static <V extends Vertex, E extends Link<V>> int getObjectiveValue(Collection<Route<V, E>> sol, ObjectiveFunction type) {
-
-        if (type == ObjectiveFunction.MAX) {
-            return calcMax(sol);
-        } else if (type == ObjectiveFunction.SUM) {
-            return calcSum(sol);
-        } else if (type == ObjectiveFunction.AVG) {
-            return calcAvg(sol);
-        } else if (type == ObjectiveFunction.DEV) {
-            return calcDev(sol);
-        }
-
-        //unrecognized case
-        LOGGER.warn("This ObjectiveFunction type was not recognized.  Returning default value.");
-        return -1;
-    }
-
-    public static <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> double calcATD(Collection<Route<V, E>> sol, G g) {
-
-        int numRoutes = sol.size();
-        int numTasks = 0;
-        HashSet<Integer> alreadyTraversed = new HashSet<Integer>();
-        int sumDist = 0;
-
-        //compute shortest paths
-        int n = g.getVertices().size();
-        int[][] dist = new int[n + 1][n + 1];
-        int[][] path = new int[n + 1][n + 1];
-
-        CommonAlgorithms.fwLeastCostPaths(g, dist, path);
-
-        //calculuate the pairwise sum
-        int tempBest;
-        List<E> temp;
-        ArrayList<Boolean> tempService;
-        for (Route r : sol) {
-            temp = r.getRoute();
-            tempService = r.getServicingList();
-            for (int i = 0; i < temp.size(); i++) {
-                if (!tempService.get(i))
-                    continue;
-                numTasks++;
-                E l = temp.get(i);
-                int a = l.getEndpoints().getFirst().getId();
-                int b = l.getEndpoints().getSecond().getId();
-                for (int j = 0; j < temp.size(); j++) {
-                    if (!tempService.get(j))
-                        continue;
-                    E m = temp.get(j);
-                    if (l.getId() == m.getId())
-                        continue;
-                    //check the four possible combinations a-c, a-d, b-c, b-d
-                    int c = m.getEndpoints().getFirst().getId();
-                    int d = m.getEndpoints().getSecond().getId();
-
-                    tempBest = dist[a][b];
-                    if (tempBest > dist[a][c])
-                        tempBest = dist[a][c];
-                    if (tempBest > dist[b][c])
-                        tempBest = dist[b][c];
-                    if (tempBest > dist[b][d])
-                        tempBest = dist[b][d];
-
-                    sumDist += tempBest;
-                }
-            }
-        }
-
-
-        double denom = numTasks * (numTasks - numRoutes) / (double) (2 * numRoutes);
-
-        return (double) sumDist / denom;
-    }
-
-    public static <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> double calcROI(Collection<Route<V, E>> sol, G g) {
-
-        int no = calcNO(sol);
-        int N = g.getVertices().size();
-        int routes = sol.size();
-
-        return (no - N) / (Math.pow(Math.sqrt(routes) + Math.sqrt(N) - 1, 2) - N);
-    }
-
-    public static <V extends Vertex, E extends Link<V>> int calcCI(Collection<Route<V, E>> sol) {
-        int numRoutes = sol.size();
-        //TODO
-
-        return -1;
-    }
-
-    public static <V extends Vertex, E extends Link<V>> int calcNO(Collection<Route<V, E>> sol) {
-
-        int NO = 0;
-
-        for (Route<V, E> r : sol) {
-            List<E> temp = r.getRoute();
-            ArrayList<Boolean> tempService = r.getServicingList();
-            for (int i = 0; i < temp.size(); i++) {
-                if (tempService.get(i))
-                    NO += 2;
-            }
-        }
-
-        return NO;
-    }
-
-    private static <V extends Vertex, E extends Link<V>> int calcMax(Collection<Route<V, E>> sol) {
-        int max = Integer.MIN_VALUE;
-        for (Route r : sol)
-            if (r.getCost() > max)
-                max = r.getCost();
-        return max;
-    }
-
-    private static <V extends Vertex, E extends Link<V>> int calcSum(Collection<Route<V, E>> sol) {
-        int sum = 0;
-        for (Route r : sol)
-            sum += r.getCost();
-        return sum;
-    }
-
-    private static <V extends Vertex, E extends Link<V>> int calcAvg(Collection<Route<V, E>> sol) {
-        int max = Integer.MIN_VALUE;
-        for (Route r : sol)
-            if (r.getCost() > max)
-                max = r.getCost();
-        return (max / sol.size());
-    }
-
-    private static <V extends Vertex, E extends Link<V>> int calcDev(Collection<Route<V, E>> sol) {
-        int max = Integer.MIN_VALUE;
-        int min = Integer.MAX_VALUE;
-        int tempCost;
-        for (Route r : sol) {
-            tempCost = r.getCost();
-            if (tempCost > max)
-                max = tempCost;
-            if (tempCost < min)
-                min = tempCost;
-        }
-        return (100 * max / min) - 100;
     }
 
     public static class DijkstrasComparator implements Comparator<Pair<Integer>> {

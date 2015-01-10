@@ -23,7 +23,7 @@ public class Simplification extends InterRouteImprovementProcedure<WindyVertex, 
         super(problem);
     }
     public Simplification(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
-        super(problem, initialSol);
+        super(problem, null, initialSol);
     }
 
     @Override

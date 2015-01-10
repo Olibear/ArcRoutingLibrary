@@ -4,6 +4,7 @@ import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.link.impl.WindyEdge;
+import oarlib.objfunc.SumObjectiveFunction;
 import oarlib.problem.impl.ChinesePostmanProblem;
 import oarlib.vertex.impl.WindyVertex;
 
@@ -16,7 +17,7 @@ public class WindyCPP extends ChinesePostmanProblem<WindyVertex, WindyEdge, Wind
     }
 
     public WindyCPP(WindyGraph g, String name) {
-        super(g, name);
+        super(g, name, new SumObjectiveFunction());
         mGraph = g;
     }
 
@@ -30,5 +31,4 @@ public class WindyCPP extends ChinesePostmanProblem<WindyVertex, WindyEdge, Wind
     public Type getProblemType() {
         return Problem.Type.WINDY_CHINESE_POSTMAN;
     }
-
 }

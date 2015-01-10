@@ -4,7 +4,7 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
-import oarlib.improvements.InterRouteImprovementProcedure;
+import oarlib.improvements.ImprovementStrategy;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.improvements.util.CompactMove;
 import oarlib.improvements.util.Mover;
@@ -24,8 +24,9 @@ public class TwoSwapPerturb extends IntraRouteImprovementProcedure<WindyVertex, 
     public TwoSwapPerturb(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);
     }
-    public TwoSwapPerturb(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
-        super(problem, initialSol);
+
+    public TwoSwapPerturb(Problem<WindyVertex, WindyEdge, WindyGraph> problem, ImprovementStrategy.Type strat, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, strat, initialSol);
     }
 
     @Override

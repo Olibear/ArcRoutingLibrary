@@ -4,6 +4,7 @@ import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Vertex;
+import oarlib.objfunc.ObjectiveFunction;
 
 /**
  * Problem abstraction for capacitated problems.  This includes support for number of vehicles, or for vehicle capacity.
@@ -24,8 +25,8 @@ public abstract class MultiVehicleProblem<V extends Vertex, E extends Link<V>, G
      *
      * @param numVehicles - the number of routes allowed to exist in the final solution.
      */
-    protected MultiVehicleProblem(G graph, int numVehicles) {
-        super(graph, "");
+    protected MultiVehicleProblem(G graph, int numVehicles, ObjectiveFunction objFunc) {
+        super(graph, "", objFunc);
         mNumVehicles = numVehicles;
         numVehiclesSet = true;
         capSet = false;
@@ -40,8 +41,8 @@ public abstract class MultiVehicleProblem<V extends Vertex, E extends Link<V>, G
      * @param numVehicles - the number of routes allowed to exist in the final solution.
      * @param capacity    - the max capacity that a route in the solution is allowed to have
      */
-    protected MultiVehicleProblem(G graph, int numVehicles, int capacity) {
-        super(graph, "");
+    protected MultiVehicleProblem(G graph, int numVehicles, int capacity, ObjectiveFunction objFunc) {
+        super(graph, "", objFunc);
         mCapacity = capacity;
         capSet = true;
         if (numVehicles > 0) {
@@ -62,8 +63,8 @@ public abstract class MultiVehicleProblem<V extends Vertex, E extends Link<V>, G
      * @param capacity    - the max capacity that a route in the solution is allowed to have
      * @param name        - the instance name
      */
-    protected MultiVehicleProblem(G graph, int numVehicles, int capacity, String name) {
-        super(graph, name);
+    protected MultiVehicleProblem(G graph, int numVehicles, int capacity, String name, ObjectiveFunction objFunc) {
+        super(graph, name, objFunc);
         mCapacity = capacity;
         capSet = true;
         if (numVehicles > 0) {
@@ -96,13 +97,5 @@ public abstract class MultiVehicleProblem<V extends Vertex, E extends Link<V>, G
         if (!numVehiclesSet)
             return -1;
         return mNumVehicles;
-    }
-
-    public abstract CapacitatedObjective getObjectiveType();
-
-    public enum CapacitatedObjective {
-        Distance,
-        MinMax,
-        MaxService
     }
 }

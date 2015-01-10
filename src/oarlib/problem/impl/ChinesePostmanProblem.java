@@ -4,6 +4,7 @@ import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Vertex;
+import oarlib.objfunc.ObjectiveFunction;
 import org.apache.log4j.Logger;
 
 /**
@@ -13,8 +14,8 @@ public abstract class ChinesePostmanProblem<V extends Vertex, E extends Link<V>,
 
     private static final Logger LOGGER = Logger.getLogger(ChinesePostmanProblem.class);
 
-    protected ChinesePostmanProblem(G graph, String name){
-        super(graph, name);
+    protected ChinesePostmanProblem(G graph, String name, ObjectiveFunction objFunc) {
+        super(graph, name, objFunc);
         for(Link l: graph.getEdges())
             if(!l.isRequired())
                 LOGGER.warn("This problem will treat ever link as required, regardless of its status in the graph.");

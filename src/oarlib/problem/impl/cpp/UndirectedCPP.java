@@ -4,6 +4,7 @@ import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.link.impl.Edge;
+import oarlib.objfunc.SumObjectiveFunction;
 import oarlib.problem.impl.ChinesePostmanProblem;
 import oarlib.vertex.impl.UndirectedVertex;
 
@@ -16,7 +17,7 @@ public class UndirectedCPP extends ChinesePostmanProblem<UndirectedVertex, Edge,
     }
 
     public UndirectedCPP(UndirectedGraph g, String name) {
-        super(g, name);
+        super(g, name, new SumObjectiveFunction());
         mGraph = g;
     }
 

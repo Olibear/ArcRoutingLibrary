@@ -3,6 +3,7 @@ package oarlib.problem.impl.multivehicle;
 import oarlib.core.Route;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.link.impl.Arc;
+import oarlib.objfunc.MaxObjectiveFunction;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.vertex.impl.DirectedVertex;
 
@@ -14,13 +15,8 @@ import java.util.Collection;
 public class MultiVehicleDCPP extends MultiVehicleProblem<DirectedVertex, Arc, DirectedGraph> {
 
     public MultiVehicleDCPP(DirectedGraph graph, int numVehicles) {
-        super(graph, numVehicles);
+        super(graph, numVehicles, new MaxObjectiveFunction());
         mGraph = graph;
-    }
-
-    @Override
-    public CapacitatedObjective getObjectiveType() {
-        return CapacitatedObjective.MinMax;
     }
 
     @Override

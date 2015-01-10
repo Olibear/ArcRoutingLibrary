@@ -4,6 +4,7 @@ import gnu.trove.TIntArrayList;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.improvements.ImprovementStrategy;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
 import oarlib.route.impl.Tour;
@@ -30,8 +31,9 @@ public class OrInterchange extends IntraRouteImprovementProcedure<WindyVertex, W
     public OrInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);
     }
-    public OrInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
-        super(problem, initialSol);
+
+    public OrInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem, ImprovementStrategy.Type strat, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, strat, initialSol);
     }
 
     @Override
@@ -105,6 +107,10 @@ public class OrInterchange extends IntraRouteImprovementProcedure<WindyVertex, W
                             newRecord = candidate;
                             flattenedRoute = record.getCompactRepresentation();
                             foundImprovement = true;
+
+                            if (mStrat == ImprovementStrategy.Type.FirstImprovement) {
+                                return newRecord;
+                            }
                         }
                     }
                 }

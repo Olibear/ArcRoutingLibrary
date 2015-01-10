@@ -13,18 +13,19 @@ import oarlib.link.impl.WindyEdge;
 import oarlib.route.util.RouteExpander;
 import org.apache.log4j.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by oliverlum on 11/29/14.
  */
 public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
 
+    private static final Logger LOGGER = Logger.getLogger(Mover.class);
     private G mGraph;
     private int[][] dist;
     private int[][] path;
     private int[][] edgePath;
-    private static final Logger LOGGER = Logger.getLogger(Mover.class);
 
     public Mover(G g) {
         mGraph = g;
@@ -47,14 +48,16 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
      * @param moveList List of moves to be executed in the order provided.
      * @return - the cost associated with making the moves provided.
      */
-    //TODO: add objective function type
     public int evalComplexMove(ArrayList<CompactMove<V, E>> moveList, Collection<Route<V,E>> routes) throws IllegalArgumentException {
 
+        //check for trivial arg
         if(moveList.size() == 0)
             return 0;
 
+        //ans; if it's < 0, it's anticipated that you reap savings
         int ans;
 
+        //init
         TIntIntHashMap costMap = new TIntIntHashMap();
         TIntObjectHashMap<TIntArrayList> compactReps = new TIntObjectHashMap<TIntArrayList>();
         TIntObjectHashMap<ArrayList<Boolean>> compactTDs = new TIntObjectHashMap<ArrayList<Boolean>>();
@@ -62,6 +65,8 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
         int tempCost;
         int max = Integer.MIN_VALUE;
         String origCost = "";
+
+        //setup a hashmap that keeps track of initial costs
         for(Route<V,E> r : routes) {
             tempCost = r.getCost();
             costMap.put(r.getGlobalId(),tempCost);

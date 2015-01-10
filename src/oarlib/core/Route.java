@@ -66,7 +66,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         mCustomIDMap = customIDMap;
     }
 
-    public void exportRouteToPDF(String instanceName) {
+    public void exportRouteToPDF(String instanceName, int depotId) {
 
         UndirectedGraph toExport = new UndirectedGraph();
 
@@ -87,6 +87,8 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                     toAdd.setCoordinates(first.getX(), first.getY());
                     toExport.addVertex(toAdd);
                     vertexMap.put(first.getId(), vertexIndex++);
+                    if (first.getId() == depotId)
+                        toExport.setDepotId(toAdd.getId());
                 }
 
                 second = l.getEndpoints().getSecond();
@@ -95,6 +97,8 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                     toAdd.setCoordinates(second.getX(), second.getY());
                     toExport.addVertex(toAdd);
                     vertexMap.put(second.getId(), vertexIndex++);
+                    if (second.getId() == depotId)
+                        toExport.setDepotId(toAdd.getId());
                 }
 
                 toExport.addEdge(vertexMap.get(first.getId()), vertexMap.get(second.getId()), 1, l.isRequired());

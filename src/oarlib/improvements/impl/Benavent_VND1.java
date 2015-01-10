@@ -3,6 +3,7 @@ package oarlib.improvements.impl;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.improvements.ImprovementStrategy;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.WindyVertex;
@@ -20,8 +21,9 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
     public Benavent_VND1(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);
     }
+
     public Benavent_VND1(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
-        super(problem, initialSol);
+        super(problem, null, initialSol);
     }
 
     @Override
@@ -35,13 +37,8 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
         int currBest = r.getCost();
         Route<WindyVertex, WindyEdge> ans = r;
 
-        int debug = 0;
-        for (Boolean service : r.getServicingList())
-            if (service)
-                debug++;
-
         while (true) {
-            OrInterchange oi = new OrInterchange(getProblem(), getInitialSol());
+            OrInterchange oi = new OrInterchange(getProblem(), ImprovementStrategy.Type.SteepestDescent, getInitialSol());
             Route<WindyVertex, WindyEdge> postIP1 = oi.improveRoute(ans);
             LOGGER.info("VND1-ip1 obj value: " + postIP1.getCost());
             if(postIP1.getCost() < currBest) {
@@ -59,7 +56,7 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
                 continue;
             }
 
-            TwoInterchange ti = new TwoInterchange(getProblem(), getInitialSol());
+            TwoInterchange ti = new TwoInterchange(getProblem(), ImprovementStrategy.Type.SteepestDescent, getInitialSol());
             Route<WindyVertex, WindyEdge> postIP3 = ti.improveRoute(ans);
             LOGGER.info("VND1-ip3 obj value: " + postIP3.getCost());
             if (postIP3.getCost() < currBest) {

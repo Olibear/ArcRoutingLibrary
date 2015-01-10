@@ -3,6 +3,7 @@ package oarlib.display;
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.Link;
+import oarlib.core.Route;
 import oarlib.core.Vertex;
 import oarlib.display.util.Colors;
 import oarlib.exceptions.UnsupportedFormatException;
@@ -39,6 +40,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -82,13 +84,13 @@ public class GraphDisplay {
         try {
             switch (et) {
                 case PDF:
-                    exportToPDF(null);
+                    exportToPDF(null, null);
                     break;
                 case GEXF:
-                    exportToGEXF(null);
+                    exportToGEXF(null, null);
                     break;
                 case CSV:
-                    exportToCSV(null);
+                    exportToCSV(null, null);
                     break;
             }
             return true;
@@ -109,13 +111,13 @@ public class GraphDisplay {
         try {
             switch (et) {
                 case PDF:
-                    exportToPDF(edgePartition);
+                    exportToPDF(edgePartition, null);
                     break;
                 case GEXF:
-                    exportToGEXF(edgePartition);
+                    exportToGEXF(edgePartition, null);
                     break;
                 case CSV:
-                    exportToCSV(edgePartition);
+                    exportToCSV(edgePartition, null);
                     break;
             }
             return true;
@@ -125,15 +127,35 @@ public class GraphDisplay {
         }
     }
 
-    private void exportToGEXF(HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException {
+    public boolean exportRoute(ExportType et, Route r) {
+        try {
+            switch (et) {
+                case PDF:
+                    exportToPDF(null, r);
+                    break;
+                case GEXF:
+                    exportToGEXF(null, r);
+                    break;
+                case CSV:
+                    exportToCSV(null, r);
+                    break;
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void exportToGEXF(HashMap<Integer, Integer> edgePartition, Route r) throws UnsupportedFormatException {
 
     }
 
-    private void exportToCSV(HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException {
+    private void exportToCSV(HashMap<Integer, Integer> edgePartition, Route r) throws UnsupportedFormatException {
 
     }
 
-    private void exportToPDF(HashMap<Integer, Integer> edgePartition) throws UnsupportedFormatException {
+    private <V extends Vertex, E extends Link<V>> void exportToPDF(HashMap<Integer, Integer> edgePartition, Route<V, E> r) throws UnsupportedFormatException {
 
         boolean withPartitions = edgePartition != null;
         boolean useAutoLayout = true;
@@ -236,9 +258,15 @@ public class GraphDisplay {
         float cost = 0f;
         float revCost = 0f;
 
-        //for (int i = 1; i <= m; i++) {
-        for (Link<? extends Vertex> tempLink : edgeMap.getValues(new Link[1])) {
-            //tempLink = edgeMap.get(i);
+        HashSet<Link<? extends Vertex>> links = new HashSet<Link<? extends Vertex>>();
+        if (r == null)
+            for (Link<? extends Vertex> tempLink : edgeMap.getValues(new Link[1]))
+                links.add(tempLink);
+        else
+            for (Link<? extends Vertex> tempLink : r.getRoute())
+                links.add(tempLink);
+
+        for (Link<? extends Vertex> tempLink : links) {
             if (tempLink.getCost() == 0) {
                 cost = .5f;
                 revCost = .5f;
@@ -262,9 +290,9 @@ public class GraphDisplay {
                     numPartitions = edgePartition.get(tempLink.getId());
             } else {
                 if (tempLink.isRequired())
-                    tempEdge.getEdgeData().getAttributes().setValue("Partition", 1);
-                else
                     tempEdge.getEdgeData().getAttributes().setValue("Partition", 2);
+                else
+                    tempEdge.getEdgeData().getAttributes().setValue("Partition", 1);
             }
             graph.addEdge(tempEdge);
         }

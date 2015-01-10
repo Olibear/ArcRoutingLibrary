@@ -1,9 +1,9 @@
 package oarlib.problem.impl.cpp;
 
-import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.link.impl.Arc;
+import oarlib.objfunc.SumObjectiveFunction;
 import oarlib.problem.impl.ChinesePostmanProblem;
 import oarlib.vertex.impl.DirectedVertex;
 
@@ -21,7 +21,7 @@ public class DirectedCPP extends ChinesePostmanProblem<DirectedVertex, Arc, Dire
     }
 
     public DirectedCPP(DirectedGraph g, String name) {
-        super(g, name);
+        super(g, name, new SumObjectiveFunction());
         mGraph = g;
     }
 

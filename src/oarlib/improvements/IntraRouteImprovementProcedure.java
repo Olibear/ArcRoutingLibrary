@@ -12,8 +12,9 @@ public abstract class IntraRouteImprovementProcedure<V extends Vertex, E extends
     protected IntraRouteImprovementProcedure(Problem<V,E,G> problem) {
         super(problem);
     }
-    protected IntraRouteImprovementProcedure(Problem<V,E,G> problem, Collection<Route<V,E>> initialSol) {
-        super(problem, initialSol);
+
+    protected IntraRouteImprovementProcedure(Problem<V, E, G> problem, ImprovementStrategy.Type strat, Collection<Route<V, E>> initialSol) {
+        super(problem, strat, initialSol);
     }
     @Override
     public final Collection<Route<V, E>> improveSolution() {

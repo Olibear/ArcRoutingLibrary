@@ -4,6 +4,7 @@ import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.link.impl.MixedEdge;
+import oarlib.objfunc.SumObjectiveFunction;
 import oarlib.problem.impl.ChinesePostmanProblem;
 import oarlib.vertex.impl.MixedVertex;
 
@@ -16,7 +17,7 @@ public class MixedCPP extends ChinesePostmanProblem<MixedVertex, MixedEdge, Mixe
     }
 
     public MixedCPP(MixedGraph g, String name) {
-        super(g, name);
+        super(g, name, new SumObjectiveFunction());
         mGraph = g;
     }
 

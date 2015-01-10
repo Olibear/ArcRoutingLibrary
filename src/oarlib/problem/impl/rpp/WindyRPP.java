@@ -4,6 +4,7 @@ import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.link.impl.WindyEdge;
+import oarlib.objfunc.SumObjectiveFunction;
 import oarlib.problem.impl.RuralPostmanProblem;
 import oarlib.vertex.impl.WindyVertex;
 
@@ -16,7 +17,7 @@ public class WindyRPP extends RuralPostmanProblem<WindyVertex, WindyEdge, WindyG
     }
 
     public WindyRPP(WindyGraph g, String name) {
-        super(g, name);
+        super(g, name, new SumObjectiveFunction());
         mGraph = g;
     }
 

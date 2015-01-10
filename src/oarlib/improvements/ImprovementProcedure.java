@@ -10,16 +10,21 @@ import java.util.Collection;
  */
 public abstract class ImprovementProcedure<V extends Vertex, E extends Link<V>, G extends Graph<V,E>> {
 
+    private static final Logger LOGGER = Logger.getLogger(ImprovementProcedure.class);
+    protected ImprovementStrategy.Type mStrat;
     private G mGraph;
     private Collection<Route<V, E>> mInitialSol;
     private Problem<V,E,G> mProblem;
-    private static final Logger LOGGER = Logger.getLogger(ImprovementProcedure.class);
 
     protected ImprovementProcedure(Problem<V,E,G> instance) {
-        this(instance, null);
+        this(instance, null, null);
     }
 
-    protected ImprovementProcedure(Problem<V,E,G> instance, Collection<Route<V,E>> initialSol) {
+    protected ImprovementProcedure(Problem<V, E, G> instance, ImprovementStrategy.Type strat) {
+        this(instance, strat, null);
+    }
+
+    protected ImprovementProcedure(Problem<V, E, G> instance, ImprovementStrategy.Type strat, Collection<Route<V, E>> initialSol) {
 
         boolean err = false;
         Collection<Route<V,E>> candidateSol;
@@ -28,6 +33,9 @@ public abstract class ImprovementProcedure<V extends Vertex, E extends Link<V>, 
             candidateSol = instance.getSol();
         else
             candidateSol = initialSol;
+
+        if (strat == null)
+            mStrat = ImprovementStrategy.Type.FirstImprovement;
 
         G g = instance.getGraph();
 
@@ -51,6 +59,7 @@ public abstract class ImprovementProcedure<V extends Vertex, E extends Link<V>, 
         mGraph = g;
         mInitialSol = candidateSol;
         mProblem = instance;
+        mStrat = strat;
 
     }
 

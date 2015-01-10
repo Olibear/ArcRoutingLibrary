@@ -3,6 +3,7 @@ package oarlib.problem.impl.multivehicle;
 import oarlib.core.Route;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.link.impl.Edge;
+import oarlib.objfunc.MaxObjectiveFunction;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.vertex.impl.UndirectedVertex;
 
@@ -17,7 +18,7 @@ import java.util.Collection;
 public class MultiVehicleUCPP extends MultiVehicleProblem<UndirectedVertex, Edge, UndirectedGraph> {
 
     public MultiVehicleUCPP(UndirectedGraph graph, int numVehicles) {
-        super(graph, numVehicles);
+        super(graph, numVehicles, new MaxObjectiveFunction());
         mGraph = graph;
     }
 
@@ -33,10 +34,5 @@ public class MultiVehicleUCPP extends MultiVehicleProblem<UndirectedVertex, Edge
 
         //TODO: Now check for real.
         return false;
-    }
-
-    @Override
-    public CapacitatedObjective getObjectiveType() {
-        return CapacitatedObjective.MinMax;
     }
 }

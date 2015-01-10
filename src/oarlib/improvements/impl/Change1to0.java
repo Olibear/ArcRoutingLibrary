@@ -1,17 +1,15 @@
 package oarlib.improvements.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.core.Vertex;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.improvements.ImprovementStrategy;
 import oarlib.improvements.InterRouteImprovementProcedure;
 import oarlib.improvements.util.CompactMove;
 import oarlib.improvements.util.Mover;
 import oarlib.improvements.util.Utils;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -25,8 +23,9 @@ public class Change1to0 extends InterRouteImprovementProcedure<WindyVertex, Wind
     public Change1to0(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);
     }
-    public Change1to0(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
-        super(problem, initialSol);
+
+    public Change1to0(Problem<WindyVertex, WindyEdge, WindyGraph> problem, ImprovementStrategy.Type strat, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, strat, initialSol);
     }
 
     @Override
@@ -50,6 +49,11 @@ public class Change1to0 extends InterRouteImprovementProcedure<WindyVertex, Wind
         int skipId = longestRoute.getGlobalId();
         Mover<WindyVertex, WindyEdge, WindyGraph> mover = new Mover<WindyVertex, WindyEdge, WindyGraph>(getGraph());
 
+        int maxSavings = 0;
+        boolean foundImprovement = false;
+        ArrayList<CompactMove<WindyVertex, WindyEdge>> bestMoveList = new ArrayList<CompactMove<WindyVertex, WindyEdge>>();
+        Collection<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
+
         for(Route<WindyVertex, WindyEdge> r: initialSol) {
             //don't try and move to yourself.
             if(r.getGlobalId() == skipId)
@@ -61,7 +65,7 @@ public class Change1to0 extends InterRouteImprovementProcedure<WindyVertex, Wind
             CompactMove<WindyVertex, WindyEdge> temp;
             ArrayList<CompactMove<WindyVertex, WindyEdge>> moveList = new ArrayList<CompactMove<WindyVertex, WindyEdge>>();
             int savings;
-            Collection<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
+
 
             for(int i = 0; i < lim; i++) {
                 for (int j = 0; j < lim2; j++) {
@@ -69,20 +73,35 @@ public class Change1to0 extends InterRouteImprovementProcedure<WindyVertex, Wind
                     moveList.clear();
                     moveList.add(temp);
                     savings = mover.evalComplexMove(moveList, initialSol);
-                    if(savings < 0) {
-                        //System.out.println("Savings: " + savings);
-                        TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList);
-                        for(Route r2: initialSol) {
-                            if(routesToChange.containsKey(r2.getGlobalId())) {
-                                ans.add(routesToChange.get(r2.getGlobalId()));
+                    if (savings < maxSavings) {
+                        maxSavings = savings;
+                        foundImprovement = true;
+                        bestMoveList = moveList;
+                        if (mStrat == ImprovementStrategy.Type.FirstImprovement) {
+                            TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList);
+                            for (Route r2 : initialSol) {
+                                if (routesToChange.containsKey(r2.getGlobalId())) {
+                                    ans.add(routesToChange.get(r2.getGlobalId()));
+                                } else
+                                    ans.add(r2);
                             }
-                            else
-                                ans.add(r2);
+                            return ans;
                         }
-                        return ans;
                     }
                 }
             }
+        }
+
+
+        if (foundImprovement) {
+            TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(bestMoveList);
+            for (Route r2 : initialSol) {
+                if (routesToChange.containsKey(r2.getGlobalId())) {
+                    ans.add(routesToChange.get(r2.getGlobalId()));
+                } else
+                    ans.add(r2);
+            }
+            return ans;
         }
         return initialSol;
     }

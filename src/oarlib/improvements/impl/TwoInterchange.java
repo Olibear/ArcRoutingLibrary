@@ -4,6 +4,7 @@ import gnu.trove.TIntArrayList;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.improvements.ImprovementStrategy;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
 import oarlib.route.impl.Tour;
@@ -26,8 +27,9 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
     public TwoInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);
     }
-    public TwoInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
-        super(problem, initialSol);
+
+    public TwoInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem, ImprovementStrategy.Type strat, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+        super(problem, strat, initialSol);
     }
 
     @Override
@@ -79,6 +81,9 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
                         recordCost = candidateCost;
                         newRecord = candidate;
                         foundImprovement = true;
+                        if (mStrat == ImprovementStrategy.Type.FirstImprovement) {
+                            return newRecord;
+                        }
                     }
 
                 }

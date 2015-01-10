@@ -3,6 +3,7 @@ package oarlib.problem.impl.multivehicle;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.link.impl.WindyEdge;
+import oarlib.objfunc.MaxObjectiveFunction;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.vertex.impl.WindyVertex;
 
@@ -14,13 +15,8 @@ import java.util.Collection;
 public class MultiVehicleWRPP extends MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> {
 
     public MultiVehicleWRPP(WindyGraph graph, int numVehicles) {
-        super(graph, numVehicles);
+        super(graph, numVehicles, new MaxObjectiveFunction());
         mGraph = graph;
-    }
-
-    @Override
-    public CapacitatedObjective getObjectiveType() {
-        return CapacitatedObjective.MinMax;
     }
 
     @Override

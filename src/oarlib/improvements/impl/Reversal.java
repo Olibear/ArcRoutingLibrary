@@ -26,7 +26,7 @@ public class Reversal extends IntraRouteImprovementProcedure<WindyVertex, WindyE
         super(problem);
     }
     public Reversal(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
-        super(problem, initialSol);
+        super(problem, null, initialSol);
     }
 
     @Override

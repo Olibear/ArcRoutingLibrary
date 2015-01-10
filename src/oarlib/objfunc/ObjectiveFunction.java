@@ -1,13 +1,14 @@
 package oarlib.objfunc;
 
+import oarlib.core.Link;
+import oarlib.core.Route;
+import oarlib.core.Vertex;
+
+import java.util.Collection;
+
 /**
  * Created by oliverlum on 12/10/14.
  */
-public enum ObjectiveFunction {
-
-    //normal metrics
-    MAX, //length of the max route
-    SUM, //length of the sum of the routes
-    AVG, //avg. length of a route
-    DEV, //% deviation between min and max of the route
+public abstract class ObjectiveFunction {
+    public abstract <V extends Vertex, E extends Link<V>> double evaluate(Collection<Route<V, E>> routes);
 }

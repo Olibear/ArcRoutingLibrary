@@ -1,5 +1,6 @@
 package oarlib.core;
 
+import oarlib.objfunc.ObjectiveFunction;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -19,11 +20,13 @@ public abstract class Problem<V extends Vertex, E extends Link<V>, G extends Gra
     protected G mGraph;
     protected Collection<Route<V,E>> mSol;
     protected boolean solved;
+    protected ObjectiveFunction mObjFunc;
 
-    protected Problem(G graph, String name) {
+    protected Problem(G graph, String name, ObjectiveFunction objFunc) {
         mName = name;
         mGraph = graph;
         solved = false;
+        mObjFunc = objFunc;
     }
 
     public String getName() {
@@ -53,15 +56,15 @@ public abstract class Problem<V extends Vertex, E extends Link<V>, G extends Gra
         return mSol;
     }
 
-    public void setSol(Collection<Route<V,E>> newSol) {
-        mSol = newSol;
-        solved = true;
-    }
-
     public void setSol(Route<V,E> newSol) {
         ArrayList<Route<V,E>> container = new ArrayList<Route<V,E>>();
         container.add(newSol);
         mSol = container;
+        solved = true;
+    }
+
+    public void setSol(Collection<Route<V, E>> newSol) {
+        mSol = newSol;
         solved = true;
     }
 
@@ -77,6 +80,15 @@ public abstract class Problem<V extends Vertex, E extends Link<V>, G extends Gra
      * @return - The type of problem that this represents.
      */
     public abstract Type getProblemType();
+
+    /**
+     * @return - The
+     */
+    public ObjectiveFunction getObjectiveFunction() {
+        return mObjFunc;
+    }
+
+    ;
 
     public enum Type {
         DIRECTED_CHINESE_POSTMAN,

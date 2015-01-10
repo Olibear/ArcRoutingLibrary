@@ -17,8 +17,8 @@ public class CompactMove<V extends Vertex, E extends Link<V>>  {
     private Route<V,E> mTo;
     private int mFromPos;
     private int mToPos;
-    private boolean prudentDirection;
-    private boolean pdSet;
+    private boolean prudentDirection; //true if the link should be traversed forward in its new position in mTo
+    private boolean pdSet; // true if we've determined a traversal direction in mTo for the moved link
 
     public CompactMove(Route<V,E> from, Route<V,E> to, int fromPos, int toPos) throws IllegalArgumentException{
         mFrom = from;
@@ -29,11 +29,9 @@ public class CompactMove<V extends Vertex, E extends Link<V>>  {
 
         if(fromPos < 0 || fromPos >= fromSize) {
             LOGGER.debug("This is an invalid position in the route.  This move may be legal if it is chained together with others.  Remember, this argument is intended to be from the flattened representation.");
-            //throw new IllegalArgumentException();
         }
         if(toPos < 0 || toPos > toSize) {
             LOGGER.debug("This is an invalid position in the route.  This move may be legal if it is chained together with others.  Remember, this argument is intended to be from the flattened representation.");
-            //throw new IllegalArgumentException();
         }
 
         mFromPos = fromPos;
