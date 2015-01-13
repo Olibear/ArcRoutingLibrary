@@ -1,3 +1,26 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2013-2015 Oliver Lum
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
@@ -32,8 +55,8 @@ import java.util.*;
  */
 public class MCPPSolver_Frederickson extends SingleVehicleSolver {
 
-    MixedCPP mInstance;
     private static final Logger LOGGER = Logger.getLogger(MCPPSolver_Frederickson.class);
+    MixedCPP mInstance;
 
     public MCPPSolver_Frederickson(MixedCPP instance) throws IllegalArgumentException {
         super(instance);
@@ -490,7 +513,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             evenDegree(ans1);
 
 			/*
-			 * This procedure aims to make the mixed graph symmetric; that is, for each vertex v, v.getInDegree() == v.getOutDegree().
+             * This procedure aims to make the mixed graph symmetric; that is, for each vertex v, v.getInDegree() == v.getOutDegree().
 			 * Note that this may disrupt the property of every vertex being even.
 			 */
             inOutDegree(ans1, U, M, inMdubPrime);
@@ -544,7 +567,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
             }
 
             ArrayList<Integer> tour;
-            Tour<MixedVertex,MixedEdge> eulerTour = new Tour<MixedVertex,MixedEdge>();
+            Tour<MixedVertex, MixedEdge> eulerTour = new Tour<MixedVertex, MixedEdge>();
             if (cost1 <= cost2) {
                 LOGGER.debug("ans1 chosen: " + CommonAlgorithms.isStronglyConnected(ans1));
                 tour = CommonAlgorithms.tryHierholzer(ans1);

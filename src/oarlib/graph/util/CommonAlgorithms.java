@@ -1,3 +1,26 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2013-2015 Oliver Lum
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package oarlib.graph.util;
 
 import gnu.trove.TIntArrayList;
@@ -29,6 +52,7 @@ import java.util.*;
 public class CommonAlgorithms {
 
     private static final Logger LOGGER = Logger.getLogger(CommonAlgorithms.class);
+
     /**
      * Hierholzer's algorithm for determining an Euler tour through an directed Eulerian graph.
      *
@@ -753,7 +777,7 @@ public class CommonAlgorithms {
      * @param dist     - the ith entry contains the shortest distance from source to vetex i.
      * @param path     - the ith entry contains the previous vertex on the shortest path from source to vertex i.
      * @param edgePath - the ith entry contains the previous link on the shortest path from source to vertex i.
-     * @throws IllegalArgumentException - if the argument arrays are of the incorrect size.
+     * @throws IllegalArgumentException                 - if the argument arrays are of the incorrect size.
      * @throws oarlib.exceptions.NegativeCycleException - if there is a negative cycle in the graph.  It will record this cycle in the exception.
      */
     public static void bellmanFordShortestPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException, NegativeCycleException {
@@ -848,7 +872,7 @@ public class CommonAlgorithms {
             }
         }
 
-        if(searchForNegativeCycle) {
+        if (searchForNegativeCycle) {
             //let's construct it
             int p, q, cost;
             boolean continueSearching;
@@ -978,7 +1002,7 @@ public class CommonAlgorithms {
             }
         }
 
-        if(searchForNegativeCycle) {
+        if (searchForNegativeCycle) {
             int p, q, cost;
             boolean continueSearching;
             //check for negative cycles
@@ -1128,7 +1152,7 @@ public class CommonAlgorithms {
             }
         }
 
-        if(searchForNegativeCycle) {
+        if (searchForNegativeCycle) {
             int p, q, cost;
             boolean continueSearching;
             //check for negative cycles
@@ -1259,7 +1283,7 @@ public class CommonAlgorithms {
             }
         }
 
-        if(searchForNegativeCycle) {
+        if (searchForNegativeCycle) {
             int p, q, cost;
             boolean continueSearching;
             //check for negative cycles
@@ -1407,7 +1431,7 @@ public class CommonAlgorithms {
             }
         }
 
-        if(searchForNegativeCycles) {
+        if (searchForNegativeCycles) {
             int p, q;
             boolean continueSearching;
             //check for negative cycles
@@ -1541,7 +1565,7 @@ public class CommonAlgorithms {
             }
         }
 
-        if(searchForNegativeCycles) {
+        if (searchForNegativeCycles) {
             int p, q, cost;
             boolean continueSearching;
             //check for negative cycles

@@ -1,3 +1,26 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2013-2015 Oliver Lum
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package oarlib.core;
 
 import oarlib.exceptions.GraphInfeasibleException;
@@ -10,10 +33,10 @@ import java.util.Collection;
  * Solver abstraction.  Most general contract that Multivehicle solvers must fulfill.
  * Created by Oliver Lum on 7/25/2014.
  */
-public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G extends Graph<V,E>> {
+public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
 
     private static final Logger LOGGER = Logger.getLogger(MultiVehicleSolver.class);
-    MultiVehicleProblem<V,E,G> mInstance;
+    MultiVehicleProblem<V, E, G> mInstance;
 
     /**
      * Default constructor; must set problem instance.
@@ -35,7 +58,7 @@ public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G 
      *
      * @return null if problem instance is not assigned, or solver failed.
      */
-    public Collection<Route<V,E>> trySolve() throws GraphInfeasibleException {
+    public Collection<Route<V, E>> trySolve() throws GraphInfeasibleException {
         if (!checkGraphRequirements()) {
             LOGGER.error("It does not appear as though it is possible to solve the problem on this graph.");
             throw new GraphInfeasibleException();
@@ -60,7 +83,7 @@ public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G 
      *
      * @return The set of routes the solver has concluded is best.
      */
-    protected abstract Collection<Route<V,E>> solve();
+    protected abstract Collection<Route<V, E>> solve();
 
     /**
      * Specifies what type of problem this is a solver for.
@@ -102,10 +125,10 @@ public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G 
      */
     public String printCurrentSol() throws IllegalStateException {
 
-        Collection<Route<V,E>> currSol = mInstance.getSol();
+        Collection<Route<V, E>> currSol = mInstance.getSol();
 
         if (currSol == null)
-            LOGGER.error("It does not appear as though this solver has been run yet!",new IllegalStateException());
+            LOGGER.error("It does not appear as though this solver has been run yet!", new IllegalStateException());
 
         int tempCost;
         int numZeroRoutes = 0;

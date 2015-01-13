@@ -1,9 +1,30 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2013-2015 Oliver Lum
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package oarlib.graph.graphgen.erdosrenyi;
 
-import gnu.trove.TIntObjectHashMap;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
-import oarlib.graph.util.Pair;
 import oarlib.link.impl.WindyEdge;
 import oarlib.vertex.impl.WindyVertex;
 
@@ -17,7 +38,7 @@ public class WindyErdosRenyiGraphGenerator extends ErdosRenyiGraphGenerator<Wind
 
     @Override
     public WindyGraph generate(int n, int maxCost, boolean connected,
-                                    double density, double reqDensity, boolean positiveCosts) throws IllegalArgumentException {
+                               double density, double reqDensity, boolean positiveCosts) throws IllegalArgumentException {
 
         //edge cases
         if (n == 0)
@@ -43,7 +64,7 @@ public class WindyErdosRenyiGraphGenerator extends ErdosRenyiGraphGenerator<Wind
                 for (int k = 1; k < j; k++) {
                     //add the arc with probability density
                     if (Math.random() < density) {
-                        if(Math.random() < reqDensity)
+                        if (Math.random() < reqDensity)
                             isReq = true;
                         else
                             isReq = false;
@@ -52,7 +73,7 @@ public class WindyErdosRenyiGraphGenerator extends ErdosRenyiGraphGenerator<Wind
                             cost = 1 + (int) Math.round((maxCost - 1) * Math.random());
                             reverseCost = 1 + (int) Math.round((maxCost - 1) * Math.random());
                         } else {
-                            if(Math.random() < .5)
+                            if (Math.random() < .5)
                                 coeff = 1;
                             else
                                 coeff = -1;
@@ -103,7 +124,7 @@ public class WindyErdosRenyiGraphGenerator extends ErdosRenyiGraphGenerator<Wind
 
     @Override
     public WindyGraph generateEulerian(int n, int maxCost,
-                                            boolean connected, double density) {
+                                       boolean connected, double density) {
         try {
             WindyGraph g = this.generateGraph(n, maxCost, connected, density, false);
             //make Eulerian

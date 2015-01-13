@@ -1,3 +1,26 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2013-2015 Oliver Lum
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package oarlib.graph.transform.impl;
 
 import gnu.trove.TIntObjectHashMap;
@@ -27,12 +50,11 @@ import java.util.HashSet;
  */
 public class EdgeInducedSubgraphTransform<S extends Graph<?, ?>> implements GraphTransformer<S, S> {
 
+    private static final Logger LOGGER = Logger.getLogger(EdgeInducedSubgraphTransform.class);
     S mGraph;
     Factory<S> graphGen;
     HashSet<Integer> mEdges;
     boolean inclDepot;
-
-    private static final Logger LOGGER = Logger.getLogger(EdgeInducedSubgraphTransform.class);
 
     /**
      * This transformer takes the input graph and the specified edge ids, and returns the subgraph induced by said edges.
