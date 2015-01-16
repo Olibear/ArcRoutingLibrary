@@ -21,12 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.graph.impl;
+package oarlib.core;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Graph;
-import oarlib.core.Link;
-import oarlib.core.Vertex;
 import oarlib.exceptions.InvalidEndpointsException;
 
 import java.util.HashSet;
@@ -143,7 +140,6 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         e.setGraphId(this.getGraphId());
         mEdges.add(e);
         mInternalEdgeMap.put(e.getId(), e);
-        e.setFinalized(true);
     }
 
     @Override
@@ -238,7 +234,6 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
             throw new IllegalArgumentException("Could not remove edge because it wasn't detected as existing in the first place!");
         mEdges.remove(e);
         mInternalEdgeMap.remove(e.getId());
-        e.setFinalized(false);
     }
 
     @Override

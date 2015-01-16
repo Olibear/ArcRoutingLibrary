@@ -43,8 +43,6 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     private int graphId;
     private int depotId;
 
-    //TODO: add notion of finalized
-
     public Graph() {
         vidCounter = 1;
         eidCounter = 1;

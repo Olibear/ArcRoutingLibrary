@@ -76,7 +76,8 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
 
             // defaults
             foundImprovement = false;
-            TIntArrayList flattenedRoute = record.getCompactRepresentation();
+            TIntArrayList flattenedRoute = new TIntArrayList(record.getCompactRepresentation().toNativeArray());
+            ArrayList<Boolean> traversalDirection = new ArrayList<Boolean>(record.getCompactTraversalDirection());
 
             int n = flattenedRoute.size();
 
@@ -86,19 +87,16 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
                 temp = flattenedRoute.get(i);
                 for (int j = 0; j < i; j++) {
                     temp2 = flattenedRoute.get(j);
-                    //copy TODO: instead of recopying, just undo the swap for perf
-                    TIntArrayList candidateRoute = new TIntArrayList(flattenedRoute.toNativeArray());
-                    ArrayList<Boolean> candidateTraversalDirection = new ArrayList<Boolean>(record.getCompactTraversalDirection());
-                    tempForward = candidateTraversalDirection.get(i);
-                    tempForward2 = candidateTraversalDirection.get(j);
+                    tempForward = traversalDirection.get(i);
+                    tempForward2 = traversalDirection.get(j);
 
                     //swap
-                    candidateRoute.set(i, temp2);
-                    candidateRoute.set(j, temp);
-                    candidateTraversalDirection.set(i, tempForward2);
-                    candidateTraversalDirection.set(j, tempForward);
+                    flattenedRoute.set(i, temp2);
+                    flattenedRoute.set(j, temp);
+                    traversalDirection.set(i, tempForward2);
+                    traversalDirection.set(j, tempForward);
 
-                    candidate = wre.unflattenRoute(candidateRoute, candidateTraversalDirection);
+                    candidate = wre.unflattenRoute(flattenedRoute, traversalDirection);
                     candidateCost = candidate.getCost();
                     if (candidateCost < recordCost) {
                         recordCost = candidateCost;
@@ -108,6 +106,12 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
                             return newRecord;
                         }
                     }
+
+                    //undo the swap
+                    flattenedRoute.set(i, temp);
+                    flattenedRoute.set(j, temp2);
+                    traversalDirection.set(i, tempForward);
+                    traversalDirection.set(j, tempForward2);
 
                 }
             }

@@ -23,10 +23,11 @@
  */
 package oarlib.route.impl;
 
-import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
+
+import java.util.List;
 
 /**
  * A tour is a route that must begin and end at the same node.
@@ -39,9 +40,9 @@ public class Tour<V extends Vertex, E extends Link<V>> extends Route<V, E> {
         super();
     }
 
-    @Override
-    public boolean checkRoutes(Graph<V, E> g) {
-        return mRoute.get(0).getEndpoints().getFirst().getId() == mRoute.get(mRoute.size() - 1).getEndpoints().getSecond().getId();
+    public static boolean isTour(Route r) {
+        List<? extends Link<? extends Vertex>> rPath = r.getRoute();
+        return rPath.get(0).getEndpoints().getFirst().getId() == rPath.get(rPath.size() - 1).getEndpoints().getSecond().getId();
 
     }
 

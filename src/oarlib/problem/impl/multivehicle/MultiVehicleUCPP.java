@@ -23,14 +23,11 @@
  */
 package oarlib.problem.impl.multivehicle;
 
-import oarlib.core.Route;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.link.impl.Edge;
 import oarlib.objfunc.MaxObjectiveFunction;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.vertex.impl.UndirectedVertex;
-
-import java.util.Collection;
 
 /**
  * Problem class to represent the Capacitated Undirected Chinese Postman Problem.
@@ -48,14 +45,5 @@ public class MultiVehicleUCPP extends MultiVehicleProblem<UndirectedVertex, Edge
     @Override
     public Type getProblemType() {
         return Type.UNDIRECTED_CHINESE_POSTMAN;
-    }
-
-    @Override
-    public boolean isFeasible(Collection<Route> routes) {
-        if (routes.size() > getmNumVehicles())
-            return false;
-
-        //TODO: Now check for real.
-        return false;
     }
 }

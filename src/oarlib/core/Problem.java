@@ -96,7 +96,7 @@ public abstract class Problem<V extends Vertex, E extends Link<V>, G extends Gra
      *
      * @return true if problem instance is solvable; false oth.
      */
-    public abstract boolean isFeasible(Collection<Route> routes);
+    public abstract boolean isFeasible(Collection<Route<V, E>> routes);
 
 
     /**

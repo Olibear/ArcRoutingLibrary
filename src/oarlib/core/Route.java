@@ -391,15 +391,6 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     }
 
     /**
-     * check to make sure that the route is actually a route, (i.e. that consecutive
-     * links in the list are adjacent, and any other checks that different types
-     * of routes may wish to perform).
-     *
-     * @return true if route is feasible in the provided graph
-     */
-    public abstract boolean checkRoutes(Graph<V, E> g);
-
-    /**
      * Outputs a string representation of the route.
      */
     public String toString() {

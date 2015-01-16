@@ -23,14 +23,11 @@
  */
 package oarlib.problem.impl.multivehicle;
 
-import oarlib.core.Route;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.link.impl.MixedEdge;
 import oarlib.objfunc.MaxObjectiveFunction;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.vertex.impl.MixedVertex;
-
-import java.util.Collection;
 
 /**
  * Problem class to represent the Capacitated Mixed Chinese Postman Problem.
@@ -45,15 +42,6 @@ public class MultiVehicleMCPP extends MultiVehicleProblem<MixedVertex, MixedEdge
         super(graph, numVehicles, new MaxObjectiveFunction());
         mGraph = graph;
 
-    }
-
-    @Override
-    public boolean isFeasible(Collection<Route> routes) {
-        if (routes.size() > getmNumVehicles())
-            return false;
-
-        //TODO: Now check for real.
-        return false;
     }
 
     @Override

@@ -34,10 +34,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class Link<V extends Vertex> {
 
-    //TODO: Rethink this architectre; consider creating an addToGraph method so that you can't do weird stuff with coupled vars
-
     private static Logger LOGGER = Logger.getLogger(Link.class);
-    protected boolean isFinalized; // should be true if in a graph, false oth.
     private String mLabel;
     private int mId; //while this will help us identify the 'same' link in different graphs (graph copies for instance)
     private int mGraphId;
@@ -54,7 +51,6 @@ public abstract class Link<V extends Vertex> {
     }
 
     public Link(String label, Pair<V> endpoints, int cost, boolean required) {
-        setFinalized(false);
         setId(-1);
         setGraphId(-1);
         setMatchId(-1);
@@ -88,12 +84,8 @@ public abstract class Link<V extends Vertex> {
         return mEndpoints;
     }
 
-    public boolean setEndpoints(Pair<V> mEndpoints) {
-        if (!isFinalized) {
-            this.mEndpoints = mEndpoints;
-            return true;
-        }
-        return false;
+    protected void setEndpoints(Pair<V> mEndpoints) {
+        this.mEndpoints = mEndpoints;
     }
 
     public int getCost() {
@@ -108,20 +100,16 @@ public abstract class Link<V extends Vertex> {
         return mId;
     }
 
+    protected void setId(int mId) {
+        this.mId = mId;
+    }
+
     public int getFirstEndpointId() {
         return mEndpoints.getFirst().getId();
     }
 
     public int getSecondEndpointId() {
         return mEndpoints.getSecond().getId();
-    }
-
-    public boolean setId(int mId) {
-        if (!isFinalized) {
-            this.mId = mId;
-            return true;
-        }
-        return false;
     }
 
     public boolean isDirected() {
@@ -180,16 +168,8 @@ public abstract class Link<V extends Vertex> {
         return mGraphId;
     }
 
-    public void setGraphId(int mGraphId) {
+    protected void setGraphId(int mGraphId) {
         this.mGraphId = mGraphId;
-    }
-
-    public boolean isFinalized() {
-        return isFinalized;
-    }
-
-    public void setFinalized(boolean isFinalized) {
-        this.isFinalized = isFinalized;
     }
 
     public String toString() {

@@ -23,11 +23,13 @@
  */
 package oarlib.problem.impl;
 
-import oarlib.core.Graph;
-import oarlib.core.Link;
-import oarlib.core.Problem;
-import oarlib.core.Vertex;
+import oarlib.core.*;
+import oarlib.graph.util.Utils;
 import oarlib.objfunc.ObjectiveFunction;
+import oarlib.route.impl.Tour;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Problem abstraction for capacitated problems.  This includes support for number of vehicles, or for vehicle capacity.
@@ -120,5 +122,31 @@ public abstract class MultiVehicleProblem<V extends Vertex, E extends Link<V>, G
         if (!numVehiclesSet)
             return -1;
         return mNumVehicles;
+    }
+
+
+    @Override
+    public boolean isFeasible(Collection<Route<V, E>> routes) {
+
+        if (routes.size() > getmNumVehicles())
+            return false;
+
+        //all ids
+        HashSet<Integer> ids = new HashSet<Integer>();
+        for (Link l : mGraph.getEdges())
+            if (l.isRequired())
+                ids.add(l.getId());
+
+        for (Route<V, E> r : routes) {
+            if (!Tour.isTour(r))
+                return false;
+
+            //route ids
+            Route<V, E> reclaimed = Utils.reclaimTour(r, mGraph);
+            for (E e : reclaimed.getRoute())
+                ids.remove(e.getId());
+        }
+
+        return ids.isEmpty();
     }
 }

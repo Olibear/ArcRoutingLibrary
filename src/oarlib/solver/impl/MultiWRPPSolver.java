@@ -126,7 +126,6 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                 if (j == numRuns)
                     lastRun = true;
 
-                //TODO: Learn the .01
                 //double weight = (lowerBound + upperBound)/2.0;
                 sol = partition(new DuplicateEdgeCostRebalancer(mGraph, new IndividualDistanceToDepotRebalancer(mGraph, lowerBound + j * interval)));
 

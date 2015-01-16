@@ -24,14 +24,11 @@
 package oarlib.problem.impl.cpp;
 
 import oarlib.core.Problem;
-import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.link.impl.WindyEdge;
 import oarlib.objfunc.SumObjectiveFunction;
 import oarlib.problem.impl.ChinesePostmanProblem;
 import oarlib.vertex.impl.WindyVertex;
-
-import java.util.Collection;
 
 public class WindyCPP extends ChinesePostmanProblem<WindyVertex, WindyEdge, WindyGraph> {
 
@@ -42,12 +39,6 @@ public class WindyCPP extends ChinesePostmanProblem<WindyVertex, WindyEdge, Wind
     public WindyCPP(WindyGraph g, String name) {
         super(g, name, new SumObjectiveFunction());
         mGraph = g;
-    }
-
-    @Override
-    public boolean isFeasible(Collection<Route> routes) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     @Override

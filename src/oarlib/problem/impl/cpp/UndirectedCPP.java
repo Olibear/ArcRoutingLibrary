@@ -24,14 +24,11 @@
 package oarlib.problem.impl.cpp;
 
 import oarlib.core.Problem;
-import oarlib.core.Route;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.link.impl.Edge;
 import oarlib.objfunc.SumObjectiveFunction;
 import oarlib.problem.impl.ChinesePostmanProblem;
 import oarlib.vertex.impl.UndirectedVertex;
-
-import java.util.Collection;
 
 public class UndirectedCPP extends ChinesePostmanProblem<UndirectedVertex, Edge, UndirectedGraph> {
 
@@ -42,12 +39,6 @@ public class UndirectedCPP extends ChinesePostmanProblem<UndirectedVertex, Edge,
     public UndirectedCPP(UndirectedGraph g, String name) {
         super(g, name, new SumObjectiveFunction());
         mGraph = g;
-    }
-
-    @Override
-    public boolean isFeasible(Collection<Route> routes) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     @Override

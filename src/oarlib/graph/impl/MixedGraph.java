@@ -26,6 +26,7 @@ package oarlib.graph.impl;
 import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
+import oarlib.core.MutableGraph;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.MixedEdge;

@@ -148,7 +148,6 @@ public class MultiUCPPSolver extends MultiVehicleSolver<UndirectedVertex, Edge, 
 
             //now read the partition and reconstruct the induced subgraphs on which we solve the UCPP on to get our final solution.
             PartitionReader pr = new PartitionReader(PartitionFormat.Name.METIS);
-            //TODO: Make this just an array; no need to have HashMap
             return pr.readPartition(filename + ".part." + numParts);
 
         } catch (Exception e) {

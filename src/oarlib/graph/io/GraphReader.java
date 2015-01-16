@@ -77,9 +77,6 @@ public class GraphReader {
                 return readYaoyuenyongGraph(fileName);
             case Campos:
                 return readCamposGraph(fileName);
-            case DIMACS_Modified:
-                //TODO: make a reader
-                break;
             case METIS:
                 return readMETISGraph(fileName);
             case OARLib:

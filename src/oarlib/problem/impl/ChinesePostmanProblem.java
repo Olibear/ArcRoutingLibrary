@@ -23,12 +23,14 @@
  */
 package oarlib.problem.impl;
 
-import oarlib.core.Graph;
-import oarlib.core.Link;
-import oarlib.core.Problem;
-import oarlib.core.Vertex;
+import oarlib.core.*;
+import oarlib.graph.util.Utils;
 import oarlib.objfunc.ObjectiveFunction;
+import oarlib.route.impl.Tour;
 import org.apache.log4j.Logger;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Created by oliverlum on 11/16/14.
@@ -42,6 +44,34 @@ public abstract class ChinesePostmanProblem<V extends Vertex, E extends Link<V>,
         for (Link l : graph.getEdges())
             if (!l.isRequired())
                 LOGGER.warn("This problem will treat ever link as required, regardless of its status in the graph.");
+    }
+
+    @Override
+    public boolean isFeasible(Collection<Route<V, E>> routes) {
+
+        if (routes.size() != 1)
+            return false; // 1-route solution
+
+        for (Route<V, E> r : routes) {
+
+            if (!Tour.isTour(r))
+                return false;
+
+            //all ids
+            HashSet<Integer> ids = new HashSet<Integer>();
+            for (Link l : mGraph.getEdges())
+                ids.add(l.getId());
+
+            //route ids
+            Route<V, E> reclaimed = Utils.reclaimTour(r, mGraph);
+            for (E e : reclaimed.getRoute())
+                ids.remove(e.getId());
+
+            return ids.isEmpty();
+        }
+
+        //should never reach here.
+        return false;
     }
 
 }

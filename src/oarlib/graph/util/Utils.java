@@ -39,7 +39,7 @@ public class Utils {
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class);
 
-    public static <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> Route reclaimTour(Route<? extends Vertex, ? extends Link<? extends Vertex>> origAns, G g) {
+    public static <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> Route<V, E> reclaimTour(Route<? extends Vertex, ? extends Link<? extends Vertex>> origAns, G g) {
 
         Tour ans = new Tour();
 
