@@ -2,77 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7c224092-2200-42e8-9678-60c3400ac001" name="Default" comment="Refactor of Compatibility for modular excel export">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/External Jars (Redistributable)/commons-lang3-3.3.2.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/metrics/DepotDistanceToCenter.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/metrics/EdgeCostMetric.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/graph/io/util/ExportHelper.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/metrics/MinMetric.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/metrics/NumLinksMetric.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/metrics/NumNodesMetric.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/ProblemAttributes.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/core/Solver.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/oarlib/metrics/VarMetric.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/objfunc/AverageTraversalObjectiveFunction.java" afterPath="$PROJECT_DIR$/src/oarlib/metrics/AverageTraversalMetric.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/objfunc/AvgObjectiveFunction.java" afterPath="$PROJECT_DIR$/src/oarlib/metrics/AvgMetric.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/objfunc/DevObjectiveFunction.java" afterPath="$PROJECT_DIR$/src/oarlib/metrics/DevMetric.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/objfunc/MaxObjectiveFunction.java" afterPath="$PROJECT_DIR$/src/oarlib/metrics/MaxMetric.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/objfunc/ObjectiveFunction.java" afterPath="$PROJECT_DIR$/src/oarlib/metrics/Metric.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/objfunc/RouteOverlapObjectiveFunction.java" afterPath="$PROJECT_DIR$/src/oarlib/metrics/RouteOverlapMetric.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/objfunc/SumObjectiveFunction.java" afterPath="$PROJECT_DIR$/src/oarlib/metrics/SumMetric.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MultiVehicleDCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MinMaxKDCPP.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MultiVehicleMCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MinMaxKMCPP.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MultiVehicleUCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MinMaxKUCPP.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MultiVehicleWPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MinMaxKWPP.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MultiVehicleWRPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/multivehicle/MinMaxKWRPP.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/route/util/AltRepresentationTests.java" afterPath="$PROJECT_DIR$/test/route/util/AltRepresentationTests.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/metaheuristics/impl/BenaventIPFramework.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/metaheuristics/impl/BenaventIPFramework.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/impl/Benavent_VND1.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/impl/Benavent_VND1.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/impl/Benavent_VND2.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/impl/Benavent_VND2.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/impl/Change1to0.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/impl/Change1to0.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/impl/Change1to1.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/impl/Change1to1.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/impl/Change2to0.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/impl/Change2to0.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/ChinesePostmanProblem.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/ChinesePostmanProblem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Edmonds.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Edmonds.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Gurobi.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/DCPPSolver_Gurobi.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/DRPPSolver_Christofides.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/cpp/DirectedCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/cpp/DirectedCPP.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/rpp/DirectedRPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/rpp/DirectedRPP.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" afterPath="$PROJECT_DIR$/src/oarlib/test/GeneralTestbed.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java" afterPath="$PROJECT_DIR$/src/oarlib/display/GraphDisplay.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/io/GraphWriter.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/io/GraphWriter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/ImprovementProcedure.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/ImprovementProcedure.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Frederickson.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Gurobi_Christofides.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Yaoyuenyong.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MCPPSolver_Yaoyuenyong.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/cpp/MixedCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/cpp/MixedCPP.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiDCPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiDCPPSolver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiMCPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiMCPPSolver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiUCPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiUCPPSolver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleProblem.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/MultiVehicleProblem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/core/MultiVehicleSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/core/MultiVehicleSolver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/MultiWRPPSolver_Benavent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/metaheuristics/impl/OnePassBenaventIPFramework.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/metaheuristics/impl/OnePassBenaventIPFramework.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/impl/OrInterchange.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/impl/OrInterchange.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/core/Problem.java" afterPath="$PROJECT_DIR$/src/oarlib/core/Problem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/impl/Reversal.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/impl/Reversal.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/RuralPostmanProblem.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/RuralPostmanProblem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/impl/Simplification.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/impl/Simplification.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/core/SingleVehicleSolver.java" afterPath="$PROJECT_DIR$/src/oarlib/core/SingleVehicleSolver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/core/SingleVehicleSolverTestSuite.java" afterPath="$PROJECT_DIR$/test/core/SingleVehicleSolverTestSuite.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/impl/TwoInterchange.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/impl/TwoInterchange.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/improvements/perturbation/TwoSwapPerturb.java" afterPath="$PROJECT_DIR$/src/oarlib/improvements/perturbation/TwoSwapPerturb.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Edmonds.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Edmonds.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Gurobi.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/UCPPSolver_Gurobi.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/cpp/UndirectedCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/cpp/UndirectedCPP.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/graph/util/Utils.java" afterPath="$PROJECT_DIR$/src/oarlib/graph/util/Utils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WPPSolver_Gurobi_CuttingPlane.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Benavent_H1.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" afterPath="$PROJECT_DIR$/src/oarlib/solver/impl/WRPPSolver_Win.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/cpp/WindyCPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/cpp/WindyCPP.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/oarlib/problem/impl/rpp/WindyRPP.java" afterPath="$PROJECT_DIR$/src/oarlib/problem/impl/rpp/WindyRPP.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ArcRoutingLibrary.iws" />
@@ -940,7 +869,13 @@
       <option name="project" value="LOCAL" />
       <updated>1421419932848</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Refactor of Compatibility for modular excel export">
+      <created>1421676818435</created>
+      <option name="number" value="00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1421676818435</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -978,7 +913,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3285151" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.50058615" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.34701055" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.34701055" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942554" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942554" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -986,7 +921,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Debug with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24930556" sideWeight="0.49941385" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24930556" sideWeight="0.49941385" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3634232" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
