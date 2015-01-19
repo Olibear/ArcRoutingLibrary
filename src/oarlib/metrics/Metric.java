@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.objfunc;
+package oarlib.metrics;
 
 import oarlib.core.Link;
 import oarlib.core.Route;
@@ -32,6 +32,25 @@ import java.util.Collection;
 /**
  * Created by oliverlum on 12/10/14.
  */
-public abstract class ObjectiveFunction {
-    public abstract <V extends Vertex, E extends Link<V>> double evaluate(Collection<Route<V, E>> routes);
+public abstract class Metric {
+    public abstract <V extends Vertex, E extends Link<V>> double evaluate(Collection<? extends Route> routes);
+
+    public abstract Type getType();
+
+    public abstract String toString();
+
+    public enum Type {
+        ATD,
+        ROI,
+        AVG,
+        DEV,
+        SUM,
+        N,
+        M,
+        MIN,
+        MAX,
+        EDGECOST,
+        VAR,
+        DEPDIST
+    }
 }

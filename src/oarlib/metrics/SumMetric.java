@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.objfunc;
+package oarlib.metrics;
 
 import oarlib.core.Link;
 import oarlib.core.Route;
@@ -32,16 +32,26 @@ import java.util.Collection;
 /**
  * Created by Oliver on 12/26/2014.
  */
-public class SumObjectiveFunction extends ObjectiveFunction {
+public class SumMetric extends Metric {
 
-    public SumObjectiveFunction() {
+    public SumMetric() {
     }
 
     @Override
-    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<Route<V, E>> routes) {
+    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<? extends Route> routes) {
         int sum = 0;
         for (Route r : routes)
             sum += r.getCost();
         return sum;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.SUM;
+    }
+
+    @Override
+    public String toString() {
+        return "Sum of Routes";
     }
 }

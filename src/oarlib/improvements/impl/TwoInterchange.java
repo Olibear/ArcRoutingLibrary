@@ -24,12 +24,14 @@
 package oarlib.improvements.impl;
 
 import gnu.trove.TIntArrayList;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.improvements.ImprovementStrategy;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.route.util.RouteExpander;
 import oarlib.vertex.impl.WindyVertex;
@@ -56,8 +58,8 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, null, null, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override

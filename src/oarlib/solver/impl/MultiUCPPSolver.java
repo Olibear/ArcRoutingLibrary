@@ -25,9 +25,7 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntIntHashMap;
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.MultiVehicleSolver;
-import oarlib.core.Problem;
-import oarlib.core.Route;
+import oarlib.core.*;
 import oarlib.graph.factory.impl.UndirectedGraphFactory;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.io.GraphFormat;
@@ -38,8 +36,8 @@ import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseUndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.Edge;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.problem.impl.cpp.UndirectedCPP;
-import oarlib.problem.impl.multivehicle.MultiVehicleUCPP;
 import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.Collection;
@@ -51,16 +49,13 @@ import java.util.HashSet;
  */
 public class MultiUCPPSolver extends MultiVehicleSolver<UndirectedVertex, Edge, UndirectedGraph> {
 
-    MultiVehicleUCPP mInstance;
-
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    public MultiUCPPSolver(MultiVehicleUCPP instance) throws IllegalArgumentException {
+    public MultiUCPPSolver(Problem<UndirectedVertex, Edge, UndirectedGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     @Override
@@ -78,7 +73,7 @@ public class MultiUCPPSolver extends MultiVehicleSolver<UndirectedVertex, Edge, 
     }
 
     @Override
-    protected MultiVehicleUCPP getInstance() {
+    protected Problem<UndirectedVertex, Edge, UndirectedGraph> getInstance() {
         return mInstance;
     }
 
@@ -115,8 +110,18 @@ public class MultiUCPPSolver extends MultiVehicleSolver<UndirectedVertex, Edge, 
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.UNDIRECTED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
+    }
+
+    @Override
+    public String getSolverName() {
+        return "Min-Max K Undirected Chinese Postman Solver";
+    }
+
+    @Override
+    public Solver<UndirectedVertex, Edge, UndirectedGraph> instantiate(Problem<UndirectedVertex, Edge, UndirectedGraph> p) {
+        return null;
     }
 
     protected HashMap<Integer, Integer> partition() {
@@ -173,7 +178,7 @@ public class MultiUCPPSolver extends MultiVehicleSolver<UndirectedVertex, Edge, 
         UndirectedCPP subInstance = new UndirectedCPP(subgraph);
         UCPPSolver_Edmonds solver = new UCPPSolver_Edmonds(subInstance);
 
-        Route ret = solver.solve();
+        Route ret = solver.solve().iterator().next();
 
         //set the id map for the route
         int n = subgraph.getVertices().size();

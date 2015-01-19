@@ -23,10 +23,12 @@
  */
 package oarlib.problem.impl.cpp;
 
+import oarlib.core.Graph;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.link.impl.Arc;
-import oarlib.objfunc.SumObjectiveFunction;
+import oarlib.metrics.SumMetric;
 import oarlib.problem.impl.ChinesePostmanProblem;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.vertex.impl.DirectedVertex;
 
 /**
@@ -41,13 +43,12 @@ public class DirectedCPP extends ChinesePostmanProblem<DirectedVertex, Arc, Dire
     }
 
     public DirectedCPP(DirectedGraph g, String name) {
-        super(g, name, new SumObjectiveFunction());
+        super(g, name, new SumMetric());
         mGraph = g;
     }
 
     @Override
-    public Type getProblemType() {
-        return Type.DIRECTED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.DIRECTED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
-
 }

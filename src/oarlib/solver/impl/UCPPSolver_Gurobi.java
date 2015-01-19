@@ -25,27 +25,26 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Problem.Type;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.Edge;
-import oarlib.problem.impl.cpp.UndirectedCPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
 public class UCPPSolver_Gurobi extends SingleVehicleSolver<UndirectedVertex, Edge, UndirectedGraph> {
 
-    UndirectedCPP mInstance;
-
-    public UCPPSolver_Gurobi(UndirectedCPP instance) throws IllegalArgumentException {
+    public UCPPSolver_Gurobi(Problem<UndirectedVertex, Edge, UndirectedGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     @Override
@@ -62,12 +61,12 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver<UndirectedVertex, Edg
     }
 
     @Override
-    protected Problem getInstance() {
+    protected Problem<UndirectedVertex, Edge, UndirectedGraph> getInstance() {
         return mInstance;
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour> solve() {
         try {
 
             /*
@@ -178,7 +177,10 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver<UndirectedVertex, Edg
             for (int i = 0; i < ans.size(); i++) {
                 eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
             }
-            return eulerTour;
+
+            HashSet<Tour> ret = new HashSet<Tour>();
+            ret.add(eulerTour);
+            return ret;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,8 +189,8 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver<UndirectedVertex, Edg
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.UNDIRECTED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
@@ -199,6 +201,11 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver<UndirectedVertex, Edg
     @Override
     public String getSolverName() {
         return "An Exact Integer Programming Solver for the Undirected Chinese Postman Problem";
+    }
+
+    @Override
+    public Solver<UndirectedVertex, Edge, UndirectedGraph> instantiate(Problem<UndirectedVertex, Edge, UndirectedGraph> p) {
+        return new UCPPSolver_Gurobi(p);
     }
 
 }

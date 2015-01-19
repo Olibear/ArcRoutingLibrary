@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.objfunc;
+package oarlib.metrics;
 
 import gnu.trove.TIntHashSet;
 import oarlib.core.Graph;
@@ -37,12 +37,12 @@ import java.util.List;
 /**
  * Created by Oliver on 12/26/2014.
  */
-public class RouteOverlapObjectiveFunction extends ObjectiveFunction {
+public class RouteOverlapMetric extends Metric {
 
     private Graph<? extends Vertex, ? extends Link<? extends Vertex>> mGraph;
     private int mN;
 
-    public <V extends Vertex, E extends Link<V>> RouteOverlapObjectiveFunction(Graph<V, E> g) {
+    public <V extends Vertex, E extends Link<V>> RouteOverlapMetric(Graph<V, E> g) {
 
         mGraph = g;
 
@@ -57,14 +57,24 @@ public class RouteOverlapObjectiveFunction extends ObjectiveFunction {
     }
 
     @Override
-    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<Route<V, E>> routes) {
+    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<? extends Route> routes) {
         int no = calcNO(routes);
         int numRoutes = routes.size();
 
         return (no - mN) / (Math.pow(Math.sqrt(numRoutes) + Math.sqrt(mN) - 1, 2) - mN);
     }
 
-    private <V extends Vertex, E extends Link<V>> int calcNO(Collection<Route<V, E>> sol) {
+    @Override
+    public Type getType() {
+        return Type.ROI;
+    }
+
+    @Override
+    public String toString() {
+        return "Route Overlap Index (ROI)";
+    }
+
+    private <V extends Vertex, E extends Link<V>> int calcNO(Collection<? extends Route> sol) {
 
         int NO = 0;
         HashSet<Integer> traversedIds = new HashSet<Integer>();

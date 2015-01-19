@@ -24,26 +24,26 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.Edge;
-import oarlib.problem.impl.cpp.UndirectedCPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 public class UCPPSolver_Edmonds extends SingleVehicleSolver<UndirectedVertex, Edge, UndirectedGraph> {
 
-    UndirectedCPP mInstance;
-
-    public UCPPSolver_Edmonds(UndirectedCPP instance) throws IllegalArgumentException {
+    public UCPPSolver_Edmonds(Problem<UndirectedVertex, Edge, UndirectedGraph> instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
     }
@@ -115,7 +115,7 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver<UndirectedVertex, Ed
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour<UndirectedVertex, Edge>> solve() {
         try {
             /*
              * The algorithm is simply:
@@ -146,7 +146,11 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver<UndirectedVertex, Ed
                 eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
             }
             mInstance.setSol(eulerTour);
-            return eulerTour;
+
+            HashSet<Tour<UndirectedVertex, Edge>> ret = new HashSet<Tour<UndirectedVertex, Edge>>();
+            ret.add(eulerTour);
+            return ret;
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -154,8 +158,8 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver<UndirectedVertex, Ed
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.UNDIRECTED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.UNDIRECTED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
@@ -164,7 +168,12 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver<UndirectedVertex, Ed
     }
 
     @Override
-    protected UndirectedCPP getInstance() {
+    public Solver<UndirectedVertex, Edge, UndirectedGraph> instantiate(Problem<UndirectedVertex, Edge, UndirectedGraph> p) {
+        return new UCPPSolver_Edmonds(p);
+    }
+
+    @Override
+    protected Problem<UndirectedVertex, Edge, UndirectedGraph> getInstance() {
         return mInstance;
     }
 

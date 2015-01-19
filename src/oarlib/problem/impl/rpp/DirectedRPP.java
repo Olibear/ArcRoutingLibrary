@@ -1,9 +1,10 @@
 package oarlib.problem.impl.rpp;
 
-import oarlib.core.Problem;
+import oarlib.core.Graph;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.link.impl.Arc;
-import oarlib.objfunc.SumObjectiveFunction;
+import oarlib.metrics.SumMetric;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.problem.impl.RuralPostmanProblem;
 import oarlib.vertex.impl.DirectedVertex;
 
@@ -19,13 +20,12 @@ public class DirectedRPP extends RuralPostmanProblem<DirectedVertex, Arc, Direct
     }
 
     public DirectedRPP(DirectedGraph g, String name) {
-        super(g, name, new SumObjectiveFunction());
+        super(g, name, new SumMetric());
         mGraph = g;
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.DIRECTED_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.DIRECTED, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
-
 }

@@ -24,23 +24,24 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.Arc;
-import oarlib.problem.impl.cpp.DirectedCPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
-public class DCPPSolver_Edmonds extends SingleVehicleSolver {
+public class DCPPSolver_Edmonds extends SingleVehicleSolver<DirectedVertex, Arc, DirectedGraph> {
 
-    DirectedCPP mInstance;
-
-    public DCPPSolver_Edmonds(DirectedCPP instance) throws IllegalArgumentException {
+    public DCPPSolver_Edmonds(Problem<DirectedVertex, Arc, DirectedGraph> instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
     }
@@ -77,7 +78,7 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour<DirectedVertex, Arc>> solve() {
 
         /*
          * The algorithm is simply:
@@ -109,12 +110,15 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
             eulerTour.appendEdge(indexedArcs.get(ans.get(i)));
         }
         mInstance.setSol(eulerTour);
-        return eulerTour;
+
+        HashSet<Tour<DirectedVertex, Arc>> ret = new HashSet<Tour<DirectedVertex, Arc>>();
+        ret.add(eulerTour);
+        return ret;
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.DIRECTED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.DIRECTED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
@@ -123,7 +127,12 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver {
     }
 
     @Override
-    protected DirectedCPP getInstance() {
+    public Solver instantiate(Problem p) {
+        return new DCPPSolver_Edmonds(p);
+    }
+
+    @Override
+    protected Problem<DirectedVertex, Arc, DirectedGraph> getInstance() {
         return mInstance;
     }
 

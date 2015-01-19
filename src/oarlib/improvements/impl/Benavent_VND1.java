@@ -23,12 +23,14 @@
  */
 package oarlib.improvements.impl;
 
+import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.improvements.ImprovementStrategy;
 import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.link.impl.WindyEdge;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
@@ -50,8 +52,8 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, null, null, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
@@ -63,7 +65,7 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
         while (true) {
             OrInterchange oi = new OrInterchange(getProblem(), ImprovementStrategy.Type.SteepestDescent, getInitialSol());
             Route<WindyVertex, WindyEdge> postIP1 = oi.improveRoute(ans);
-            LOGGER.info("VND1-ip1 obj value: " + postIP1.getCost());
+            LOGGER.debug("VND1-ip1 obj value: " + postIP1.getCost());
             if (postIP1.getCost() < currBest) {
                 currBest = postIP1.getCost();
                 ans = postIP1;
@@ -72,7 +74,7 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
 
             Reversal reversal = new Reversal(getProblem(), getInitialSol());
             Route<WindyVertex, WindyEdge> postIP2 = reversal.improveRoute(ans);
-            LOGGER.info("VND1-ip2 obj value: " + postIP2.getCost());
+            LOGGER.debug("VND1-ip2 obj value: " + postIP2.getCost());
             if (postIP2.getCost() < currBest) {
                 currBest = postIP2.getCost();
                 ans = postIP2;
@@ -81,7 +83,7 @@ public class Benavent_VND1 extends IntraRouteImprovementProcedure<WindyVertex, W
 
             TwoInterchange ti = new TwoInterchange(getProblem(), ImprovementStrategy.Type.SteepestDescent, getInitialSol());
             Route<WindyVertex, WindyEdge> postIP3 = ti.improveRoute(ans);
-            LOGGER.info("VND1-ip3 obj value: " + postIP3.getCost());
+            LOGGER.debug("VND1-ip3 obj value: " + postIP3.getCost());
             if (postIP3.getCost() < currBest) {
                 currBest = postIP3.getCost();
                 ans = postIP3;

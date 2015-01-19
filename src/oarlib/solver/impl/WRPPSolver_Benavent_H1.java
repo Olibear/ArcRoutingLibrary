@@ -24,10 +24,10 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Problem.Type;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -38,7 +38,7 @@ import oarlib.graph.util.Utils;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.rpp.WindyRPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -49,16 +49,14 @@ import java.util.*;
 public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
     private static final double K = .2; //parameter fixed by computational experiments done by Benavent
-    WindyRPP mInstance;
     private boolean exportSolToPDF;
 
-    public WRPPSolver_Benavent_H1(WindyRPP instance) throws IllegalArgumentException {
+    public WRPPSolver_Benavent_H1(Problem<WindyVertex, WindyEdge, WindyGraph> instance) throws IllegalArgumentException {
         this(instance, false);
     }
 
-    public WRPPSolver_Benavent_H1(WindyRPP instance, boolean exportToPDF) throws IllegalArgumentException {
+    public WRPPSolver_Benavent_H1(Problem<WindyVertex, WindyEdge, WindyGraph> instance, boolean exportToPDF) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
         exportSolToPDF = exportToPDF;
     }
 
@@ -308,7 +306,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour> solve() {
         try {
             WindyGraph copy = mInstance.getGraph().getDeepCopy();
             /*
@@ -397,7 +395,10 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
                 }
             }
 
-            return eulerTour;
+            HashSet<Tour> ret = new HashSet<Tour>();
+            ret.add(eulerTour);
+            return ret;
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -405,13 +406,18 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
     public String getSolverName() {
         return "Benavent's H1 Heuristic for the Windy Rural Postman Problem";
+    }
+
+    @Override
+    public Solver<WindyVertex, WindyEdge, WindyGraph> instantiate(Problem<WindyVertex, WindyEdge, WindyGraph> p) {
+        return new WRPPSolver_Benavent_H1(p);
     }
 
     @Override

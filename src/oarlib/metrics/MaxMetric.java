@@ -21,26 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.problem.impl.multivehicle;
+package oarlib.metrics;
 
-import oarlib.graph.impl.WindyGraph;
-import oarlib.link.impl.WindyEdge;
-import oarlib.objfunc.MaxObjectiveFunction;
-import oarlib.problem.impl.MultiVehicleProblem;
-import oarlib.vertex.impl.WindyVertex;
+import oarlib.core.Link;
+import oarlib.core.Route;
+import oarlib.core.Vertex;
+
+import java.util.Collection;
 
 /**
- * Created by oliverlum on 8/14/14.
+ * Created by Oliver on 12/26/2014.
  */
-public class MultiVehicleWPP extends MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> {
+public class MaxMetric extends Metric {
 
-    public MultiVehicleWPP(WindyGraph graph, int numVehicles) {
-        super(graph, numVehicles, new MaxObjectiveFunction());
-        mGraph = graph;
+    public MaxMetric() {
+    }
+
+    ;
+
+    @Override
+    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<? extends Route> routes) {
+        int max = Integer.MIN_VALUE;
+        for (Route r : routes)
+            if (r.getCost() > max)
+                max = r.getCost();
+        return max;
     }
 
     @Override
-    public Type getProblemType() {
-        return Type.WINDY_CHINESE_POSTMAN;
+    public Type getType() {
+        return Type.MAX;
+    }
+
+    @Override
+    public String toString() {
+        return "Max Route Length";
     }
 }

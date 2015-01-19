@@ -25,20 +25,22 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Problem.Type;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.MixedEdge;
-import oarlib.problem.impl.cpp.MixedCPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.MixedVertex;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * @author oliverlum
@@ -50,13 +52,10 @@ import java.util.HashMap;
  *         y_ij: the number of times an edge from vertex i to vertex j is traversed in the direction from i to j in the augmentation
  *         z_k: an integer variable to ensure that the degree of vertex k is even at the end of the augmentation process
  */
-public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver {
+public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver<MixedVertex, MixedEdge, MixedGraph> {
 
-    MixedCPP mInstance;
-
-    public MCPPSolver_Gurobi_Christofides(MixedCPP instance) throws IllegalArgumentException {
+    public MCPPSolver_Gurobi_Christofides(Problem<MixedVertex, MixedEdge, MixedGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     @Override
@@ -78,7 +77,7 @@ public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver {
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour<MixedVertex, MixedEdge>> solve() {
         try {
             //copy
             MixedGraph copy = mInstance.getGraph().getDeepCopy();
@@ -187,15 +186,18 @@ public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver {
             //return the answer
             ArrayList<Integer> ans = CommonAlgorithms.tryHierholzer(copy);
             TIntObjectHashMap<MixedEdge> indexedEdges = copy.getInternalEdgeMap();
-            Tour eulerTour = new Tour();
+            Tour<MixedVertex, MixedEdge> eulerTour = new Tour<MixedVertex, MixedEdge>();
+            HashSet<Tour<MixedVertex, MixedEdge>> ret = new HashSet<Tour<MixedVertex, MixedEdge>>();
             for (int i = 0; i < ans.size(); i++) {
                 eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
             }
 
+            ret.add(eulerTour);
+
             //print the obj value.
             System.out.println(arcCost + model.get(GRB.DoubleAttr.ObjVal));
 
-            return eulerTour;
+            return ret;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -203,8 +205,8 @@ public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver {
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.MIXED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.MIXED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
@@ -215,6 +217,11 @@ public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver {
     @Override
     public String getSolverName() {
         return "Christofides' Integer Programming Solver for the Mixed Chinese Postman";
+    }
+
+    @Override
+    public Solver<MixedVertex, MixedEdge, MixedGraph> instantiate(Problem<MixedVertex, MixedEdge, MixedGraph> p) {
+        return new MCPPSolver_Gurobi_Christofides(p);
     }
 
 }

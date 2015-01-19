@@ -23,25 +23,34 @@
  */
 package oarlib.problem.impl.multivehicle;
 
-import oarlib.graph.impl.WindyGraph;
-import oarlib.link.impl.WindyEdge;
-import oarlib.objfunc.MaxObjectiveFunction;
+import oarlib.core.Graph;
+import oarlib.graph.impl.UndirectedGraph;
+import oarlib.link.impl.Edge;
+import oarlib.metrics.MaxMetric;
 import oarlib.problem.impl.MultiVehicleProblem;
-import oarlib.vertex.impl.WindyVertex;
+import oarlib.problem.impl.ProblemAttributes;
+import oarlib.vertex.impl.UndirectedVertex;
 
 /**
- * Created by oliverlum on 10/17/14.
+ * Problem class to represent the Capacitated Undirected Chinese Postman Problem.
+ * Currently, this only supports a bound on the number of vehicles, and not a capacity constraint.
+ * <p/>
+ * Created by Oliver Lum on 7/25/2014.
  */
-public class MultiVehicleWRPP extends MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> {
+public class MinMaxKUCPP extends MultiVehicleProblem<UndirectedVertex, Edge, UndirectedGraph> {
 
-    public MultiVehicleWRPP(WindyGraph graph, int numVehicles) {
-        super(graph, numVehicles, new MaxObjectiveFunction());
+    public MinMaxKUCPP(UndirectedGraph graph, int numVehicles) {
+        super(graph, numVehicles, new MaxMetric());
+        mGraph = graph;
+    }
+
+    public MinMaxKUCPP(UndirectedGraph graph, String name, int numVehicles) {
+        super(graph, numVehicles, name, new MaxMetric());
         mGraph = graph;
     }
 
     @Override
-    public Type getProblemType() {
-        return Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.UNDIRECTED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
-
 }

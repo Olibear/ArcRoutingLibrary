@@ -25,6 +25,7 @@ package oarlib.test;
 
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
+import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.graphgen.OSM_Fetcher;
@@ -39,19 +40,18 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.io.GraphFormat;
 import oarlib.graph.io.GraphReader;
-import oarlib.graph.util.CommonAlgorithms;
-import oarlib.graph.util.IndexedRecord;
-import oarlib.graph.util.MSArbor;
-import oarlib.graph.util.Pair;
+import oarlib.graph.io.util.ExportHelper;
+import oarlib.graph.util.*;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.MixedEdge;
 import oarlib.link.impl.WindyEdge;
+import oarlib.metrics.Metric;
 import oarlib.problem.impl.cpp.MixedCPP;
 import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.problem.impl.cpp.WindyCPP;
-import oarlib.problem.impl.multivehicle.MultiVehicleMCPP;
-import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
+import oarlib.problem.impl.multivehicle.MinMaxKMCPP;
+import oarlib.problem.impl.multivehicle.MinMaxKWRPP;
 import oarlib.problem.impl.rpp.DirectedRPP;
 import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.solver.impl.*;
@@ -100,7 +100,7 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testCapacitatedSolvers("/Users/oliverlum/Downloads/WPP", "C:\\Users\\Oliver\\Desktop\\kwrpp_real_rest.txt");
+        testMultiVehicleSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Downloads/testExport_MINE_10_temp.csv");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
@@ -140,15 +140,15 @@ public class
     @SuppressWarnings("unused")
     private static void testMMkWRPPSolver() {
         try {
-            MultiVehicleWRPP wrpp;
+            MinMaxKWRPP wrpp;
             MultiWRPPSolver_Benavent wrppSolver;
-            Collection<Route<WindyVertex, WindyEdge>> ans;
+            Collection<? extends Route> ans;
 
             GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
 
             WindyGraph test = (WindyGraph) gr.readGraph("/Users/oliverlum/Downloads/WPP/WA0531");
 
-            wrpp = new MultiVehicleWRPP(test, 5);
+            wrpp = new MinMaxKWRPP(test, 5);
             wrppSolver = new MultiWRPPSolver_Benavent(wrpp, "WA0531");
 
             ans = wrppSolver.trySolve();
@@ -230,49 +230,8 @@ public class
     }
 
     @SuppressWarnings("unused")
-    private static void testCapacitatedSolvers(String instanceFolder, String outputFile) {
+    private static void testMultiVehicleSolvers(String instanceFolder, String outputFile) {
         try {
-
-            /*
-            //UNDIRECTED
-            System.out.println("========================================================");
-            System.out.println("Beginning Test of the Undirected Partitioning Code");
-            System.out.println("========================================================");
-            UndirectedGraphGenerator ugg = new UndirectedGraphGenerator();
-            UndirectedGraph utest = (UndirectedGraph)ugg.generateGraph(100, 10, true, .5);
-            CapacitatedUCPP validUInstance = new CapacitatedUCPP(utest, 5);
-            CapacitatedUCPPSolver validUSolver = new CapacitatedUCPPSolver(validUInstance);
-            Collection<Route> validUAns = validUSolver.trySolve();
-
-            int routeCounter = 1;
-
-            for(Route r: validUAns) {
-                System.out.println("Now displaying route " + routeCounter++);
-                System.out.println(r.toString());
-                System.out.println("This route costs " + r.getCost());
-                System.out.println();
-            }
-
-            //DIRECTED
-
-            System.out.println("========================================================");
-            System.out.println("Beginning Test of the Directed Partitioning Code");
-            System.out.println("========================================================");
-            DirectedGraphGenerator dgg = new DirectedGraphGenerator();
-            DirectedGraph dtest = (DirectedGraph)dgg.generateGraph(200, 10, true, .5);
-            CapacitatedDCPP validDInstance = new CapacitatedDCPP(dtest, 5);
-            CapacitatedDCPPSolver validDSolver = new CapacitatedDCPPSolver(validDInstance);
-            Collection<Route> validDAns = validDSolver.trySolve();
-
-            routeCounter = 1;
-
-            for(Route r: validUAns) {
-                System.out.println("Now displaying route " + routeCounter++);
-                System.out.println(r.toString());
-                System.out.println("This route costs " + r.getCost());
-                System.out.println();
-            }
-            */
 
             int routeCounter;
 
@@ -283,7 +242,7 @@ public class
             System.out.println("========================================================");
             GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
             try {
-                MultiVehicleMCPP validMInstance;
+                MinMaxKMCPP validMInstance;
                 MultiMCPPSolver validMSolver;
                 Collection<Route<MixedVertex, MixedEdge>> validMAns;
 
@@ -324,84 +283,47 @@ public class
                 System.out.println("Beginning Test of the Windy Partitioning Code");
                 System.out.println("========================================================");
 
-                MultiVehicleWRPP validWInstance;
-                MultiWRPPSolver_Benavent validWSolver;
-                Collection<Route<WindyVertex, WindyEdge>> validWAns;
-                PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
+                MinMaxKWRPP validWInstance = null;
+                Collection<? extends Route> validWAns;
+                ArrayList<Problem<WindyVertex, WindyEdge, WindyGraph>> probs = new ArrayList<Problem<WindyVertex, WindyEdge, WindyGraph>>();
+                ArrayList<Metric.Type> metrics = new ArrayList<Metric.Type>();
 
+                metrics.add(Metric.Type.N);
+                metrics.add(Metric.Type.M);
+                metrics.add(Metric.Type.MAX);
+                metrics.add(Metric.Type.AVG);
+                metrics.add(Metric.Type.VAR);
+                metrics.add(Metric.Type.DEV);
+                metrics.add(Metric.Type.ATD);
+                metrics.add(Metric.Type.ROI);
+                metrics.add(Metric.Type.DEPDIST);
 
                 //run on all instances in the folder
                 int limForDebug = 2; //only run on the first 10 instances for now
                 int debugCounter = 0;
                 String output;
+                WindyGraph g;
 
-                /*
                 for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
 
                     OSM_Fetcher fetcher = new OSM_Fetcher(bb);
-                    WindyGraph g = fetcher.queryForGraph();
-
-                    validWInstance = new MultiVehicleWRPP(g, 5);
-                    validWSolver = new MultiWRPPSolver_Benavent(validWInstance, bb.getTitle());
-                    start = System.nanoTime();
-                    validWAns = validWSolver.trySolve();
-                    end = System.nanoTime();
-                    System.out.println("It took " + (end - start) / 1000000000 + " seconds to run the solver on this instance.");
-                    pw.println("It took " + (end - start) / 1000000000 + " seconds to run the solver on this instance.");
-
-                    routeCounter = 1;
-                    int maxCost = 0;
-                    int minCost = Integer.MAX_VALUE;
-                    int tempCost;
-
-                    for (Route r : validWAns) {
-                        tempCost = r.getCost();
-                        if (tempCost > maxCost)
-                            maxCost = tempCost;
-                        if (tempCost < minCost)
-                            minCost = tempCost;
-
-                    }
-
-                    output = validWSolver.printCurrentSol();
-                    System.out.println(output);
-                    pw.println(output);
-                }*/
-
+                    g = fetcher.queryForGraph();
+                    g.setDepotId(Utils.findCenterVertex(g));
+                    validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 10);
+                    probs.add(validWInstance);
+                }
 
                 //now do the rectangular instances
                 for (int i = 1; i <= 10; i++) {
                     WindyRectangularGraphGenerator wrg = new WindyRectangularGraphGenerator();
-                    WindyGraph g = wrg.generateGraph(25 - i, 10, .5, true);
-
-                    validWInstance = new MultiVehicleWRPP(g, 5);
-                    validWSolver = new MultiWRPPSolver_Benavent(validWInstance, "Random Instance " + i);
-                    start = System.nanoTime();
-                    validWAns = validWSolver.trySolve();
-                    end = System.nanoTime();
-                    System.out.println("It took " + (end - start) / 1000000000 + " seconds to run the solver on this instance.");
-                    pw.println("It took " + (end - start) / 1000000000 + " seconds to run the solver on this instance.");
-
-                    routeCounter = 1;
-                    int maxCost = 0;
-                    int minCost = Integer.MAX_VALUE;
-                    int tempCost;
-
-                    for (Route<WindyVertex, WindyEdge> r : validWAns) {
-                        tempCost = r.getCost();
-                        if (tempCost > maxCost)
-                            maxCost = tempCost;
-                        if (tempCost < minCost)
-                            minCost = tempCost;
-                    }
-
-                    output = validWSolver.printCurrentSol();
-                    System.out.println(output);
-                    pw.println(output);
+                    g = wrg.generateGraph(25 - i, 10, .5, true);
+                    g.setDepotId(Utils.findCenterVertex(g));
+                    validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 10);
+                    probs.add(validWInstance);
                 }
+                MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "");
 
-
-                pw.close();
+                ExportHelper.exportToExcel(probs, metrics, validWSolver, outputFile);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -442,7 +364,7 @@ public class
 
             WindyRPP testProblem = new WindyRPP(neighborhood);
             WRPPSolver_Win testSolver = new WRPPSolver_Win(testProblem);
-            Route ans = testSolver.trySolve();
+            Route ans = testSolver.trySolve().iterator().next();
             System.out.println(ans.toString());
 
         } catch (Exception e) {
@@ -535,7 +457,7 @@ public class
                         validInstance = new DirectedRPP(g2);
                         validSolver = new DRPPSolver_Christofides(validInstance);
                         start = System.nanoTime();
-                        validAns = validSolver.trySolve();
+                        validAns = validSolver.trySolve().iterator().next();
                         end = System.nanoTime();
                         if (validAns.getCost() < bestCost)
                             bestCost = validAns.getCost();
@@ -660,7 +582,7 @@ public class
                     validInstance = new MixedCPP(g2);
                     validSolver = new MCPPSolver_Frederickson(validInstance);
                     start = System.nanoTime();
-                    validAns = validSolver.trySolve(); //my ans
+                    validAns = validSolver.trySolve().iterator().next(); //my ans
                     end = System.nanoTime();
                     System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
 
@@ -700,7 +622,7 @@ public class
                     validInstance = new MixedCPP(g2);
                     validSolver = new MCPPSolver_Yaoyuenyong(validInstance);
                     start = System.nanoTime();
-                    validAns = validSolver.trySolve();
+                    validAns = validSolver.trySolve().iterator().next();
                     end = System.nanoTime();
                     System.out.println(validAns.getCost());
                     System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
@@ -744,7 +666,7 @@ public class
                     validInstance = new MixedCPP(g2);
                     validSolver = new MCPPSolver_Frederickson(validInstance);
                     start = System.nanoTime();
-                    validAns = validSolver.trySolve();
+                    validAns = validSolver.trySolve().iterator().next();
                     end = System.nanoTime();
                     System.out.println(validAns.getCost());
                     System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
@@ -788,7 +710,7 @@ public class
                         validInstance = new WindyRPP(g2);
                         validSolver = new WRPPSolver_Win(validInstance);
                         start = System.nanoTime();
-                        validAns = validSolver.trySolve();
+                        validAns = validSolver.trySolve().iterator().next();
                         if (validAns.getCost() < bestCost)
                             bestCost = validAns.getCost();
                         end = System.nanoTime();
@@ -838,7 +760,7 @@ public class
                         validInstance = new WindyRPP(g2);
                         validSolver = new WRPPSolver_Benavent_H1(validInstance);
                         start = System.nanoTime();
-                        validAns = validSolver.trySolve();
+                        validAns = validSolver.trySolve().iterator().next();
                         end = System.nanoTime();
                         if (validAns.getCost() < bestCost)
                             bestCost = validAns.getCost();
@@ -901,7 +823,7 @@ public class
 
                         //heuristic
                         start = System.nanoTime();
-                        validAns = validSolver2.trySolve();
+                        validAns = validSolver2.trySolve().iterator().next();
                         end = System.nanoTime();
 
                         pw.print((end - start) / (1e6));
@@ -1053,7 +975,7 @@ public class
             // set up the instance, and solve it
             UndirectedCPP testInstance = new UndirectedCPP(test);
             UCPPSolver_Edmonds testSolver = new UCPPSolver_Edmonds(testInstance);
-            Route testAns = testSolver.trySolve();
+            Route testAns = testSolver.trySolve().iterator().next();
             long end = System.currentTimeMillis();
             System.out.println(end - start);
         } catch (Exception e) {

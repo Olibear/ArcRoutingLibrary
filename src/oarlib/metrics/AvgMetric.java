@@ -21,29 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.problem.impl.multivehicle;
+package oarlib.metrics;
 
-import oarlib.graph.impl.UndirectedGraph;
-import oarlib.link.impl.Edge;
-import oarlib.objfunc.MaxObjectiveFunction;
-import oarlib.problem.impl.MultiVehicleProblem;
-import oarlib.vertex.impl.UndirectedVertex;
+import oarlib.core.Link;
+import oarlib.core.Route;
+import oarlib.core.Vertex;
+
+import java.util.Collection;
 
 /**
- * Problem class to represent the Capacitated Undirected Chinese Postman Problem.
- * Currently, this only supports a bound on the number of vehicles, and not a capacity constraint.
- * <p/>
- * Created by Oliver Lum on 7/25/2014.
+ * Created by Oliver on 12/26/2014.
  */
-public class MultiVehicleUCPP extends MultiVehicleProblem<UndirectedVertex, Edge, UndirectedGraph> {
+public class AvgMetric extends Metric {
 
-    public MultiVehicleUCPP(UndirectedGraph graph, int numVehicles) {
-        super(graph, numVehicles, new MaxObjectiveFunction());
-        mGraph = graph;
+    public AvgMetric() {
     }
 
     @Override
-    public Type getProblemType() {
-        return Type.UNDIRECTED_CHINESE_POSTMAN;
+    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<? extends Route> routes) {
+        int max = Integer.MIN_VALUE;
+        for (Route r : routes)
+            if (r.getCost() > max)
+                max = r.getCost();
+        return (max / routes.size());
+    }
+
+    @Override
+    public Type getType() {
+        return Type.AVG;
+    }
+
+    @Override
+    public String toString() {
+        return "Average Route Length";
     }
 }

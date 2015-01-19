@@ -24,6 +24,7 @@
 package oarlib.improvements.impl;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
@@ -33,6 +34,7 @@ import oarlib.improvements.util.CompactMove;
 import oarlib.improvements.util.Mover;
 import oarlib.improvements.util.Utils;
 import oarlib.link.impl.WindyEdge;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -52,8 +54,8 @@ public class Change1to1 extends InterRouteImprovementProcedure<WindyVertex, Wind
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, null, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override

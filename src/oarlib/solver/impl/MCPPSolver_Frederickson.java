@@ -24,9 +24,10 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -35,7 +36,7 @@ import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.MixedEdge;
-import oarlib.problem.impl.cpp.MixedCPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
@@ -53,14 +54,12 @@ import java.util.*;
  *         of achieving evenness and symmetry, and then combine the two procedures to ensure that the resulting augmentation
  *         has both properties.
  */
-public class MCPPSolver_Frederickson extends SingleVehicleSolver {
+public class MCPPSolver_Frederickson extends SingleVehicleSolver<MixedVertex, MixedEdge, MixedGraph> {
 
     private static final Logger LOGGER = Logger.getLogger(MCPPSolver_Frederickson.class);
-    MixedCPP mInstance;
 
-    public MCPPSolver_Frederickson(MixedCPP instance) throws IllegalArgumentException {
+    public MCPPSolver_Frederickson(Problem<MixedVertex, MixedEdge, MixedGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     /**
@@ -495,7 +494,7 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour> solve() {
         try {
 
             MixedGraph ans1 = mInstance.getGraph().getDeepCopy(); //starting point for Mixed1
@@ -586,7 +585,10 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
                 }
             }
             mInstance.setSol(eulerTour);
-            return eulerTour;
+
+            HashSet<Tour> ret = new HashSet<Tour>();
+            ret.add(eulerTour);
+            return ret;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -595,8 +597,8 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.MIXED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.MIXED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
@@ -605,7 +607,12 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver {
     }
 
     @Override
-    protected MixedCPP getInstance() {
+    public Solver<MixedVertex, MixedEdge, MixedGraph> instantiate(Problem p) {
+        return new MCPPSolver_Frederickson(p);
+    }
+
+    @Override
+    protected Problem<MixedVertex, MixedEdge, MixedGraph> getInstance() {
         return mInstance;
     }
 

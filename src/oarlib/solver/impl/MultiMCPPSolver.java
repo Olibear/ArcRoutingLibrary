@@ -23,9 +23,7 @@
  */
 package oarlib.solver.impl;
 
-import oarlib.core.MultiVehicleSolver;
-import oarlib.core.Problem;
-import oarlib.core.Route;
+import oarlib.core.*;
 import oarlib.graph.factory.impl.MixedGraphFactory;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.io.GraphFormat;
@@ -36,9 +34,8 @@ import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseMixedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.MixedEdge;
-import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.problem.impl.cpp.MixedCPP;
-import oarlib.problem.impl.multivehicle.MultiVehicleMCPP;
 import oarlib.vertex.impl.MixedVertex;
 
 import java.util.Collection;
@@ -50,16 +47,13 @@ import java.util.HashSet;
  */
 public class MultiMCPPSolver extends MultiVehicleSolver<MixedVertex, MixedEdge, MixedGraph> {
 
-    MultiVehicleMCPP mInstance;
-
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    public MultiMCPPSolver(MultiVehicleMCPP instance) throws IllegalArgumentException {
+    public MultiMCPPSolver(Problem<MixedVertex, MixedEdge, MixedGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     @Override
@@ -76,7 +70,7 @@ public class MultiMCPPSolver extends MultiVehicleSolver<MixedVertex, MixedEdge, 
     }
 
     @Override
-    protected MultiVehicleProblem getInstance() {
+    protected Problem<MixedVertex, MixedEdge, MixedGraph> getInstance() {
         return mInstance;
     }
 
@@ -114,8 +108,18 @@ public class MultiMCPPSolver extends MultiVehicleSolver<MixedVertex, MixedEdge, 
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.MIXED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.MIXED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
+    }
+
+    @Override
+    public String getSolverName() {
+        return "Min-Max K Mixed Chinese Postman Problem Solver";
+    }
+
+    @Override
+    public Solver<MixedVertex, MixedEdge, MixedGraph> instantiate(Problem<MixedVertex, MixedEdge, MixedGraph> p) {
+        return new MultiMCPPSolver(p);
     }
 
     protected HashMap<Integer, Integer> partition() {
@@ -165,7 +169,7 @@ public class MultiMCPPSolver extends MultiVehicleSolver<MixedVertex, MixedEdge, 
         //now solve the MCPP on it
         MixedCPP subInstance = new MixedCPP(subgraph);
         MCPPSolver_Frederickson solver = new MCPPSolver_Frederickson(subInstance);
-        Route ret = solver.solve();
+        Route ret = solver.solve().iterator().next();
 
         return ret;
     }

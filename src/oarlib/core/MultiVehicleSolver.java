@@ -23,8 +23,6 @@
  */
 package oarlib.core;
 
-import oarlib.exceptions.GraphInfeasibleException;
-import oarlib.problem.impl.MultiVehicleProblem;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -33,64 +31,18 @@ import java.util.Collection;
  * Solver abstraction.  Most general contract that Multivehicle solvers must fulfill.
  * Created by Oliver Lum on 7/25/2014.
  */
-public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
+public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> extends Solver<V, E, G> {
 
     private static final Logger LOGGER = Logger.getLogger(MultiVehicleSolver.class);
-    MultiVehicleProblem<V, E, G> mInstance;
 
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    protected MultiVehicleSolver(MultiVehicleProblem instance) throws IllegalArgumentException {
-        //make sure I'm a valid problem instance
-        if (!(instance.getProblemType() == getProblemType())) {
-            LOGGER.error("It appears that this problem does not match the problem type handled by this solver.");
-            throw new IllegalArgumentException();
-        }
-        mInstance = instance;
-
+    protected MultiVehicleSolver(Problem<V, E, G> instance) throws IllegalArgumentException {
+        super(instance);
     }
-
-    /**
-     * Attempts to solve the instance assigned to this problem.
-     *
-     * @return null if problem instance is not assigned, or solver failed.
-     */
-    public Collection<Route<V, E>> trySolve() throws GraphInfeasibleException {
-        if (!checkGraphRequirements()) {
-            LOGGER.error("It does not appear as though it is possible to solve the problem on this graph.");
-            throw new GraphInfeasibleException();
-        }
-        return solve();
-    }
-
-    /**
-     * Determines if the graph meets theoretical requirements for this solver to be run on it.
-     *
-     * @return - true if the graph meets pre-requisites (usually connectivity-related), false oth.
-     */
-    protected abstract boolean checkGraphRequirements();
-
-    /**
-     * @return - the problem instance
-     */
-    protected abstract MultiVehicleProblem getInstance();
-
-    /**
-     * Actually solves the instance, (first checking for feasibility), returning a Collection of routes.
-     *
-     * @return The set of routes the solver has concluded is best.
-     */
-    protected abstract Collection<Route<V, E>> solve();
-
-    /**
-     * Specifies what type of problem this is a solver for.
-     *
-     * @return
-     */
-    public abstract Problem.Type getProblemType();
 
     /**
      * Runs the vertex-weighted partitioning code from the METIS library, (the gpmetis program) on the graph file provided.
@@ -103,7 +55,7 @@ public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G 
     protected void runMetis(int numParts, String filename) {
         try {
             //run gpmetis
-            String[] args1 = {"C:\\Users\\Oliver\\Documents\\GitHub\\metis\\build\\windows\\programs\\Release\\gpmetis", filename, "" + numParts, "-contig", "-minconn", "-niter=1000", "-ncuts=1000", "-ufactor=1"};
+            String[] args1 = {"/usr/local/bin/gpmetis", filename, "" + numParts, "-contig", "-minconn", "-niter=1000", "-ncuts=1000", "-ufactor=1"};
             Runtime r = Runtime.getRuntime();
             LOGGER.debug("Start");
             Process p = r.exec(args1);
@@ -113,7 +65,6 @@ public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -146,7 +97,7 @@ public abstract class MultiVehicleSolver<V extends Vertex, E extends Link<V>, G 
         String ans = "=======================================================";
         ans += "\n";
         ans += "\n";
-        ans += "CapacitatedDCPPSolver: Printing current solution...";
+        ans += this.getSolverName() + ": Printing current solution...";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";

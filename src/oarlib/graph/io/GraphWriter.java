@@ -70,8 +70,6 @@ public class GraphWriter {
                 break;
             case Corberan:
                 break;
-            case DIMACS_Modified:
-                break;
             case Simple:
                 break;
             case Yaoyuenyong:

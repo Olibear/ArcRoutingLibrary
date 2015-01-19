@@ -39,6 +39,15 @@ public class Utils {
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class);
 
+    /**
+     * Takes a route over an augmentation of a graph g, and returns the route using ids from g.  Used primarily to allow
+     * solvers to calculate thier routes however they wish (typically not by modifying the original graph), and then
+     * get a solution that is in the original graph.
+     *
+     * @param origAns - the ans which will be converted
+     * @param g       - the original graph; the returned route will contain link objects from this graph
+     * @return - a route in g corresponding to the route in origAns
+     */
     public static <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> Route<V, E> reclaimTour(Route<? extends Vertex, ? extends Link<? extends Vertex>> origAns, G g) {
 
         Tour ans = new Tour();
@@ -88,6 +97,54 @@ public class Utils {
 
         return ans;
 
+    }
+
+    /**
+     * Using the vertices getX and getY methods, it calculates the vertex closest to the center of the graph.
+     *
+     * @param g - the graph over which to perform the calculation
+     * @return - the (internal) id of the vertex closest to the center
+     */
+    public static <V extends Vertex, E extends Link<V>> int findCenterVertex(Graph<V, E> g) {
+
+        double meanX = 0;
+        double meanY = 0;
+        int n = g.getVertices().size();
+
+        for (Vertex v : g.getVertices()) {
+            meanX += v.getX();
+            meanY += v.getY();
+        }
+
+        meanX = meanX / n;
+        meanY = meanY / n;
+
+        int bestId = -1;
+        double bestDist = Double.MAX_VALUE;
+        double candidateDist;
+
+        for (Vertex v : g.getVertices()) {
+            candidateDist = dist(v.getX(), v.getY(), meanX, meanY);
+            if (candidateDist < bestDist) {
+                bestDist = candidateDist;
+                bestId = v.getId();
+            }
+        }
+
+        return bestId;
+    }
+
+    /**
+     * Returns the Euclidean distance between two points (possibly a dup)
+     *
+     * @param x1 - x coordinate of the first point
+     * @param y1 - y coordinate of the first point
+     * @param x2 - x coordinate of the second point
+     * @param y2 - y coordinate of the second point
+     * @return - the distance between the two points with coordinates (x1, y1) and (x2, y2) respectively.
+     */
+    public static double dist(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 
     public static class DijkstrasComparator implements Comparator<Pair<Integer>> {

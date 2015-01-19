@@ -23,6 +23,7 @@
  */
 package oarlib.improvements.metaheuristics.impl;
 
+import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
@@ -32,6 +33,7 @@ import oarlib.improvements.impl.Benavent_VND2;
 import oarlib.improvements.util.Utils;
 import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
@@ -43,21 +45,21 @@ import java.util.Collection;
 public class OnePassBenaventIPFramework extends ImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
     private static final Logger LOGGER = Logger.getLogger(BenaventIPFramework.class);
-    MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> mProblem;
+    Problem<WindyVertex, WindyEdge, WindyGraph> mProblem;
 
     public OnePassBenaventIPFramework(MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);
         mProblem = problem;
     }
 
-    public OnePassBenaventIPFramework(MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+    public OnePassBenaventIPFramework(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
         super(problem, null, initialSol);
         mProblem = problem;
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, null, ProblemAttributes.NumVehicles.MULTI_VEHICLE, null, null);
     }
 
     @Override

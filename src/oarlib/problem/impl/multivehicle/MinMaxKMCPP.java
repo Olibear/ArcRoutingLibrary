@@ -21,30 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.objfunc;
+package oarlib.problem.impl.multivehicle;
 
-import oarlib.core.Link;
-import oarlib.core.Route;
-import oarlib.core.Vertex;
-
-import java.util.Collection;
+import oarlib.core.Graph;
+import oarlib.graph.impl.MixedGraph;
+import oarlib.link.impl.MixedEdge;
+import oarlib.metrics.MaxMetric;
+import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.problem.impl.ProblemAttributes;
+import oarlib.vertex.impl.MixedVertex;
 
 /**
- * Created by Oliver on 12/26/2014.
+ * Problem class to represent the Capacitated Mixed Chinese Postman Problem.
+ * Currently, this only supports a bound on the number of vehicles, and not a capacity constraint.
+ * <p/>
+ * Created by oliverlum on 8/12/14.
  */
-public class MaxObjectiveFunction extends ObjectiveFunction {
+public class MinMaxKMCPP extends MultiVehicleProblem<MixedVertex, MixedEdge, MixedGraph> {
 
-    public MaxObjectiveFunction() {
+    public MinMaxKMCPP(MixedGraph graph, int numVehicles) {
+
+        super(graph, numVehicles, new MaxMetric());
+        mGraph = graph;
+
     }
 
-    ;
+    public MinMaxKMCPP(MixedGraph graph, String name, int numVehicles) {
+
+        super(graph, numVehicles, name, new MaxMetric());
+        mGraph = graph;
+
+    }
 
     @Override
-    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<Route<V, E>> routes) {
-        int max = Integer.MIN_VALUE;
-        for (Route r : routes)
-            if (r.getCost() > max)
-                max = r.getCost();
-        return max;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.MIXED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 }

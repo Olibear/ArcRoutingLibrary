@@ -24,12 +24,8 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.MultiEdge;
+import oarlib.core.*;
 import oarlib.core.MultiEdge.EDGETYPE;
-import oarlib.core.Problem;
-import oarlib.core.Problem.Type;
-import oarlib.core.Route;
-import oarlib.core.SingleVehicleSolver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -38,24 +34,19 @@ import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.MixedEdge;
-import oarlib.problem.impl.cpp.MixedCPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
 
-    MixedCPP mInstance;
+public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, MixedEdge, MixedGraph> {
 
-    public MCPPSolver_Yaoyuenyong(MixedCPP instance) throws IllegalArgumentException {
+    public MCPPSolver_Yaoyuenyong(Problem<MixedVertex, MixedEdge, MixedGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     /**
@@ -503,7 +494,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour> solve() {
         try {
             //Compute the inputs G, Gm and G star
             MixedGraph G = mInstance.getGraph().getDeepCopy(); //original
@@ -798,11 +789,19 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
             }
 
             mInstance.setSol(eulerTour);
-            return eulerTour;
+
+            HashSet<Tour> ret = new HashSet<Tour>();
+            ret.add(eulerTour);
+            return ret;
         } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.MIXED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
@@ -811,13 +810,13 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver {
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.MIXED_CHINESE_POSTMAN;
+    public String getSolverName() {
+        return "Yaoyuenyong's Mixed Chinese Postman Heuristic Solver";
     }
 
     @Override
-    public String getSolverName() {
-        return "Yaoyuenyong's Mixed Chinese Postman Heuristic Solver";
+    public Solver instantiate(Problem p) {
+        return new MCPPSolver_Yaoyuenyong(p);
     }
 
     @Override

@@ -70,7 +70,7 @@ public class SingleVehicleSolverTestSuite {
                 validInstance = new UndirectedCPP(g);
                 validSolver = new UCPPSolver_Edmonds(validInstance);
                 start = System.nanoTime();
-                validAns = validSolver.trySolve(); //my ans
+                validAns = validSolver.trySolve().iterator().next(); //my ans
                 end = System.nanoTime();
                 LOGGER.debug("It took " + (end - start) / (1e6) + " milliseconds to run our UCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
 
@@ -191,7 +191,7 @@ public class SingleVehicleSolverTestSuite {
                 validInstance = new DirectedCPP(g);
                 validSolver = new DCPPSolver_Edmonds(validInstance);
                 start = System.nanoTime();
-                validAns = validSolver.trySolve(); //my ans
+                validAns = validSolver.trySolve().iterator().next(); //my ans
                 end = System.nanoTime();
                 LOGGER.debug("It took " + (end - start) / (1e6) + " milliseconds to run our DCPP Solver implementation on a graph with " + g.getEdges().size() + " edges.");
 

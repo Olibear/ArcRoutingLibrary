@@ -28,6 +28,7 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.core.MultiVehicleSolver;
 import oarlib.core.Problem;
 import oarlib.core.Route;
+import oarlib.core.Solver;
 import oarlib.graph.factory.impl.DirectedGraphFactory;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.io.GraphFormat;
@@ -38,9 +39,8 @@ import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseDirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.Arc;
-import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.problem.impl.cpp.DirectedCPP;
-import oarlib.problem.impl.multivehicle.MultiVehicleDCPP;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.Collection;
@@ -52,14 +52,12 @@ import java.util.HashSet;
  */
 public class MultiDCPPSolver extends MultiVehicleSolver<DirectedVertex, Arc, DirectedGraph> {
 
-    MultiVehicleDCPP mInstance;
-
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    public MultiDCPPSolver(MultiVehicleDCPP instance) throws IllegalArgumentException {
+    public MultiDCPPSolver(Problem<DirectedVertex, Arc, DirectedGraph> instance) throws IllegalArgumentException {
         super(instance);
         mInstance = instance;
     }
@@ -78,7 +76,7 @@ public class MultiDCPPSolver extends MultiVehicleSolver<DirectedVertex, Arc, Dir
     }
 
     @Override
-    protected MultiVehicleProblem getInstance() {
+    protected Problem<DirectedVertex, Arc, DirectedGraph> getInstance() {
         return mInstance;
     }
 
@@ -111,8 +109,18 @@ public class MultiDCPPSolver extends MultiVehicleSolver<DirectedVertex, Arc, Dir
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.DIRECTED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return null;
+    }
+
+    @Override
+    public String getSolverName() {
+        return "Min-Max Directed Chinese Postman Problem Solver";
+    }
+
+    @Override
+    public Solver<DirectedVertex, Arc, DirectedGraph> instantiate(Problem<DirectedVertex, Arc, DirectedGraph> p) {
+        return new MultiDCPPSolver(p);
     }
 
     protected HashMap<Integer, Integer> partition() {
@@ -164,7 +172,7 @@ public class MultiDCPPSolver extends MultiVehicleSolver<DirectedVertex, Arc, Dir
         //now solve the DCPP on it
         DirectedCPP subInstance = new DirectedCPP(subgraph);
         DCPPSolver_Edmonds solver = new DCPPSolver_Edmonds(subInstance);
-        Route ret = solver.solve();
+        Route ret = solver.solve().iterator().next();
 
         //set the id map for the route
         int n = subgraph.getVertices().size();

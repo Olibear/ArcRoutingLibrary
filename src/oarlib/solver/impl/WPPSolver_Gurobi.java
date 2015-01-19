@@ -25,15 +25,18 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Problem.Type;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.cpp.WindyCPP;
+import oarlib.problem.impl.ProblemAttributes;
+import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;
+
+import java.util.Collection;
 
 /**
  * @author oliverlum
@@ -45,11 +48,8 @@ import oarlib.vertex.impl.WindyVertex;
  */
 public class WPPSolver_Gurobi extends SingleVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
-    WindyCPP mInstance;
-
-    public WPPSolver_Gurobi(WindyCPP instance) throws IllegalArgumentException {
+    public WPPSolver_Gurobi(Problem<WindyVertex, WindyEdge, WindyGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     @Override
@@ -66,12 +66,12 @@ public class WPPSolver_Gurobi extends SingleVehicleSolver<WindyVertex, WindyEdge
     }
 
     @Override
-    protected Problem getInstance() {
+    protected Problem<WindyVertex, WindyEdge, WindyGraph> getInstance() {
         return mInstance;
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour> solve() {
         try {
             //copy
             WindyGraph copy = mInstance.getGraph().getDeepCopy();
@@ -152,8 +152,8 @@ public class WPPSolver_Gurobi extends SingleVehicleSolver<WindyVertex, WindyEdge
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.WINDY_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
@@ -164,6 +164,11 @@ public class WPPSolver_Gurobi extends SingleVehicleSolver<WindyVertex, WindyEdge
     @Override
     public String getSolverName() {
         return "An Exact Integer Programming Solver for the Windy Postman Problem";
+    }
+
+    @Override
+    public Solver<WindyVertex, WindyEdge, WindyGraph> instantiate(Problem<WindyVertex, WindyEdge, WindyGraph> p) {
+        return new WPPSolver_Gurobi(p);
     }
 
 }

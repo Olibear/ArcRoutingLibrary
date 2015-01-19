@@ -23,11 +23,12 @@
  */
 package oarlib.problem.impl.cpp;
 
-import oarlib.core.Problem;
+import oarlib.core.Graph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.link.impl.WindyEdge;
-import oarlib.objfunc.SumObjectiveFunction;
+import oarlib.metrics.SumMetric;
 import oarlib.problem.impl.ChinesePostmanProblem;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.vertex.impl.WindyVertex;
 
 public class WindyCPP extends ChinesePostmanProblem<WindyVertex, WindyEdge, WindyGraph> {
@@ -37,12 +38,12 @@ public class WindyCPP extends ChinesePostmanProblem<WindyVertex, WindyEdge, Wind
     }
 
     public WindyCPP(WindyGraph g, String name) {
-        super(g, name, new SumObjectiveFunction());
+        super(g, name, new SumMetric());
         mGraph = g;
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.WINDY_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 }

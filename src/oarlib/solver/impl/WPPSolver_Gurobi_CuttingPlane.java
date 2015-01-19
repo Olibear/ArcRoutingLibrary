@@ -25,18 +25,20 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Problem.Type;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.cpp.WindyCPP;
+import oarlib.problem.impl.ProblemAttributes;
+import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -50,11 +52,8 @@ import java.util.HashSet;
  */
 public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
-    WindyCPP mInstance;
-
-    public WPPSolver_Gurobi_CuttingPlane(WindyCPP instance) throws IllegalArgumentException {
+    public WPPSolver_Gurobi_CuttingPlane(Problem<WindyVertex, WindyEdge, WindyGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     @Override
@@ -71,12 +70,12 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver<WindyVert
     }
 
     @Override
-    protected Problem getInstance() {
+    protected Problem<WindyVertex, WindyEdge, WindyGraph> getInstance() {
         return mInstance;
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour> solve() {
 
         double time = 0;
         try {
@@ -240,6 +239,11 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver<WindyVert
         }
     }
 
+    @Override
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
+    }
+
     private HashSet<HashSet<Integer>> heuristic1(UndirectedGraph Gprime, WindyGraph G) {
         //find connected components
         int n = Gprime.getVertices().size();
@@ -347,11 +351,6 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver<WindyVert
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.WINDY_CHINESE_POSTMAN;
-    }
-
-    @Override
     public String printCurrentSol() throws IllegalStateException {
         return "This solver does not support printing.";
     }
@@ -359,6 +358,11 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver<WindyVert
     @Override
     public String getSolverName() {
         return "A Linear Programming Cutting Plane Heuristic for the Windy Postman Problem";
+    }
+
+    @Override
+    public Solver<WindyVertex, WindyEdge, WindyGraph> instantiate(Problem<WindyVertex, WindyEdge, WindyGraph> p) {
+        return new WPPSolver_Gurobi_CuttingPlane(p);
     }
 
 }

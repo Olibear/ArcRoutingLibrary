@@ -23,7 +23,8 @@
  */
 package oarlib.core;
 
-import oarlib.objfunc.ObjectiveFunction;
+import oarlib.metrics.Metric;
+import oarlib.problem.impl.ProblemAttributes;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -43,13 +44,15 @@ public abstract class Problem<V extends Vertex, E extends Link<V>, G extends Gra
     protected G mGraph;
     protected Collection<Route<V, E>> mSol;
     protected boolean solved;
-    protected ObjectiveFunction mObjFunc;
+    protected Metric mObjFunc;
+    protected int mNumVehicles;
 
-    protected Problem(G graph, String name, ObjectiveFunction objFunc) {
+    protected Problem(G graph, String name, Metric objFunc) {
         mName = name;
         mGraph = graph;
         solved = false;
         mObjFunc = objFunc;
+        mNumVehicles = 1;
     }
 
     public String getName() {
@@ -63,13 +66,6 @@ public abstract class Problem<V extends Vertex, E extends Link<V>, G extends Gra
      */
     public G getGraph() {
         return mGraph;
-    }
-
-    /**
-     * @return - The type of graph that this problem operates over.
-     */
-    public Graph.Type getGraphType() {
-        return mGraph.getType();
     }
 
     public Collection<Route<V, E>> getSol() {
@@ -98,27 +94,27 @@ public abstract class Problem<V extends Vertex, E extends Link<V>, G extends Gra
      */
     public abstract boolean isFeasible(Collection<Route<V, E>> routes);
 
-
-    /**
-     * @return - The type of problem that this represents.
-     */
-    public abstract Type getProblemType();
-
-    /**
-     * @return - The
-     */
-    public ObjectiveFunction getObjectiveFunction() {
-        return mObjFunc;
+    protected void setNumVehicles(int newNum) {
+        mNumVehicles = newNum;
     }
 
-    ;
+    /**
+     * Get the number of vehicles that a feasible solution to this problem is allowed to have.
+     * If number of vehicles is not being enforced, -1 is returned.
+     *
+     * @return - the max number of routes allowed to exist in a feasible solution, or -1 if there is
+     * no limit set.
+     */
+    public int getmNumVehicles() {
+        return mNumVehicles;
+    }
 
-    public enum Type {
-        DIRECTED_CHINESE_POSTMAN,
-        UNDIRECTED_CHINESE_POSTMAN,
-        MIXED_CHINESE_POSTMAN,
-        WINDY_CHINESE_POSTMAN,
-        DIRECTED_RURAL_POSTMAN,
-        WINDY_RURAL_POSTMAN
+    public abstract ProblemAttributes getProblemAttributes();
+
+    /**
+     * @return - The objective function that this problem instance will use to evaluate its quality
+     */
+    public Metric getObjectiveFunction() {
+        return mObjFunc;
     }
 }

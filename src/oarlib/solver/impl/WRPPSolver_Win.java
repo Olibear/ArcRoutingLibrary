@@ -24,10 +24,10 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Problem.Type;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.exceptions.NegativeCycleException;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -38,7 +38,7 @@ import oarlib.graph.util.Utils;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.rpp.WindyRPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -50,11 +50,9 @@ import java.util.*;
 public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
     private static final Logger LOGGER = Logger.getLogger(WRPPSolver_Win.class);
-    WindyRPP mInstance;
 
-    public WRPPSolver_Win(WindyRPP instance) throws IllegalArgumentException {
+    public WRPPSolver_Win(Problem<WindyVertex, WindyEdge, WindyGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     /**
@@ -952,7 +950,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
     }
 
     @Override
-    protected WindyRPP getInstance() {
+    protected Problem<WindyVertex, WindyEdge, WindyGraph> getInstance() {
         return mInstance;
     }
 
@@ -960,7 +958,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
     /**
      * Implements the WRPP1 heuristic from Benavent's paper
      */
-    protected Route solve() {
+    protected Collection<Tour> solve() {
         try {
 
             //get a copy to operate on
@@ -988,7 +986,9 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
                 eulerTour.appendEdge(indexedEdges.get(tour.get(i)));
             }
             mInstance.setSol(Utils.reclaimTour(eulerTour, mInstance.getGraph()));
-            return eulerTour;
+            HashSet<Tour> ret = new HashSet<Tour>();
+            ret.add(eulerTour);
+            return ret;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -996,13 +996,18 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
     public String getSolverName() {
         return "Win's Heuristic for the Windy Rural Postman Problem";
+    }
+
+    @Override
+    public Solver<WindyVertex, WindyEdge, WindyGraph> instantiate(Problem<WindyVertex, WindyEdge, WindyGraph> p) {
+        return new WRPPSolver_Win(p);
     }
 
     @Override

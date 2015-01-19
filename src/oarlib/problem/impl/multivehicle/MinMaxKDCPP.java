@@ -23,29 +23,31 @@
  */
 package oarlib.problem.impl.multivehicle;
 
-import oarlib.graph.impl.MixedGraph;
-import oarlib.link.impl.MixedEdge;
-import oarlib.objfunc.MaxObjectiveFunction;
+import oarlib.core.Graph;
+import oarlib.graph.impl.DirectedGraph;
+import oarlib.link.impl.Arc;
+import oarlib.metrics.MaxMetric;
 import oarlib.problem.impl.MultiVehicleProblem;
-import oarlib.vertex.impl.MixedVertex;
+import oarlib.problem.impl.ProblemAttributes;
+import oarlib.vertex.impl.DirectedVertex;
 
 /**
- * Problem class to represent the Capacitated Mixed Chinese Postman Problem.
- * Currently, this only supports a bound on the number of vehicles, and not a capacity constraint.
- * <p/>
- * Created by oliverlum on 8/12/14.
+ * Created by oliverlum on 8/5/14.
  */
-public class MultiVehicleMCPP extends MultiVehicleProblem<MixedVertex, MixedEdge, MixedGraph> {
+public class MinMaxKDCPP extends MultiVehicleProblem<DirectedVertex, Arc, DirectedGraph> {
 
-    public MultiVehicleMCPP(MixedGraph graph, int numVehicles) {
-
-        super(graph, numVehicles, new MaxObjectiveFunction());
+    public MinMaxKDCPP(DirectedGraph graph, int numVehicles) {
+        super(graph, numVehicles, new MaxMetric());
         mGraph = graph;
+    }
 
+    public MinMaxKDCPP(DirectedGraph graph, String name, int numVehicles) {
+        super(graph, numVehicles, name, new MaxMetric());
+        mGraph = graph;
     }
 
     @Override
-    public Type getProblemType() {
-        return Type.MIXED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.DIRECTED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 }

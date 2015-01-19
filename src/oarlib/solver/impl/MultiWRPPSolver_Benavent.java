@@ -24,10 +24,7 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.MultiVehicleSolver;
-import oarlib.core.Problem;
-import oarlib.core.Route;
-import oarlib.core.Vertex;
+import oarlib.core.*;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.WindyGraph;
@@ -37,10 +34,9 @@ import oarlib.graph.util.Utils;
 import oarlib.improvements.metaheuristics.impl.BenaventIPFramework;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.WindyEdge;
-import oarlib.objfunc.AverageTraversalObjectiveFunction;
-import oarlib.objfunc.RouteOverlapObjectiveFunction;
-import oarlib.problem.impl.MultiVehicleProblem;
-import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
+import oarlib.metrics.AverageTraversalMetric;
+import oarlib.metrics.RouteOverlapMetric;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
@@ -55,7 +51,6 @@ import java.util.*;
 public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
     private static final Logger LOGGER = Logger.getLogger(MultiWRPPSolver_Benavent.class);
-    MultiVehicleWRPP mInstance;
     WindyGraph mGraph;
     String mInstanceName;
 
@@ -64,13 +59,12 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
      *
      * @param instance - instance for which this is a solver
      */
-    public MultiWRPPSolver_Benavent(MultiVehicleWRPP instance) throws IllegalArgumentException {
+    public MultiWRPPSolver_Benavent(Problem<WindyVertex, WindyEdge, WindyGraph> instance) throws IllegalArgumentException {
         this(instance, "");
     }
 
-    public MultiWRPPSolver_Benavent(MultiVehicleWRPP instance, String instanceName) throws IllegalArgumentException {
+    public MultiWRPPSolver_Benavent(Problem<WindyVertex, WindyEdge, WindyGraph> instance, String instanceName) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
         mGraph = mInstance.getGraph();
         mInstanceName = instanceName;
     }
@@ -248,7 +242,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
     }
 
     @Override
-    protected MultiVehicleProblem getInstance() {
+    protected Problem<WindyVertex, WindyEdge, WindyGraph> getInstance() {
         return mInstance;
     }
 
@@ -274,7 +268,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
          */
             WindyRPP singleProblem = new WindyRPP(copy);
             WRPPSolver_Benavent_H1 singleSolver = new WRPPSolver_Benavent_H1(singleProblem);
-            Route singleAns = singleSolver.solve();
+            Collection<Tour> singleAns = singleSolver.solve();
 
         /*
          * Display it
@@ -291,7 +285,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
         /*
          * now split it
          */
-            Collection<Route<DirectedVertex, Arc>> multiAns = splitRoute(singleAns, mInstance.getGraph(), mInstance.getmNumVehicles());
+            Collection<Route<DirectedVertex, Arc>> multiAns = splitRoute(singleAns.iterator().next(), mInstance.getGraph(), mInstance.getmNumVehicles());
 
             ArrayList<Route<WindyVertex, WindyEdge>> initialSol = new ArrayList<Route<WindyVertex, WindyEdge>>();
             for (Route<DirectedVertex, Arc> r : multiAns) {
@@ -353,8 +347,18 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
+    }
+
+    @Override
+    public String getSolverName() {
+        return "Benavent's Min-Max K Windy Rural Postman Solver";
+    }
+
+    @Override
+    public Solver<WindyVertex, WindyEdge, WindyGraph> instantiate(Problem<WindyVertex, WindyEdge, WindyGraph> p) {
+        return new MultiWRPPSolver_Benavent(p);
     }
 
     @Override
@@ -384,7 +388,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
         String ans = "=======================================================";
         ans += "\n";
         ans += "\n";
-        ans += "CapacitatedWRPPSolver: Printing current solution for instance " + mInstanceName + "...";
+        ans += this.getSolverName() + ": Printing current solution for instance " + mInstanceName + "...";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";
@@ -423,7 +427,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
 
         WindyRPP tempInstance = new WindyRPP(mInstance.getGraph());
         WRPPSolver_Benavent_H1 tempSolver = new WRPPSolver_Benavent_H1(tempInstance);
-        int oneVObjective = tempSolver.solve().getCost();
+        int oneVObjective = tempSolver.solve().iterator().next().getCost();
         int totalCostShare = origTotalCost / mInstance.getmNumVehicles();
         int solutionCostShare = oneVObjective / mInstance.getmNumVehicles();
 
@@ -446,8 +450,8 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
         ans += "% deviation from average length: " + 100.0 * deviationFromAverage + "\n";
         ans += "% deviation from average length (excluding empty): " + 100.0 * deviationFromAverageNoEmpty + "\n";
         ans += "Added cost: " + addedCost + "\n";
-        ans += "ROI: " + new RouteOverlapObjectiveFunction(mGraph).evaluate(currSol) + "\n";
-        ans += "ATD: " + new AverageTraversalObjectiveFunction(mGraph).evaluate(currSol) + "\n";
+        ans += "ROI: " + new RouteOverlapMetric(mGraph).evaluate(currSol) + "\n";
+        ans += "ATD: " + new AverageTraversalMetric(mGraph).evaluate(currSol) + "\n";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";

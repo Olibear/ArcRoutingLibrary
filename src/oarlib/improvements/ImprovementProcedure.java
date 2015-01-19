@@ -24,6 +24,7 @@
 package oarlib.improvements;
 
 import oarlib.core.*;
+import oarlib.problem.impl.ProblemAttributes;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -63,6 +64,10 @@ public abstract class ImprovementProcedure<V extends Vertex, E extends Link<V>, 
         G g = instance.getGraph();
 
         //check preconditions
+        if (!(getProblemAttributes().isCompatibleWith(instance.getProblemAttributes()))) {
+            LOGGER.error("The problem instance is type incompatible with this improvement procedure");
+            err = true;
+        }
         if (candidateSol == null) {
             LOGGER.error("The solution you passed in is null; perhaps the instance has not yet been solved.");
             err = true;
@@ -86,7 +91,7 @@ public abstract class ImprovementProcedure<V extends Vertex, E extends Link<V>, 
 
     }
 
-    public abstract Problem.Type getProblemType();
+    public abstract ProblemAttributes getProblemAttributes();
 
     protected Collection<Route<V, E>> getInitialSol() {
         return mInitialSol;

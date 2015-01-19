@@ -24,26 +24,24 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
-import oarlib.problem.impl.rpp.DirectedRPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.*;
 
-public class DRPPSolver_Christofides extends SingleVehicleSolver {
+public class DRPPSolver_Christofides extends SingleVehicleSolver<DirectedVertex, Arc, DirectedGraph> {
 
-    DirectedRPP mInstance;
-
-    public DRPPSolver_Christofides(DirectedRPP instance) throws IllegalArgumentException {
+    public DRPPSolver_Christofides(Problem<DirectedVertex, Arc, DirectedGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     private static DirectedGraph connectAndExpand(DirectedGraph gCollapsed, DirectedGraph gOrig, int[] component, int root) {
@@ -362,7 +360,7 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour<DirectedVertex, Arc>> solve() {
 
         try {
             DirectedGraph copy = mInstance.getGraph();
@@ -480,7 +478,11 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
             }
 
             mInstance.setSol(eulerTour);
-            return eulerTour;
+
+            HashSet<Tour<DirectedVertex, Arc>> ret = new HashSet<Tour<DirectedVertex, Arc>>();
+            ret.add(eulerTour);
+
+            return ret;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -489,13 +491,18 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver {
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.DIRECTED_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.DIRECTED, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
     public String getSolverName() {
         return "Christofides Directed Rural Postman Heuristic";
+    }
+
+    @Override
+    public Solver instantiate(Problem p) {
+        return new DRPPSolver_Christofides(p);
     }
 
     @Override

@@ -42,7 +42,7 @@ public class AltRepresentationTests {
             WRPPSolver_Benavent_H1 testSolver = new WRPPSolver_Benavent_H1(testProb, false);
             RouteExpander wre = new RouteExpander(testGraph);
 
-            Route testAns = Utils.reclaimTour(testSolver.trySolve(), testGraph);
+            Route testAns = Utils.reclaimTour(testSolver.trySolve().iterator().next(), testGraph);
             LOGGER.debug("Test ans:" + testAns.toString());
             LOGGER.debug("Test cost: " + testAns.getCost());
             TIntArrayList flattenedRoute = testAns.getCompactRepresentation();

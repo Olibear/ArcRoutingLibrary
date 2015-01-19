@@ -25,7 +25,7 @@ package oarlib.problem.impl;
 
 import oarlib.core.*;
 import oarlib.graph.util.Utils;
-import oarlib.objfunc.ObjectiveFunction;
+import oarlib.metrics.Metric;
 import oarlib.route.impl.Tour;
 import org.apache.log4j.Logger;
 
@@ -39,7 +39,7 @@ public abstract class RuralPostmanProblem<V extends Vertex, E extends Link<V>, G
 
     private static final Logger LOGGER = Logger.getLogger(RuralPostmanProblem.class);
 
-    protected RuralPostmanProblem(G graph, String name, ObjectiveFunction objFunc) {
+    protected RuralPostmanProblem(G graph, String name, Metric objFunc) {
         super(graph, name, objFunc);
         boolean isCpp = true;
         for (Link l : graph.getEdges())

@@ -23,15 +23,13 @@
  */
 package oarlib.problem.impl.cpp;
 
-import oarlib.core.Problem;
-import oarlib.core.Route;
+import oarlib.core.Graph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.link.impl.MixedEdge;
-import oarlib.objfunc.SumObjectiveFunction;
+import oarlib.metrics.SumMetric;
 import oarlib.problem.impl.ChinesePostmanProblem;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.vertex.impl.MixedVertex;
-
-import java.util.Collection;
 
 public class MixedCPP extends ChinesePostmanProblem<MixedVertex, MixedEdge, MixedGraph> {
 
@@ -40,18 +38,12 @@ public class MixedCPP extends ChinesePostmanProblem<MixedVertex, MixedEdge, Mixe
     }
 
     public MixedCPP(MixedGraph g, String name) {
-        super(g, name, new SumObjectiveFunction());
+        super(g, name, new SumMetric());
         mGraph = g;
     }
 
     @Override
-    public boolean isFeasible(Collection<Route> routes) {
-        return false;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.MIXED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
-
-    @Override
-    public Type getProblemType() {
-        return Problem.Type.MIXED_CHINESE_POSTMAN;
-    }
-
 }

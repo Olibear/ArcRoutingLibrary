@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.objfunc;
+package oarlib.metrics;
 
 import oarlib.core.Graph;
 import oarlib.core.Link;
@@ -37,16 +37,16 @@ import java.util.List;
 /**
  * Created by Oliver on 12/26/2014.
  */
-public class AverageTraversalObjectiveFunction extends ObjectiveFunction {
+public class AverageTraversalMetric extends Metric {
 
     private Graph mGraph;
 
-    public AverageTraversalObjectiveFunction(Graph g) {
+    public AverageTraversalMetric(Graph g) {
         mGraph = g;
     }
 
     @Override
-    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<Route<V, E>> routes) {
+    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<? extends Route> routes) throws IllegalArgumentException {
         int numRoutes = routes.size();
         int numTasks = 0;
         HashSet<Integer> alreadyTraversed = new HashSet<Integer>();
@@ -100,5 +100,15 @@ public class AverageTraversalObjectiveFunction extends ObjectiveFunction {
         double denom = numTasks * (numTasks - numRoutes) / (double) (2 * numRoutes);
 
         return (double) sumDist / denom;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.ATD;
+    }
+
+    @Override
+    public String toString() {
+        return "Average Traversal Distance (ATD)";
     }
 }

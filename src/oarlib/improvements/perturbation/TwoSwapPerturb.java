@@ -24,6 +24,7 @@
 package oarlib.improvements.perturbation;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
@@ -32,6 +33,7 @@ import oarlib.improvements.IntraRouteImprovementProcedure;
 import oarlib.improvements.util.CompactMove;
 import oarlib.improvements.util.Mover;
 import oarlib.link.impl.WindyEdge;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -53,8 +55,8 @@ public class TwoSwapPerturb extends IntraRouteImprovementProcedure<WindyVertex, 
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, null, null, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override

@@ -25,27 +25,26 @@ package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
 import gurobi.*;
+import oarlib.core.Graph;
 import oarlib.core.Problem;
-import oarlib.core.Problem.Type;
-import oarlib.core.Route;
 import oarlib.core.SingleVehicleSolver;
+import oarlib.core.Solver;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
-import oarlib.problem.impl.cpp.DirectedCPP;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
-public class DCPPSolver_Gurobi extends SingleVehicleSolver {
+public class DCPPSolver_Gurobi extends SingleVehicleSolver<DirectedVertex, Arc, DirectedGraph> {
 
-    DirectedCPP mInstance;
-
-    public DCPPSolver_Gurobi(DirectedCPP instance) throws IllegalArgumentException {
+    public DCPPSolver_Gurobi(Problem<DirectedVertex, Arc, DirectedGraph> instance) throws IllegalArgumentException {
         super(instance);
-        mInstance = instance;
     }
 
     @Override
@@ -67,7 +66,7 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver {
     }
 
     @Override
-    protected Route solve() {
+    protected Collection<Tour> solve() {
 
         /*
          * Solves the IP representing the DCPP, this is a glorified min-cost flow solver.
@@ -171,7 +170,9 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver {
                 eulerTour.appendEdge(indexedEdges.get(ans.get(i)));
             }
 
-            return eulerTour;
+            HashSet<Tour> ret = new HashSet<Tour>();
+            ret.add(eulerTour);
+            return ret;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -179,8 +180,8 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver {
     }
 
     @Override
-    public Type getProblemType() {
-        return Problem.Type.DIRECTED_CHINESE_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.DIRECTED, ProblemAttributes.Type.CHINESE_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 
     @Override
@@ -191,6 +192,11 @@ public class DCPPSolver_Gurobi extends SingleVehicleSolver {
     @Override
     public String getSolverName() {
         return "Edmonds' Integer Programming Solver for the Directed Chinese Postman Problem";
+    }
+
+    @Override
+    public Solver instantiate(Problem p) {
+        return new DCPPSolver_Gurobi(p);
     }
 
 }

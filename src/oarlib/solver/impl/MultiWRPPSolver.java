@@ -24,6 +24,7 @@
 package oarlib.solver.impl;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Graph;
 import oarlib.core.MultiVehicleSolver;
 import oarlib.core.Problem;
 import oarlib.core.Route;
@@ -43,10 +44,9 @@ import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Utils;
 import oarlib.improvements.metaheuristics.impl.OnePassBenaventIPFramework;
 import oarlib.link.impl.WindyEdge;
-import oarlib.objfunc.AverageTraversalObjectiveFunction;
-import oarlib.objfunc.RouteOverlapObjectiveFunction;
-import oarlib.problem.impl.MultiVehicleProblem;
-import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
+import oarlib.metrics.AverageTraversalMetric;
+import oarlib.metrics.RouteOverlapMetric;
+import oarlib.problem.impl.ProblemAttributes;
 import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;
@@ -63,22 +63,19 @@ import java.util.HashSet;
 public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
 
     private static final Logger LOGGER = Logger.getLogger(MultiWRPPSolver.class);
-    private MultiVehicleWRPP mInstance;
     private WindyGraph mGraph;
     private String mInstanceName;
-    private boolean lastRun; // to control when to export
+    private int bestWeight;
 
     /**
      * Default constructor; must set problem instance.
      *
      * @param instance - instance for which this is a solver
      */
-    public MultiWRPPSolver(MultiVehicleWRPP instance, String instanceName) throws IllegalArgumentException {
+    public MultiWRPPSolver(Problem<WindyVertex, WindyEdge, WindyGraph> instance, String instanceName) {
         super(instance);
-        mInstance = instance;
         mGraph = mInstance.getGraph();
         mInstanceName = instanceName;
-        lastRun = false;
     }
 
     @Override
@@ -95,7 +92,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
     }
 
     @Override
-    protected MultiVehicleProblem getInstance() {
+    protected Problem<WindyVertex, WindyEdge, WindyGraph> getInstance() {
         return mInstance;
     }
 
@@ -122,9 +119,6 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             double numRuns = 10;
             double interval = (upperBound - lowerBound) / numRuns;
             for (int j = 1; j <= numRuns; j++) {
-
-                if (j == numRuns)
-                    lastRun = true;
 
                 //double weight = (lowerBound + upperBound)/2.0;
                 sol = partition(new DuplicateEdgeCostRebalancer(mGraph, new IndividualDistanceToDepotRebalancer(mGraph, lowerBound + j * interval)));
@@ -158,15 +152,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                     bestObj = maxCost;
                     bestSol = sol;
                     record = improved;
-                    /*bestLowerBound = lowerBound;
-                    bestUpperBound = upperBound;
-                    lowerBound = weight;
-                    if(upperBound - lowerBound < .001)
-                        upperBound = upperBound * 2.0;*/
-                } else {
-                    /*upperBound = weight;
-                    if(upperBound - lowerBound < .001)
-                        lowerBound = lowerBound / 2.0;*/
+                    bestWeight = j;
                 }
             }
 
@@ -186,6 +172,8 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
 
             mInstance.setSol(record);
+
+            LOGGER.info("For instance " + mInstanceName + ", the best weight was " + lowerBound + bestWeight * interval);
             return record;
         } catch (Exception e) {
             e.printStackTrace();
@@ -194,8 +182,18 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
+    }
+
+    @Override
+    public String getSolverName() {
+        return "Min-Max Windy Rural Postman Problem Solver";
+    }
+
+    @Override
+    public MultiWRPPSolver instantiate(Problem<WindyVertex, WindyEdge, WindyGraph> p) {
+        return new MultiWRPPSolver(p, p.getName());
     }
 
     protected HashMap<Integer, Integer> partition(CostRebalancer costRebalancer) {
@@ -258,7 +256,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
         long start, end;
         start = System.currentTimeMillis();
-        Route ret = solver.solve();
+        Route ret = solver.solve().iterator().next();
         end = System.currentTimeMillis();
         LOGGER.debug("It took " + (end - start) + " milliseconds to run the sub-solver.");
 
@@ -292,7 +290,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         String ans = "=======================================================";
         ans += "\n";
         ans += "\n";
-        ans += "CapacitatedWRPPSolver: Printing current solution for instance " + mInstanceName + "...";
+        ans += this.getSolverName() + ": Printing current solution for instance " + mInstanceName + "...";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";
@@ -328,7 +326,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
         WindyRPP tempInstance = new WindyRPP(mInstance.getGraph());
         WRPPSolver_Benavent_H1 tempSolver = new WRPPSolver_Benavent_H1(tempInstance);
-        int oneVObjective = tempSolver.solve().getCost();
+        int oneVObjective = tempSolver.solve().iterator().next().getCost();
         int totalCostShare = origTotalCost / mInstance.getmNumVehicles();
         int solutionCostShare = oneVObjective / mInstance.getmNumVehicles();
 
@@ -351,8 +349,9 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         ans += "% deviation from average length: " + 100.0 * deviationFromAverage + "\n";
         ans += "% deviation from average length (excluding empty): " + 100.0 * deviationFromAverageNoEmpty + "\n";
         ans += "Added cost: " + addedCost + "\n";
-        ans += "ROI: " + new RouteOverlapObjectiveFunction(mGraph).evaluate(currSol) + "\n";
-        ans += "ATD: " + new AverageTraversalObjectiveFunction(mGraph).evaluate(currSol) + "\n";
+        ans += "ROI: " + new RouteOverlapMetric(mGraph).evaluate(currSol) + "\n";
+        ans += "ATD: " + new AverageTraversalMetric(mGraph).evaluate(currSol) + "\n";
+        ans += "Best Weight: " + bestWeight + "\n";
         ans += "\n";
         ans += "\n";
         ans += "=======================================================";

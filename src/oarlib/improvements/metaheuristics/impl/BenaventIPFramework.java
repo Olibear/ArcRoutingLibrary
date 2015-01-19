@@ -23,6 +23,7 @@
  */
 package oarlib.improvements.metaheuristics.impl;
 
+import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.graph.impl.WindyGraph;
@@ -36,7 +37,8 @@ import oarlib.improvements.util.Utils;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.MultiVehicleProblem;
-import oarlib.problem.impl.multivehicle.MultiVehicleWRPP;
+import oarlib.problem.impl.ProblemAttributes;
+import oarlib.problem.impl.multivehicle.MinMaxKWRPP;
 import oarlib.solver.impl.MultiWRPPSolver_Benavent;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
@@ -53,19 +55,17 @@ public class BenaventIPFramework extends ImprovementProcedure<WindyVertex, Windy
     private static final Logger LOGGER = Logger.getLogger(BenaventIPFramework.class);
     MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> mProblem;
 
-    public BenaventIPFramework(MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> problem) {
+    public BenaventIPFramework(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);
-        mProblem = problem;
     }
 
-    public BenaventIPFramework(MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> problem, ImprovementStrategy.Type strat, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+    public BenaventIPFramework(Problem<WindyVertex, WindyEdge, WindyGraph> problem, ImprovementStrategy.Type strat, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
         super(problem, strat, initialSol);
-        mProblem = problem;
     }
 
     @Override
-    public Problem.Type getProblemType() {
-        return Problem.Type.WINDY_RURAL_POSTMAN;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, null, ProblemAttributes.NumVehicles.MULTI_VEHICLE, null, null);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class BenaventIPFramework extends ImprovementProcedure<WindyVertex, Windy
 
             //resplit
             LOGGER.debug("Resplit");
-            MultiVehicleWRPP tempInstance = new MultiVehicleWRPP(getGraph(), mProblem.getmNumVehicles());
+            MinMaxKWRPP tempInstance = new MinMaxKWRPP(getGraph(), mProblem.getmNumVehicles());
             MultiWRPPSolver_Benavent splitter = new MultiWRPPSolver_Benavent(tempInstance);
 
             ArrayList<Route<WindyVertex, WindyEdge>> container = new ArrayList<Route<WindyVertex, WindyEdge>>();

@@ -21,34 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.objfunc;
+package oarlib.problem.impl.multivehicle;
 
-import oarlib.core.Link;
-import oarlib.core.Route;
-import oarlib.core.Vertex;
-
-import java.util.Collection;
+import oarlib.core.Graph;
+import oarlib.graph.impl.WindyGraph;
+import oarlib.link.impl.WindyEdge;
+import oarlib.metrics.MaxMetric;
+import oarlib.problem.impl.MultiVehicleProblem;
+import oarlib.problem.impl.ProblemAttributes;
+import oarlib.vertex.impl.WindyVertex;
 
 /**
- * Created by Oliver on 12/26/2014.
+ * Created by oliverlum on 10/17/14.
  */
-public class DevObjectiveFunction extends ObjectiveFunction {
+public class MinMaxKWRPP extends MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> {
 
-    public DevObjectiveFunction() {
+    public MinMaxKWRPP(WindyGraph graph, int numVehicles) {
+        super(graph, numVehicles, new MaxMetric());
+        mGraph = graph;
+    }
+
+    public MinMaxKWRPP(WindyGraph graph, String name, int numVehicles) {
+        super(graph, numVehicles, name, new MaxMetric());
+        mGraph = graph;
     }
 
     @Override
-    public <V extends Vertex, E extends Link<V>> double evaluate(Collection<Route<V, E>> routes) {
-        int max = Integer.MIN_VALUE;
-        int min = Integer.MAX_VALUE;
-        int tempCost;
-        for (Route r : routes) {
-            tempCost = r.getCost();
-            if (tempCost > max)
-                max = tempCost;
-            if (tempCost < min)
-                min = tempCost;
-        }
-        return (100 * max / min) - 100;
+    public ProblemAttributes getProblemAttributes() {
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
     }
 }
