@@ -52,7 +52,6 @@ import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.preview.types.EdgeColor;
 import org.gephi.project.api.ProjectController;
-import org.gephi.project.api.Workspace;
 import org.gephi.ranking.api.Ranking;
 import org.gephi.ranking.api.RankingController;
 import org.gephi.ranking.api.Transformer;
@@ -75,17 +74,23 @@ import java.util.concurrent.TimeUnit;
 public class GraphDisplay {
 
     private Layout mLayout;
+    private ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
+    private GraphModel mGraphModel;
+    private ExportController mExportController;
+    private PreviewModel mPreviewModel;
 
-    ;
     private Graph<? extends Vertex, ? extends Link<? extends Vertex>> mGraph;
 
-    ;
     private String mInstanceName;
 
     public GraphDisplay(Layout layout, Graph<? extends Vertex, ? extends Link<? extends Vertex>> graph, String instanceName) {
         mLayout = layout;
         mGraph = graph;
         mInstanceName = instanceName;
+        pc.newProject();
+        mGraphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
+        mExportController = Lookup.getDefault().lookup(ExportController.class);
+        mPreviewModel = Lookup.getDefault().lookup(PreviewController.class).getModel();
     }
 
     public void setGraph(Graph<? extends Vertex, ? extends Link<? extends Vertex>> newGraph) {
@@ -94,6 +99,10 @@ public class GraphDisplay {
 
     public void setLayout(Layout newLayout) {
         mLayout = newLayout;
+    }
+
+    public void setInstanceName(String newName) {
+        mInstanceName = newName;
     }
 
     /**
@@ -171,11 +180,11 @@ public class GraphDisplay {
     }
 
     private void exportToGEXF(HashMap<Integer, Integer> edgePartition, Route r) throws UnsupportedFormatException {
-
+        //TODO
     }
 
     private void exportToCSV(HashMap<Integer, Integer> edgePartition, Route r) throws UnsupportedFormatException {
-
+        //TODO
     }
 
     private <V extends Vertex, E extends Link<V>> void exportToPDF(HashMap<Integer, Integer> edgePartition, Route<V, E> r) throws UnsupportedFormatException {
@@ -194,24 +203,17 @@ public class GraphDisplay {
             if (l.getCost() > maxCost)
                 maxCost = l.getCost();
 
-
-        //init a project, and therefore a workspace
-        ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
-        pc.newProject();
-        Workspace workspace = pc.getCurrentWorkspace();
-
         //convert the graph from our format into one digestible by Gephi
-        GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
         org.gephi.graph.api.Graph graph;
 
         if (mGraph.getClass() == UndirectedGraph.class) {
-            graph = graphModel.getUndirectedGraph();
+            graph = mGraphModel.getUndirectedGraph();
         } else if (mGraph.getClass() == DirectedGraph.class) {
-            graph = graphModel.getDirectedGraph();
+            graph = mGraphModel.getDirectedGraph();
         } else if (mGraph.getClass() == MixedGraph.class) {
-            graph = graphModel.getMixedGraph();
+            graph = mGraphModel.getMixedGraph();
         } else if (mGraph.getClass() == WindyGraph.class) {
-            graph = graphModel.getUndirectedGraph();
+            graph = mGraphModel.getUndirectedGraph();
         } else
             throw new UnsupportedFormatException("The graph passed in is not currently supported for visualization");
 
@@ -251,7 +253,7 @@ public class GraphDisplay {
 
         for (int i = 1; i <= n; i++) {
             tempV = mVertices.get(i);
-            temp = graphModel.factory().newNode();
+            temp = mGraphModel.factory().newNode();
 
             if (mGraph.getDepotId() == i) {
                 temp.getNodeData().setLabel("Depot");
@@ -300,9 +302,9 @@ public class GraphDisplay {
             }
 
             if (tempLink.getClass() == WindyEdge.class)
-                tempEdge = graphModel.factory().newEdge(nodeSet[tempLink.getEndpoints().getFirst().getId()], nodeSet[tempLink.getEndpoints().getSecond().getId()], (cost + revCost) / 2f, tempLink.isDirected());
+                tempEdge = mGraphModel.factory().newEdge(nodeSet[tempLink.getEndpoints().getFirst().getId()], nodeSet[tempLink.getEndpoints().getSecond().getId()], (cost + revCost) / 2f, tempLink.isDirected());
             else
-                tempEdge = graphModel.factory().newEdge(nodeSet[tempLink.getEndpoints().getFirst().getId()], nodeSet[tempLink.getEndpoints().getSecond().getId()], cost, tempLink.isDirected());
+                tempEdge = mGraphModel.factory().newEdge(nodeSet[tempLink.getEndpoints().getFirst().getId()], nodeSet[tempLink.getEndpoints().getSecond().getId()], cost, tempLink.isDirected());
             if (tempLink.getClass() == WindyEdge.class)
                 tempEdge.getEdgeData().setLabel(tempLink.getCost() + "," + ((WindyEdge) tempLink).getReverseCost());
             else
@@ -325,7 +327,7 @@ public class GraphDisplay {
         if (useAutoLayout) {
             //Layout for 1 minute
             AutoLayout autoLayout = new AutoLayout(1, TimeUnit.MINUTES);
-            autoLayout.setGraphModel(graphModel);
+            autoLayout.setGraphModel(mGraphModel);
             YifanHuLayout firstLayout = new YifanHuLayout(null, new StepDisplacement(1f));
             ForceAtlasLayout secondLayout = new ForceAtlasLayout(null);
             LabelAdjust thirdLayout = new LabelAdjust(null);
@@ -356,23 +358,19 @@ public class GraphDisplay {
         rc.transform(partitionRanking, ct);
 
         //Change some coloring / size attributes
-        PreviewController previewController = Lookup.getDefault().lookup(PreviewController.class);
-        PreviewModel pm = previewController.getModel();
-        pm.getProperties().putValue(PreviewProperty.NODE_BORDER_WIDTH, .5f);
+        mPreviewModel.getProperties().putValue(PreviewProperty.NODE_BORDER_WIDTH, .5f);
         EdgeColor edgeColor = new EdgeColor(EdgeColor.Mode.ORIGINAL);
-        pm.getProperties().putValue(PreviewProperty.EDGE_COLOR, edgeColor);
-        pm.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, true);
-        pm.getProperties().putValue(PreviewProperty.SHOW_EDGE_LABELS, true);
-        pm.getProperties().putValue(PreviewProperty.EDGE_CURVED, false);
-        pm.getProperties().putValue(PreviewProperty.NODE_LABEL_PROPORTIONAL_SIZE, true);
-        pm.getProperties().putValue(PreviewProperty.EDGE_LABEL_FONT, new Font("Helvetica", Font.ITALIC, 3));
-        pm.getProperties().putValue(PreviewProperty.NODE_LABEL_FONT, new Font("Helvetica", Font.ITALIC, 3));
-        pm.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
+        mPreviewModel.getProperties().putValue(PreviewProperty.EDGE_COLOR, edgeColor);
+        mPreviewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, true);
+        mPreviewModel.getProperties().putValue(PreviewProperty.SHOW_EDGE_LABELS, true);
+        mPreviewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, false);
+        mPreviewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_PROPORTIONAL_SIZE, true);
+        mPreviewModel.getProperties().putValue(PreviewProperty.EDGE_LABEL_FONT, new Font("Helvetica", Font.ITALIC, 3));
+        mPreviewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_FONT, new Font("Helvetica", Font.ITALIC, 3));
+        mPreviewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
 
-        //Export
-        ExportController ec = Lookup.getDefault().lookup(ExportController.class);
         try {
-            ec.exportFile(new File("/Users/oliverlum/Downloads/Plots/" + mInstanceName + "autolayout.pdf"));
+            mExportController.exportFile(new File("/Users/oliverlum/Downloads/Plots/" + mInstanceName + "autolayout.pdf"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }

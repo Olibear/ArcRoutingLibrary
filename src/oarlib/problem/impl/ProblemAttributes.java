@@ -82,22 +82,26 @@ public class ProblemAttributes {
      */
     public enum Type {
         CHINESE_POSTMAN,
-        RURAL_POSTMAN
+        RURAL_POSTMAN,
+        PARTITIONING
     }
 
     public enum NumVehicles {
         SINGLE_VEHICLE,
-        MULTI_VEHICLE
+        MULTI_VEHICLE,
+        NO_VEHICLES //for auxiliary problems
     }
 
     public enum NumDepots {
         SINGLE_DEPOT,
-        MULTI_DEPOT
+        MULTI_DEPOT,
+        NO_DEPOTS //for auxiliary problems
     }
 
     public enum Properties {
         TIME_WINDOWS,
-        SERVICE_TIME,
+        SERVICE_COSTS,
+        ZIGZAG_COSTS
     }
 
 }

@@ -1011,6 +1011,11 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
     }
 
     @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
+    @Override
     protected boolean checkGraphRequirements() {
         // make sure the graph is connected
         if (mInstance.getGraph() == null)

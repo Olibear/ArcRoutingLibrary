@@ -421,6 +421,11 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
     }
 
     @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
+    @Override
     protected boolean checkGraphRequirements() {
         // make sure the graph is connected
         if (mInstance.getGraph() == null)

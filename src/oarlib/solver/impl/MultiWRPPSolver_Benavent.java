@@ -362,6 +362,11 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
     }
 
     @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
+    @Override
     public String printCurrentSol() throws IllegalStateException {
 
         Collection<Route<WindyVertex, WindyEdge>> currSol = mInstance.getSol();

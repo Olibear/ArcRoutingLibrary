@@ -501,6 +501,11 @@ public class DRPPSolver_Christofides extends SingleVehicleSolver<DirectedVertex,
     }
 
     @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
+    @Override
     public Solver instantiate(Problem p) {
         return new DRPPSolver_Christofides(p);
     }

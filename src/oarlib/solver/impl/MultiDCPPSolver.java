@@ -31,16 +31,17 @@ import oarlib.core.Route;
 import oarlib.core.Solver;
 import oarlib.graph.factory.impl.DirectedGraphFactory;
 import oarlib.graph.impl.DirectedGraph;
-import oarlib.graph.io.GraphFormat;
-import oarlib.graph.io.GraphWriter;
-import oarlib.graph.io.PartitionFormat;
-import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseDirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.Arc;
 import oarlib.problem.impl.ProblemAttributes;
+import oarlib.problem.impl.auxiliary.PartitioningProblem;
 import oarlib.problem.impl.cpp.DirectedCPP;
+import oarlib.problem.impl.io.PartitionFormat;
+import oarlib.problem.impl.io.PartitionReader;
+import oarlib.problem.impl.io.ProblemFormat;
+import oarlib.problem.impl.io.ProblemWriter;
 import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.Collection;
@@ -123,6 +124,11 @@ public class MultiDCPPSolver extends MultiVehicleSolver<DirectedVertex, Arc, Dir
         return new MultiDCPPSolver(p);
     }
 
+    @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
     protected HashMap<Integer, Integer> partition() {
 
         try {
@@ -137,8 +143,8 @@ public class MultiDCPPSolver extends MultiVehicleSolver<DirectedVertex, Arc, Dir
             String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
 
             //write it to a file
-            GraphWriter gw = new GraphWriter(GraphFormat.Name.METIS);
-            gw.writeGraph(vWeightedTest, filename);
+            ProblemWriter gw = new ProblemWriter(ProblemFormat.Name.METIS);
+            gw.writeInstance(new PartitioningProblem(vWeightedTest, null, null), filename);
 
             //num parts to partition into
             int numParts = mInstance.getmNumVehicles();

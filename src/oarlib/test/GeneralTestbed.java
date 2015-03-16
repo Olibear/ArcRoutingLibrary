@@ -33,30 +33,27 @@ import oarlib.graph.graphgen.Util.BoundingBox;
 import oarlib.graph.graphgen.Util.OSM_BoundingBoxes;
 import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
-import oarlib.graph.graphgen.rectangular.WindyRectangularGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
-import oarlib.graph.io.GraphFormat;
-import oarlib.graph.io.GraphReader;
-import oarlib.graph.io.util.ExportHelper;
 import oarlib.graph.util.*;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
-import oarlib.link.impl.MixedEdge;
 import oarlib.link.impl.WindyEdge;
 import oarlib.metrics.Metric;
+import oarlib.notifications.GmailNotification;
 import oarlib.problem.impl.cpp.MixedCPP;
 import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.problem.impl.cpp.WindyCPP;
-import oarlib.problem.impl.multivehicle.MinMaxKMCPP;
+import oarlib.problem.impl.io.ProblemFormat;
+import oarlib.problem.impl.io.ProblemReader;
+import oarlib.problem.impl.io.util.ExportHelper;
 import oarlib.problem.impl.multivehicle.MinMaxKWRPP;
 import oarlib.problem.impl.rpp.DirectedRPP;
 import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.solver.impl.*;
 import oarlib.vertex.impl.DirectedVertex;
-import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.ConsoleAppender;
@@ -100,12 +97,11 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testMultiVehicleSolvers("/Users/oliverlum/Downloads/WPP", "/Users/oliverlum/Downloads/testExport_MINE_10_temp.csv");
+        testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/Username/Foldername");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
         //testWidestPath();
-
     }
 
     @SuppressWarnings("unused")
@@ -144,7 +140,7 @@ public class
             MultiWRPPSolver_Benavent wrppSolver;
             Collection<? extends Route> ans;
 
-            GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
+            ProblemReader gr = new ProblemReader(ProblemFormat.Name.Corberan);
 
             WindyGraph test = (WindyGraph) gr.readGraph("/Users/oliverlum/Downloads/WPP/WA0531");
 
@@ -232,50 +228,10 @@ public class
     @SuppressWarnings("unused")
     private static void testMultiVehicleSolvers(String instanceFolder, String outputFile) {
         try {
-
-            int routeCounter;
-
-            //MIXED
-
-            System.out.println("========================================================");
-            System.out.println("Beginning Test of the Mixed Partitioning Code");
-            System.out.println("========================================================");
-            GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
             try {
-                MinMaxKMCPP validMInstance;
-                MultiMCPPSolver validMSolver;
-                Collection<Route<MixedVertex, MixedEdge>> validMAns;
 
-                File testInstanceFolder = new File(instanceFolder);
                 long start;
                 long end;
-
-                //run on all instances in the folder
-                /*for (final File testInstance : testInstanceFolder.listFiles()) {
-                    String temp = testInstance.getName();
-                    System.out.println(temp);
-                    if (temp.equals(".DS_Store"))
-                        continue;
-                    Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + temp);
-                    if (g.getClass() == MixedGraph.class) {
-                        MixedGraph g2 = (MixedGraph) g;
-                        validMInstance = new MultiVehicleMCPP(g2, 5);
-                        validMSolver = new MultiMCPPSolver(validMInstance);
-                        start = System.nanoTime();
-                        validMAns = validMSolver.trySolve();
-                        end = System.nanoTime();
-
-                        routeCounter = 1;
-
-                        for (Route r : validMAns) {
-                            System.out.println("Now displaying route " + routeCounter++);
-                            System.out.println(r.toString());
-                            System.out.println("This route costs " + r.getCost());
-                            System.out.println();
-                        }
-                        System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
-                    }
-                }*/
 
                 //WINDY
 
@@ -303,27 +259,38 @@ public class
                 int debugCounter = 0;
                 String output;
                 WindyGraph g;
+                GraphDisplay displayer = new GraphDisplay(GraphDisplay.Layout.YifanHu, null, null);
 
+                ProblemReader pr = new ProblemReader(ProblemFormat.Name.OARLib);
                 for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
-
-                    OSM_Fetcher fetcher = new OSM_Fetcher(bb);
-                    g = fetcher.queryForGraph();
+                    //OSM_Fetcher fetcher = new OSM_Fetcher(bb);
+                    //g = fetcher.queryForGraph();
+                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_Center.txt");
                     g.setDepotId(Utils.findCenterVertex(g));
                     validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 10);
                     probs.add(validWInstance);
                 }
 
                 //now do the rectangular instances
-                for (int i = 1; i <= 10; i++) {
-                    WindyRectangularGraphGenerator wrg = new WindyRectangularGraphGenerator();
-                    g = wrg.generateGraph(25 - i, 10, .5, true);
-                    g.setDepotId(Utils.findCenterVertex(g));
-                    validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 10);
-                    probs.add(validWInstance);
-                }
-                MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "");
+                /*for (int i = 1; i <= 10; i++) {
+                        WindyRectangularGraphGenerator wrg = new WindyRectangularGraphGenerator(1000);
+                        g = wrg.generateGraph(25 - i, 10, .5, true);
+                        g.setDepotId(Utils.findCenterVertex(g));
+                        validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 10);
+                        probs.add(validWInstance);
+                }*/
+                MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "", null);
+                //MultiWRPPSolver_Benavent validWSolver = new MultiWRPPSolver_Benavent(validWInstance);
 
                 ExportHelper.exportToExcel(probs, metrics, validWSolver, outputFile);
+
+                String from = "******";
+                String pass = "******";
+                String[] to = {"******"}; // list of recipient email addresses
+                String subject = "OARLib Notification";
+                String body = "Your runs have completed.  Thank you for using OARLib.";
+
+                GmailNotification.sendFromGMail(from, pass, to, subject, body);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -426,7 +393,7 @@ public class
      */
     @SuppressWarnings("unused")
     private static void testDRPPSolver(String instanceFolder, String outputFile) {
-        GraphReader gr = new GraphReader(GraphFormat.Name.Campos);
+        ProblemReader gr = new ProblemReader(ProblemFormat.Name.Campos);
         try {
             DirectedRPP validInstance;
             DRPPSolver_Christofides validSolver;
@@ -541,7 +508,7 @@ public class
      */
     @SuppressWarnings("unused")
     private static void testSimpleGraphReader(String instancePath) {
-        GraphReader gr = new GraphReader(GraphFormat.Name.Simple);
+        ProblemReader gr = new ProblemReader(ProblemFormat.Name.Simple);
         try {
             Graph<?, ?> g = gr.readGraph(instancePath);
             if (g.getClass() == DirectedGraph.class) {
@@ -559,7 +526,7 @@ public class
      */
     @SuppressWarnings("unused")
     private static void testFredericksons(String instanceFolder) {
-        GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
+        ProblemReader gr = new ProblemReader(ProblemFormat.Name.Corberan);
         try {
             MixedCPP validInstance;
             MCPPSolver_Frederickson validSolver;
@@ -600,7 +567,7 @@ public class
      */
     @SuppressWarnings("unused")
     private static void validateImprovedMCPPSolver(String instanceFolder) {
-        GraphReader gr = new GraphReader(GraphFormat.Name.Yaoyuenyong);
+        ProblemReader gr = new ProblemReader(ProblemFormat.Name.Yaoyuenyong);
         try {
             MixedCPP validInstance;
             MCPPSolver_Yaoyuenyong validSolver;
@@ -641,7 +608,7 @@ public class
      */
     @SuppressWarnings("unused")
     private static void validateMCPPSolver(String instanceFolder) {
-        GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
+        ProblemReader gr = new ProblemReader(ProblemFormat.Name.Corberan);
         //GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
         try {
             MixedCPP validInstance;
@@ -684,7 +651,7 @@ public class
      */
     @SuppressWarnings("unused")
     private static void validateWRPPSolver(String instanceFolder, String outputFile) {
-        GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
+        ProblemReader gr = new ProblemReader(ProblemFormat.Name.Corberan);
         try {
             WindyRPP validInstance;
             WRPPSolver_Win validSolver;
@@ -735,7 +702,7 @@ public class
      */
     @SuppressWarnings("unused")
     private static void validateImprovedWRPPSolver(String instanceFolder, String outputFile) {
-        GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
+        ProblemReader gr = new ProblemReader(ProblemFormat.Name.Corberan);
         try {
             WindyRPP validInstance;
             WRPPSolver_Benavent_H1 validSolver;
@@ -781,7 +748,7 @@ public class
 
     @SuppressWarnings("unused")
     private static void validateWPPIPSolvers(String instanceFolder, String outputFile) {
-        GraphReader gr = new GraphReader(GraphFormat.Name.Corberan);
+        ProblemReader gr = new ProblemReader(ProblemFormat.Name.Corberan);
         try {
             WindyCPP validInstance;
             WPPSolver_Gurobi validSolver;

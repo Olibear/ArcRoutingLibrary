@@ -33,6 +33,10 @@ import java.util.Random;
  */
 public class MixedRectangularGraphGenerator extends RectangularGraphGenerator<MixedGraph> {
 
+    public MixedRectangularGraphGenerator(long seed) {
+        super(seed);
+    }
+
     @Override
     protected MixedGraph generate(int n, int maxCost, double reqDensity, boolean positiveCosts) {
 

@@ -85,12 +85,25 @@ public class IndividualDistanceToDepotRebalancer<S extends Graph<?, ?>> extends 
         int[] path = new int[n + 1];
         CommonAlgorithms.dijkstrasAlgorithm(mGraph, mGraph.getDepotId(), dist, path);
 
+        double totalEdgeCost = 0;
+        double totalAddedCost = 0;
+        HashMap<Integer, Integer> howMany = new HashMap<Integer, Integer>();
+
         //update the vertex weights for each
-        int higherCost;
+        int lowerCost;
         for (Link<? extends Vertex> tempEdge : mGraph.getEdges()) {
-            higherCost = Math.max(dist[tempEdge.getEndpoints().getFirst().getId()], dist[tempEdge.getEndpoints().getSecond().getId()]);
-            ans.put(tempEdge.getId(), input.get(tempEdge.getId()) + (int) (mWeight * higherCost));
+            lowerCost = Math.min(dist[tempEdge.getEndpoints().getFirst().getId()], dist[tempEdge.getEndpoints().getSecond().getId()]);
+            ans.put(tempEdge.getId(), input.get(tempEdge.getId()) + (int) (mWeight * lowerCost));
+
+            totalEdgeCost += input.get(tempEdge.getId());
+            totalAddedCost += (int) (mWeight * lowerCost);
+            if (!howMany.containsKey((int) (mWeight * lowerCost)))
+                howMany.put((int) (mWeight * lowerCost), 0);
+            howMany.put((int) (mWeight * lowerCost), howMany.get((int) (mWeight * lowerCost)) + 1);
         }
+
+        System.out.println("totalEdgeCost: " + totalEdgeCost);
+        System.out.println("totalAddedCost: " + totalAddedCost);
 
         return ans;
     }

@@ -5,6 +5,7 @@ import oarlib.problem.impl.ProblemAttributes;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * Created by oliverlum on 1/18/15.
@@ -58,6 +59,12 @@ public abstract class Solver<V extends Vertex, E extends Link<V>, G extends Grap
      */
     protected abstract Collection<? extends Route> solve();
 
+    /**
+     * Get the properties of the problem, (i.e. for the Windy Rural Postman, it will return a ProblemAttributes
+     * object with the properties Windy, Rural, Single Depot, Single Vehicle, etc.
+     *
+     * @return - a Problem Attributes object describing the problem
+     */
     public abstract ProblemAttributes getProblemAttributes();
 
     public abstract String printCurrentSol();
@@ -65,5 +72,16 @@ public abstract class Solver<V extends Vertex, E extends Link<V>, G extends Grap
     public abstract String getSolverName();
 
     public abstract Solver<V, E, G> instantiate(Problem<V, E, G> p);
+
+    /**
+     * Get the parameters of the solver.  The map can be used to query for
+     * special parameters that are specific to one solver or another, (i.e. if one solver
+     * contains weights, learns a cooling schedule, etc. these should be returned in the map
+     * exposed by this method)
+     *
+     * @return - a HashMap where the keys are the names of the solver-specific parameters, and
+     * the values are what the solver used to arrive at its answer.
+     */
+    public abstract HashMap<String, Double> getProblemParameters();
 
 }

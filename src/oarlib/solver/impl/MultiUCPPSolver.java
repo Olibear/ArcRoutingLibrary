@@ -28,16 +28,17 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.core.*;
 import oarlib.graph.factory.impl.UndirectedGraphFactory;
 import oarlib.graph.impl.UndirectedGraph;
-import oarlib.graph.io.GraphFormat;
-import oarlib.graph.io.GraphWriter;
-import oarlib.graph.io.PartitionFormat;
-import oarlib.graph.io.PartitionReader;
 import oarlib.graph.transform.impl.EdgeInducedSubgraphTransform;
 import oarlib.graph.transform.partition.impl.PreciseUndirectedKWayPartitionTransform;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.link.impl.Edge;
 import oarlib.problem.impl.ProblemAttributes;
+import oarlib.problem.impl.auxiliary.PartitioningProblem;
 import oarlib.problem.impl.cpp.UndirectedCPP;
+import oarlib.problem.impl.io.PartitionFormat;
+import oarlib.problem.impl.io.PartitionReader;
+import oarlib.problem.impl.io.ProblemFormat;
+import oarlib.problem.impl.io.ProblemWriter;
 import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.Collection;
@@ -124,6 +125,11 @@ public class MultiUCPPSolver extends MultiVehicleSolver<UndirectedVertex, Edge, 
         return null;
     }
 
+    @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
     protected HashMap<Integer, Integer> partition() {
         try {
 
@@ -142,8 +148,8 @@ public class MultiUCPPSolver extends MultiVehicleSolver<UndirectedVertex, Edge, 
             String filename = "/Users/oliverlum/Desktop/RandomGraph.graph";
 
             //write it to a file
-            GraphWriter gw = new GraphWriter(GraphFormat.Name.METIS);
-            gw.writeGraph(vWeightedTest, filename);
+            ProblemWriter gw = new ProblemWriter(ProblemFormat.Name.METIS);
+            gw.writeInstance(new PartitioningProblem(vWeightedTest, null, null), filename);
 
             //num parts to partition into
             int numParts = mInstance.getmNumVehicles();

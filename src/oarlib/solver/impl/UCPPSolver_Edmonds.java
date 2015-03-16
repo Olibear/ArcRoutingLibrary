@@ -36,10 +36,7 @@ import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.UndirectedVertex;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class UCPPSolver_Edmonds extends SingleVehicleSolver<UndirectedVertex, Edge, UndirectedGraph> {
 
@@ -170,6 +167,11 @@ public class UCPPSolver_Edmonds extends SingleVehicleSolver<UndirectedVertex, Ed
     @Override
     public Solver<UndirectedVertex, Edge, UndirectedGraph> instantiate(Problem<UndirectedVertex, Edge, UndirectedGraph> p) {
         return new UCPPSolver_Edmonds(p);
+    }
+
+    @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
     }
 
     @Override

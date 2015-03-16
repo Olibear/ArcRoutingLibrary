@@ -33,6 +33,7 @@ import java.util.Collection;
  * Created by oliverlum on 12/10/14.
  */
 public abstract class Metric {
+
     public abstract <V extends Vertex, E extends Link<V>> double evaluate(Collection<? extends Route> routes);
 
     public abstract Type getType();

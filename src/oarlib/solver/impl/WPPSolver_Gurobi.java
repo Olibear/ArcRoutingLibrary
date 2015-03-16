@@ -37,6 +37,7 @@ import oarlib.route.impl.Tour;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * @author oliverlum
@@ -169,6 +170,11 @@ public class WPPSolver_Gurobi extends SingleVehicleSolver<WindyVertex, WindyEdge
     @Override
     public Solver<WindyVertex, WindyEdge, WindyGraph> instantiate(Problem<WindyVertex, WindyEdge, WindyGraph> p) {
         return new WPPSolver_Gurobi(p);
+    }
+
+    @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
     }
 
 }

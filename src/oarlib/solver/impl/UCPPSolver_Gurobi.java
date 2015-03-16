@@ -39,6 +39,7 @@ import oarlib.vertex.impl.UndirectedVertex;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class UCPPSolver_Gurobi extends SingleVehicleSolver<UndirectedVertex, Edge, UndirectedGraph> {
@@ -206,6 +207,11 @@ public class UCPPSolver_Gurobi extends SingleVehicleSolver<UndirectedVertex, Edg
     @Override
     public Solver<UndirectedVertex, Edge, UndirectedGraph> instantiate(Problem<UndirectedVertex, Edge, UndirectedGraph> p) {
         return new UCPPSolver_Gurobi(p);
+    }
+
+    @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
     }
 
 }

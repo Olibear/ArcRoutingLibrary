@@ -38,6 +38,11 @@ public abstract class RectangularGraphGenerator<S extends Graph> {
     private double defaultDensity;
 
     public RectangularGraphGenerator() {
+        this(1000);
+    }
+
+    public RectangularGraphGenerator(long seed) {
+        rng.setSeed(seed);
         defaultDensity = rng.nextDouble();
     }
 

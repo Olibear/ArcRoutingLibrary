@@ -37,6 +37,7 @@ import oarlib.vertex.impl.DirectedVertex;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class DCPPSolver_Edmonds extends SingleVehicleSolver<DirectedVertex, Arc, DirectedGraph> {
@@ -124,6 +125,11 @@ public class DCPPSolver_Edmonds extends SingleVehicleSolver<DirectedVertex, Arc,
     @Override
     public String getSolverName() {
         return "Edmonds' Directed Chinese Postman Solver (Exact)";
+    }
+
+    @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
     }
 
     @Override

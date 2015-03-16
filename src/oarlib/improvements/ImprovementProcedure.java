@@ -36,9 +36,9 @@ public abstract class ImprovementProcedure<V extends Vertex, E extends Link<V>, 
 
     private static final Logger LOGGER = Logger.getLogger(ImprovementProcedure.class);
     protected ImprovementStrategy.Type mStrat;
+    protected Problem<V, E, G> mProblem;
     private G mGraph;
     private Collection<Route<V, E>> mInitialSol;
-    private Problem<V, E, G> mProblem;
 
     protected ImprovementProcedure(Problem<V, E, G> instance) {
         this(instance, null, null);

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.graph.io;
+package oarlib.problem.impl.io;
 
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
@@ -49,21 +49,21 @@ import java.io.FileReader;
  *
  * @author Oliver
  */
-public class GraphReader {
+public class ProblemReader {
 
-    private static final Logger LOGGER = Logger.getLogger(GraphReader.class);
+    private static final Logger LOGGER = Logger.getLogger(ProblemReader.class);
 
-    private GraphFormat.Name mFormat;
+    private ProblemFormat.Name mFormat;
 
-    public GraphReader(GraphFormat.Name format) {
+    public ProblemReader(ProblemFormat.Name format) {
         mFormat = format;
     }
 
-    public GraphFormat.Name getFormat() {
+    public ProblemFormat.Name getFormat() {
         return mFormat;
     }
 
-    public void setFormat(GraphFormat.Name newFormat) {
+    public void setFormat(ProblemFormat.Name newFormat) {
         mFormat = newFormat;
     }
 
@@ -80,13 +80,130 @@ public class GraphReader {
             case METIS:
                 return readMETISGraph(fileName);
             case OARLib:
-                //TODO: I should probably write a reader for my own format
+                return readOARLibGraph(fileName);
+            default:
                 break;
         }
         LOGGER.error("While the format seems to have been added to the Format.Name type list,"
                 + " there doesn't seem to be an appropriate read method assigned to it.  Support is planned in the future," +
                 "but not currently available");
         throw new UnsupportedFormatException();
+    }
+
+    private Graph<?, ?> readOARLibGraph(String fileName) throws FormatMismatchException {
+
+        try {
+            String line, line2;
+            String[] temp;
+            File graphFile = new File(fileName);
+            BufferedReader br = new BufferedReader(new FileReader(graphFile));
+
+            //figure out the graph type
+
+            line = br.readLine();
+            //skip any header
+            while (!line.startsWith("Graph Type:"))
+                line = br.readLine();
+
+            //TODO: use this info to return a problem
+            br.readLine(); //should have problem type
+            br.readLine(); //should have fleet size
+            br.readLine(); //should have depot type
+            line2 = br.readLine(); //should have depot ID
+
+            int depotId = Integer.parseInt(line2.split(":")[1]);
+            line2 = br.readLine(); //should have n
+
+            int n = Integer.parseInt(line2.split(":")[1]);
+
+            line2 = br.readLine(); //should have m
+
+            int m = Integer.parseInt(line2.split(":")[1]);
+
+            //graph type
+            if (line.contains("UNDIRECTED")) {
+
+                //advance to the correct spot
+                while (!line.startsWith("Line Format"))
+                    line = br.readLine();
+
+                br.readLine();
+
+                UndirectedGraph ans = new UndirectedGraph(n);
+                for (int i = 1; i <= m; i++) {
+                    line = br.readLine();
+                    temp = line.split(",");
+                    ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Boolean.parseBoolean(temp[3]));
+                }
+                ans.setDepotId(depotId);
+                return ans;
+            } else if (line.contains("DIRECTED")) {
+
+                //advance to the correct spot
+                while (!line.startsWith("Line Format"))
+                    line = br.readLine();
+
+                br.readLine();
+
+                DirectedGraph ans = new DirectedGraph(n);
+                for (int i = 1; i <= m; i++) {
+                    line = br.readLine();
+                    temp = line.split(",");
+                    ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Boolean.parseBoolean(temp[3]));
+                }
+                ans.setDepotId(depotId);
+                return ans;
+            } else if (line.contains("MIXED")) {
+
+                //advance to the correct spot
+                while (!line.startsWith("Line Format"))
+                    line = br.readLine();
+
+                br.readLine();
+
+                MixedGraph ans = new MixedGraph(n);
+                for (int i = 1; i <= m; i++) {
+                    line = br.readLine();
+                    temp = line.split(",");
+                    ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Boolean.parseBoolean(temp[3]), Boolean.parseBoolean(temp[4]));
+                }
+                ans.setDepotId(depotId);
+                return ans;
+            } else if (line.contains("WINDY")) {
+
+                //advance to the correct spot
+                while (!line.startsWith("Line Format"))
+                    line = br.readLine();
+
+                WindyGraph ans = new WindyGraph(n);
+                for (int i = 1; i <= m; i++) {
+                    line = br.readLine();
+                    temp = line.split(",");
+                    ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Integer.parseInt(temp[3]), Boolean.parseBoolean(temp[4]));
+                }
+                ans.setDepotId(depotId);
+
+                //advance to the correct spot
+                while (!line.startsWith("Line Format"))
+                    line = br.readLine();
+
+                for (int i = 1; i <= n; i++) {
+                    line = br.readLine();
+                    temp = line.split(",");
+                    ans.getVertex(i).setCoordinates(Double.parseDouble(temp[0]), Double.parseDouble(temp[1]));
+                }
+
+                return ans;
+
+            }
+
+
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     private Graph<?, ?> readMETISGraph(String fileName) throws FormatMismatchException {

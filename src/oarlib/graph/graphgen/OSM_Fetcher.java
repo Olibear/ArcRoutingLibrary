@@ -64,6 +64,10 @@ public class OSM_Fetcher {
     }
 
     public WindyGraph queryForGraph() {
+        return queryForGraph(1000);
+    }
+
+    public WindyGraph queryForGraph(long seed) {
 
         if (!needToGen)
             return mGraph;
@@ -93,7 +97,7 @@ public class OSM_Fetcher {
                 Node curr, prev;
                 int to, from, cost, reverseCost;
                 double perturb;
-                Random rng = new Random(1000);
+                Random rng = new Random(seed);
 
                 for (int i = 0; i < nodeList.getLength(); i++) {
                     Node node = nodeList.item(i);

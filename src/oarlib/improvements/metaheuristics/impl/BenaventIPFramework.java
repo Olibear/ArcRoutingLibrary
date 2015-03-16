@@ -36,7 +36,6 @@ import oarlib.improvements.perturbation.TwoSwapPerturb;
 import oarlib.improvements.util.Utils;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.WindyEdge;
-import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.problem.impl.ProblemAttributes;
 import oarlib.problem.impl.multivehicle.MinMaxKWRPP;
 import oarlib.solver.impl.MultiWRPPSolver_Benavent;
@@ -53,7 +52,6 @@ import java.util.Collection;
 public class BenaventIPFramework extends ImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
     private static final Logger LOGGER = Logger.getLogger(BenaventIPFramework.class);
-    MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> mProblem;
 
     public BenaventIPFramework(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);

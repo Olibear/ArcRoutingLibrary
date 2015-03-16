@@ -365,4 +365,9 @@ public class WPPSolver_Gurobi_CuttingPlane extends SingleVehicleSolver<WindyVert
         return new WPPSolver_Gurobi_CuttingPlane(p);
     }
 
+    @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
 }

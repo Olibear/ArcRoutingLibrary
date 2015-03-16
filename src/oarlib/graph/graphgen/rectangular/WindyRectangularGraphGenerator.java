@@ -30,6 +30,11 @@ import oarlib.vertex.impl.WindyVertex;
  * Created by oliverlum on 12/14/14.
  */
 public class WindyRectangularGraphGenerator extends RectangularGraphGenerator<WindyGraph> {
+
+    public WindyRectangularGraphGenerator(long seed) {
+        super(seed);
+    }
+
     @Override
     protected WindyGraph generate(int n, int maxCost, double reqDensity, boolean positiveCosts) {
 

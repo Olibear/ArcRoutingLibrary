@@ -45,16 +45,13 @@ import java.util.Collection;
 public class OnePassBenaventIPFramework extends ImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
     private static final Logger LOGGER = Logger.getLogger(BenaventIPFramework.class);
-    Problem<WindyVertex, WindyEdge, WindyGraph> mProblem;
 
     public OnePassBenaventIPFramework(MultiVehicleProblem<WindyVertex, WindyEdge, WindyGraph> problem) {
         super(problem);
-        mProblem = problem;
     }
 
     public OnePassBenaventIPFramework(Problem<WindyVertex, WindyEdge, WindyGraph> problem, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
         super(problem, null, initialSol);
-        mProblem = problem;
     }
 
     @Override

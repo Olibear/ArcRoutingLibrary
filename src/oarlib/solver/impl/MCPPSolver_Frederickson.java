@@ -607,6 +607,11 @@ public class MCPPSolver_Frederickson extends SingleVehicleSolver<MixedVertex, Mi
     }
 
     @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
+    @Override
     public Solver<MixedVertex, MixedEdge, MixedGraph> instantiate(Problem p) {
         return new MCPPSolver_Frederickson(p);
     }

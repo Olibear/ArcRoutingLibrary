@@ -46,11 +46,11 @@ public abstract class Link<V extends Vertex> {
     private boolean isRequired;
     private boolean capacitySet;
 
-    public Link(String label, Pair<V> endpoints, int cost) {
+    protected Link(String label, Pair<V> endpoints, int cost) {
         this(label, endpoints, cost, true);
     }
 
-    public Link(String label, Pair<V> endpoints, int cost, boolean required) {
+    protected Link(String label, Pair<V> endpoints, int cost, boolean required) {
         setId(-1);
         setGraphId(-1);
         setMatchId(-1);

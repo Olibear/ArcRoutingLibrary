@@ -55,7 +55,7 @@ public abstract class Vertex {
     private boolean hasCoordinates;
     private boolean isFinalized; // should be true if in a graph, false oth.
 
-    public Vertex(String label) {
+    protected Vertex(String label) {
         setId(-1);
         setGraphId(-1);
         setMatchId(-1);

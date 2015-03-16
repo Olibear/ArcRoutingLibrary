@@ -815,6 +815,11 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
     }
 
     @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
+    @Override
     public Solver instantiate(Problem p) {
         return new MCPPSolver_Yaoyuenyong(p);
     }

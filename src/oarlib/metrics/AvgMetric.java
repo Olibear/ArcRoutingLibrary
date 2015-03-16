@@ -39,10 +39,10 @@ public class AvgMetric extends Metric {
 
     @Override
     public <V extends Vertex, E extends Link<V>> double evaluate(Collection<? extends Route> routes) {
-        int max = Integer.MIN_VALUE;
+        int max = 0;
         for (Route r : routes)
             if (r.getCost() > max)
-                max = r.getCost();
+                max += r.getCost();
         return (max / routes.size());
     }
 

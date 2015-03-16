@@ -33,6 +33,10 @@ import java.util.Random;
  */
 public class DirectedRectangularGraphGenerator extends RectangularGraphGenerator<DirectedGraph> {
 
+    public DirectedRectangularGraphGenerator(long seed) {
+        super(seed);
+    }
+
     @Override
     protected DirectedGraph generate(int n, int maxCost, double reqDensity, boolean positiveCosts) {
 

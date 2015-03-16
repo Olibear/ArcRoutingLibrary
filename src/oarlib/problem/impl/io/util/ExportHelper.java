@@ -1,4 +1,4 @@
-package oarlib.graph.io.util;
+package oarlib.problem.impl.io.util;
 
 import oarlib.core.*;
 import oarlib.metrics.*;
@@ -6,6 +6,7 @@ import oarlib.metrics.*;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * Created by oliverlum on 1/18/15.
@@ -34,6 +35,8 @@ public class ExportHelper {
             int numInstances = instances.size();
             int numMetrics = metrics.size();
 
+            ArrayList<String> parameterTitles = new ArrayList<String>();
+
             //header
             pw.print(outputFile.replace(".csv", ""));
             pw.print(",");
@@ -47,6 +50,12 @@ public class ExportHelper {
             }
             pw.print(",");
             pw.print("Time (seconds)");
+            pw.print(",");
+            for (String key : solverInstance.getProblemParameters().keySet()) {
+                pw.print(",");
+                pw.print(key);
+                parameterTitles.add(key);
+            }
             pw.println();
             pw.println();
 
@@ -61,6 +70,7 @@ public class ExportHelper {
                 Collection<? extends Route> currSol = currSolver.trySolve();
                 long end = System.nanoTime();
 
+                //Metrics
                 for (int j = 0; j < numMetrics; j++) {
 
                     Metric temp = null;
@@ -107,8 +117,20 @@ public class ExportHelper {
                     pw.print(temp.evaluate(currSol));
                     pw.print(",");
                 }
+
+                //Time
                 pw.print((end - start) / 1000000000);
                 pw.print(",");
+
+                pw.print(",");
+                //Parameters
+                HashMap<String, Double> parameters = currSolver.getProblemParameters();
+                for (int j = 0; j < parameterTitles.size(); j++) {
+                    pw.print(parameters.get(parameterTitles.get(j)));
+                    pw.print(",");
+                }
+
+
                 pw.println();
             }
 

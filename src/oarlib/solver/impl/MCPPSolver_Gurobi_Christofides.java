@@ -224,4 +224,9 @@ public class MCPPSolver_Gurobi_Christofides extends SingleVehicleSolver<MixedVer
         return new MCPPSolver_Gurobi_Christofides(p);
     }
 
+    @Override
+    public HashMap<String, Double> getProblemParameters() {
+        return new HashMap<String, Double>();
+    }
+
 }
