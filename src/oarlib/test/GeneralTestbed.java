@@ -33,6 +33,7 @@ import oarlib.graph.graphgen.Util.BoundingBox;
 import oarlib.graph.graphgen.Util.OSM_BoundingBoxes;
 import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
+import oarlib.graph.graphgen.rectangular.WindyRectangularGraphGenerator;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
@@ -48,6 +49,7 @@ import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.problem.impl.cpp.WindyCPP;
 import oarlib.problem.impl.io.ProblemFormat;
 import oarlib.problem.impl.io.ProblemReader;
+import oarlib.problem.impl.io.ProblemWriter;
 import oarlib.problem.impl.io.util.ExportHelper;
 import oarlib.problem.impl.multivehicle.MinMaxKWRPP;
 import oarlib.problem.impl.rpp.DirectedRPP;
@@ -97,7 +99,7 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/Username/Foldername");
+        testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/Benavent_10_Edge_20.csv");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
@@ -265,28 +267,30 @@ public class
                 for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
                     //OSM_Fetcher fetcher = new OSM_Fetcher(bb);
                     //g = fetcher.queryForGraph();
-                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_Center.txt");
-                    g.setDepotId(Utils.findCenterVertex(g));
+                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_20_Edge.txt");
+                    //g.setDepotId(Utils.findCenterVertex(g));
                     validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 10);
                     probs.add(validWInstance);
                 }
 
                 //now do the rectangular instances
-                /*for (int i = 1; i <= 10; i++) {
-                        WindyRectangularGraphGenerator wrg = new WindyRectangularGraphGenerator(1000);
-                        g = wrg.generateGraph(25 - i, 10, .5, true);
-                        g.setDepotId(Utils.findCenterVertex(g));
+                for (int i = 1; i <= 10; i++) {
+                        //WindyRectangularGraphGenerator wrg = new WindyRectangularGraphGenerator(1000);
+                        //g = wrg.generateGraph(25 - i, 10, .8, true);
+                        g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/Random Instance " + i + "_20_Edge.txt");
+                        //g.setDepotId(Utils.findCenterVertex(g));
                         validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 10);
                         probs.add(validWInstance);
-                }*/
-                MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "", null);
-                //MultiWRPPSolver_Benavent validWSolver = new MultiWRPPSolver_Benavent(validWInstance);
+
+                }
+                //MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "", null);
+                MultiWRPPSolver_Benavent validWSolver = new MultiWRPPSolver_Benavent(validWInstance);
 
                 ExportHelper.exportToExcel(probs, metrics, validWSolver, outputFile);
 
-                String from = "******";
-                String pass = "******";
-                String[] to = {"******"}; // list of recipient email addresses
+                String from = "oliver@math.umd.edu";
+                String pass = "Ctznrsd@";
+                String[] to = {"oliver@math.umd.edu"}; // list of recipient email addresses
                 String subject = "OARLib Notification";
                 String body = "Your runs have completed.  Thank you for using OARLib.";
 

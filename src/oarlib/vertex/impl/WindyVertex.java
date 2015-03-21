@@ -23,11 +23,15 @@
  */
 package oarlib.vertex.impl;
 
+import oarlib.core.Link;
 import oarlib.core.Vertex;
+import oarlib.link.impl.Arc;
 import oarlib.link.impl.WindyEdge;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Vertex representation for Windy Graphs.
@@ -38,10 +42,12 @@ public class WindyVertex extends Vertex {
 
     private int degree;
     private HashMap<WindyVertex, ArrayList<WindyEdge>> neighbors;
+    private HashSet<WindyEdge> incidentLinks;
 
     public WindyVertex(String label) {
         super(label);
         neighbors = new HashMap<WindyVertex, ArrayList<WindyEdge>>();
+        incidentLinks = new HashSet<WindyEdge>();
         setDegree(0);
     }
 
@@ -76,12 +82,30 @@ public class WindyVertex extends Vertex {
         return true;
     }
 
+
+    /**
+     * Adds a link to the incident links set
+     * @param a - the arc to add
+     */
+    public void addToIncidentLinks(WindyEdge a) {
+        incidentLinks.add(a);
+    }
+
+    /**
+     * Removes a link from the incident links set of this vertex
+     * @param a - the arc to remove
+     */
+    public boolean removeFromIncidentLinks(WindyEdge a) {
+        return incidentLinks.remove(a);
+    }
+
     //=================================
     //
     // Getters and Setters
     //
     //=================================
 
+    @Override
     public int getDegree() {
         return degree;
     }
@@ -104,6 +128,11 @@ public class WindyVertex extends Vertex {
     @Override
     public void clearNeighbors() {
         neighbors = new HashMap<WindyVertex, ArrayList<WindyEdge>>();
+    }
+
+    @Override
+    public Collection<? extends Link<? extends Vertex>> getIncidentLinks() {
+        return incidentLinks;
     }
 
 

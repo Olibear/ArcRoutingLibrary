@@ -125,9 +125,11 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
         if (e.isDirected()) {
             e.getEndpoints().getFirst().addToNeighbors(e.getEndpoints().getSecond(), e);
             MixedVertex toUpdate = e.getEndpoints().getFirst();
+            toUpdate.addToIncidentLinks(e);
             toUpdate.setOutDegree(toUpdate.getOutDegree() + 1);
             toUpdate.setDegree(toUpdate.getDegree() + 1);
             toUpdate = e.getEndpoints().getSecond();
+            toUpdate.addToIncidentLinks(e);
             toUpdate.setInDegree(toUpdate.getInDegree() + 1);
             toUpdate.setDegree(toUpdate.getDegree() + 1);
             super.addEdge(e);
@@ -136,8 +138,10 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
             endpoints.getFirst().addToNeighbors(endpoints.getSecond(), e);
             endpoints.getSecond().addToNeighbors(endpoints.getFirst(), e);
             MixedVertex toUpdate = endpoints.getFirst();
+            toUpdate.addToIncidentLinks(e);
             toUpdate.setDegree(toUpdate.getDegree() + 1);
             toUpdate = e.getEndpoints().getSecond();
+            toUpdate.addToIncidentLinks(e);
             toUpdate.setDegree(toUpdate.getDegree() + 1);
             super.addEdge(e);
         }
@@ -164,8 +168,10 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
             if (e.isDirected()) {
                 e.getEndpoints().getFirst().removeFromNeighbors(e.getEndpoints().getSecond(), e);
                 MixedVertex toUpdate = e.getEndpoints().getFirst();
+                toUpdate.removeFromIncidentLinks(e);
                 toUpdate.setOutDegree(toUpdate.getOutDegree() - 1);
                 toUpdate = e.getEndpoints().getSecond();
+                toUpdate.removeFromIncidentLinks(e);
                 toUpdate.setInDegree(toUpdate.getInDegree() - 1);
                 super.removeEdge(e);
             } else {
@@ -173,8 +179,10 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
                 endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
                 endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
                 MixedVertex toUpdate = endpoints.getFirst();
+                toUpdate.removeFromIncidentLinks(e);
                 toUpdate.setDegree(toUpdate.getDegree() - 1);
                 toUpdate = e.getEndpoints().getSecond();
+                toUpdate.removeFromIncidentLinks(e);
                 toUpdate.setDegree(toUpdate.getDegree() - 1);
                 super.removeEdge(e);
             }

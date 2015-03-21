@@ -27,6 +27,7 @@ import oarlib.exceptions.NoDemandSetException;
 import oarlib.graph.util.Pair;
 import org.apache.log4j.Logger;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -71,8 +72,11 @@ public abstract class Vertex {
 
     public abstract Map<? extends Vertex, ? extends List<? extends Link<? extends Vertex>>> getNeighbors();
 
-
     public abstract void clearNeighbors();
+
+    public abstract Collection<? extends Link<? extends Vertex>> getIncidentLinks();
+
+    public abstract int getDegree();
 
     //==================================
     // Getters and Setters

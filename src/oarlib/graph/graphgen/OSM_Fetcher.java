@@ -24,6 +24,8 @@
 package oarlib.graph.graphgen;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.core.Link;
+import oarlib.core.Vertex;
 import oarlib.graph.graphgen.Util.BoundingBox;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
@@ -199,7 +201,7 @@ public class OSM_Fetcher {
                     boolean isReq;
                     for (int j = 1; j <= m; j++) {
                         temp = ansEdges.get(j);
-                        isReq = rng.nextDouble() > .5;
+                        isReq = rng.nextDouble() > .2;
                         if (maxPart.contains(temp.getEndpoints().getFirst().getId()) && maxPart.contains(temp.getEndpoints().getSecond().getId())) {
                             tempFirst = trueAns.getVertex(temp.getEndpoints().getFirst().getMatchId());
                             tempSecond = trueAns.getVertex(temp.getEndpoints().getSecond().getMatchId());
@@ -232,6 +234,48 @@ public class OSM_Fetcher {
         needToGen = false;
         mGraph = ans;
         return ans;
+    }
+
+    private void removeDegreeTwoNodes(WindyGraph input) {
+
+        int neighbor1To2 = 0;
+        int neighbor2To1 = 0;
+        ArrayList<Integer> neighborIds = new ArrayList<Integer>();
+        //now remove vertices of degree 2, and destroy the two links to create just 1
+        for(WindyVertex wv : input.getVertices()) {
+            if(wv.getDegree() == 2 && wv.getNeighbors().keySet().size() == 2) {
+                for(WindyVertex neighbor: wv.getNeighbors().keySet()) {
+                    WindyEdge connector = wv.getNeighbors().get(neighbor).get(0);
+
+                    //grab costs for new edge
+                    if(connector.getEndpoints().getFirst().getId() == wv.getId()) {
+                        neighbor1To2 += connector.getReverseCost();
+                        neighbor2To1 += connector.getCost();
+                        neighborIds.add(connector.getEndpoints().getSecond().getId());
+                    }
+                    else {
+                        neighbor1To2 += connector.getCost();
+                        neighbor2To1 += connector.getReverseCost();
+                        neighborIds.add(connector.getEndpoints().getFirst().getId());
+                    }
+                    input.removeEdge(connector);
+
+                }
+                try {
+                    input.addEdge(neighborIds.get(0), neighborIds.get(1), neighbor1To2, neighbor2To1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                input.removeVertex(wv);
+                neighbor1To2 = 0;
+                neighbor2To1 = 0;
+                neighborIds.clear();
+            }
+
+        }
+
+        //perhaps now re-index
     }
 
     private int latLonToMeters(double y1, double x1, double y2, double x2) {

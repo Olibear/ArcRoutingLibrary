@@ -34,6 +34,7 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.impl.EdgeInducedRequirementTransform;
 import oarlib.graph.transform.partition.impl.PreciseWindyKWayPartitionTransform;
 import oarlib.graph.transform.rebalance.CostRebalancer;
+import oarlib.graph.transform.rebalance.impl.ClosestRequiredEdgeRebalancer;
 import oarlib.graph.transform.rebalance.impl.DuplicateEdgeCostRebalancer;
 import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer;
 import oarlib.graph.util.CommonAlgorithms;
@@ -123,7 +124,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             Pair<Double> bounds = calculateSimpleBounds();
             double upperBound = bounds.getSecond();
             double lowerBound = bounds.getFirst();
-            double numRuns = 100;
+            double numRuns = 10;
             double interval = (upperBound - lowerBound) / numRuns;
             double numSolPerWeight = 5;
             double currWeightBest;
@@ -131,12 +132,20 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             String outputFile = "/Users/oliverlum/Desktop/100runs_" + mInstanceName + ".txt";
             PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
 
+            //For the closest edge rebalancer
+            int n = mGraph.getVertices().size();
+            int[][] dist = new int[n+1][n+1];
+            int[][] path = new int[n+1][n+1];
+            CommonAlgorithms.fwLeastCostPaths(mGraph, dist,path);
+
             for (int j = 1; j <= numRuns; j++) {
                 currWeightBest = Double.MAX_VALUE;
                 for (int k = 1; k <= numSolPerWeight; k++) {
 
-                    //double weight = (lowerBound + upperBound)/2.0;
-                    sol = partition(new DuplicateEdgeCostRebalancer(mGraph, new IndividualDistanceToDepotRebalancer(mGraph, lowerBound + j * interval)));
+                    //new beta stuff
+                    ClosestRequiredEdgeRebalancer<WindyGraph> beta = new ClosestRequiredEdgeRebalancer<WindyGraph>(mGraph, new WindyGraphFactory(), .9, new IndividualDistanceToDepotRebalancer(mGraph, lowerBound + j * interval));
+                    beta.setDistMatrix(dist);
+                    sol = partition(new DuplicateEdgeCostRebalancer(mGraph, beta));
 
                     mGraph = mInstance.getGraph();
 

@@ -45,10 +45,10 @@ public class EdgeInducedRequirementTransform<S extends Graph<?, ?>> implements G
 
     /**
      * Transformer, primarily for rural problems.  This takes a set of ids, and returns the same graph, but where the only required edges are the
-     * ones specified.  This ensures maximum flexibility, and free connectivity
+     * ones specified.  This ensures maximum flexibility, and free connectivity.
      */
     public EdgeInducedRequirementTransform(S graph, Factory<S> sFactory, HashSet<Integer> ids) {
-        mGraph = graph;
+        setGraph(graph);
         mEdges = ids;
         mFactory = sFactory;
     }

@@ -50,7 +50,7 @@ public class DuplicateEdgeCostRebalancer<S extends Graph<?, ?>> extends CostReba
      * @throws oarlib.exceptions.FormatMismatchException - if the ArrayList is of the wrong size.
      */
     public DuplicateEdgeCostRebalancer(S input) throws FormatMismatchException {
-        super(input, null);
+        super(input);
     }
 
     public DuplicateEdgeCostRebalancer(S input, CostRebalancer<S> nextRebalancer) {

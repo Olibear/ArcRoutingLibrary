@@ -126,6 +126,20 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     public abstract void addVertex();
 
     /**
+     * To remove a vertex with the specified index from the graph.
+     * @param i - the index of the vertex to be removed.
+     * @return - true if the vertex was successfully removed, false oth.
+     */
+    public abstract boolean removeVertex(int i);
+
+    /**
+     * To remove a vertex from the graph.
+     * @param v - the vertex to be removed.
+     * @return - true if the vertex was successfully removed, false oth.
+     */
+    public abstract boolean removeVertex(V v);
+
+    /**
      * To query for a specific vertex in the graph, as opposed to having to create another local duplicate map.
      *
      * @param i - the id in the internal map of the graph for the desired vertex

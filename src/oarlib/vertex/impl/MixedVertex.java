@@ -23,11 +23,15 @@
  */
 package oarlib.vertex.impl;
 
+import oarlib.core.Link;
 import oarlib.core.Vertex;
+import oarlib.link.impl.Arc;
 import oarlib.link.impl.MixedEdge;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Vertex representation for use with Mixed Graphs.  This vertex stores undirected degree separately from in-degree and out-degree.
@@ -40,6 +44,7 @@ public class MixedVertex extends Vertex {
     private int outDegree;
     private int degree;
     private HashMap<MixedVertex, ArrayList<MixedEdge>> neighbors;
+    private HashSet<MixedEdge> incidentLinks;
 
     public MixedVertex(String label) {
         super(label);
@@ -47,7 +52,7 @@ public class MixedVertex extends Vertex {
         setOutDegree(0);
         setDegree(0);
         neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
-
+        incidentLinks = new HashSet<MixedEdge>();
     }
 
     /**
@@ -90,6 +95,23 @@ public class MixedVertex extends Vertex {
         return true;
     }
 
+
+    /**
+     * Adds a link to the incident links set
+     * @param a - the arc to add
+     */
+    public void addToIncidentLinks(MixedEdge a) {
+        incidentLinks.add(a);
+    }
+
+    /**
+     * Removes a link from the incident links set of this vertex
+     * @param a - the arc to remove
+     */
+    public boolean removeFromIncidentLinks(MixedEdge a) {
+        return incidentLinks.remove(a);
+    }
+
     //=================================
     //
     // Getters and Setters
@@ -112,6 +134,7 @@ public class MixedVertex extends Vertex {
         this.outDegree = outDegree;
     }
 
+    @Override
     public int getDegree() {
         return degree;
     }
@@ -138,6 +161,11 @@ public class MixedVertex extends Vertex {
     @Override
     public void clearNeighbors() {
         neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
+    }
+
+    @Override
+    public Collection<? extends Link<? extends Vertex>> getIncidentLinks() {
+        return incidentLinks;
     }
 
 }

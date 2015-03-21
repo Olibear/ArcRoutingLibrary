@@ -23,11 +23,15 @@
  */
 package oarlib.vertex.impl;
 
+import oarlib.core.Link;
 import oarlib.core.Vertex;
+import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Vertex representation for Undirected Graphs.
@@ -38,10 +42,12 @@ public class UndirectedVertex extends Vertex {
 
     private int degree;
     private HashMap<UndirectedVertex, ArrayList<Edge>> neighbors;
+    private HashSet<Edge> incidentLinks;
 
     public UndirectedVertex(String label) {
         super(label);
         neighbors = new HashMap<UndirectedVertex, ArrayList<Edge>>();
+        incidentLinks = new HashSet<Edge>();
         setDegree(0);
     }
 
@@ -77,12 +83,29 @@ public class UndirectedVertex extends Vertex {
         return true;
     }
 
+    /**
+     * Adds a link to the incident links set
+     * @param a - the arc to add
+     */
+    public void addToIncidentLinks(Edge a) {
+        incidentLinks.add(a);
+    }
+
+    /**
+     * Removes a link from the incident links set of this vertex
+     * @param a - the arc to remove
+     */
+    public boolean removeFromIncidentLinks(Edge a) {
+        return incidentLinks.remove(a);
+    }
+
     //=================================
     //
     // Getters and Setters
     //
     //=================================
 
+    @Override
     public int getDegree() {
         return degree;
     }
@@ -105,6 +128,11 @@ public class UndirectedVertex extends Vertex {
     @Override
     public void clearNeighbors() {
         neighbors = new HashMap<UndirectedVertex, ArrayList<Edge>>();
+    }
+
+    @Override
+    public Collection<? extends Link<? extends Vertex>> getIncidentLinks() {
+        return incidentLinks;
     }
 
 

@@ -27,6 +27,7 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.exceptions.InvalidEndpointsException;
 
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 
 /**
@@ -41,6 +42,8 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     private HashSet<E> mEdges;
     private TIntObjectHashMap<V> mInternalVertexMap; //indexed by ids
     private TIntObjectHashMap<E> mInternalEdgeMap;
+
+    private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(MutableGraph.class);
 
     protected MutableGraph() {
         super();
@@ -107,6 +110,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     public void addVertex(int matchId) {
         this.addVertex(this.constructVertex(""), matchId);
     }
+
 
     //==============================
     //
@@ -205,6 +209,22 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     @Override
     public void addVertex() {
         this.addVertex(this.constructVertex(""));
+    }
+
+    @Override
+    public boolean removeVertex(V v) {
+        if (!mVertices.contains(v))
+            return false;
+        if(v.getDegree() != 0) {
+            LOGGER.warn("You are attempting to remove a vertex that still has incident links.  Please remove these first.");
+            return false;
+        }
+        return mVertices.remove(v);
+    }
+
+    @Override
+    public boolean removeVertex(int i) {
+        return removeVertex(this.getVertex(i));
     }
 
     @Override

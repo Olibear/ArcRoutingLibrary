@@ -222,7 +222,9 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
         if (fromPos == 0) {
             prevId = mGraph.getDepotId();
 
-            if (fromDir.get(fromPos + 1))
+            if(fromDir.size() == 1)
+                nextId = prevId;
+            else if (fromDir.get(fromPos + 1))
                 nextId = mGraph.getEdge(fromList.get(fromPos + 1)).getEndpoints().getFirst().getId();
             else
                 nextId = mGraph.getEdge(fromList.get(fromPos + 1)).getEndpoints().getSecond().getId();
@@ -254,7 +256,9 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
         if (toPos == 0) {
             prevId = mGraph.getDepotId();
 
-            if (toDir.get(toPos))
+            if(toDir.size() == 0)
+                nextId = prevId;
+            else if (toDir.get(toPos))
                 nextId = mGraph.getEdge(toList.get(toPos)).getEndpoints().getFirst().getId();
             else
                 nextId = mGraph.getEdge(toList.get(toPos)).getEndpoints().getSecond().getId();

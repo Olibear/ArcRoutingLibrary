@@ -46,7 +46,7 @@ public abstract class CostRebalancer<S extends Graph<?, ?>> {
      * @throws FormatMismatchException - if the ArrayList is of the wrong size.
      */
     protected CostRebalancer(S input) throws FormatMismatchException {
-        mGraph = input;
+        this(input, null);
     }
 
     protected CostRebalancer(S input, CostRebalancer<S> nextRebalancer) {

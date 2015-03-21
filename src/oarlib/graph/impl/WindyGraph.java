@@ -139,8 +139,10 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
         endpoints.getFirst().addToNeighbors(endpoints.getSecond(), e);
         endpoints.getSecond().addToNeighbors(endpoints.getFirst(), e);
         WindyVertex toUpdate = endpoints.getFirst();
+        toUpdate.addToIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() + 1);
         toUpdate = e.getEndpoints().getSecond();
+        toUpdate.addToIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() + 1);
         super.addEdge(e);
     }
@@ -164,8 +166,10 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
         endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
         endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
         WindyVertex toUpdate = endpoints.getFirst();
+        toUpdate.removeFromIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() - 1);
         toUpdate = e.getEndpoints().getSecond();
+        toUpdate.removeFromIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() - 1);
         super.removeEdge(e);
     }
