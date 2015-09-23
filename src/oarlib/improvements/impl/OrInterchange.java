@@ -49,7 +49,6 @@ import java.util.Collection;
  */
 public class OrInterchange extends IntraRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
 
-
     private static final int L = 4;
     private static final int M = 11;
 

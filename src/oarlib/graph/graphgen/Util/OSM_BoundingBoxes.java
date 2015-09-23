@@ -33,25 +33,25 @@ public class OSM_BoundingBoxes {
             //NYC
             //new BoundingBox(-73.978468, 40.787057, -73.966280, 40.792076, "NYC"),
             //SF
-            new BoundingBox(-122.416549, 37.782041, -122.402816, 37.791249, "San Francisco"),
+            //new BoundingBox(-122.416549, 37.782041, -122.402816, 37.791249, "San Francisco"),
             //DC
-            new BoundingBox(-77.035293, 38.930782, -77.024693, 38.936974, "Washington D.C."),
+            //new BoundingBox(-77.035293, 38.930782, -77.024693, 38.936974, "Washington D.C."),
             //Paris
             //new BoundingBox(2.284695, 48.867812, 2.303707, 48.878453, "Paris, France"),
             //London
-            new BoundingBox(-.137157, 51.510221, -.126986, 51.518527, "London, UK"),
+            //new BoundingBox(-.137157, 51.510221, -.126986, 51.518527, "London, UK"),
             //Istanbul
-            new BoundingBox(28.954437, 41.004398, 28.969264, 41.009030, "Istanbul, Turkey"),
+            //new BoundingBox(28.954437, 41.004398, 28.969264, 41.009030, "Istanbul, Turkey"),
             //Perth
-            new BoundingBox(115.858599, -31.944743, 115.869693, -31.939681, "Perth, Australia"),
+            //new BoundingBox(115.858599, -31.944743, 115.869693, -31.939681, "Perth, Australia"),
             //Auckland
             new BoundingBox(174.728553, -36.860062, 174.743359, -36.843990, "Auckland, Australia"),
             //Helsinki
-            new BoundingBox(24.935060, 60.164540, 24.943771, 60.169360, "Helsinki, Finland"),
+            //new BoundingBox(24.935060, 60.164540, 24.943771, 60.169360, "Helsinki, Finland"),
             //Calgary
             //new BoundingBox(-114.090764, 51.037411, -114.061281, 51.049795, "Calgary, Canada"),
             //Vienna
-            new BoundingBox(16.367078, 48.205786, 16.375082, 48.211377, "Vienna, Austria")
+            //new BoundingBox(16.367078, 48.205786, 16.375082, 48.211377, "Vienna, Austria")
     };
 
     public static final BoundingBox[] SUBURBAN_INSTANCES = new BoundingBox[]{

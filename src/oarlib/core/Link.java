@@ -35,6 +35,7 @@ import org.apache.log4j.Logger;
 public abstract class Link<V extends Vertex> {
 
     private static Logger LOGGER = Logger.getLogger(Link.class);
+    private static int maxTime = 1000000; //default end time for links that aren't assigned a time window
     private String mLabel;
     private int mId; //while this will help us identify the 'same' link in different graphs (graph copies for instance)
     private int mGraphId;
@@ -45,6 +46,10 @@ public abstract class Link<V extends Vertex> {
     private boolean isDirected;
     private boolean isRequired;
     private boolean capacitySet;
+    private boolean hasTimeWindow;
+    private int timeWindowStart;
+    private int timeWindowEnd;
+
 
     protected Link(String label, Pair<V> endpoints, int cost) {
         this(label, endpoints, cost, true);
@@ -59,6 +64,7 @@ public abstract class Link<V extends Vertex> {
         setCost(cost);
         setRequired(required);
         capacitySet = false;
+        hasTimeWindow = false;
     }
 
     /**
@@ -128,6 +134,33 @@ public abstract class Link<V extends Vertex> {
 
     public void setMatchId(int matchId) {
         this.matchId = matchId;
+    }
+
+    public boolean hasTimeWindow() {
+        return hasTimeWindow;
+    }
+
+    public void removeTimeWindow() {
+        if (!hasTimeWindow)
+            LOGGER.warn("You are attempting to remove a time window on a link that does not seem to have one.");
+        hasTimeWindow = false;
+        timeWindowStart = -1;
+        timeWindowEnd = -1;
+    }
+
+    public Pair<Integer> getTimeWindow() {
+        if (!hasTimeWindow) {
+            LOGGER.warn("You are attmepting to access the time window on a link that does not appear to have one.");
+            return new Pair<Integer>(0, maxTime);
+        }
+
+        return new Pair<Integer>(timeWindowStart, timeWindowEnd);
+    }
+
+    public void setTimeWindow(Pair<Integer> newTimeWindow) {
+        timeWindowStart = newTimeWindow.getFirst();
+        timeWindowEnd = newTimeWindow.getSecond();
+        hasTimeWindow = true;
     }
 
     public int getCapacity() throws NoCapacitySetException {

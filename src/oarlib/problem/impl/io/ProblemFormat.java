@@ -35,7 +35,8 @@ public class ProblemFormat {
         Simple, // format of the Blossom V test instances
         Yaoyuenyong, // format of the instances used to test Yaoyuenyong's SAPH
         Campos, // format of the instances used in the paper "A Computational Study of Several Heuristics for the DRPP"
-        METIS,
+        METIS, // format of the input / output of the METIS graph partitioning library
+        MeanderingPostman, // format used by researcher Rui Zhang to store the WRPP with ZigZag option, AKA the Meandering Postman Problem
         OARLib
     }
 }

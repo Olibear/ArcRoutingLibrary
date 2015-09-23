@@ -27,13 +27,11 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.exceptions.FormatMismatchException;
 import oarlib.exceptions.UnsupportedFormatException;
-import oarlib.graph.impl.DirectedGraph;
-import oarlib.graph.impl.MixedGraph;
-import oarlib.graph.impl.UndirectedGraph;
-import oarlib.graph.impl.WindyGraph;
+import oarlib.graph.impl.*;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
+import oarlib.link.impl.ZigZagLink;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -43,6 +41,11 @@ import org.apache.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Reader to accept various file formats, and store them as a graph object.
@@ -81,6 +84,8 @@ public class ProblemReader {
                 return readMETISGraph(fileName);
             case OARLib:
                 return readOARLibGraph(fileName);
+            case MeanderingPostman:
+                return readMeanderingPostmanGraph(fileName);
             default:
                 break;
         }
@@ -88,6 +93,185 @@ public class ProblemReader {
                 + " there doesn't seem to be an appropriate read method assigned to it.  Support is planned in the future," +
                 "but not currently available");
         throw new UnsupportedFormatException();
+    }
+
+    private Graph<?, ?> readMeanderingPostmanGraph(String fileName) throws FormatMismatchException {
+
+        try {
+
+            List<String> allLines = Files.readAllLines(Paths.get(fileName), Charset.defaultCharset());
+            int count = allLines.size();
+            int n = count / 5;
+
+            String line, line2;
+            String[] temp;
+            File graphFile = new File(fileName);
+            BufferedReader br = new BufferedReader(new FileReader(graphFile));
+
+            ZigZagGraph ans = new ZigZagGraph(n);
+
+            //keys are endpoint ids, with the first value always < second
+            HashMap<Pair<Integer>, ZigZagLink> links = new HashMap<Pair<Integer>, ZigZagLink>();
+
+            //parse travel times
+            Pair<Integer> key;
+            boolean reverse;
+            int value;
+            for (int i = 1; i <= n; i++) {
+                line = br.readLine();
+                temp = line.split(",\\s+|:|\t");
+                for (int j = 1; j <= n; j++) {
+
+                    value = Integer.parseInt(temp[j - 1]);
+                    if (value == 0)
+                        continue;
+
+                    if (i <= j) {
+                        key = new Pair<Integer>(i, j);
+                        reverse = false;
+                    } else {
+                        key = new Pair<Integer>(j, i);
+                        reverse = true;
+                    }
+
+                    if (!links.containsKey(key)) {
+                        //default
+                        links.put(key, ans.constructEdge(key.getFirst(), key.getSecond(), "", Integer.MAX_VALUE, Integer.MAX_VALUE, 0, 0, 0, ZigZagLink.ZigZagStatus.OPTIONAL));
+                    }
+
+                    ZigZagLink tempLink = links.get(key);
+                    if (reverse)
+                        tempLink.setmReverseCost(value);
+                    else
+                        tempLink.setCost(value);
+                }
+
+            }
+
+            //parse service times
+            for (int i = 1; i <= n; i++) {
+                line = br.readLine();
+                temp = line.split(",\\s+|:|\t");
+                for (int j = 1; j <= n; j++) {
+
+                    value = Integer.parseInt(temp[j - 1]);
+
+                    if (value == 0)
+                        continue;
+
+                    if (i <= j) {
+                        key = new Pair<Integer>(i, j);
+                        reverse = false;
+                    } else {
+                        key = new Pair<Integer>(j, i);
+                        reverse = true;
+                    }
+
+                    if (!links.containsKey(key)) {
+                        //default
+                        LOGGER.warn("THIS SHOULD NOT HAPPEN: All links should have been created already.");
+                        links.put(key, ans.constructEdge(key.getFirst(), key.getSecond(), "", Integer.MAX_VALUE, Integer.MAX_VALUE, 0, 0, 0, ZigZagLink.ZigZagStatus.OPTIONAL));
+                    }
+
+                    ZigZagLink tempLink = links.get(key);
+                    if (reverse)
+                        tempLink.setReverseServiceCost(value);
+                    else
+                        tempLink.setServiceCost(value);
+                }
+
+            }
+
+            //parse zig zag times
+            double zigValue;
+            for (int i = 1; i <= n; i++) {
+                line = br.readLine();
+                temp = line.split(",\\s+|:|\t");
+                for (int j = 1; j <= i; j++) {
+
+                    zigValue = Double.parseDouble(temp[j - 1]);
+                    if (zigValue == 0)
+                        continue;
+
+                    key = new Pair<Integer>(j, i);
+
+                    if (!links.containsKey(key)) {
+                        //default
+                        LOGGER.warn("THIS SHOULD NOT HAPPEN: All links should have been created already.");
+                        links.put(key, ans.constructEdge(key.getFirst(), key.getSecond(), "", Integer.MAX_VALUE, Integer.MAX_VALUE, 0, 0, 0, ZigZagLink.ZigZagStatus.OPTIONAL));
+                    }
+
+                    ZigZagLink tempLink = links.get(key);
+
+                    tempLink.setZigzagCost(zigValue);
+                }
+
+            }
+
+            //parse time windows
+            int endTime;
+            for (int i = 1; i <= n; i++) {
+                line = br.readLine();
+                temp = line.split(",\\s+|:|\t");
+                for (int j = 1; j <= i; j++) {
+
+                    endTime = Double.valueOf(temp[j - 1]).intValue();
+                    if (endTime == 0)
+                        continue;
+
+                    key = new Pair<Integer>(j, i);
+
+                    if (!links.containsKey(key)) {
+                        //default
+                        LOGGER.warn("THIS SHOULD NOT HAPPEN: All links should have been created already.");
+                        links.put(key, ans.constructEdge(key.getFirst(), key.getSecond(), "", Integer.MAX_VALUE, Integer.MAX_VALUE, 0, 0, 0, ZigZagLink.ZigZagStatus.OPTIONAL));
+                    }
+
+                    ZigZagLink tempLink = links.get(key);
+
+                    tempLink.setTimeWindow(new Pair<Integer>(0, endTime));
+                }
+            }
+
+            //parse type
+            for (int i = 1; i <= n; i++) {
+                line = br.readLine();
+                temp = line.split(",\\s+|:|\t");
+                for (int j = 1; j <= i; j++) {
+
+                    value = Integer.parseInt(temp[j - 1]);
+                    if (value == 0)
+                        continue;
+
+                    key = new Pair<Integer>(j, i);
+
+                    if (!links.containsKey(key)) {
+                        //default
+                        LOGGER.warn("THIS SHOULD NOT HAPPEN: All links should have been created already.");
+                        links.put(key, ans.constructEdge(key.getFirst(), key.getSecond(), "", Integer.MAX_VALUE, Integer.MAX_VALUE, 0, 0, 0, ZigZagLink.ZigZagStatus.OPTIONAL));
+                    }
+
+                    ZigZagLink tempLink = links.get(key);
+
+                    if (value == 1)
+                        tempLink.setStatus(ZigZagLink.ZigZagStatus.MANDATORY);
+                    else if (value == 2)
+                        tempLink.setStatus(ZigZagLink.ZigZagStatus.NOT_AVAILABLE);
+                    else if (value == 3)
+                        tempLink.setStatus(ZigZagLink.ZigZagStatus.OPTIONAL);
+                }
+
+            }
+
+            for (ZigZagLink zzl : links.values()) {
+                ans.addEdge(zzl);
+            }
+
+            return ans;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private Graph<?, ?> readOARLibGraph(String fileName) throws FormatMismatchException {

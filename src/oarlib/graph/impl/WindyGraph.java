@@ -117,6 +117,11 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
     //====================================================
 
     @Override
+    public boolean isWindy() {
+        return true;
+    }
+
+    @Override
     public void addVertex(WindyVertex v) {
         super.addVertex(v);
     }
@@ -178,7 +183,6 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
     public WindyGraph getDeepCopy() {
         try {
             WindyGraph ans = new WindyGraph();
-            ans.setDepotId(getDepotId());
             TIntObjectHashMap<WindyEdge> indexedEdges = this.getInternalEdgeMap();
             TIntObjectHashMap<WindyVertex> indexedVertices = this.getInternalVertexMap();
             WindyVertex temp, temp2;
@@ -201,6 +205,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
                 ans.addEdge(e2, e.getId());
             }
 
+            ans.setDepotId(getDepotId());
             return ans;
         } catch (Exception e) {
             e.printStackTrace();

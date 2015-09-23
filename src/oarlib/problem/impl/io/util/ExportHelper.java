@@ -111,6 +111,9 @@ public class ExportHelper {
                         case DEPDIST:
                             temp = new DepotDistanceToCenter(currProb.getGraph());
                             break;
+                        case CONVEXOVERLAP:
+                            temp = new ConvexHullMetric();
+                            break;
                     }
 
 

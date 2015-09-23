@@ -27,7 +27,6 @@ import gnu.trove.TIntObjectHashMap;
 import oarlib.exceptions.InvalidEndpointsException;
 
 import java.util.HashSet;
-import java.util.logging.Logger;
 
 
 /**
@@ -38,12 +37,11 @@ import java.util.logging.Logger;
  */
 public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends Graph<V, E> {
 
+    private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(MutableGraph.class);
     private HashSet<V> mVertices;
     private HashSet<E> mEdges;
     private TIntObjectHashMap<V> mInternalVertexMap; //indexed by ids
     private TIntObjectHashMap<E> mInternalEdgeMap;
-
-    private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(MutableGraph.class);
 
     protected MutableGraph() {
         super();
@@ -144,6 +142,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         e.setGraphId(this.getGraphId());
         mEdges.add(e);
         mInternalEdgeMap.put(e.getId(), e);
+        onStateChange();
     }
 
     @Override
@@ -204,6 +203,9 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         v.setGraphId(this.getGraphId());
         mVertices.add(v);
         mInternalVertexMap.put(v.getId(), v);
+        onStateChange();
+        if (v.isFinalized())
+            LOGGER.warn("You are trying to add a vertex to a second graph.  Behavior beyond this point is not guaranteed.");
     }
 
     @Override
@@ -219,7 +221,14 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
             LOGGER.warn("You are attempting to remove a vertex that still has incident links.  Please remove these first.");
             return false;
         }
-        return mVertices.remove(v);
+
+        boolean ret = mVertices.remove(v);
+        if (ret) {
+            onStateChange();
+            v.setFinalized(false);
+        }
+
+        return ret;
     }
 
     @Override
@@ -254,6 +263,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
             throw new IllegalArgumentException("Could not remove edge because it wasn't detected as existing in the first place!");
         mEdges.remove(e);
         mInternalEdgeMap.remove(e.getId());
+        onStateChange();
     }
 
     @Override

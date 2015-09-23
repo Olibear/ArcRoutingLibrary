@@ -24,7 +24,7 @@
 package oarlib.vertex.impl;
 
 import oarlib.core.Vertex;
-import oarlib.link.impl.WindyEdge;
+import oarlib.link.impl.ZigZagLink;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,20 +32,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 /**
- * Vertex representation for Windy Graphs.
- *
- * @author Oliver
+ * Vertex representation for ZigZagGraphs
+ * <p/>
+ * Created by oliverlum on 4/3/15.
  */
-public class WindyVertex extends Vertex {
+public class ZigZagVertex extends Vertex {
 
     private int degree;
-    private HashMap<WindyVertex, ArrayList<WindyEdge>> neighbors;
-    private HashSet<WindyEdge> incidentLinks;
+    private HashMap<ZigZagVertex, ArrayList<ZigZagLink>> neighbors;
+    private HashSet<ZigZagLink> incidentLinks;
 
-    public WindyVertex(String label) {
+    public ZigZagVertex(String label) {
         super(label);
-        neighbors = new HashMap<WindyVertex, ArrayList<WindyEdge>>();
-        incidentLinks = new HashSet<WindyEdge>();
+        neighbors = new HashMap<ZigZagVertex, ArrayList<ZigZagLink>>();
+        incidentLinks = new HashSet<ZigZagLink>();
         setDegree(0);
     }
 
@@ -56,11 +56,11 @@ public class WindyVertex extends Vertex {
      * @param e - the arc to be added.
      * @throws IllegalArgumentException - if the vertex isn't the other endpoint of the arc provided.
      */
-    public void addToNeighbors(WindyVertex v, WindyEdge e) throws IllegalArgumentException {
+    public void addToNeighbors(ZigZagVertex v, ZigZagLink e) throws IllegalArgumentException {
         if ((e.getEndpoints().getFirst() != this && e.getEndpoints().getSecond() != this) || (e.getEndpoints().getFirst() != v && e.getEndpoints().getSecond() != v) || this.getGraphId() != v.getGraphId())
             throw new IllegalArgumentException();
         if (!neighbors.containsKey(v))
-            neighbors.put(v, new ArrayList<WindyEdge>());
+            neighbors.put(v, new ArrayList<ZigZagLink>());
         neighbors.get(v).add(e);
     }
 
@@ -71,7 +71,7 @@ public class WindyVertex extends Vertex {
      * @param a - the arc to be removed.
      * @return true if operation successful, false if the arguments were invalid.
      */
-    public boolean removeFromNeighbors(WindyVertex v, WindyEdge a) {
+    public boolean removeFromNeighbors(ZigZagVertex v, ZigZagLink a) {
         if (!neighbors.containsKey(v) || !neighbors.get(v).contains(a))
             return false;
         neighbors.get(v).remove(a);
@@ -83,17 +83,19 @@ public class WindyVertex extends Vertex {
 
     /**
      * Adds a link to the incident links set
+     *
      * @param a - the arc to add
      */
-    public void addToIncidentLinks(WindyEdge a) {
+    public void addToIncidentLinks(ZigZagLink a) {
         incidentLinks.add(a);
     }
 
     /**
      * Removes a link from the incident links set of this vertex
+     *
      * @param a - the arc to remove
      */
-    public boolean removeFromIncidentLinks(WindyEdge a) {
+    public boolean removeFromIncidentLinks(ZigZagLink a) {
         return incidentLinks.remove(a);
     }
 
@@ -119,17 +121,17 @@ public class WindyVertex extends Vertex {
     //=================================
 
     @Override
-    public HashMap<WindyVertex, ArrayList<WindyEdge>> getNeighbors() {
+    public HashMap<ZigZagVertex, ArrayList<ZigZagLink>> getNeighbors() {
         return neighbors;
     }
 
     @Override
     public void clearNeighbors() {
-        neighbors = new HashMap<WindyVertex, ArrayList<WindyEdge>>();
+        neighbors = new HashMap<ZigZagVertex, ArrayList<ZigZagLink>>();
     }
 
     @Override
-    public Collection<WindyEdge> getIncidentLinks() {
+    public Collection<ZigZagLink> getIncidentLinks() {
         return incidentLinks;
     }
 

@@ -21,38 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package oarlib.metrics;
+package oarlib.graph.factory.impl;
 
-import oarlib.core.Link;
-import oarlib.core.Route;
-import oarlib.core.Vertex;
-
-import java.util.Collection;
+import oarlib.core.Factory;
+import oarlib.graph.impl.ZigZagGraph;
 
 /**
- * Created by oliverlum on 12/10/14.
+ * Simple factory for creating ZigZagGraphs without using reflection
+ * Created by oliverlum on 4/11/15.
  */
-public abstract class Metric {
-
-    public abstract <V extends Vertex, E extends Link<V>> double evaluate(Collection<? extends Route> routes);
-
-    public abstract Type getType();
-
-    public abstract String toString();
-
-    public enum Type {
-        ATD,
-        ROI,
-        AVG,
-        DEV,
-        SUM,
-        N,
-        M,
-        MIN,
-        MAX,
-        EDGECOST,
-        VAR,
-        DEPDIST,
-        CONVEXOVERLAP
+public class ZigZagGraphFactory implements Factory<ZigZagGraph> {
+    @Override
+    public ZigZagGraph instantiate() {
+        return new ZigZagGraph();
     }
 }

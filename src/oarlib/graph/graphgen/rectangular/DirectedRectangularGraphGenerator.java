@@ -26,8 +26,6 @@ package oarlib.graph.graphgen.rectangular;
 import oarlib.graph.impl.DirectedGraph;
 import oarlib.vertex.impl.DirectedVertex;
 
-import java.util.Random;
-
 /**
  * Created by oliverlum on 12/14/14.
  */
@@ -43,8 +41,6 @@ public class DirectedRectangularGraphGenerator extends RectangularGraphGenerator
         //trivial case
         if (n == 1)
             return new DirectedGraph(1);
-
-        Random rng = new Random();
 
         DirectedGraph ans = new DirectedGraph((int) Math.pow(n, 2));
         double interval = 100.0 / (n - 1);

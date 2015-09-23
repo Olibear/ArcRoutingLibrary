@@ -25,6 +25,7 @@ package oarlib.core;
 
 import gnu.trove.TIntObjectHashMap;
 import oarlib.exceptions.InvalidEndpointsException;
+import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 
 import java.util.Collection;
@@ -42,11 +43,16 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     private int eidCounter;
     private int graphId;
     private int depotId;
+    private int[][] mDist;
+    private int[][] mPath;
+
+    private boolean distGenerated;
 
     protected Graph() {
         vidCounter = 1;
         eidCounter = 1;
         depotId = 1; //default
+        distGenerated = false;
         assignGraphId();
     }
 
@@ -84,8 +90,71 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     }
 
     public void setDepotId(int newDepotId) {
+        if (newDepotId < 0 || newDepotId > getVertices().size())
+            throw new IllegalArgumentException();
         depotId = newDepotId;
     }
+
+    /**
+     * Lazy getter for the dist matrix
+     *
+     * @return
+     */
+    public int[][] getAllPairsDistMatrix() {
+        if (!distGenerated) {
+            //generate it
+            int n = getVertices().size();
+            int[][] dist = new int[n + 1][n + 1];
+            int[][] path = new int[n + 1][n + 1];
+            CommonAlgorithms.fwLeastCostPaths(this, dist, path);
+
+            mDist = dist;
+            mPath = path;
+
+            distGenerated = true;
+        }
+
+        return mDist;
+    }
+
+    /**
+     * Lazy getter for the path matrix
+     *
+     * @return
+     */
+    public int[][] getAllPairsPathMatrix() {
+        if (!distGenerated) {
+            int n = getVertices().size();
+            int[][] dist = new int[n + 1][n + 1];
+            int[][] path = new int[n + 1][n + 1];
+            CommonAlgorithms.fwLeastCostPaths(this, dist, path);
+
+            mDist = dist;
+            mPath = path;
+
+            distGenerated = true;
+        }
+
+        return mPath;
+    }
+
+    /**
+     * Callback for when the graph changes, (e.g. to set a flag that the distance matrix
+     * isn't up to date).
+     */
+    public void onStateChange() {
+        distGenerated = false;
+    }
+
+    /**
+     * Returns whether or not this graph has asymmetric travel costs.
+     * Directed and mixed graphs should not return true here even though
+     * they could be modeled as a windy graph.  However, any graph that may
+     * extend the functionality of a windy graph should return true.
+     *
+     * @return - true if the network has asymmetric travel distances, false oth.
+     */
+    public abstract boolean isWindy();
 
     /**
      * Getter for the vertices.

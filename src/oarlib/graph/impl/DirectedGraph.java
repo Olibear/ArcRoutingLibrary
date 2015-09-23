@@ -66,6 +66,11 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
     //====================================================
 
     @Override
+    public boolean isWindy() {
+        return false;
+    }
+
+    @Override
     public void addVertex(DirectedVertex v) {
         super.addVertex(v);
     }
@@ -128,7 +133,6 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
     public DirectedGraph getDeepCopy() {
         try {
             DirectedGraph ans = new DirectedGraph();
-            ans.setDepotId(getDepotId());
             DirectedVertex temp, temp2;
             Arc a, a2;
             TIntObjectHashMap<DirectedVertex> indexedVertices = this.getInternalVertexMap();
@@ -156,6 +160,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
                 a2.setMatchId(a.getId());
                 ans.addEdge(a2);
             }
+            ans.setDepotId(getDepotId());
             return ans;
         } catch (Exception e) {
             e.printStackTrace();

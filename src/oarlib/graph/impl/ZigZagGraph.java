@@ -29,8 +29,8 @@ import oarlib.core.Graph;
 import oarlib.core.MutableGraph;
 import oarlib.exceptions.InvalidEndpointsException;
 import oarlib.graph.util.Pair;
-import oarlib.link.impl.Edge;
-import oarlib.vertex.impl.UndirectedVertex;
+import oarlib.link.impl.ZigZagLink;
+import oarlib.vertex.impl.ZigZagVertex;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -38,21 +38,48 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * First attempts at an Undirected Graph.
- *
- * @author Oliver
+ * A class meant to hold data for an instance of the Windy Rural Postman Problem with Zig-Zagging,
+ * this is essentially a windy graph that has some zig-zaggable links, (although the problem calls for
+ * mandatory zig-zags, and mandatory two-way traversals, these can be modelled in the context of a
+ * windy graph).
+ * <p/>
+ * Created by oliverlum on 3/22/15.
  */
-public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
+public class ZigZagGraph extends MutableGraph<ZigZagVertex, ZigZagLink> {
 
     private static Logger LOGGER = Logger.getLogger(UndirectedGraph.class);
 
-    //constructors
-    public UndirectedGraph() {
+    public ZigZagGraph() {
         super();
     }
 
-    public UndirectedGraph(int n) {
+    public ZigZagGraph(int n) {
         super(n);
+    }
+
+    @Override
+    public ZigZagLink constructEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException {
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
+            throw new InvalidEndpointsException();
+        }
+        //with some defaults
+        return new ZigZagLink(desc, new Pair<ZigZagVertex>(getVertex(i), getVertex(j)), cost, cost, 3 * cost, 10, 10, ZigZagLink.ZigZagStatus.OPTIONAL);
+    }
+
+    //for more specificity
+    public ZigZagLink constructEdge(int i, int j, String desc, int cost, int reverseCost, double zigzagcost, int serviceCost, int reverseServiceCost, ZigZagLink.ZigZagStatus status) throws InvalidEndpointsException {
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
+            throw new InvalidEndpointsException();
+        }
+        //with some defaults
+        return new ZigZagLink(desc, new Pair<ZigZagVertex>(getVertex(i), getVertex(j)), cost, reverseCost, zigzagcost, serviceCost, reverseServiceCost, status);
+    }
+
+    @Override
+    public ZigZagVertex constructVertex(String desc) {
+        return new ZigZagVertex(desc);
     }
 
 
@@ -64,20 +91,32 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
 
     @Override
     public boolean isWindy() {
-        return false;
+        return true;
     }
 
     @Override
-    public void addVertex(UndirectedVertex v) {
+    public void addVertex(ZigZagVertex v) {
         super.addVertex(v);
     }
 
     @Override
-    public void addEdge(Edge e) throws InvalidEndpointsException {
-        Pair<UndirectedVertex> endpoints = e.getEndpoints();
+    public List<ZigZagLink> findEdges(Pair<ZigZagVertex> endpoints) {
+        ZigZagVertex first = endpoints.getFirst();
+        HashMap<ZigZagVertex, ArrayList<ZigZagLink>> firstNeighbors = first.getNeighbors();
+        return firstNeighbors.get(endpoints.getSecond());
+    }
+
+    @Override
+    public oarlib.core.Graph.Type getType() {
+        return Graph.Type.WINDY;
+    }
+
+    @Override
+    public void addEdge(ZigZagLink e) throws InvalidEndpointsException {
+        Pair<ZigZagVertex> endpoints = e.getEndpoints();
         endpoints.getFirst().addToNeighbors(endpoints.getSecond(), e);
         endpoints.getSecond().addToNeighbors(endpoints.getFirst(), e);
-        UndirectedVertex toUpdate = endpoints.getFirst();
+        ZigZagVertex toUpdate = endpoints.getFirst();
         toUpdate.addToIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() + 1);
         toUpdate = e.getEndpoints().getSecond();
@@ -89,22 +128,22 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
     @Override
     public void clearEdges() {
         super.clearEdges();
-        for (UndirectedVertex v : this.getVertices()) {
+        for (ZigZagVertex v : this.getVertices()) {
             v.setDegree(0);
             v.clearNeighbors();
         }
     }
 
     @Override
-    public void removeEdge(Edge e) throws IllegalArgumentException {
+    public void removeEdge(ZigZagLink e) throws IllegalArgumentException {
         if (!this.getEdges().contains(e)) {
             LOGGER.error("This graph does not appear to contain the specified link.");
             throw new IllegalArgumentException();
         }
-        Pair<UndirectedVertex> endpoints = e.getEndpoints();
+        Pair<ZigZagVertex> endpoints = e.getEndpoints();
         endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
         endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
-        UndirectedVertex toUpdate = endpoints.getFirst();
+        ZigZagVertex toUpdate = endpoints.getFirst();
         toUpdate.removeFromIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() - 1);
         toUpdate = e.getEndpoints().getSecond();
@@ -114,42 +153,28 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
     }
 
     @Override
-    public List<Edge> findEdges(Pair<UndirectedVertex> endpoints) {
-        UndirectedVertex first = endpoints.getFirst();
-        HashMap<UndirectedVertex, ArrayList<Edge>> firstNeighbors = first.getNeighbors();
-        return firstNeighbors.get(endpoints.getSecond());
-    }
-
-    @Override
-    public oarlib.core.Graph.Type getType() {
-        return Graph.Type.UNDIRECTED;
-    }
-
-    @Override
-    public UndirectedGraph getDeepCopy() {
+    public ZigZagGraph getDeepCopy() {
         try {
-
-            UndirectedGraph ans = new UndirectedGraph();
-
-            TIntObjectHashMap<Edge> indexedEdges = this.getInternalEdgeMap();
-            TIntObjectHashMap<UndirectedVertex> indexedVertices = this.getInternalVertexMap();
-            UndirectedVertex temp, temp2;
+            ZigZagGraph ans = new ZigZagGraph();
+            TIntObjectHashMap<ZigZagLink> indexedEdges = this.getInternalEdgeMap();
+            TIntObjectHashMap<ZigZagVertex> indexedVertices = this.getInternalVertexMap();
+            ZigZagVertex temp, temp2;
             int n = this.getVertices().size();
             for (int i = 1; i <= n; i++) {
-                temp = new UndirectedVertex("deep copy original"); //the new guy
+                temp = new ZigZagVertex("deep copy original"); //the new guy
                 temp2 = indexedVertices.get(i);
                 temp.setCoordinates(temp2.getX(), temp2.getY());
                 ans.addVertex(temp, i);
             }
-            Edge e, e2;
+            ZigZagLink e, e2;
             TIntArrayList forSorting = new TIntArrayList(indexedEdges.keys());
             forSorting.sort();
             int m = forSorting.size();
             for (int i = 0; i < m; i++) {
                 e = indexedEdges.get(forSorting.get(i));
-                e2 = new Edge("deep copy original", new Pair<UndirectedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost());
-                e2.setRequired(e.isRequired());
+                e2 = new ZigZagLink("deep copy original", new Pair<ZigZagVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.getReverseCost(), e.getZigzagCost(), e.getServiceCost(), e.getReverseServiceCost(), e.getStatus());
                 e2.setMatchId(e.getId());
+                e2.setRequired(e.isRequired());
                 ans.addEdge(e2, e.getId());
             }
 
@@ -161,19 +186,5 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
         }
     }
 
-    @Override
-    public Edge constructEdge(int i, int j, String desc, int cost)
-            throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
-            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
-            throw new InvalidEndpointsException();
-        }
-        return new Edge(desc, new Pair<UndirectedVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost);
-    }
-
-    @Override
-    public UndirectedVertex constructVertex(String desc) {
-        return new UndirectedVertex(desc);
-    }
 
 }

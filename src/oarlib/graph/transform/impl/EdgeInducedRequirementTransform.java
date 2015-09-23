@@ -63,7 +63,6 @@ public class EdgeInducedRequirementTransform<S extends Graph<?, ?>> implements G
 
         try {
             S blankGraph = mFactory.instantiate();
-            blankGraph.setDepotId(mGraph.getDepotId());
             int n = mGraph.getVertices().size();
             int m = mGraph.getEdges().size();
             TIntObjectHashMap<? extends Vertex> blankVertices = blankGraph.getInternalVertexMap();
@@ -96,6 +95,8 @@ public class EdgeInducedRequirementTransform<S extends Graph<?, ?>> implements G
                     }
                 }
             }
+
+            blankGraph.setDepotId(mGraph.getDepotId());
 
             //to make sure the depot gets included
             int depotId = blankGraph.getDepotId();

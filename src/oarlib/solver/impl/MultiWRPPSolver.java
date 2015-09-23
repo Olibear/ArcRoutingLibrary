@@ -56,10 +56,7 @@ import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Created by oliverlum on 8/14/14.
@@ -71,6 +68,10 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
     private String mInstanceName;
     private double bestWeight;
     private GraphDisplay mDisplay;
+    private double mAlpha;
+    private double mBeta;
+    private int mIter;
+    private int mPerturb;
 
     /**
      * Default constructor; must set problem instance.
@@ -87,6 +88,81 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         mInstanceName = instanceName;
         mDisplay = display;
         bestWeight = -1;
+        mAlpha = -1;
+        mBeta = -1;
+        mIter = -1;
+        mPerturb = -1;
+    }
+
+    public void setAlpha(double newAlpha) {
+        if (newAlpha < 0) {
+            LOGGER.warn("Invalid argument.  Alpha must be >= 0.");
+            return;
+        }
+        mAlpha = newAlpha;
+    }
+
+    public void setBeta(double newBeta) {
+        if (newBeta < 0) {
+            LOGGER.warn("Invalid argument.  Alpha must be >= 0.");
+            return;
+        }
+        mBeta = newBeta;
+    }
+
+    public void setNumIterations(int newIter) {
+        if (newIter < 0) {
+            LOGGER.warn("Invalid argument.  Alpha must be >= 0.");
+            return;
+        }
+        mIter = newIter;
+    }
+
+    public void setNumPerturbations(int newPerturb) {
+        if (newPerturb < 0) {
+            LOGGER.warn("Invalid argument.  Alpha must be >= 0.");
+            return;
+        }
+        mPerturb = newPerturb;
+    }
+
+    protected float[] getScaling() {
+
+        //For the display
+        WindyVertex tempV;
+        float minX = Float.MAX_VALUE;
+        float minY = Float.MAX_VALUE;
+        float maxX = Float.MAX_VALUE;
+        float maxY = Float.MAX_VALUE;
+        int n = mGraph.getVertices().size();
+        for (int i = 1; i <= n; i++) {
+            tempV = mGraph.getVertex(i);
+
+            if (tempV.getX() > maxX)
+                maxX = (float) tempV.getX();
+            if (tempV.getX() < minX)
+                minX = (float) tempV.getX();
+
+
+            if (tempV.getY() > maxY)
+                maxY = (float) tempV.getY();
+            if (tempV.getY() < minY)
+                minY = (float) tempV.getY();
+        }
+
+        float xRange = (maxX - minX);
+        float yRange = (maxY - minY);
+        float xScaleFactor = 100f / xRange * 100;
+        float yScaleFactor = 100f / yRange * 100;
+
+        float[] ans = new float[4];
+        ans[0] = xScaleFactor;
+        ans[1] = yScaleFactor;
+        ans[2] = minX;
+        ans[3] = minY;
+
+        return ans;
+
     }
 
     @Override
@@ -110,27 +186,34 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
     @Override
     protected Collection<Route<WindyVertex, WindyEdge>> solve() {
 
+        //init
         double bestObj = Integer.MAX_VALUE;
         Collection<Route<WindyVertex, WindyEdge>> record = new ArrayList<Route<WindyVertex, WindyEdge>>();
+        ArrayList<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
+        double maxCost;
+        double currWeightBest;
 
         try {
 
             //partition
-            HashMap<Integer, Integer> sol = partition(null);
-            HashMap<Integer, Integer> bestSol = new HashMap<Integer, Integer>();
-
-            ArrayList<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
-            double maxCost;
+            HashMap<Integer, Integer> sol;
             Pair<Double> bounds = calculateSimpleBounds();
             double upperBound = bounds.getSecond();
             double lowerBound = bounds.getFirst();
             double numRuns = 10;
+            if (mIter != -1)
+                numRuns = mIter;
             double interval = (upperBound - lowerBound) / numRuns;
             double numSolPerWeight = 5;
-            double currWeightBest;
-
-            String outputFile = "/Users/oliverlum/Desktop/100runs_" + mInstanceName + ".txt";
-            PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
+            if (mPerturb != -1)
+                numSolPerWeight = mPerturb;
+            double betaWeight = 1;
+            if (mBeta != -1)
+                betaWeight = mBeta;
+            if (mAlpha != -1) {
+                interval = 0;
+                lowerBound = mAlpha;
+            }
 
             //For the closest edge rebalancer
             int n = mGraph.getVertices().size();
@@ -138,16 +221,17 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             int[][] path = new int[n+1][n+1];
             CommonAlgorithms.fwLeastCostPaths(mGraph, dist,path);
 
+            String outputFile = "/Users/oliverlum/Desktop/100runs_" + mInstanceName + ".txt";
+            PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
+
             for (int j = 1; j <= numRuns; j++) {
                 currWeightBest = Double.MAX_VALUE;
                 for (int k = 1; k <= numSolPerWeight; k++) {
 
                     //new beta stuff
-                    ClosestRequiredEdgeRebalancer<WindyGraph> beta = new ClosestRequiredEdgeRebalancer<WindyGraph>(mGraph, new WindyGraphFactory(), .9, new IndividualDistanceToDepotRebalancer(mGraph, lowerBound + j * interval));
+                    ClosestRequiredEdgeRebalancer<WindyGraph> beta = new ClosestRequiredEdgeRebalancer<WindyGraph>(mGraph, new WindyGraphFactory(), betaWeight, new IndividualDistanceToDepotRebalancer(mGraph, lowerBound + j * interval));
                     beta.setDistMatrix(dist);
                     sol = partition(new DuplicateEdgeCostRebalancer(mGraph, beta));
-
-                    mGraph = mInstance.getGraph();
 
                     HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
 
@@ -165,6 +249,8 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                         ans.add(route(partitions.get(part)));
                     }
 
+                    mGraph = mInstance.getGraph();
+
                     //improvement
                     OnePassBenaventIPFramework improver = new OnePassBenaventIPFramework(mInstance, ans);
                     Collection<Route<WindyVertex, WindyEdge>> improved = improver.improveSolution();
@@ -177,7 +263,6 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                     //record keeping
                     if (maxCost < bestObj) {
                         bestObj = maxCost;
-                        bestSol = sol;
                         record = improved;
                         bestWeight = lowerBound + j * interval;
                     }
@@ -186,27 +271,10 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             }
 
             if (mDisplay != null) {
-                mDisplay.setLayout(GraphDisplay.Layout.YifanHu);
-                mDisplay.setGraph(mGraph);
-                mDisplay.setInstanceName(mInstanceName);
-                mDisplay.exportWithPartition(GraphDisplay.ExportType.PDF, bestSol);
-
-                for (Route<WindyVertex, WindyEdge> r : record) {
-                    try {
-                        mDisplay.setInstanceName(mInstance.getName() + "_" + r.getCost());
-                        mDisplay.exportRoute(GraphDisplay.ExportType.PDF, r);
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }
+                display(record);
             }
 
-
             mInstance.setSol(record);
-
-            LOGGER.info("For instance " + mInstanceName + ", the best weight was " + bestWeight);
             pw.close();
             return record;
         } catch (Exception e) {
@@ -215,8 +283,53 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         }
     }
 
+    private void display(Collection<Route<WindyVertex, WindyEdge>> record) {
+
+        try {
+            int counter = 1;
+            HashMap<Integer, Integer> sol = new HashMap<Integer, Integer>();
+
+            for (Route<WindyVertex, WindyEdge> r : record) {
+
+                List<WindyEdge> tempPath = r.getRoute();
+                ArrayList<Boolean> service = r.getServicingList();
+                for (int i = 0; i < tempPath.size(); i++) {
+                    if (service.get(i))
+                        sol.put(tempPath.get(i).getId(), counter);
+                }
+                counter++;
+            }
+
+            WindyGraph toDisplay = mGraph.getDeepCopy();
+            int limi = mGraph.getEdges().size();
+            for (int i = 1; i <= limi; i++) {
+                WindyEdge we = toDisplay.getEdge(i);
+                if (!sol.containsKey(we.getId()))
+                    toDisplay.removeEdge(we.getId());
+            }
+
+            GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, toDisplay, mInstanceName);
+            gd.setInstanceName("Benavent_" + mInstanceName);
+            gd.exportWithPartition(GraphDisplay.ExportType.PDF, sol);
+
+            //individual routes
+            for (Route<WindyVertex, WindyEdge> r : record) {
+
+                gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, toDisplay, mInstanceName);
+                float[] scaling = getScaling();
+                gd.setScaling(scaling[0], scaling[1], scaling[2], scaling[3]);
+
+                gd.setInstanceName("Benavent_" + mInstance.getName() + "_" + r.getCost());
+                gd.exportRoute(GraphDisplay.ExportType.PDF, r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
     private Pair<Double> calculateSimpleBounds() {
-        double idealLowerBound = .5;
+        double idealLowerBound = 0.5;
         double idealUpperBound = 1.5;
 
         int k = mInstance.getmNumVehicles();
@@ -232,77 +345,6 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
     }
 
 
-    /**
-     * method to calculate the bounds for the search space of the 'alpha' parameter
-     *
-     * @return - a pair of numbers (lower bound, upper bound) based on our computational experiments
-     */
-    private Pair<Double> calculateBounds() {
-
-        //calculate shortest paths
-        int n = mGraph.getVertices().size();
-        int[] dist = new int[n + 1];
-        int[] path = new int[n + 1];
-        CommonAlgorithms.dijkstrasAlgorithm(mGraph, mGraph.getDepotId(), dist, path);
-
-        double totalEdgeCost = 0;
-        double totalAddedCost = 0;
-
-        int higherCost;
-        for (WindyEdge tempEdge : mGraph.getEdges()) {
-            totalEdgeCost += (tempEdge.getCost() + tempEdge.getReverseCost()) * .5;
-        }
-
-        double lowerBound = 0;
-        double upperBound = 0;
-        double currentWeight = .001;
-
-        switch (mInstance.getmNumVehicles()) {
-            case 3:
-                while (totalAddedCost / totalEdgeCost < .1) {
-                    totalAddedCost = 0;
-                    for (WindyEdge tempEdge : mGraph.getEdges()) {
-                        higherCost = Math.max(dist[tempEdge.getEndpoints().getFirst().getId()], dist[tempEdge.getEndpoints().getSecond().getId()]);
-                        totalAddedCost += (int) (currentWeight * higherCost);
-                    }
-                    currentWeight += .001;
-                }
-                lowerBound = Math.max(0, currentWeight - .02);
-                upperBound = lowerBound + .04;
-                return new Pair<Double>(lowerBound, upperBound);
-
-            case 5:
-                while (totalAddedCost / totalEdgeCost < .2) {
-                    totalAddedCost = 0;
-                    for (WindyEdge tempEdge : mGraph.getEdges()) {
-                        higherCost = Math.max(dist[tempEdge.getEndpoints().getFirst().getId()], dist[tempEdge.getEndpoints().getSecond().getId()]);
-                        totalAddedCost += (int) (currentWeight * higherCost);
-                    }
-                    currentWeight += .001;
-                }
-                lowerBound = Math.max(0, currentWeight - .02);
-                upperBound = lowerBound + .04;
-                return new Pair<Double>(lowerBound, upperBound);
-
-            case 10:
-                while (totalAddedCost / totalEdgeCost < .333333) {
-                    totalAddedCost = 0;
-                    for (WindyEdge tempEdge : mGraph.getEdges()) {
-                        higherCost = Math.max(dist[tempEdge.getEndpoints().getFirst().getId()], dist[tempEdge.getEndpoints().getSecond().getId()]);
-                        totalAddedCost += (int) (currentWeight * higherCost);
-                    }
-                    currentWeight += .001;
-                }
-                lowerBound = Math.max(0, currentWeight - .02);
-                upperBound = lowerBound + .04;
-                return new Pair<Double>(lowerBound, upperBound);
-
-            default:
-                return new Pair<Double>(0.0, .04);
-        }
-
-    }
-
     @Override
     public ProblemAttributes getProblemAttributes() {
         return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
@@ -310,7 +352,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
     @Override
     public String getSolverName() {
-        return "Min-Max Windy Rural Postman Problem Solver";
+        return "Min-Max K Windy Rural Postman Problem Partition Solver";
     }
 
     @Override

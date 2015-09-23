@@ -28,6 +28,7 @@ import oarlib.core.Graph;
 import oarlib.core.Link;
 import oarlib.core.Vertex;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.link.impl.AsymmetricLink;
 import oarlib.route.impl.Tour;
 import org.apache.log4j.Logger;
 
@@ -72,9 +73,10 @@ public class RouteExpander<G extends Graph> {
         int prev = mGraph.getDepotId();
         int to, nextPrev, curr, next, end;
         Link<? extends Vertex> temp;
+        boolean cont;
         for (int i = 0; i < flattenedRoute.size(); i++) {
             temp = mGraph.getEdge(flattenedRoute.get(i));
-            if (!temp.isRequired())
+            if (!temp.isRequired() && (temp.isWindy() && !((AsymmetricLink) temp).isReverseRequired()))
                 continue;
             if (direction.get(i)) {
                 to = temp.getEndpoints().getFirst().getId();
@@ -95,7 +97,7 @@ public class RouteExpander<G extends Graph> {
                 } while ((curr = next) != end);
             }
 
-            ans.appendEdge(temp, temp.isRequired());
+            ans.appendEdge(temp, true);
             prev = nextPrev;
 
         }

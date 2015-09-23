@@ -25,6 +25,9 @@
 package oarlib.test;
 
 import gnu.trove.TIntObjectHashMap;
+import oarlib.bmgt831.EquatorialInstanceGenerator;
+import oarlib.bmgt831.TruckAndDroneFeasibilityChecker;
+import oarlib.bmgt831.TruckAndDroneProblemWriter;
 import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
@@ -34,15 +37,16 @@ import oarlib.graph.graphgen.Util.BoundingBox;
 import oarlib.graph.graphgen.Util.OSM_BoundingBoxes;
 import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
-import oarlib.graph.graphgen.rectangular.WindyRectangularGraphGenerator;
-import oarlib.graph.impl.DirectedGraph;
-import oarlib.graph.impl.MixedGraph;
-import oarlib.graph.impl.UndirectedGraph;
-import oarlib.graph.impl.WindyGraph;
-import oarlib.graph.util.*;
+import oarlib.graph.impl.*;
+import oarlib.graph.util.CommonAlgorithms;
+import oarlib.graph.util.IndexedRecord;
+import oarlib.graph.util.MSArbor;
+import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
+import oarlib.link.impl.ZigZagLink;
+import oarlib.metrics.MaxMetric;
 import oarlib.metrics.Metric;
 import oarlib.notifications.GmailNotification;
 import oarlib.problem.impl.cpp.MixedCPP;
@@ -50,15 +54,16 @@ import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.problem.impl.cpp.WindyCPP;
 import oarlib.problem.impl.io.ProblemFormat;
 import oarlib.problem.impl.io.ProblemReader;
-import oarlib.problem.impl.io.ProblemWriter;
 import oarlib.problem.impl.io.util.ExportHelper;
 import oarlib.problem.impl.multivehicle.MinMaxKWRPP;
 import oarlib.problem.impl.rpp.DirectedRPP;
 import oarlib.problem.impl.rpp.WindyRPP;
+import oarlib.problem.impl.rpp.WindyRPPZZ;
 import oarlib.solver.impl.*;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
+import oarlib.vertex.impl.ZigZagVertex;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -66,9 +71,7 @@ import org.apache.log4j.PatternLayout;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
 public class
         GeneralTestbed {
@@ -83,7 +86,7 @@ public class
      */
     public static void main(String[] args) {
         Logger rootLogger = Logger.getRootLogger();
-        rootLogger.setLevel(Level.INFO);
+        rootLogger.setLevel(Level.ALL);
         PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
         rootLogger.addAppender(new ConsoleAppender(layout));
 
@@ -100,11 +103,257 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/Benavent_10_Edge_20.csv");
+        testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/Benavent_ForViz2.csv");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
         //testWidestPath();
+        //testTruckAndDroneProblemGenerator();
+        //createLegend();
+        //String[] args2 = new String[2];
+        //args2[1] = "/Users/oliverlum/Downloads/droneRoutes.txt";
+        //args2[0] = "/Users/oliverlum/Downloads/instance2_tmp.txt";
+        //testFeasibilityChecker(args2);
+        //testEquatorialInstanceGenerator();
+        //testZigZagParser();
+        //testZigZagSolver();
+        //testIracer(args);
+        //testMemoryLeak();
+
+    }
+
+    private static void testMemoryLeak() {
+        WindyGraph g = new WindyGraph(10000);
+    }
+
+    private static void testIracer(String[] args) {
+
+        //parse the input
+
+        //defaults
+        double alpha = 1;
+        double beta = 1;
+        int iter = 5;
+        int perturb = 5;
+        String instancePath = "";
+        String s = "";
+
+        for (int i = 0; i < args.length; i++) {
+
+            s = args[i];
+            if (s.equals("--alpha")) {
+                alpha = Double.parseDouble(args[++i]);
+            } else if (s.equals("--beta")) {
+                beta = Double.parseDouble(args[++i]);
+            } else if (s.equals("--iter")) {
+                iter = Integer.parseInt(args[++i]);
+            } else if (s.equals("--perturb")) {
+                perturb = Integer.parseInt(args[++i]);
+            } else if (s.equals("-i")) {
+                instancePath = args[++i];
+            } else {
+                System.out.println(1);
+                System.out.println("Error: Argument not recognized: " + s);
+                break;
+            }
+
+        }
+
+        try {
+            //Call the code
+            ProblemReader pr = new ProblemReader(ProblemFormat.Name.OARLib);
+            WindyGraph g = (WindyGraph) pr.readGraph(instancePath);
+            MinMaxKWRPP validWInstance = new MinMaxKWRPP(g, "Iracer Instance", 5);
+            MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "Iracer Instance");
+            validWSolver.setAlpha(alpha);
+            validWSolver.setBeta(beta);
+            validWSolver.setNumIterations(iter);
+            validWSolver.setNumPerturbations(perturb);
+
+
+            System.out.println(new MaxMetric().evaluate(validWSolver.trySolve()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    private static void testZigZagSolver() {
+        try {
+
+            //set up a graph for which we know the optimal solution
+            ZigZagGraph circle = new ZigZagGraph(8);
+            Random rng = new Random(1000);
+            int var, var2;
+            ZigZagLink temp;
+            for (int i = 1; i <= 8; i++) {
+                var = rng.nextInt(6);
+                var -= 3;
+                var2 = rng.nextInt(6);
+                var2 -= 3;
+                temp = new ZigZagLink("e" + i, new Pair<ZigZagVertex>(circle.getVertex(i), circle.getVertex(i % 8 + 1)), 10 + var, 10 + var2, 0, 0, 0, ZigZagLink.ZigZagStatus.NOT_AVAILABLE, false);
+                circle.addEdge(temp);
+            }
+
+            temp = circle.getEdge(3);
+            temp.setServiceCost(4);
+            temp.setReverseServiceCost(5);
+            temp.setZigzagCost(11);
+            temp.setRequired(true);
+            temp.setTimeWindow(new Pair<Integer>(0, 50));
+            temp.setStatus(ZigZagLink.ZigZagStatus.OPTIONAL);
+
+            temp = circle.getEdge(5);
+            temp.setServiceCost(4);
+            temp.setReverseServiceCost(5);
+            temp.setZigzagCost(11);
+            temp.setRequired(true);
+            temp.setTimeWindow(new Pair<Integer>(0, 70));
+            temp.setStatus(ZigZagLink.ZigZagStatus.OPTIONAL);
+
+            temp = circle.getEdge(6);
+            temp.setServiceCost(5);
+            temp.setReverseServiceCost(4);
+            temp.setZigzagCost(11);
+            temp.setRequired(true);
+            temp.setTimeWindow(new Pair<Integer>(0, 100));
+            temp.setStatus(ZigZagLink.ZigZagStatus.OPTIONAL);
+
+            //read in zigzag instances, and make sure that the graph object is correct
+            ProblemReader pr = new ProblemReader(ProblemFormat.Name.MeanderingPostman);
+            ZigZagGraph graph = (ZigZagGraph) (pr.readGraph("/Users/oliverlum/Downloads/20node/WPPTZ20nodes_1_1_5.txt"));
+
+            WindyRPPZZ prob = new WindyRPPZZ(graph, "test");
+            WRPPZZ_PFIH solver = new WRPPZZ_PFIH(prob);
+            solver.setLatePenalty(1000);
+
+            Collection<? extends Route> ans = solver.trySolve();
+
+            //DEBUG
+            System.out.println(ans.toString());
+            for (ZigZagLink l : graph.getEdges()) {
+                if (l.isRequired()) {
+                    System.out.println("Req link: " + l.toString());
+                }
+                if (l.isReverseRequired()) {
+                    System.out.println("Req link: " + l.getSecondEndpointId() + "-" + l.getFirstEndpointId());
+                }
+            }
+
+            for (ZigZagLink l : graph.getEdges()) {
+                if (l.hasTimeWindow())
+                    System.out.println("Time window: " + l.toString() + " " + l.getTimeWindow().getSecond());
+            }
+            //END DEBUG
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private static void testZigZagParser() {
+
+        try {
+            //read in zigzag instances, and make sure that the graph object is correct
+            ProblemReader pr = new ProblemReader(ProblemFormat.Name.MeanderingPostman);
+            ZigZagGraph ans = (ZigZagGraph) (pr.readGraph("/Users/oliverlum/Downloads/Instancs_Solutions/WPPZ10nodes_1.txt"));
+
+            System.out.println("VERTICES: " + ans.getVertices().size());
+            System.out.println("EDGES: " + ans.getEdges().size());
+
+            for (ZigZagLink l : ans.getEdges()) {
+                System.out.println("I:" + l.getFirstEndpointId() + ",J:" + l.getSecondEndpointId() + ",COST:" + l.getCost() + ",STATUS:" + l.getStatus() + ",REVERSECOST:" + l.getReverseCost() + ",SERVICECOST:" + l.getServiceCost() + ",REQUIRED:" + l.isRequired());
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+    }
+
+    private static void testEquatorialInstanceGenerator() {
+        EquatorialInstanceGenerator gen = new EquatorialInstanceGenerator(3, 3);
+        UndirectedGraph ans = gen.generateInstance();
+    }
+
+    private static void testFeasibilityChecker(String[] args) {
+
+        if (args.length != 2) {
+            System.out.println("To run the feasibility checker, please provide the following two arguments in order:");
+            System.out.println("Path of instance file for which you are solving the problem, (e.g. /Users/username/Documents/instance.txt)");
+            System.out.println("Path of solution file, (e.g. /Users/username/Documents/output.txt)");
+            return;
+        }
+
+        TruckAndDroneFeasibilityChecker fc = new TruckAndDroneFeasibilityChecker(args[0], args[1]);
+        if (fc.checkFeasible())
+            System.out.println("Routes are feasible.");
+        else
+            System.out.println("Routes infeasible.  Please make sure the format is correct.");
+    }
+
+    private static void createLegend() {
+        try {
+            UndirectedGraph toVisualize = new UndirectedGraph(21);
+
+            toVisualize.getVertex(1).setCoordinates(10, 100);
+            toVisualize.getVertex(2).setCoordinates(90, 100);
+            toVisualize.getVertex(3).setCoordinates(10, 90);
+            toVisualize.getVertex(4).setCoordinates(90, 90);
+            toVisualize.getVertex(5).setCoordinates(10, 80);
+            toVisualize.getVertex(6).setCoordinates(90, 80);
+            toVisualize.getVertex(7).setCoordinates(10, 70);
+            toVisualize.getVertex(8).setCoordinates(90, 70);
+            toVisualize.getVertex(9).setCoordinates(10, 60);
+            toVisualize.getVertex(10).setCoordinates(90, 60);
+            toVisualize.getVertex(11).setCoordinates(10, 50);
+            toVisualize.getVertex(12).setCoordinates(90, 50);
+            toVisualize.getVertex(13).setCoordinates(10, 40);
+            toVisualize.getVertex(14).setCoordinates(90, 40);
+            toVisualize.getVertex(15).setCoordinates(10, 30);
+            toVisualize.getVertex(16).setCoordinates(90, 30);
+            toVisualize.getVertex(17).setCoordinates(10, 20);
+            toVisualize.getVertex(18).setCoordinates(90, 20);
+            toVisualize.getVertex(19).setCoordinates(10, 10);
+            toVisualize.getVertex(20).setCoordinates(90, 10);
+            toVisualize.getVertex(21).setCoordinates(50, 110);
+
+            toVisualize.setDepotId(21);
+
+
+            toVisualize.addEdge(1, 2, 1);
+            toVisualize.addEdge(3, 4, 1);
+            toVisualize.addEdge(5, 6, 1);
+            toVisualize.addEdge(7, 8, 1);
+            toVisualize.addEdge(9, 10, 1);
+            toVisualize.addEdge(11, 12, 1);
+            toVisualize.addEdge(13, 14, 1);
+            toVisualize.addEdge(15, 16, 1);
+            toVisualize.addEdge(17, 18, 1);
+            toVisualize.addEdge(19, 20, 1);
+
+            HashMap<Integer, Integer> part = new HashMap<Integer, Integer>();
+            part.put(1, 1);
+            part.put(2, 2);
+            part.put(3, 3);
+            part.put(4, 4);
+            part.put(5, 5);
+            part.put(6, 6);
+            part.put(7, 7);
+            part.put(8, 8);
+            part.put(9, 9);
+            part.put(10, 10);
+
+            GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, toVisualize, "Legend");
+            gd.exportWithPartition(GraphDisplay.ExportType.PDF, part);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void testTruckAndDroneProblemGenerator() {
+        TruckAndDroneProblemWriter.writeTruckAndDroneProblem("/Users/oliverlum/Documents/Research/TruckAndDroneInstances/instance_Calgary.txt");
     }
 
     @SuppressWarnings("unused")
@@ -238,9 +487,9 @@ public class
 
                 //WINDY
 
-                System.out.println("========================================================");
-                System.out.println("Beginning Test of the Windy Partitioning Code");
-                System.out.println("========================================================");
+                LOGGER.info("========================================================");
+                LOGGER.info("Beginning Test of the Windy Partitioning Code");
+                LOGGER.info("========================================================");
 
                 MinMaxKWRPP validWInstance = null;
                 Collection<? extends Route> validWAns;
@@ -256,6 +505,7 @@ public class
                 metrics.add(Metric.Type.ATD);
                 metrics.add(Metric.Type.ROI);
                 metrics.add(Metric.Type.DEPDIST);
+                metrics.add(Metric.Type.CONVEXOVERLAP);
 
                 //run on all instances in the folder
                 int limForDebug = 2; //only run on the first 10 instances for now
@@ -265,32 +515,44 @@ public class
                 GraphDisplay displayer = new GraphDisplay(GraphDisplay.Layout.YifanHu, null, null);
 
                 ProblemReader pr = new ProblemReader(ProblemFormat.Name.OARLib);
-                for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
-                    //OSM_Fetcher fetcher = new OSM_Fetcher(bb);
-                    //g = fetcher.queryForGraph();
-                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_20_Edge.txt");
-                    //g.setDepotId(Utils.findCenterVertex(g));
-                    validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 10);
+                /*for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
+                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_Center.txt");
+                    validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 5);
                     probs.add(validWInstance);
-                }
+                }*/
+
+                /*for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
+                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_Edge.txt");
+                    validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 5);
+                    probs.add(validWInstance);
+                }*/
 
                 //now do the rectangular instances
-                for (int i = 1; i <= 10; i++) {
-                        //WindyRectangularGraphGenerator wrg = new WindyRectangularGraphGenerator(1000);
-                        //g = wrg.generateGraph(25 - i, 10, .8, true);
-                        g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/Random Instance " + i + "_20_Edge.txt");
+                for (int i = 1; i <= 3; i++) {
+                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/Random Instance " + i + "_Edge.txt");
                         //g.setDepotId(Utils.findCenterVertex(g));
-                        validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 10);
+                    validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 5);
                         probs.add(validWInstance);
 
                 }
-                //MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "", null);
-                MultiWRPPSolver_Benavent validWSolver = new MultiWRPPSolver_Benavent(validWInstance);
+                /*
+                for (int i = 1; i <= 10; i++) {
+                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/Random Instance " + i + "_Edge.txt");
+                    //g.setDepotId(Utils.findCenterVertex(g));
+                    validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 5);
+                    probs.add(validWInstance);
+
+                }*/
+                MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "", displayer);
+                //MultiWRPPSolver_Benavent validWSolver = new MultiWRPPSolver_Benavent(validWInstance);
+                //MultiWRPPSolverHybrid validWSolver = new MultiWRPPSolverHybrid(validWInstance,"",displayer,7);
 
                 ExportHelper.exportToExcel(probs, metrics, validWSolver, outputFile);
+                for (Problem p : probs)
+                    System.out.println(new MaxMetric().evaluate(p.getSol()));
 
                 String from = "oliver@math.umd.edu";
-                String pass = "Ctznrsd@";
+                String pass = "Ctznrsd#";
                 String[] to = {"oliver@math.umd.edu"}; // list of recipient email addresses
                 String subject = "OARLib Notification";
                 String body = "Your runs have completed.  Thank you for using OARLib.";
