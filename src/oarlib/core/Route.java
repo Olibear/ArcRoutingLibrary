@@ -27,7 +27,7 @@ import gnu.trove.TIntArrayList;
 import gnu.trove.TIntIntHashMap;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.impl.UndirectedGraph;
-import oarlib.link.impl.WindyEdge;
+import oarlib.link.impl.AsymmetricLink;
 import oarlib.vertex.impl.UndirectedVertex;
 import org.apache.log4j.Logger;
 
@@ -91,10 +91,12 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
 
     public void exportRouteToPDF(String instanceName, int depotId) {
 
+        //Gephi doesn't differentiate, so just set up the simple case
         UndirectedGraph toExport = new UndirectedGraph();
 
         try {
 
+            //init
             HashMap<Integer, Integer> vertexMap = new HashMap<Integer, Integer>();
             Set<Integer> keySet = vertexMap.keySet();
             List<E> route = this.getRoute();
@@ -102,8 +104,10 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             Vertex first, second;
             UndirectedVertex toAdd;
 
+            //go through the links in the route
             for (E l : route) {
 
+                //only add the vertices/edges that are used in the route
                 first = l.getEndpoints().getFirst();
                 if (!keySet.contains(first.getId())) {
                     toAdd = new UndirectedVertex("");
@@ -230,36 +234,39 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      */
     public void appendEdge(E l, boolean service) throws IllegalArgumentException {
 
-        if (service && !l.isRequired())
+        //error check
+        if (service && (!l.isRequired() && (l.isWindy() && !((AsymmetricLink) l).isReverseRequired())))
             LOGGER.error("You cannot service a link that does not demand service.", new IllegalArgumentException());
 
-        boolean isWindy;
-        if (l.isWindy())
-            isWindy = true;
-        else
-            isWindy = false;
+        boolean isWindy, lreq;
+
+        isWindy = l.isWindy();
+        lreq = (l.isRequired() || (l.isWindy() && ((AsymmetricLink) l).isReverseRequired()));
 
         //check for a common endpoint
         int lFirst = l.getEndpoints().getFirst().getId();
         int lSecond = l.getEndpoints().getSecond().getId();
 
+        //base case
         if (mRoute.size() == 0) {
             servicing.add(service);
             mRoute.add(l);
             return;
         }
 
-
+        //grab the last guy in the route and make sure the one to be added shares an endpoint,
+        //and orient it appropriately
         E temp = mRoute.get(mRoute.size() - 1);
+        boolean tempReq = (temp.isRequired() || (temp.isWindy() && ((AsymmetricLink) temp).isReverseRequired()));
         int tempFirst = temp.getEndpoints().getFirst().getId();
         int tempSecond = temp.getEndpoints().getSecond().getId();
 
         int trueCost;
         if (mRoute.size() == 1) {
             if ((lFirst == tempFirst || lSecond == tempFirst) && isWindy) {
-                trueCost = ((WindyEdge) temp).getReverseCost();
+                trueCost = ((AsymmetricLink) temp).getReverseCost();
                 traversalDirection.add(false);
-                if (temp.isRequired() && servicing.get(0)) {
+                if (tempReq && servicing.get(0)) {
                     mServCost += trueCost;
                     compactTD.add(false);
                     compactRepresentation.add(temp.getId());
@@ -267,7 +274,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             } else {
                 trueCost = temp.getCost();
                 traversalDirection.add(true);
-                if (temp.isRequired() && servicing.get(0)) {
+                if (tempReq && servicing.get(0)) {
                     mServCost += trueCost;
                     compactTD.add(true);
                     compactRepresentation.add(temp.getId());
@@ -296,13 +303,13 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                             //fix costs
                             if (tempDir) {
                                 tempE = mRoute.get(i);
-                                tempCostMod = ((WindyEdge) tempE).getReverseCost() - tempE.getCost();
+                                tempCostMod = ((AsymmetricLink) tempE).getReverseCost() - tempE.getCost();
                                 mCost += tempCostMod;
                                 if (tempE.isRequired())
                                     mServCost += tempCostMod;
                             } else {
                                 tempE = mRoute.get(i);
-                                tempCostMod = tempE.getCost() - ((WindyEdge) tempE).getReverseCost();
+                                tempCostMod = tempE.getCost() - ((AsymmetricLink) tempE).getReverseCost();
                                 mCost += tempCostMod;
                                 if (tempE.isRequired())
                                     mServCost += tempCostMod;
@@ -324,7 +331,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
 
         if (!isWindy) {
             trueCost = l.getCost();
-            if (l.isRequired() && service) {
+            if (lreq && service) {
                 compactRepresentation.add(l.getId());
             }
         }
@@ -334,14 +341,14 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             if (tempTD) {
                 trueCost = l.getCost();
                 traversalDirection.add(true);
-                if (l.isRequired() && service) {
+                if (lreq && service) {
                     compactTD.add(true);
                     compactRepresentation.add(l.getId());
                 }
             } else {
-                trueCost = ((WindyEdge) l).getReverseCost();
+                trueCost = ((AsymmetricLink) l).getReverseCost();
                 traversalDirection.add(false);
-                if (l.isRequired() && service) {
+                if (lreq && service) {
                     compactTD.add(false);
                     compactRepresentation.add(l.getId());
                 }
@@ -351,14 +358,14 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             if (tempTD) {
                 trueCost = l.getCost();
                 traversalDirection.add(true);
-                if (l.isRequired() && service) {
+                if (lreq && service) {
                     compactTD.add(true);
                     compactRepresentation.add(l.getId());
                 }
             } else {
-                trueCost = ((WindyEdge) l).getReverseCost();
+                trueCost = ((AsymmetricLink) l).getReverseCost();
                 traversalDirection.add(false);
-                if (l.isRequired() && service) {
+                if (lreq && service) {
                     compactTD.add(false);
                     compactRepresentation.add(l.getId());
                 }
@@ -366,14 +373,14 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         } else if (lFirst == tempFirst || lFirst == tempSecond) {
             trueCost = l.getCost();
             traversalDirection.add(true);
-            if (l.isRequired() && service) {
+            if (lreq && service) {
                 compactTD.add(true);
                 compactRepresentation.add(l.getId());
             }
         } else if (lSecond == tempFirst || lSecond == tempSecond) {
-            trueCost = ((WindyEdge) l).getReverseCost();
+            trueCost = ((AsymmetricLink) l).getReverseCost();
             traversalDirection.add(false);
-            if (l.isRequired() && service) {
+            if (lreq && service) {
                 compactTD.add(false);
                 compactRepresentation.add(l.getId());
             }

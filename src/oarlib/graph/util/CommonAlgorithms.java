@@ -37,10 +37,7 @@ import oarlib.graph.impl.MixedGraph;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.Utils.DijkstrasComparator;
-import oarlib.link.impl.Arc;
-import oarlib.link.impl.Edge;
-import oarlib.link.impl.MixedEdge;
-import oarlib.link.impl.WindyEdge;
+import oarlib.link.impl.*;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -1897,79 +1894,6 @@ public class CommonAlgorithms {
      */
     public static void dijkstrasAlgorithm(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
 
-        //handle windy case
-        if (g.getClass() == WindyGraph.class) {
-            dijkstrasAlgorithmForWindyGraphs((WindyGraph) g, sourceId, dist, path, edgePath);
-            return;
-        }
-
-        int n = g.getVertices().size();
-        if (dist.length != n + 1 || path.length != n + 1) {
-            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
-            throw new IllegalArgumentException();
-        }
-
-        //initialize
-        boolean recordEdgePath = (edgePath != null);
-        if (recordEdgePath && edgePath.length != n + 1) {
-            LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
-            throw new IllegalArgumentException();
-        }
-
-        PriorityQueue<Pair<Integer>> pq = new PriorityQueue<Pair<Integer>>(n, new DijkstrasComparator()); //first in the pair is the id, second is the weight; sorted by weight.
-        dist[sourceId] = 0;
-        path[sourceId] = -1;
-        for (int i = 1; i <= n; i++) {
-            if (i != sourceId) {
-                dist[i] = Integer.MAX_VALUE;
-                path[i] = -1;
-                if (recordEdgePath)
-                    edgePath[i] = -1;
-            }
-            pq.add(new Pair<Integer>(i, dist[i]));
-        }
-
-        Vertex u;
-        Pair<Integer> temp;
-        int min, alt, uid, vid, minid;
-        minid = Integer.MAX_VALUE;
-        TIntObjectHashMap<? extends Vertex> indexedVertices = g.getInternalVertexMap();
-        //now actually do the walk
-        while (!pq.isEmpty()) {
-            temp = pq.poll();
-            u = indexedVertices.get(temp.getFirst());
-            uid = u.getId();
-            if (dist[uid] == Integer.MAX_VALUE)
-                continue; //we got to the point where it's disconnected; don't add to max integer, and cause loop around
-            for (Vertex v : u.getNeighbors().keySet()) {
-                List<? extends Link<? extends Vertex>> l = u.getNeighbors().get(v);
-                min = Integer.MAX_VALUE;
-                vid = v.getId();
-                if (!pq.contains(new Pair<Integer>(vid, dist[vid])))
-                    continue;
-                for (Link<? extends Vertex> link : l) {
-                    if (link.getCost() < min) {
-                        min = link.getCost();
-                        minid = link.getId();
-                    }
-                }
-                //don't go past max integer, that's bad
-                alt = dist[uid] + min;
-                if (alt < dist[vid]) {
-                    //found a better path
-                    pq.remove(new Pair<Integer>(vid, dist[vid]));
-                    dist[vid] = alt;
-                    path[vid] = uid;
-                    if (recordEdgePath)
-                        edgePath[vid] = minid;
-                    pq.add(new Pair<Integer>(vid, dist[vid]));
-                }
-            }
-        }
-    }
-
-    private static void dijkstrasAlgorithmForWindyGraphs(WindyGraph g, int sourceId, int[] dist, int[] path, int[] edgePath) throws IllegalArgumentException {
-
         int n = g.getVertices().size();
         if (dist.length != n + 1 || path.length != n + 1) {
             LOGGER.error("dijsktrasWidestPathAlgorithm: The passed in dist and path arrays have the wrong size.");
@@ -1985,9 +1909,16 @@ public class CommonAlgorithms {
 
         DirectedGraph virtual = new DirectedGraph(n);
         try {
-            for (WindyEdge l : g.getEdges()) {
-                virtual.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), l.getId());
-                virtual.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), l.getReverseCost(), l.getId());
+            for (Link<? extends Vertex> l : g.getEdges()) {
+                if (l.isDirected()) {
+                    virtual.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), l.getId());
+                } else if (l instanceof AsymmetricLink) {
+                    virtual.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), l.getId());
+                    virtual.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), ((AsymmetricLink) l).getReverseCost(), l.getId());
+                } else {
+                    virtual.addEdge(l.getEndpoints().getFirst().getId(), l.getEndpoints().getSecond().getId(), l.getCost(), l.getId());
+                    virtual.addEdge(l.getEndpoints().getSecond().getId(), l.getEndpoints().getFirst().getId(), l.getCost(), l.getId());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -2043,102 +1974,6 @@ public class CommonAlgorithms {
                     pq.add(new Pair<Integer>(vid, dist[vid]));
                 }
             }
-        }
-    }
-
-    private static void windyFwLeastCostPaths(WindyGraph g, int[][] dist, int[][] path, int[][] edgePath) throws IllegalArgumentException {
-        //initialize dist and path
-        int n = g.getVertices().size();
-        int m = g.getEdges().size();
-
-        boolean recordEdgePath = (edgePath != null);
-
-        if (dist.length != n + 1 || path.length != n + 1) {
-            LOGGER.error("The input arrays to the Floyd-Warshall least cost paths procedure is not of the expected size.");
-            throw new IllegalArgumentException();
-        }
-
-        if (recordEdgePath && edgePath.length != n + 1) {
-            LOGGER.error("The input arrays to the Floyd-Warshall procedure is not of the expected size.");
-            throw new IllegalArgumentException();
-        }
-
-        try {
-            //setup the digraph so and solve as normal; just use the match id for edgepath
-
-            DirectedGraph g2 = new DirectedGraph();
-            for (int i = 0; i < n; i++) {
-                g2.addVertex(new DirectedVertex("original"));
-            }
-
-            TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
-            WindyEdge temp;
-            for (int i = 1; i <= m; i++) {
-                temp = indexedWindyEdges.get(i);
-                g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
-                g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", temp.getReverseCost(), i);
-            }
-
-            //initialize dist and path
-            for (int i = 0; i <= n; i++) {
-                for (int j = 0; j <= n; j++) {
-                    dist[i][j] = Integer.MAX_VALUE;
-                }
-                path[0][i] = Integer.MAX_VALUE;
-                path[i][0] = Integer.MAX_VALUE;
-                if (recordEdgePath) {
-                    edgePath[0][i] = Integer.MAX_VALUE;
-                    edgePath[i][0] = Integer.MAX_VALUE;
-                }
-            }
-
-            Vertex vi;
-            int min;
-            for (int i = 1; i <= n; i++) {
-                vi = g2.getInternalVertexMap().get(i);
-                for (Vertex v : vi.getNeighbors().keySet()) {
-                    List<? extends Link<? extends Vertex>> l = vi.getNeighbors().get(v);
-                    min = Integer.MAX_VALUE;
-                    Link<? extends Vertex> edge = null;
-                    for (Link<? extends Vertex> link : l) {
-                        if (link.getCost() < min) {
-                            min = link.getCost();
-                            edge = link;
-                        }
-                    }
-                    dist[vi.getId()][v.getId()] = min;
-                    path[vi.getId()][v.getId()] = v.getId();
-                    if (recordEdgePath)
-                        edgePath[vi.getId()][v.getId()] = edge.getMatchId();
-                }
-            }
-
-            //business logic
-            for (int k = 1; k <= n; k++) {
-                for (int i = 1; i <= n; i++) {
-                    //if there is an edge from i to k
-                    if (dist[i][k] < Integer.MAX_VALUE)
-                        for (int j = 1; j <= n; j++) {
-                            //if there is an edge from k to j
-                            if (dist[k][j] < Integer.MAX_VALUE
-                                    && (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j])) {
-                                path[i][j] = path[i][k];
-                                if (recordEdgePath)
-                                    edgePath[i][j] = edgePath[i][k];
-                                dist[i][j] = dist[i][k] + dist[k][j];
-                                if (i == j && dist[i][j] < 0)
-                                    return; //negative cycle
-                            }
-                        }
-
-                }
-            }
-            for (int i = 1; i <= n; i++) {
-                if (dist[i][i] == Integer.MAX_VALUE)
-                    dist[i][i] = 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -2367,6 +2202,7 @@ public class CommonAlgorithms {
     public static void fwLeastCostPaths(Graph<? extends Vertex, ? extends Link<? extends Vertex>> g, int[][] dist, int[][] path, int[][] edgePath) throws IllegalArgumentException {
         //initialize dist and path
         int n = g.getVertices().size();
+        int m = g.getEdges().size();
 
         boolean recordEdgePath = (edgePath != null);
 
@@ -2374,73 +2210,95 @@ public class CommonAlgorithms {
             LOGGER.error("The input arrays to the Floyd-Warshall least cost paths procedure is not of the expected size.");
             throw new IllegalArgumentException();
         }
+
         if (recordEdgePath && edgePath.length != n + 1) {
-            LOGGER.error("The input arrays to the Floyd-Warshall least cost paths procedure is not of the expected size.");
+            LOGGER.error("The input arrays to the Floyd-Warshall procedure is not of the expected size.");
             throw new IllegalArgumentException();
         }
 
-        if (g.getClass() == WindyGraph.class) {
-            windyFwLeastCostPaths((WindyGraph) g, dist, path, edgePath);
-            return;
-        }
+        try {
+            //setup the digraph so and solve as normal; just use the match id for edgepath
 
-        //initialize dist and path
-        for (int i = 0; i <= n; i++) {
-            for (int j = 0; j <= n; j++) {
-                dist[i][j] = Integer.MAX_VALUE;
+            DirectedGraph g2 = new DirectedGraph();
+            for (int i = 0; i < n; i++) {
+                g2.addVertex(new DirectedVertex("original"));
             }
-            path[0][i] = Integer.MAX_VALUE;
-            path[i][0] = Integer.MAX_VALUE;
-            if (recordEdgePath) {
-                edgePath[0][i] = Integer.MAX_VALUE;
-                edgePath[i][0] = Integer.MAX_VALUE;
-            }
-        }
 
-        Vertex vi;
-        int min;
-        for (int i = 1; i <= n; i++) {
-            vi = g.getInternalVertexMap().get(i);
-            for (Vertex v : vi.getNeighbors().keySet()) {
-                List<? extends Link<? extends Vertex>> l = vi.getNeighbors().get(v);
-                min = Integer.MAX_VALUE;
-                Link<? extends Vertex> edge = null;
-                for (Link<? extends Vertex> link : l) {
-                    if (link.getCost() < min) {
-                        min = link.getCost();
-                        edge = link;
-                    }
+            TIntObjectHashMap<? extends Link<? extends Vertex>> indexedWindyEdges = g.getInternalEdgeMap();
+            Link<? extends Vertex> temp;
+            for (int i = 1; i <= m; i++) {
+                temp = indexedWindyEdges.get(i);
+                if (temp.isDirected())
+                    g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
+                else if (temp instanceof AsymmetricLink) {
+                    g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
+                    g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", ((AsymmetricLink) temp).getReverseCost(), i);
+                } else {
+                    g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
+                    g2.addEdge(temp.getEndpoints().getSecond().getId(), temp.getEndpoints().getFirst().getId(), "backward", temp.getCost(), i);
                 }
-                dist[vi.getId()][v.getId()] = min;
-                path[vi.getId()][v.getId()] = v.getId();
-                if (recordEdgePath)
-                    edgePath[vi.getId()][v.getId()] = edge.getId();
             }
-        }
 
-        //business logic
-        for (int k = 1; k <= n; k++) {
+            //initialize dist and path
+            for (int i = 0; i <= n; i++) {
+                for (int j = 0; j <= n; j++) {
+                    dist[i][j] = Integer.MAX_VALUE;
+                }
+                path[0][i] = Integer.MAX_VALUE;
+                path[i][0] = Integer.MAX_VALUE;
+                if (recordEdgePath) {
+                    edgePath[0][i] = Integer.MAX_VALUE;
+                    edgePath[i][0] = Integer.MAX_VALUE;
+                }
+            }
+
+            Vertex vi;
+            int min;
             for (int i = 1; i <= n; i++) {
-                //if there is an edge from i to k
-                if (dist[i][k] < Integer.MAX_VALUE)
-                    for (int j = 1; j <= n; j++) {
-                        //if there is an edge from k to j
-                        if (dist[k][j] < Integer.MAX_VALUE
-                                && (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j])) {
-                            path[i][j] = path[i][k];
-                            if (recordEdgePath)
-                                edgePath[i][j] = edgePath[i][k];
-                            dist[i][j] = dist[i][k] + dist[k][j];
-                            if (i == j && dist[i][j] < 0)
-                                return; //negative cycle
+                vi = g2.getInternalVertexMap().get(i);
+                for (Vertex v : vi.getNeighbors().keySet()) {
+                    List<? extends Link<? extends Vertex>> l = vi.getNeighbors().get(v);
+                    min = Integer.MAX_VALUE;
+                    Link<? extends Vertex> edge = null;
+                    for (Link<? extends Vertex> link : l) {
+                        if (link.getCost() < min) {
+                            min = link.getCost();
+                            edge = link;
                         }
                     }
-
+                    dist[vi.getId()][v.getId()] = min;
+                    path[vi.getId()][v.getId()] = v.getId();
+                    if (recordEdgePath)
+                        edgePath[vi.getId()][v.getId()] = edge.getMatchId();
+                }
             }
-        }
-        for (int i = 1; i <= n; i++) {
-            if (dist[i][i] == Integer.MAX_VALUE)
-                dist[i][i] = 0;
+
+            //business logic
+            for (int k = 1; k <= n; k++) {
+                for (int i = 1; i <= n; i++) {
+                    //if there is an edge from i to k
+                    if (dist[i][k] < Integer.MAX_VALUE)
+                        for (int j = 1; j <= n; j++) {
+                            //if there is an edge from k to j
+                            if (dist[k][j] < Integer.MAX_VALUE
+                                    && (!(dist[i][j] < Integer.MAX_VALUE) || dist[i][j] > dist[i][k] + dist[k][j])) {
+                                path[i][j] = path[i][k];
+                                if (recordEdgePath)
+                                    edgePath[i][j] = edgePath[i][k];
+                                dist[i][j] = dist[i][k] + dist[k][j];
+                                if (i == j && dist[i][j] < 0)
+                                    return; //negative cycle
+                            }
+                        }
+
+                }
+            }
+            for (int i = 1; i <= n; i++) {
+                if (dist[i][i] == Integer.MAX_VALUE)
+                    dist[i][i] = 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -3159,6 +3017,8 @@ public class CommonAlgorithms {
             edges[2 * e.getId() - 1] = e.getEndpoints().getSecond().getId() - 1;
             weights[e.getId() - 1] = e.getCost();
         }
+
+
         int[] ans = BlossomV.blossomV(n, m, edges, weights);
 
         //to make sure we only report unique pairs, (and not, say 0-1 and 1-0).

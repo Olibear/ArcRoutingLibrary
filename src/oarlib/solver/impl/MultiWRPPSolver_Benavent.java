@@ -153,12 +153,13 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
             int partition = 1;
             do {
                 DirectedGraph toAddGraph = new DirectedGraph();
-                toAddGraph.setDepotId(graph.getDepotId());
                 for (int i = 1; i <= n; i++) {
                     DirectedVertex toAdd = new DirectedVertex("");
                     toAdd.setCoordinates(mVertices.get(i).getX(), mVertices.get(i).getY());
                     toAddGraph.addVertex(toAdd);
                 }
+
+                toAddGraph.setDepotId(graph.getDepotId());
 
                 //add path from depot to start
                 curr = graph.getDepotId();
@@ -249,11 +250,6 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
     @Override
     protected Collection<Route<WindyVertex, WindyEdge>> solve() {
 
-        int debug = 0;
-        for (WindyEdge we : mGraph.getEdges())
-            if (we.isRequired())
-                debug++;
-
         int nsol = 10; //number of sols to gen
         double bestObj = Integer.MAX_VALUE;
         Collection<Route<WindyVertex, WindyEdge>> ans = null;
@@ -328,6 +324,36 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
             reclaimedAns.add(Utils.reclaimTour(r, mGraph));
 
         mInstance.setSol(reclaimedAns);
+
+
+        //display the partition and the individual routes
+        //For the display
+        WindyVertex tempV;
+        double minX = Double.MAX_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = Double.MAX_VALUE;
+        double maxY = Double.MAX_VALUE;
+        int n = mGraph.getVertices().size();
+        for (int i = 1; i <= n; i++) {
+            tempV = mGraph.getVertex(i);
+
+            if (tempV.getX() > maxX)
+                maxX = tempV.getX();
+            if (tempV.getX() < minX)
+                minX = tempV.getX();
+
+
+            if (tempV.getY() > maxY)
+                maxY = tempV.getY();
+            if (tempV.getY() < minY)
+                minY = tempV.getY();
+        }
+
+        float xRange = (float) (maxX - minX);
+        float yRange = (float) (maxY - minY);
+        float xScaleFactor = 100f / xRange * 100;
+        float yScaleFactor = 100f / yRange * 100;
+
         try {
             WindyGraph toDisplay = mGraph.getDeepCopy();
             int limi = mGraph.getEdges().size();
@@ -339,6 +365,23 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
 
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, toDisplay, mInstanceName);
             gd.exportWithPartition(GraphDisplay.ExportType.PDF, bestSol);
+
+            //individual routes
+            for (Route<WindyVertex, WindyEdge> r : reclaimedAns) {
+
+                gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, toDisplay, mInstanceName);
+                gd.setScaling(xScaleFactor, yScaleFactor, minX, minY);
+
+                try {
+                    gd.setInstanceName(mInstance.getName() + "_" + r.getCost() + "_" + System.currentTimeMillis());
+                    gd.exportRoute(GraphDisplay.ExportType.PDF, r);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -358,7 +401,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
 
     @Override
     public Solver<WindyVertex, WindyEdge, WindyGraph> instantiate(Problem<WindyVertex, WindyEdge, WindyGraph> p) {
-        return new MultiWRPPSolver_Benavent(p);
+        return new MultiWRPPSolver_Benavent(p, p.getName());
     }
 
     @Override

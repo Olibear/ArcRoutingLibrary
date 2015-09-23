@@ -135,6 +135,72 @@ public class Utils {
     }
 
     /**
+     * Returns the shortest path between two edges
+     * @param e1 - the first edge (we go from this edge)
+     * @param e2 - the second edge (we go to this edge)
+     * @param dist - the allpairs shortest path matrix
+     * @param constraint - an integer that constrains the search:
+     * 0 - no constraints
+     * 1 - force the path to begin from e1's second endpoint
+     * 2 - force the path to end at e2's first endpoint
+     * 3 - force the path to begin from e1's first endpoint
+     * 4 - force the path to end at e2's second endpoint
+     * @return - a pair, the first entry is the length of the path.  The second
+     * entry is coded as follows:
+     * 1 - path is from e1's 2nd endpoint to e2's first endpoint
+     * 2 - path is from e1's 2nd endpoint to e2's second endpoint
+     * 3 - path is from e1's 1st endpoint to e2's first endpoint
+     * 4 - path is from e1's 1st endpoint to e2's second endpoint
+     */
+    public static Pair<Integer> shortestEdgeDistance(Link e1, Link e2, int[][] dist, int constraint) {
+
+        if (constraint > 4 || constraint < 0) {
+            constraint = 0;
+            LOGGER.warn("The constraint argument has a value of: " + constraint + " which isn't a recognized value.  Assuming no constraints.");
+        }
+
+        int shortest = Integer.MAX_VALUE;
+        int ret = -1;
+
+        int e1First = e1.getFirstEndpointId();
+        int e1Second = e1.getSecondEndpointId();
+        int e2First = e2.getFirstEndpointId();
+        int e2Second = e2.getSecondEndpointId();
+
+        // 1-1
+        if (constraint != 1 && constraint != 4) {
+            if (dist[e1First][e2First] < shortest) {
+                shortest = dist[e1First][e2First];
+                ret = 3;
+            }
+        }
+        // 1-2
+        if (constraint != 1 && constraint != 2) {
+            if (dist[e1First][e2Second] < shortest) {
+                shortest = dist[e1First][e2Second];
+                ret = 4;
+            }
+        }
+        // 2-1
+        if (constraint != 3 && constraint != 4) {
+            if (dist[e1Second][e2First] < shortest) {
+                shortest = dist[e1Second][e2First];
+                ret = 1;
+            }
+        }
+        // 2-2
+        if (constraint != 3 && constraint != 2) {
+            if (dist[e1Second][e2Second] < shortest) {
+                shortest = dist[e1Second][e2Second];
+                ret = 2;
+            }
+        }
+
+        return new Pair<Integer>(shortest, ret);
+
+    }
+
+    /**
      * Returns the Euclidean distance between two points (possibly a dup)
      *
      * @param x1 - x coordinate of the first point
@@ -164,6 +230,17 @@ public class Utils {
             if (arg0.getSecond() < arg1.getSecond())
                 return 1;
             else if (arg0.getSecond() > arg1.getSecond())
+                return -1;
+            return 0;
+        }
+    }
+
+    public static class PFIHComparator implements Comparator<UnmatchedPair<Integer, Double>> {
+        @Override
+        public int compare(UnmatchedPair<Integer, Double> arg0, UnmatchedPair<Integer, Double> arg1) {
+            if (arg0.getSecond() > arg1.getSecond())
+                return 1;
+            else if (arg0.getSecond() < arg1.getSecond())
                 return -1;
             return 0;
         }

@@ -32,9 +32,10 @@ import oarlib.vertex.impl.WindyVertex;
  *
  * @author Oliver
  */
-public class WindyEdge extends Link<WindyVertex> {
+public class WindyEdge extends Link<WindyVertex> implements AsymmetricLink {
 
     private int mReverseCost; // cost of traversing from endpoint 2 to endpoint 1
+    private boolean mReverseRequired;
 
     /**
      * Constructor for a WindyEdge.
@@ -48,6 +49,7 @@ public class WindyEdge extends Link<WindyVertex> {
         super(label, endpoints, cost);
         setReverseCost(reverseCost);
         setDirected(false);
+        setReverseRequired(false);
     }
 
     /**
@@ -63,6 +65,7 @@ public class WindyEdge extends Link<WindyVertex> {
         super(label, endpoints, cost, required);
         setReverseCost(reverseCost);
         setDirected(false);
+        setReverseRequired(false);
     }
 
     //==================================
@@ -75,6 +78,15 @@ public class WindyEdge extends Link<WindyVertex> {
 
     public void setReverseCost(int mReverseCost) {
         this.mReverseCost = mReverseCost;
+    }
+
+    @Override
+    public boolean isReverseRequired() {
+        return mReverseRequired;
+    }
+
+    public void setReverseRequired(boolean mReverseRequired) {
+        this.mReverseRequired = mReverseRequired;
     }
 
     @Override
@@ -91,5 +103,4 @@ public class WindyEdge extends Link<WindyVertex> {
     public Type getLinkType() {
         return Type.WINDY;
     }
-
 }

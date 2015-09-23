@@ -209,7 +209,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
             }
 
             //calculate the min-cost spanning tree
-            int[] mst = CommonAlgorithms.minCostSpanningTree(mstGraph);
+            int[] mst = CommonAlgorithms.randomizedLowCostSpanningTree(mstGraph, 5);
 
             //now add back the mst paths to the windy graph
             int limi = mst.length;
@@ -285,7 +285,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
                     vNeighborsList.add(dv);
 
                 int indexToRemove;
-                boolean removedReq;
+                boolean removedReqVDV, removedReqDVV;
                 for (DirectedVertex dv : vNeighborsList) {
                     dvNeighbors = dv.getNeighbors();
                     if (v.getId() < dv.getId() && dvNeighbors.containsKey(v)) //to avoid redundant checking
@@ -302,20 +302,24 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
                                 toRemove = Math.min(xij, xji);
 
                             //remove toRemove arcs in each direction
-                            removedReq = false;
+                            removedReqVDV = false;
+                            removedReqDVV = false;
                             for (int j = 0; j < toRemove; j++) {
-                                if (vdvConnections.get(0).isRequired() || dvvConnections.get(0).isRequired()) {
-                                    removedReq = true;
+                                if (vdvConnections.get(0).isRequired()) {
+                                    removedReqVDV = true;
+                                } else if (dvvConnections.get(0).isRequired()) {
+                                    removedReqDVV = true;
                                 }
                                 ans.removeEdge(vdvConnections.get(0)); // I think this should work, so long as this vdvConnections and dvvConnections are passed by reference
                                 ans.removeEdge(dvvConnections.get(0));
                             }
 
                             //make sure if we removed any required guys, that we set one of the remaining dups to the
-                            if (removedReq) {
+                            if (removedReqVDV) {
                                 if (vdvConnections.size() != 0)
                                     vdvConnections.get(0).setRequired(true);
-                                else if (dvvConnections.size() != 0)
+                            } else if (removedReqDVV) {
+                                if (dvvConnections.size() != 0)
                                     dvvConnections.get(0).setRequired(true);
                             }
                         }
@@ -412,6 +416,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
                     else
                         cost = replaceDir.getCost();
 
+                    if (changeDir.getSecondEndpointId() == 2 && changeDir.getFirstEndpointId() == 8)
+                        System.out.println("DEBUG");
                     ans.addEdge(changeDir.getHead().getId(), changeDir.getTail().getId(), "swapDir", cost, replaceDir.isRequired());
                     ans.removeEdge(removeCandidates.get(0));
                     for (int j = 1; j < flowanswer[i]; j++) {

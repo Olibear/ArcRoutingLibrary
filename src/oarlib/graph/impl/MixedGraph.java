@@ -111,6 +111,11 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
     //===============================================
 
     @Override
+    public boolean isWindy() {
+        return false;
+    }
+
+    @Override
     public void addVertex(MixedVertex v) {
         super.addVertex(v);
     }
@@ -219,7 +224,6 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
     public MixedGraph getDeepCopy() {
         try {
             MixedGraph ans = new MixedGraph();
-            ans.setDepotId(getDepotId());
             TIntObjectHashMap<MixedEdge> indexedEdges = this.getInternalEdgeMap();
             TIntObjectHashMap<MixedVertex> indexedVertices = this.getInternalVertexMap();
             MixedVertex temp, temp2;
@@ -245,6 +249,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
                 ans.addEdge(e2, e.getId());
             }
 
+            ans.setDepotId(getDepotId());
             return ans;
         } catch (Exception e) {
             e.printStackTrace();

@@ -52,7 +52,7 @@ public class Colors {
             new Color(VIVID_YELLOW),
             Color.GREEN,
             Color.BLUE,
-            new Color(VERY_LIGHT_BLUE),
+            //new Color(VERY_LIGHT_BLUE),
             Color.BLACK
     };
     public static final int VIVID_RED = 0xC10020; // Vivid Red

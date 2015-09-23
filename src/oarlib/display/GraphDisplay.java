@@ -82,6 +82,10 @@ public class GraphDisplay {
     private Graph<? extends Vertex, ? extends Link<? extends Vertex>> mGraph;
 
     private String mInstanceName;
+    private float mXScaleFactor;
+    private float mYScaleFactor;
+    private double mMinX;
+    private double mMinY;
 
     public GraphDisplay(Layout layout, Graph<? extends Vertex, ? extends Link<? extends Vertex>> graph, String instanceName) {
         mLayout = layout;
@@ -91,6 +95,10 @@ public class GraphDisplay {
         mGraphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
         mExportController = Lookup.getDefault().lookup(ExportController.class);
         mPreviewModel = Lookup.getDefault().lookup(PreviewController.class).getModel();
+        mMinX = -100;
+        mMinY = -100;
+        mXScaleFactor = -100;
+        mYScaleFactor = -100;
     }
 
     public void setGraph(Graph<? extends Vertex, ? extends Link<? extends Vertex>> newGraph) {
@@ -103,6 +111,13 @@ public class GraphDisplay {
 
     public void setInstanceName(String newName) {
         mInstanceName = newName;
+    }
+
+    public void setScaling(float newXFactor, float newYFactor, double newMinX, double newMinY) {
+        mXScaleFactor = newXFactor;
+        mYScaleFactor = newYFactor;
+        mMinX = newMinX;
+        mMinY = newMinY;
     }
 
     /**
@@ -267,6 +282,10 @@ public class GraphDisplay {
 
             if (tempV.hasCoordinates()) {
                 useAutoLayout = false;
+                if (mMinX != -100) {
+                    temp.getNodeData().setX((float) (tempV.getX() - mMinX) * mXScaleFactor);
+                    temp.getNodeData().setY((float) (tempV.getY() - mMinY) * mYScaleFactor);
+                }
                 temp.getNodeData().setX((float) (tempV.getX() - minX) * xScaleFactor);
                 temp.getNodeData().setY((float) (tempV.getY() - minY) * yScaleFactor);
             }
@@ -306,7 +325,7 @@ public class GraphDisplay {
             else
                 tempEdge = mGraphModel.factory().newEdge(nodeSet[tempLink.getEndpoints().getFirst().getId()], nodeSet[tempLink.getEndpoints().getSecond().getId()], cost, tempLink.isDirected());
             if (tempLink.getClass() == WindyEdge.class)
-                tempEdge.getEdgeData().setLabel(tempLink.getCost() + "," + ((WindyEdge) tempLink).getReverseCost());
+                tempEdge.getEdgeData().setLabel("");//tempLink.getCost() + "," + ((WindyEdge) tempLink).getReverseCost());
             else
                 tempEdge.getEdgeData().setLabel(String.valueOf(tempLink.getCost()));
             if (withPartitions) {
@@ -319,6 +338,7 @@ public class GraphDisplay {
                 else
                     tempEdge.getEdgeData().getAttributes().setValue("Partition", 1);
             }
+            tempEdge.setWeight(40f);
             graph.addEdge(tempEdge);
         }
 

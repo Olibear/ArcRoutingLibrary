@@ -153,7 +153,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
 
     }
 
-    private static HashSet<Integer> buildL(DirectedGraph gaux, HashSet<Integer> e1, HashSet<Integer> e2, int[] flowanswer) {
+    public static HashSet<Integer> buildL(DirectedGraph gaux, HashSet<Integer> e1, HashSet<Integer> e2, int[] flowanswer) {
         HashSet<Integer> ans = new HashSet<Integer>();
         Arc temp;
         TIntObjectHashMap<Arc> indexedArcs = gaux.getInternalEdgeMap();
@@ -171,7 +171,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
         return ans;
     }
 
-    private static DirectedGraph buildGdr(WindyGraph g, HashSet<Integer> unbalancedEdges) {
+    public static DirectedGraph buildGdr(WindyGraph g, HashSet<Integer> unbalancedEdges) {
         try {
             DirectedGraph ans = new DirectedGraph();
             //the vertex set is the same as g
@@ -198,7 +198,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
         }
     }
 
-    private static DirectedGraph buildGaux(WindyGraph fullGraph, HashSet<Integer> unbalancedEdges) {
+    public static DirectedGraph buildGaux(WindyGraph fullGraph, HashSet<Integer> unbalancedEdges) {
         try {
             DirectedGraph ans = new DirectedGraph();
             int n = fullGraph.getVertices().size();
@@ -246,7 +246,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
         }
     }
 
-    private static void buildEdgeSets(HashSet<Integer> e1, HashSet<Integer> e2, WindyGraph windyReq, WindyGraph fullGraph, double averageCost) {
+    public static void buildEdgeSets(HashSet<Integer> e1, HashSet<Integer> e2, WindyGraph windyReq, WindyGraph fullGraph, double averageCost) {
         double costDiff;
         double threshold = K * averageCost;
         for (WindyEdge e : windyReq.getEdges()) {
@@ -260,7 +260,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
         }
     }
 
-    private static double calculateAverageCost(WindyGraph g) {
+    public static double calculateAverageCost(WindyGraph g) {
         double ans = 0;
         double m = 2.0 * g.getEdges().size();
         for (WindyEdge e : g.getEdges()) {

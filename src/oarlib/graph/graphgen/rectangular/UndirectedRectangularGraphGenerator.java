@@ -26,8 +26,6 @@ package oarlib.graph.graphgen.rectangular;
 import oarlib.graph.impl.UndirectedGraph;
 import oarlib.vertex.impl.UndirectedVertex;
 
-import java.util.Random;
-
 /**
  * Created by oliverlum on 12/14/14.
  */
@@ -43,8 +41,6 @@ public class UndirectedRectangularGraphGenerator extends RectangularGraphGenerat
         //trivial case
         if (n == 1)
             return new UndirectedGraph(1);
-
-        Random rng = new Random();
 
         UndirectedGraph ans = new UndirectedGraph((int) Math.pow(n, 2));
         double interval = 100.0 / (n - 1);
