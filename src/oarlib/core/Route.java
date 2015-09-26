@@ -47,7 +47,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     private static int routeIDCounter = 1;
 
     protected int mCost; // cost of the route
-    protected int mServCost; // cost of the serviced links in the route
+    protected int mServCost; // traversal cost of the serviced links in the route (DOES NOT INCLUDE SERVICE TIMES, ONLY TRAVEL, SINCE NOT ALL TYPES OF LINKS HAVE SEPARATE SERVICE TIMES)
     protected TIntIntHashMap mCustomIDMap; // 1-1 map that allows toString to correspond vertices in another graph than the one that the links come from.
     protected ArrayList<E> mRoute; // the ordered of links that comprise this route
     protected ArrayList<Boolean> traversalDirection; // the ith entry is true if the ith link in the route is traversed from first to second
@@ -174,7 +174,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      *
      * @return List of edges to be traversed from first to last
      */
-    public List<E> getRoute() {
+    public ArrayList<E> getRoute() {
         return mRoute;
     }
 
@@ -203,6 +203,10 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      */
     public ArrayList<Boolean> getServicingList() {
         return servicing;
+    }
+
+    public boolean isDirectionDetermined() {
+        return directionDetermined;
     }
 
     /**

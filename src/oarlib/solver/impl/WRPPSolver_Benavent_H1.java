@@ -397,6 +397,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
 
             HashSet<Tour> ret = new HashSet<Tour>();
             ret.add(eulerTour);
+
             return ret;
 
         } catch (Exception e) {
