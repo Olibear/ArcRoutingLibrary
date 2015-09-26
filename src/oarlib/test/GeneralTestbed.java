@@ -103,7 +103,7 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/Benavent_ForViz2.csv");
+        //testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/Benavent_ForViz2.csv");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
@@ -116,7 +116,7 @@ public class
         //testFeasibilityChecker(args2);
         //testEquatorialInstanceGenerator();
         //testZigZagParser();
-        //testZigZagSolver();
+        testZigZagSolver();
         //testIracer(args);
         //testMemoryLeak();
 

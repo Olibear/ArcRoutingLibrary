@@ -11,7 +11,8 @@ import oarlib.graph.util.Utils;
 import oarlib.link.impl.ZigZagLink;
 import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
-import oarlib.route.util.RouteExpander;
+import oarlib.route.impl.ZigZagTour;
+import oarlib.route.util.ZigZagExpander;
 import oarlib.vertex.impl.ZigZagVertex;
 import org.apache.log4j.Logger;
 
@@ -47,154 +48,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
         setmGamma(gamma);
         setmLambda(lambda);
         setLatePenalty(penalty);
-    }
-
-    /**
-     * Computes the cost of route r using the following assumptions:
-     * - all links meandered unless meanderCost + penalty < 2 * cost of traversal + cost of non-traversal
-     *
-     * @param r    - the route for which to compute the cost.
-     * @param dist - the distance matrix (memory saver)
-     * @return - the cost of the route
-     */
-    private int getCost(Tour<ZigZagVertex, ZigZagLink> r, int[][] dist) {
-
-        /*
-         * init
-         */
-        ZigZagGraph g = mInstance.getGraph();
-        ZigZagLink temp;
-        int cost = 0; //running tally
-
-        TIntArrayList compactRoute = r.getCompactRepresentation();
-        ArrayList<Boolean> compactDir = r.getCompactTraversalDirection();
-
-        int depotId = g.getDepotId();
-        int prevEnd = -1;
-        double penalty = 0; //running tally of lateness penalty (gets added to raw cost at the end)
-        double candidatePenalty = 0; //when running through the edges, this is the penalty associated with meandering this
-        double candidateBackAndForth = 0; //when running through the edges, this is the time to traverse
-
-        /*
-         * the first edge
-         */
-
-        //get it
-        temp = g.getEdge(compactRoute.get(0));
-
-        if (temp.isRequired() && temp.isReverseRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE)
-            System.out.println("DEBUG");
-
-        //if it's traversed forward, then...
-        if (compactDir.get(0)) {
-
-            //add the distance to get there
-            cost += dist[depotId][temp.getFirstEndpointId()];
-
-            //if we're traversing in the opposite direction as required, then zig zag
-            if (temp.isReverseRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
-                cost += temp.getCost() + temp.getZigzagCost();
-
-                //when considering the non-zig-zag option, take into account penalties from zig-zagging past the window
-                if (temp.hasTimeWindow()) {
-                    candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
-                    candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getReverseServiceCost() - temp.getZigzagCost();
-                    if (temp.isRequired())
-                        candidateBackAndForth += temp.getServiceCost();
-                    if (candidatePenalty < candidateBackAndForth) {
-                        penalty += Math.max(0, candidatePenalty);
-                    } else {
-                        cost += candidateBackAndForth;
-                    }
-                }
-            } else if (temp.isReverseRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
-                LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
-            } else {
-                //we're just traversing like normal
-                cost += temp.getCost() + temp.getServiceCost();
-            }
-
-            //bookkeeping for the next edge
-            prevEnd = temp.getSecondEndpointId();
-        }
-
-        //same, but for the case where we're traversing 2nd endpoint - 1st
-        else {
-            cost += dist[depotId][temp.getSecondEndpointId()];
-            if (temp.isRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
-                cost += temp.getReverseCost() + temp.getZigzagCost();
-                if (temp.hasTimeWindow()) {
-                    candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
-                    candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getServiceCost() - temp.getZigzagCost();
-                    if (temp.isReverseRequired())
-                        candidateBackAndForth += temp.getReverseServiceCost();
-                    if (candidatePenalty < candidateBackAndForth) {
-                        penalty += Math.max(0, candidatePenalty);
-                    } else {
-                        cost += candidateBackAndForth;
-                    }
-                }
-            } else if (temp.isRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
-                LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
-            } else
-                cost += temp.getReverseCost() + temp.getReverseServiceCost();
-            prevEnd = temp.getFirstEndpointId();
-        }
-
-        //do the same for the rest of the edges
-        for (int i = 1; i < compactRoute.size(); i++) {
-            temp = g.getEdge(compactRoute.get(i));
-
-            if (temp.isRequired() && temp.isReverseRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE)
-                System.out.println("DEBUG");
-
-            if (compactDir.get(i)) {
-                cost += dist[prevEnd][temp.getFirstEndpointId()];
-                if (temp.isReverseRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
-                    cost += temp.getCost() + temp.getZigzagCost();
-                    if (temp.hasTimeWindow()) {
-                        candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
-                        candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getReverseServiceCost() - temp.getZigzagCost();
-                        if (temp.isRequired())
-                            candidateBackAndForth += temp.getServiceCost();
-                        if (candidatePenalty < candidateBackAndForth) {
-                            penalty += Math.max(0, candidatePenalty);
-                        } else {
-                            cost += candidateBackAndForth;
-                        }
-                    }
-                } else if (temp.isReverseRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
-                    LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
-                } else
-                    cost += temp.getCost() + temp.getServiceCost();
-                prevEnd = temp.getSecondEndpointId();
-            } else {
-                cost += dist[prevEnd][temp.getSecondEndpointId()];
-                if (temp.isRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
-                    cost += temp.getReverseCost() + temp.getZigzagCost();
-                    if (temp.hasTimeWindow()) {
-                        candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
-                        candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getServiceCost() - temp.getZigzagCost();
-                        if (temp.isReverseRequired())
-                            candidateBackAndForth += temp.getReverseServiceCost();
-                        if (candidatePenalty < candidateBackAndForth) {
-                            penalty += Math.max(0, candidatePenalty);
-                        } else {
-                            cost += candidateBackAndForth;
-                        }
-                    }
-                } else if (temp.isRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
-                    LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
-                } else
-                    cost += temp.getReverseCost() + temp.getReverseServiceCost();
-                prevEnd = temp.getFirstEndpointId();
-            }
-        }
-        cost += dist[prevEnd][depotId];
-
-        cost += penalty;
-        System.out.println("PENALTY: " + penalty);
-        return cost;
     }
 
     @Override
@@ -297,11 +150,11 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
             }
 
 
-            RouteExpander<ZigZagGraph> re = new RouteExpander<ZigZagGraph>(g);
-            Tour<ZigZagVertex, ZigZagLink> r = re.unflattenRoute(compactAns, compactDir);
+            ZigZagExpander re = new ZigZagExpander(g, latePenalty);
+            ZigZagTour r = re.unflattenRoute(compactAns, compactDir, determineZZ(compactAns, compactDir, dist));
             S.add(r);
 
-            int currCost = getCost(r, dist);
+            int currCost = r.getCost();
             LOGGER.info("This candidate route costs: " + currCost);
 
             if (currCost < bestCost) {
@@ -312,6 +165,153 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
 
         LOGGER.info("The best route costs: " + bestCost);
         return Sbest;
+    }
+
+
+    public ArrayList<Boolean> determineZZ(TIntArrayList compactRoute, ArrayList<Boolean> compactDir, int[][] dist) {
+        /*
+         * init
+         */
+        ArrayList<Boolean> ans = new ArrayList<Boolean>();
+        ZigZagGraph g = mInstance.getGraph();
+        ZigZagLink temp;
+        int cost = 0; //running tally
+
+        int depotId = g.getDepotId();
+        int prevEnd = -1;
+        double penalty = 0; //running tally of lateness penalty (gets added to raw cost at the end)
+        double candidatePenalty = 0; //when running through the edges, this is the penalty associated with meandering this
+        double candidateBackAndForth = 0; //when running through the edges, this is the time to traverse
+
+        /*
+         * the first edge
+         */
+
+        //get it
+        temp = g.getEdge(compactRoute.get(0));
+
+        //if it's traversed forward, then...
+        if (compactDir.get(0)) {
+
+            //add the distance to get there
+            cost += dist[depotId][temp.getFirstEndpointId()];
+
+            //if we're traversing in the opposite direction as required, then zig zag
+            if (temp.isReverseRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
+                cost += temp.getCost() + temp.getZigzagCost();
+
+                //when considering the non-zig-zag option, take into account penalties from zig-zagging past the window
+                if (temp.hasTimeWindow()) {
+                    candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
+                    candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getReverseServiceCost() - temp.getZigzagCost();
+                    if (temp.isRequired())
+                        candidateBackAndForth += temp.getServiceCost();
+                    if (candidatePenalty < candidateBackAndForth) {
+                        penalty += Math.max(0, candidatePenalty);
+                        ans.add(true);
+                    } else {
+                        cost += candidateBackAndForth;
+                        ans.add(false);
+                    }
+                }
+            } else if (temp.isReverseRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
+                LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
+            } else {
+                //we're just traversing like normal
+                cost += temp.getCost() + temp.getServiceCost();
+                ans.add(false);
+            }
+
+            //bookkeeping for the next edge
+            prevEnd = temp.getSecondEndpointId();
+        }
+
+        //same, but for the case where we're traversing 2nd endpoint - 1st
+        else {
+            cost += dist[depotId][temp.getSecondEndpointId()];
+            if (temp.isRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
+                cost += temp.getReverseCost() + temp.getZigzagCost();
+                if (temp.hasTimeWindow()) {
+                    candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
+                    candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getServiceCost() - temp.getZigzagCost();
+                    if (temp.isReverseRequired())
+                        candidateBackAndForth += temp.getReverseServiceCost();
+                    if (candidatePenalty < candidateBackAndForth) {
+                        penalty += Math.max(0, candidatePenalty);
+                        ans.add(true);
+                    } else {
+                        cost += candidateBackAndForth;
+                        ans.add(false);
+                    }
+                }
+            } else if (temp.isRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
+                LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
+            } else {
+                cost += temp.getReverseCost() + temp.getReverseServiceCost();
+                ans.add(false);
+            }
+            prevEnd = temp.getFirstEndpointId();
+        }
+
+        //do the same for the rest of the edges
+        for (int i = 1; i < compactRoute.size(); i++) {
+            temp = g.getEdge(compactRoute.get(i));
+
+            if (compactDir.get(i)) {
+                cost += dist[prevEnd][temp.getFirstEndpointId()];
+                if (temp.isReverseRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
+                    cost += temp.getCost() + temp.getZigzagCost();
+                    if (temp.hasTimeWindow()) {
+                        candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
+                        candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getReverseServiceCost() - temp.getZigzagCost();
+                        if (temp.isRequired())
+                            candidateBackAndForth += temp.getServiceCost();
+                        if (candidatePenalty < candidateBackAndForth) {
+                            penalty += Math.max(0, candidatePenalty);
+                            ans.add(true);
+                        } else {
+                            cost += candidateBackAndForth;
+                            ans.add(false);
+                        }
+                    }
+                } else if (temp.isReverseRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
+                    LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
+                } else {
+                    cost += temp.getCost() + temp.getServiceCost();
+                    ans.add(false);
+                }
+                prevEnd = temp.getSecondEndpointId();
+            } else {
+                cost += dist[prevEnd][temp.getSecondEndpointId()];
+                if (temp.isRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
+                    cost += temp.getReverseCost() + temp.getZigzagCost();
+                    if (temp.hasTimeWindow()) {
+                        candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
+                        candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getServiceCost() - temp.getZigzagCost();
+                        if (temp.isReverseRequired())
+                            candidateBackAndForth += temp.getReverseServiceCost();
+                        if (candidatePenalty < candidateBackAndForth) {
+                            penalty += Math.max(0, candidatePenalty);
+                            ans.add(true);
+                        } else {
+                            cost += candidateBackAndForth;
+                            ans.add(false);
+                        }
+                    }
+                } else if (temp.isRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
+                    LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
+                } else {
+                    cost += temp.getReverseCost() + temp.getReverseServiceCost();
+                    ans.add(false);
+                }
+                prevEnd = temp.getFirstEndpointId();
+            }
+        }
+        cost += dist[prevEnd][depotId];
+
+        cost += penalty;
+        System.out.println("PENALTY: " + penalty);
+        return ans;
     }
 
     /**
