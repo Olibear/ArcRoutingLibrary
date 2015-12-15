@@ -72,7 +72,7 @@ public class ProblemWriter {
             case Campos:
                 break;
             case Corberan:
-                break;
+                return writeCorberanInstance(p, filename);
             case Simple:
                 break;
             case Yaoyuenyong:
@@ -86,6 +86,65 @@ public class ProblemWriter {
                 + " there doesn't seem to be an appropriate write method assigned to it.  Support is planned in the future," +
                 "but not currently available");
         throw new UnsupportedFormatException();
+    }
+
+    private <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> boolean writeCorberanInstance(Problem<V, E, G> p, String filename) {
+        try {
+            G g = p.getGraph();
+            if (g.getType() != Graph.Type.WINDY)
+                throw new IllegalArgumentException("Currently, this type of not supported for this output format.");
+
+
+            int n = g.getVertices().size();
+            int mReq = 0;
+            for (E edge : g.getEdges()) {
+                if (edge.isRequired())
+                    mReq++;
+            }
+            int mNoReq = g.getEdges().size() - mReq;
+
+            //front matter
+            PrintWriter pw = new PrintWriter(filename, "UTF-8");
+            pw.println("NOMBRE : " + p.getName());
+            pw.println("COMENTARIO : " + g.getDepotId() + " depot");
+            pw.println("VERTICES : " + g.getVertices().size());
+            pw.println("ARISTAS_REQ : " + mReq);
+            pw.println("ARISTAS_NOREQ : " + mNoReq);
+
+            pw.println("LISTA_ARISTAS_REQ :");
+
+            String line;
+            for (E edge : g.getEdges()) {
+                if (edge.isRequired()) {
+                    line = "(" + edge.getFirstEndpointId() + "," + edge.getSecondEndpointId() + ")";
+                    line += " coste " + edge.getCost() + " " + ((WindyEdge) edge).getReverseCost();
+                    pw.println(line);
+                }
+            }
+
+            pw.println("LISTA_ARISTAS_NOREQ :");
+            for (E edge : g.getEdges()) {
+                if (!edge.isRequired()) {
+                    line = "(" + edge.getFirstEndpointId() + "," + edge.getSecondEndpointId() + ")";
+                    line += " coste " + edge.getCost() + " " + ((WindyEdge) edge).getReverseCost();
+                    pw.println(line);
+                }
+            }
+
+            pw.println("COORDENADAS :");
+            for (int i = 1; i <= n; i++) {
+                V v = g.getVertex(i);
+                line = i + " " + v.getX() + " " + v.getY();
+                pw.println(line);
+            }
+
+
+            pw.close();
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
     private <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> boolean writeMETISInstance(Problem<V, E, G> p, String filename) {

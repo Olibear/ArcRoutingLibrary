@@ -24,8 +24,6 @@
 package oarlib.graph.graphgen;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.core.Link;
-import oarlib.core.Vertex;
 import oarlib.graph.graphgen.Util.BoundingBox;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.util.CommonAlgorithms;
@@ -126,10 +124,10 @@ public class OSM_Fetcher {
                                     to = refIds.get(((Element) curr).getAttribute("ref"));
                                     cost = latLonToMeters(ansVertices.get(from).getY(), ansVertices.get(from).getX(), ansVertices.get(to).getY(), ansVertices.get(to).getX()) + 1; //don't want 0 cost edges
 
-                                    perturb = (rng.nextInt(10) - 5) / 100.0;
+                                    perturb = (rng.nextInt(30) - 15) / 100.0;
                                     reverseCost = (int) (cost * (1 + perturb));
 
-                                    ans.addEdge(from, to, cost, reverseCost);
+                                    ans.addEdge(from, to, cost, reverseCost, rng.nextInt(30) < 15);
                                 }
                             }
                         }
@@ -201,7 +199,7 @@ public class OSM_Fetcher {
                     boolean isReq;
                     for (int j = 1; j <= m; j++) {
                         temp = ansEdges.get(j);
-                        isReq = rng.nextDouble() > .2;
+                        isReq = rng.nextDouble() > .5;
                         if (maxPart.contains(temp.getEndpoints().getFirst().getId()) && maxPart.contains(temp.getEndpoints().getSecond().getId())) {
                             tempFirst = trueAns.getVertex(temp.getEndpoints().getFirst().getMatchId());
                             tempSecond = trueAns.getVertex(temp.getEndpoints().getSecond().getMatchId());

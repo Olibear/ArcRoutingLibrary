@@ -341,6 +341,18 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     public abstract List<E> findEdges(Pair<V> endpoints);
 
     /**
+     * Looks for edges between the two provided endpoints, and returns them in a collection.
+     *
+     * @param v1 - the id of the first endpoint
+     * @param v2 - the id of the second endpoint
+     * @return - a collection of edges directly connecting the two vertices
+     */
+    public List<E> findEdges(int v1, int v2) {
+        return findEdges(new Pair<V>(getVertex(v1), getVertex(v2)));
+    }
+
+
+    /**
      * @return - a hash map that has ids as keys to the vertices
      */
     public abstract TIntObjectHashMap<V> getInternalVertexMap();

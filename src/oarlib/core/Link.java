@@ -142,7 +142,7 @@ public abstract class Link<V extends Vertex> {
 
     public void removeTimeWindow() {
         if (!hasTimeWindow)
-            LOGGER.warn("You are attempting to remove a time window on a link that does not seem to have one.");
+            LOGGER.debug("You are attempting to remove a time window on a link that does not seem to have one.");
         hasTimeWindow = false;
         timeWindowStart = -1;
         timeWindowEnd = -1;
@@ -150,7 +150,7 @@ public abstract class Link<V extends Vertex> {
 
     public Pair<Integer> getTimeWindow() {
         if (!hasTimeWindow) {
-            LOGGER.warn("You are attmepting to access the time window on a link that does not appear to have one.");
+            LOGGER.debug("You are attmepting to access the time window on a link that does not appear to have one.");
             return new Pair<Integer>(0, maxTime);
         }
 

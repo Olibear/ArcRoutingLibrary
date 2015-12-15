@@ -291,7 +291,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
             for (Route<WindyVertex, WindyEdge> r : record) {
 
-                List<WindyEdge> tempPath = r.getRoute();
+                List<WindyEdge> tempPath = r.getPath();
                 ArrayList<Boolean> service = r.getServicingList();
                 for (int i = 0; i < tempPath.size(); i++) {
                     if (service.get(i))
@@ -302,11 +302,11 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
             WindyGraph toDisplay = mGraph.getDeepCopy();
             int limi = mGraph.getEdges().size();
-            for (int i = 1; i <= limi; i++) {
+            /*for (int i = 1; i <= limi; i++) {
                 WindyEdge we = toDisplay.getEdge(i);
                 if (!sol.containsKey(we.getId()))
                     toDisplay.removeEdge(we.getId());
-            }
+            }*/
 
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, toDisplay, mInstanceName);
             gd.setInstanceName("Benavent_" + mInstanceName);

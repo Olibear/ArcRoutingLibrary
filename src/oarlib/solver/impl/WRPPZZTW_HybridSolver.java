@@ -11,25 +11,19 @@ import oarlib.graph.util.Utils;
 import oarlib.link.impl.ZigZagLink;
 import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.Tour;
-import oarlib.route.impl.ZigZagTour;
-import oarlib.route.util.ZigZagExpander;
 import oarlib.vertex.impl.ZigZagVertex;
 import org.apache.log4j.Logger;
 
 import java.util.*;
 
 /**
- * Created by oliverlum on 7/5/15.
+ * Created by oliverlum on 10/2/15.
  */
-public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, ZigZagGraph> {
+public class WRPPZZTW_HybridSolver extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, ZigZagGraph> {
 
-    private static final Logger LOGGER = Logger.getLogger(WRPPZZ_PFIH.class);
+    private static final Logger LOGGER = Logger.getLogger(WRPPZZTW_PFIH.class);
 
     //4 weights on the cost for tuning later
-    private double mAlpha;
-    private double mBeta;
-    private double mGamma;
-    private double mLambda;
     private double latePenalty; //if you are late 1 unit of time, this costs you latePenalty extra cost units
 
     /**
@@ -37,17 +31,18 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
      *
      * @param instance - instance for which this is a solver
      */
-    public WRPPZZ_PFIH(Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> instance) throws IllegalArgumentException {
+    public WRPPZZTW_HybridSolver(Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> instance) throws IllegalArgumentException {
         this(instance, 1, 1, 1, 1, 1);
     }
 
-    public WRPPZZ_PFIH(Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> instance, double alpha, double beta, double gamma, double lambda, double penalty) throws IllegalArgumentException {
+    public WRPPZZTW_HybridSolver(Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> instance, double alpha, double beta, double gamma, double lambda, double penalty) throws IllegalArgumentException {
         super(instance);
-        setmAlpha(alpha);
-        setmBeta(beta);
-        setmGamma(gamma);
-        setmLambda(lambda);
         setLatePenalty(penalty);
+    }
+
+    private Route<ZigZagVertex, ZigZagLink> solveIP(TIntArrayList partialRoute) {
+        //TODO
+        return null;
     }
 
     @Override
@@ -134,7 +129,7 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
             ZigZagLink temp;
             for (Integer i : req) {
                 temp = g.getEdge(i);
-                toServe.add(new UnmatchedPair<Integer, Double>(temp.getId(), assessPFIHCost(temp, dist)));
+                //toServe.add(new UnmatchedPair<Integer, Double>(temp.getId(), assessPFIHCost(temp, dist)));
             }
 
             //while you still need to service edges...
@@ -149,12 +144,10 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
                 }
             }
 
+            //ZigZagTour r = determineZZ(compactAns, compactDir, dist);
+            //S.add(r);
 
-            ZigZagExpander re = new ZigZagExpander(g, latePenalty);
-            ZigZagTour r = re.unflattenRoute(compactAns, compactDir, determineZZ(compactAns, compactDir, dist));
-            S.add(r);
-
-            int currCost = r.getCost();
+            int currCost = 0;//r.getCost();
             LOGGER.info("This candidate route costs: " + currCost);
 
             if (currCost < bestCost) {
@@ -165,153 +158,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
 
         LOGGER.info("The best route costs: " + bestCost);
         return Sbest;
-    }
-
-
-    public ArrayList<Boolean> determineZZ(TIntArrayList compactRoute, ArrayList<Boolean> compactDir, int[][] dist) {
-        /*
-         * init
-         */
-        ArrayList<Boolean> ans = new ArrayList<Boolean>();
-        ZigZagGraph g = mInstance.getGraph();
-        ZigZagLink temp;
-        int cost = 0; //running tally
-
-        int depotId = g.getDepotId();
-        int prevEnd = -1;
-        double penalty = 0; //running tally of lateness penalty (gets added to raw cost at the end)
-        double candidatePenalty = 0; //when running through the edges, this is the penalty associated with meandering this
-        double candidateBackAndForth = 0; //when running through the edges, this is the time to traverse
-
-        /*
-         * the first edge
-         */
-
-        //get it
-        temp = g.getEdge(compactRoute.get(0));
-
-        //if it's traversed forward, then...
-        if (compactDir.get(0)) {
-
-            //add the distance to get there
-            cost += dist[depotId][temp.getFirstEndpointId()];
-
-            //if we're traversing in the opposite direction as required, then zig zag
-            if (temp.isReverseRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
-                cost += temp.getCost() + temp.getZigzagCost();
-
-                //when considering the non-zig-zag option, take into account penalties from zig-zagging past the window
-                if (temp.hasTimeWindow()) {
-                    candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
-                    candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getReverseServiceCost() - temp.getZigzagCost();
-                    if (temp.isRequired())
-                        candidateBackAndForth += temp.getServiceCost();
-                    if (candidatePenalty < candidateBackAndForth) {
-                        penalty += Math.max(0, candidatePenalty);
-                        ans.add(true);
-                    } else {
-                        cost += candidateBackAndForth;
-                        ans.add(false);
-                    }
-                }
-            } else if (temp.isReverseRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
-                LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
-            } else {
-                //we're just traversing like normal
-                cost += temp.getCost() + temp.getServiceCost();
-                ans.add(false);
-            }
-
-            //bookkeeping for the next edge
-            prevEnd = temp.getSecondEndpointId();
-        }
-
-        //same, but for the case where we're traversing 2nd endpoint - 1st
-        else {
-            cost += dist[depotId][temp.getSecondEndpointId()];
-            if (temp.isRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
-                cost += temp.getReverseCost() + temp.getZigzagCost();
-                if (temp.hasTimeWindow()) {
-                    candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
-                    candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getServiceCost() - temp.getZigzagCost();
-                    if (temp.isReverseRequired())
-                        candidateBackAndForth += temp.getReverseServiceCost();
-                    if (candidatePenalty < candidateBackAndForth) {
-                        penalty += Math.max(0, candidatePenalty);
-                        ans.add(true);
-                    } else {
-                        cost += candidateBackAndForth;
-                        ans.add(false);
-                    }
-                }
-            } else if (temp.isRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
-                LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
-            } else {
-                cost += temp.getReverseCost() + temp.getReverseServiceCost();
-                ans.add(false);
-            }
-            prevEnd = temp.getFirstEndpointId();
-        }
-
-        //do the same for the rest of the edges
-        for (int i = 1; i < compactRoute.size(); i++) {
-            temp = g.getEdge(compactRoute.get(i));
-
-            if (compactDir.get(i)) {
-                cost += dist[prevEnd][temp.getFirstEndpointId()];
-                if (temp.isReverseRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
-                    cost += temp.getCost() + temp.getZigzagCost();
-                    if (temp.hasTimeWindow()) {
-                        candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
-                        candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getReverseServiceCost() - temp.getZigzagCost();
-                        if (temp.isRequired())
-                            candidateBackAndForth += temp.getServiceCost();
-                        if (candidatePenalty < candidateBackAndForth) {
-                            penalty += Math.max(0, candidatePenalty);
-                            ans.add(true);
-                        } else {
-                            cost += candidateBackAndForth;
-                            ans.add(false);
-                        }
-                    }
-                } else if (temp.isReverseRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
-                    LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
-                } else {
-                    cost += temp.getCost() + temp.getServiceCost();
-                    ans.add(false);
-                }
-                prevEnd = temp.getSecondEndpointId();
-            } else {
-                cost += dist[prevEnd][temp.getSecondEndpointId()];
-                if (temp.isRequired() && (temp.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || temp.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)) {
-                    cost += temp.getReverseCost() + temp.getZigzagCost();
-                    if (temp.hasTimeWindow()) {
-                        candidatePenalty = Math.max(0, (cost - temp.getTimeWindow().getSecond()) * latePenalty);
-                        candidateBackAndForth = temp.getCost() + temp.getReverseCost() + temp.getServiceCost() - temp.getZigzagCost();
-                        if (temp.isReverseRequired())
-                            candidateBackAndForth += temp.getReverseServiceCost();
-                        if (candidatePenalty < candidateBackAndForth) {
-                            penalty += Math.max(0, candidatePenalty);
-                            ans.add(true);
-                        } else {
-                            cost += candidateBackAndForth;
-                            ans.add(false);
-                        }
-                    }
-                } else if (temp.isRequired() && temp.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
-                    LOGGER.warn("You're trying to traverse a link in the wrong direction as required, with no possibility of zig-zag.");
-                } else {
-                    cost += temp.getReverseCost() + temp.getReverseServiceCost();
-                    ans.add(false);
-                }
-                prevEnd = temp.getFirstEndpointId();
-            }
-        }
-        cost += dist[prevEnd][depotId];
-
-        cost += penalty;
-        System.out.println("PENALTY: " + penalty);
-        return ans;
     }
 
     /**
@@ -584,8 +430,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
 
         if (dir1) {
             insertionCost = insertCost(vertexOrLink, ids, dist).getFirst();
-            //dist[depotId][toRoute.getFirstEndpointId()] + dist[toRoute.getSecondEndpointId()][temp1.getFirstEndpointId()]
-            //- dist[depotId][temp1.getFirstEndpointId()];
             addedTime = dist[depotId][toRoute.getFirstEndpointId()];
             if (startTime + addedTime > toRoute.getTimeWindow().getSecond()) {
                 penalty += latePenalty * (startTime + addedTime - toRoute.getTimeWindow().getSecond());
@@ -594,8 +438,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
         } else {
             ids[2] = temp1.getSecondEndpointId();
             insertionCost = insertCost(vertexOrLink, ids, dist).getFirst();
-            //dist[depotId][toRoute.getFirstEndpointId()] + dist[toRoute.getSecondEndpointId()][temp1.getSecondEndpointId()]
-            //        - dist[depotId][temp1.getSecondEndpointId()];
             addedTime = dist[depotId][toRoute.getFirstEndpointId()];
             if (startTime + addedTime > toRoute.getTimeWindow().getSecond()) {
                 penalty += latePenalty * (startTime + addedTime - toRoute.getTimeWindow().getSecond());
@@ -647,9 +489,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
                 ids[2] = temp2.getFirstEndpointId();
 
                 insertionCost = insertCost(vertexOrLink, ids, dist).getFirst();
-                //Utils.shortestEdgeDistance(temp1, toRoute, dist, 1).getFirst()
-                //    + Utils.shortestEdgeDistance(toRoute, temp2, dist, 2).getFirst()
-                //    - dist[temp1.getSecondEndpointId()][temp2.getFirstEndpointId()];
                 addedTime = Utils.shortestEdgeDistance(temp1, toRoute, dist, 1).getFirst();
                 if (startTime + addedTime > toRoute.getTimeWindow().getSecond())
                     penalty += latePenalty * (startTime + addedTime - toRoute.getTimeWindow().getSecond());
@@ -660,9 +499,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
                 ids[2] = temp2.getSecondEndpointId();
 
                 insertionCost = insertCost(vertexOrLink, ids, dist).getFirst();
-                //Utils.shortestEdgeDistance(temp1, toRoute, dist, 1).getFirst()
-                //   + Utils.shortestEdgeDistance(toRoute, temp2, dist, 4).getFirst()
-                //    - dist[temp1.getSecondEndpointId()][temp2.getSecondEndpointId()];
                 addedTime = Utils.shortestEdgeDistance(temp1, toRoute, dist, 1).getFirst();
                 if (startTime + addedTime > toRoute.getTimeWindow().getSecond())
                     penalty += latePenalty * (startTime + addedTime - toRoute.getTimeWindow().getSecond());
@@ -673,9 +509,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
                 ids[2] = temp2.getFirstEndpointId();
 
                 insertionCost = insertCost(vertexOrLink, ids, dist).getFirst();
-                //Utils.shortestEdgeDistance(temp1, toRoute, dist, 3).getFirst()
-                //    + Utils.shortestEdgeDistance(toRoute, temp2, dist, 2).getFirst()
-                //    - dist[temp1.getFirstEndpointId()][temp2.getFirstEndpointId()];
                 addedTime = Utils.shortestEdgeDistance(temp1, toRoute, dist, 3).getFirst();
                 if (startTime + addedTime > toRoute.getTimeWindow().getSecond())
                     penalty += latePenalty * (startTime + addedTime - toRoute.getTimeWindow().getSecond());
@@ -687,9 +520,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
                 ids[2] = temp2.getSecondEndpointId();
 
                 insertionCost = insertCost(vertexOrLink, ids, dist).getFirst();
-                //Utils.shortestEdgeDistance(temp1, toRoute, dist, 3).getFirst()
-                //    + Utils.shortestEdgeDistance(toRoute, temp2, dist, 4).getFirst()
-                //    - dist[temp1.getFirstEndpointId()][temp2.getSecondEndpointId()];
                 addedTime = Utils.shortestEdgeDistance(temp1, toRoute, dist, 3).getFirst();
                 if (startTime + addedTime > toRoute.getTimeWindow().getSecond())
                     penalty += latePenalty * (startTime + addedTime - toRoute.getTimeWindow().getSecond());
@@ -732,8 +562,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
         if (dir2) {
             ids[0] = temp2.getSecondEndpointId();
             insertionCost = insertCost(vertexOrLink, ids, dist).getFirst();
-            //dist[temp2.getSecondEndpointId()][toRoute.getFirstEndpointId()] + dist[toRoute.getSecondEndpointId()][depotId]
-            //        - dist[temp2.getSecondEndpointId()][depotId];
             addedTime = dist[temp2.getSecondEndpointId()][toRoute.getFirstEndpointId()];
             if (startTime + addedTime > toRoute.getTimeWindow().getSecond()) {
                 penalty += latePenalty * (startTime + addedTime - toRoute.getTimeWindow().getSecond());
@@ -741,8 +569,6 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
         } else {
             ids[0] = temp2.getFirstEndpointId();
             insertionCost = insertCost(vertexOrLink, ids, dist).getFirst();
-            //dist[temp2.getFirstEndpointId()][toRoute.getFirstEndpointId()] + dist[toRoute.getSecondEndpointId()][depotId]
-            //        - dist[temp2.getFirstEndpointId()][depotId];
             addedTime = dist[temp2.getFirstEndpointId()][toRoute.getFirstEndpointId()];
             if (startTime + addedTime > toRoute.getTimeWindow().getSecond()) {
                 penalty += latePenalty * (startTime + addedTime - toRoute.getTimeWindow().getSecond());
@@ -812,104 +638,22 @@ public class WRPPZZ_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, Z
 
     @Override
     public ProblemAttributes getProblemAttributes() {
-        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, ProblemAttributes.Properties.TIME_WINDOWS);
     }
 
     @Override
     public String getSolverName() {
-        return "Push First Insertion Heuristic for the Windy Rural Postman Problem with Time Windows";
+        return "Hybrid IP-Heuristic for the Windy Rural Postman Problem with Time Windows";
     }
 
     @Override
     public Solver<ZigZagVertex, ZigZagLink, ZigZagGraph> instantiate(Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> p) {
-        return new WRPPZZ_PFIH(p);
+        return new WRPPZZTW_PFIH(p);
     }
 
     @Override
     public HashMap<String, Double> getProblemParameters() {
         return new HashMap<String, Double>();
-    }
-
-    /**
-     * From Solutions in Under 10 Seconds for Vehicle Routing Problems
-     * with Time Windows using Commodity Computers (Cardoso et al.),
-     * adapted to operate on edges.  Lower costs indicate edges to be routed first.
-     *
-     * @param zzl  - the link to be assessed
-     * @param dist - distance matrix for this instance's graph (memory saver).
-     * @return
-     */
-    private double assessPFIHCost(ZigZagLink zzl, int[][] dist) {
-
-        ZigZagGraph g = mInstance.getGraph();
-
-        int dist1 = dist[g.getDepotId()][zzl.getFirstEndpointId()];
-        int dist2 = dist[g.getDepotId()][zzl.getSecondEndpointId()];
-        int endId;
-        int dio = -1; //distance to the edge
-
-        if (!g.getVertex(g.getDepotId()).hasCoordinates())
-            LOGGER.warn("The depot does not have coordinates.  Behavior is not guaranteed.");
-
-        double dx = g.getVertex(g.getDepotId()).getX();
-        double dy = g.getVertex(g.getDepotId()).getY();
-
-        if (dist1 < dist2) {
-            dio = dist1;
-            endId = zzl.getSecondEndpointId();
-        } else {
-            dio = dist2;
-            endId = zzl.getFirstEndpointId();
-        }
-
-
-        if (!g.getVertex(endId).hasCoordinates())
-            LOGGER.warn("Vertex " + endId + " does not have coordinates.  Behavior is not guaranteed.");
-
-        double theta;
-        if (g.getVertex(endId).getX() == dx && g.getVertex(endId).getY() == dy) {
-            LOGGER.warn("It appears as though this vertex is coincident with the depot.  Ignoring theta component.");
-            theta = 0;
-        } else
-            theta = Math.atan2(Math.abs(g.getVertex(endId).getY() - dy), (Math.abs(g.getVertex(endId).getX()) - dx));
-
-        int tStart, tEnd;
-        tStart = zzl.getTimeWindow().getFirst();
-        tEnd = zzl.getTimeWindow().getSecond();
-
-        return -mAlpha * dio + mBeta * tEnd + mGamma * dio * theta / (2 * Math.PI) + mLambda * (1 / (tEnd - tStart));
-    }
-
-    public double getmAlpha() {
-        return mAlpha;
-    }
-
-    public void setmAlpha(double mAlpha) {
-        this.mAlpha = mAlpha;
-    }
-
-    public double getmBeta() {
-        return mBeta;
-    }
-
-    public void setmBeta(double mBeta) {
-        this.mBeta = mBeta;
-    }
-
-    public double getmGamma() {
-        return mGamma;
-    }
-
-    public void setmGamma(double mGamma) {
-        this.mGamma = mGamma;
-    }
-
-    public double getmLambda() {
-        return mLambda;
-    }
-
-    public void setmLambda(double mLambda) {
-        this.mLambda = mLambda;
     }
 
     public double getLatePenalty() {

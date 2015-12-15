@@ -69,7 +69,7 @@ public abstract class RuralPostmanProblem<V extends Vertex, E extends Link<V>, G
 
             //route ids
             Route<V, E> reclaimed = Utils.reclaimTour(r, mGraph);
-            for (E e : reclaimed.getRoute())
+            for (E e : reclaimed.getPath())
                 ids.remove(e.getId());
 
             return ids.isEmpty();

@@ -18,18 +18,18 @@ import java.util.Collection;
 /**
  * Created by oliverlum on 6/20/15.
  */
-public class WindyRPPZZ extends RuralPostmanProblem<ZigZagVertex, ZigZagLink, ZigZagGraph> {
+public class WindyRPPZZTW extends RuralPostmanProblem<ZigZagVertex, ZigZagLink, ZigZagGraph> {
 
-    private static Logger LOGGER = Logger.getLogger(WindyRPPZZ.class);
+    private static Logger LOGGER = Logger.getLogger(WindyRPPZZTW.class);
 
-    public WindyRPPZZ(ZigZagGraph graph, String name) {
+    public WindyRPPZZTW(ZigZagGraph graph, String name) {
         super(graph, name, new SumMetric());
         mGraph = graph;
     }
 
     @Override
     public ProblemAttributes getProblemAttributes() {
-        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
+        return new ProblemAttributes(Graph.Type.WINDY, ProblemAttributes.Type.RURAL_POSTMAN, ProblemAttributes.NumVehicles.SINGLE_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, ProblemAttributes.Properties.TIME_WINDOWS);
     }
 
     @Override
@@ -44,9 +44,20 @@ public class WindyRPPZZ extends RuralPostmanProblem<ZigZagVertex, ZigZagLink, Zi
                 ZigZagTour rTemp = (ZigZagTour) r;
                 TIntArrayList compactRep = rTemp.getCompactRepresentation();
                 ArrayList<Boolean> zzList = rTemp.getCompactZZList();
+                TIntArrayList runningCost = rTemp.getIncrementalCost();
+                ArrayList<ZigZagLink> tempRoute = rTemp.getPath();
 
-                for (int i = 0; i < compactRep.size(); i++) {
-
+                //check time windows
+                if (runningCost.get(0) > tempRoute.get(0).getTimeWindow().getSecond()) {
+                    return false;
+                }
+                for (int i = 1; i < compactRep.size(); i++) {
+                    if (runningCost.get(i) > tempRoute.get(i).getTimeWindow().getSecond()) {
+                        return false;
+                    }
+                    if (runningCost.get(i - 1) < tempRoute.get(i).getTimeWindow().getFirst()) {
+                        return false;
+                    }
                 }
             }
         }

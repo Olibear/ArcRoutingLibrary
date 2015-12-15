@@ -96,7 +96,7 @@ public class Utils {
 
     public static Tour<DirectedVertex, Arc> convertWindyTourToDirectedTour(Route<WindyVertex, WindyEdge> origRoute) {
         int maxId = Integer.MIN_VALUE;
-        List<WindyEdge> path = origRoute.getRoute();
+        List<WindyEdge> path = origRoute.getPath();
 
         int firstId, secondId;
         for(WindyEdge we: path) {

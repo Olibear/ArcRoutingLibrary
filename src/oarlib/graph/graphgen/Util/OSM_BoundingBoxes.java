@@ -54,6 +54,32 @@ public class OSM_BoundingBoxes {
             //new BoundingBox(16.367078, 48.205786, 16.375082, 48.211377, "Vienna, Austria")
     };
 
+    public static final BoundingBox[] CITY_INSTANCES_SMALL = new BoundingBox[]{
+            //NYC
+            //new BoundingBox(-73.967990, 40.792020, -73.966280, 40.792076, "NYC"),
+            //SF
+            new BoundingBox(-122.404000, 37.787041, -122.402816, 37.791249, "San Francisco"),
+            //DC
+            //new BoundingBox(-77.025293, 38.933782, -77.024693, 38.936974, "Washington D.C."),
+            //Paris
+            new BoundingBox(2.298695, 48.876812, 2.303707, 48.878453, "Paris, France"),
+            //London
+            //new BoundingBox(-.127157, 51.510221, -.126986, 51.518527, "London, UK"),
+            //Istanbul
+            new BoundingBox(28.967437, 41.007398, 28.969264, 41.009030, "Istanbul, Turkey"),
+            //Perth
+            //new BoundingBox(115.858599, -31.944743, 115.869693, -31.939681, "Perth, Australia"),
+            //Auckland
+            //new BoundingBox(174.728553, -36.860062, 174.743359, -36.843990, "Auckland, Australia"),
+            //Helsinki
+            //new BoundingBox(24.935060, 60.164540, 24.943771, 60.169360, "Helsinki, Finland"),
+            //Calgary
+            //new BoundingBox(-114.090764, 51.037411, -114.061281, 51.049795, "Calgary, Canada"),
+            //Vienna
+            //new BoundingBox(16.367078, 48.205786, 16.375082, 48.211377, "Vienna, Austria")
+
+    };
+
     public static final BoundingBox[] SUBURBAN_INSTANCES = new BoundingBox[]{
             //home
             new BoundingBox(-77.1420210, 39.0426980, -77.1290200, 39.0492390, "Bethesda, MD"),

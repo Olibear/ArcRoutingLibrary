@@ -40,7 +40,7 @@ public class WRPPZZSolver extends SingleVehicleSolver<ZigZagVertex, ZigZagLink, 
     private static void computeTour(ZigZagGraph graph, Route<WindyVertex, WindyEdge> t) {
         //calculate the cost, and print it, while reclaiming as well
 
-        List<WindyEdge> route = t.getRoute();
+        List<WindyEdge> route = t.getPath();
         ArrayList<Boolean> dir = t.getTraversalDirection();
         ZigZagLink temp;
         Tour<ZigZagVertex, ZigZagLink> zzAns = new Tour<ZigZagVertex, ZigZagLink>();
