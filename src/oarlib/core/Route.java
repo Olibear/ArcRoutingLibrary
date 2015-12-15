@@ -99,7 +99,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             //init
             HashMap<Integer, Integer> vertexMap = new HashMap<Integer, Integer>();
             Set<Integer> keySet = vertexMap.keySet();
-            List<E> route = this.getRoute();
+            List<E> route = this.getPath();
             int vertexIndex = 1;
             Vertex first, second;
             UndirectedVertex toAdd;
@@ -174,7 +174,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      *
      * @return List of edges to be traversed from first to last
      */
-    public ArrayList<E> getRoute() {
+    public ArrayList<E> getPath() {
         return mRoute;
     }
 
@@ -227,8 +227,6 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     public void appendEdge(E l) throws IllegalArgumentException {
         appendEdge(l, l.isRequired());
     }
-
-    //TODO: dedup internal
 
     /**
      * Add a edge to the end of this route.
@@ -406,7 +404,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
      */
     public String toString() {
         String ans = "";
-        List<E> list = this.getRoute();
+        List<E> list = this.getPath();
         int n = list.size();
         E tempL, tempL2;
         int prevId1, prevId2, prevAltId1, prevAltId2, prevIdReal, beginningCycleLength;
@@ -545,6 +543,48 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
                 ans += prevIdReal;
         }
         return ans;
+    }
+
+    /**
+     * Make the necessary internal modifications to change the 'service status' of the
+     * i-th link in the route (in full, not compact form).  E.g., changeService(2) will
+     * attempt to change the 3rd link traversed in this route from being serviced to not
+     * being serviced (if it was servicingList.get(2) == true; vice versa otherwise).
+     * <p/>
+     * Note that the generic Route does not maintain a notion of service costs, so if
+     * there are any additional feasiability checks, this will have to be overridden.
+     *
+     * @param position
+     * @return - true if the change was successful, false oth.
+     */
+    public boolean changeService(int position) {
+
+        //arg check
+        if (position < 0 || position > mRoute.size()) {
+            LOGGER.warn("Position invalid; it is either < 0 or greater than the size of the current route.");
+            return false;
+        }
+
+        //figure out what position we're at in the compact representations
+        int compactPos = 0;
+        for (int i = 0; i < position; i++) {
+            if (servicing.get(i)) {
+                compactPos++;
+            }
+        }
+
+        //mods
+        if (servicing.get(position)) {
+            servicing.set(position, false);
+            compactRepresentation.remove(compactPos);
+            compactTD.remove(compactPos);
+        } else {
+            servicing.set(position, true);
+            compactRepresentation.insert(compactPos, mRoute.get(position).getId());
+            compactTD.add(compactPos, traversalDirection.get(position));
+        }
+
+        return true;
     }
 
 

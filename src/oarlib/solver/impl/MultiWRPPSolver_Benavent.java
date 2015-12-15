@@ -77,7 +77,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
             ArrayList<Boolean> service = singleAns.getServicingList();
 
             ArrayList<Arc> orderedReqEdges = new ArrayList<Arc>();
-            List<Arc> singleRoute = singleAns.getRoute();
+            List<Arc> singleRoute = singleAns.getPath();
             int singleRouteSize = singleRoute.size();
             for (int i = 0; i < singleRouteSize; i++) {
                 if (service.get(i))
@@ -302,7 +302,7 @@ public class MultiWRPPSolver_Benavent extends MultiVehicleSolver<WindyVertex, Wi
             int counter = 1;
             for (Route<WindyVertex, WindyEdge> r : improvedFinalAns) {
 
-                List<WindyEdge> path = r.getRoute();
+                List<WindyEdge> path = r.getPath();
                 ArrayList<Boolean> service = r.getServicingList();
                 for (int i = 0; i < path.size(); i++) {
                     if (service.get(i))

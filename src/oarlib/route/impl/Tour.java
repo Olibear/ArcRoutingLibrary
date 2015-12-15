@@ -41,7 +41,7 @@ public class Tour<V extends Vertex, E extends Link<V>> extends Route<V, E> {
     }
 
     public static boolean isTour(Route r) {
-        List<? extends Link<? extends Vertex>> rPath = r.getRoute();
+        List<? extends Link<? extends Vertex>> rPath = r.getPath();
         return rPath.get(0).getEndpoints().getFirst().getId() == rPath.get(rPath.size() - 1).getEndpoints().getSecond().getId();
 
     }

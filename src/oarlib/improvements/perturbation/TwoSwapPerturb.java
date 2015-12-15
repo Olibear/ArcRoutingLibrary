@@ -65,7 +65,7 @@ public class TwoSwapPerturb extends IntraRouteImprovementProcedure<WindyVertex, 
         Route<WindyVertex, WindyEdge> ans = null;
 
         Random rng = new Random();
-        List<WindyEdge> rPath = r.getRoute();
+        List<WindyEdge> rPath = r.getPath();
         int routeLength = r.getCompactRepresentation().size();
         int index1 = rng.nextInt(routeLength);
         int index2 = rng.nextInt(routeLength);

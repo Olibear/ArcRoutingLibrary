@@ -52,7 +52,7 @@ public class Utils {
 
         Tour ans = new Tour();
 
-        List<? extends Link> path = origAns.getRoute();
+        List<? extends Link> path = origAns.getPath();
         List<? extends Link<? extends Vertex>> candidates;
         int n = path.size();
         int firstId, secondId, traversalCost, secondCost;

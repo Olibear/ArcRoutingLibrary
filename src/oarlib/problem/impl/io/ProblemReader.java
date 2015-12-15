@@ -653,7 +653,7 @@ public class ProblemReader {
                         type = "Mixed";
                     else if (temp[3].startsWith("WA") || temp[3].startsWith("WB"))
                         type = "Windy";
-                    else if (temp[3].startsWith("A") || temp[3].startsWith("M") || temp[3].startsWith("m") || temp[3].startsWith("P") || temp[3].startsWith("p"))
+                    else if (temp[3].startsWith("A") || temp[3].startsWith("M") || temp[3].startsWith("m") || temp[3].startsWith("P") || temp[3].startsWith("p") || temp[3].startsWith("Minmax"))
                         type = "WindyRural";
                     else {
                         br.close();
@@ -835,6 +835,9 @@ public class ProblemReader {
                             ans.addEdge(tailId, headId, "original", cost1, cost2, true);
                         }
                         while ((line = br.readLine()) != null) {
+                            if (line.contains("COORDENADAS")) {
+                                break;
+                            }
                             temp = line.split("\\s+|:|\\)|,|\\(");
                             if (temp.length == 1)
                                 break;
@@ -853,15 +856,16 @@ public class ProblemReader {
 
                             ans.addEdge(tailId, headId, "original", cost1, cost2, false);
                         }
+                        break;
                     }
 
                 }
 
                 //skip some interim matter
-                br.readLine();
-                br.readLine();
-                br.readLine();
-                br.readLine();
+                //br.readLine();
+                //br.readLine();
+                //br.readLine();
+                //br.readLine();
 
                 //now read coordinates
                 int i = 1;
@@ -870,7 +874,7 @@ public class ProblemReader {
                 while ((line = br.readLine()) != null) {
                     tempV = ansVertices.get(i);
                     temp = line.split("\\s+|:|\\)|,|\\(");
-                    tempV.setCoordinates(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));
+                    tempV.setCoordinates(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
                     i++;
                 }
 

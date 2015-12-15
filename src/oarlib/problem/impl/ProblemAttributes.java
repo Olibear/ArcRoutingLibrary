@@ -2,6 +2,8 @@ package oarlib.problem.impl;
 
 import oarlib.core.Graph;
 
+import java.util.Arrays;
+
 /**
  * Created by oliverlum on 1/18/15.
  */
@@ -69,7 +71,7 @@ public class ProblemAttributes {
             return false;
         if (mNumDepots != null && other.getmNumDepots() != null && mNumDepots != other.getmNumDepots())
             return false;
-        if (mProperties != other.getmProperties())
+        if (!Arrays.deepEquals(mProperties, other.getmProperties()))
             return false;
 
         return true;

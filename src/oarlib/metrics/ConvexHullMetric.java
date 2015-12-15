@@ -64,7 +64,7 @@ public class ConvexHullMetric extends Metric {
 
         for (int i = 0; i < nRoutes; i++) {
             Route<V, E> r = routesAr[i];
-            Point[] p = routeInPoints(r.getRoute());
+            Point[] p = routeInPoints(r.getPath());
             p = convex_hull(p);
             convexH[i] = p;
         }

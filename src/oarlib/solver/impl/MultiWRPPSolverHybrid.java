@@ -126,7 +126,7 @@ public class MultiWRPPSolverHybrid extends MultiVehicleSolver<WindyVertex, Windy
         int counter = 1;
         for (Route<WindyVertex, WindyEdge> r : sol1) {
 
-            List<WindyEdge> path = r.getRoute();
+            List<WindyEdge> path = r.getPath();
             ArrayList<Boolean> service = r.getServicingList();
             for (int i = 0; i < path.size(); i++) {
                 if (service.get(i))

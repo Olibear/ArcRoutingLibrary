@@ -208,8 +208,8 @@ public class GraphDisplay {
         boolean useAutoLayout = true;
         int numPartitions = 0;
 
-        if (withPartitions && edgePartition.keySet().size() != mGraph.getEdges().size())
-            throw new IllegalArgumentException("The specified partition does not seem to have the appropriate number of entries.");
+        //if (withPartitions && edgePartition.keySet().size() != mGraph.getEdges().size())
+        //throw new IllegalArgumentException("The specified partition does not seem to have the appropriate number of entries.");
 
 
         //figure out max cost
@@ -307,7 +307,7 @@ public class GraphDisplay {
             for (Link<? extends Vertex> tempLink : edgeMap.getValues(new Link[1]))
                 links.add(tempLink);
         else
-            for (Link<? extends Vertex> tempLink : r.getRoute())
+            for (Link<? extends Vertex> tempLink : r.getPath())
                 links.add(tempLink);
 
         for (Link<? extends Vertex> tempLink : links) {
@@ -329,16 +329,21 @@ public class GraphDisplay {
             else
                 tempEdge.getEdgeData().setLabel(String.valueOf(tempLink.getCost()));
             if (withPartitions) {
-                tempEdge.getEdgeData().getAttributes().setValue("Partition", edgePartition.get(tempLink.getId()));
-                if (edgePartition.get(tempLink.getId()) > numPartitions)
-                    numPartitions = edgePartition.get(tempLink.getId());
+                if (edgePartition.containsKey(tempLink.getId())) {
+                    tempEdge.getEdgeData().getAttributes().setValue("Partition", edgePartition.get(tempLink.getId()));
+                    if (edgePartition.get(tempLink.getId()) > numPartitions)
+                        numPartitions = edgePartition.get(tempLink.getId());
+                }
             } else {
                 if (tempLink.isRequired())
                     tempEdge.getEdgeData().getAttributes().setValue("Partition", 2);
                 else
                     tempEdge.getEdgeData().getAttributes().setValue("Partition", 1);
             }
-            tempEdge.setWeight(40f);
+            if (withPartitions && !edgePartition.containsKey(tempLink.getId()))
+                tempEdge.setWeight(20f);
+            else
+                tempEdge.setWeight(40f);
             graph.addEdge(tempEdge);
         }
 

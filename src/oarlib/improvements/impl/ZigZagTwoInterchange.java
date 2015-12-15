@@ -27,14 +27,15 @@ import gnu.trove.TIntArrayList;
 import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
-import oarlib.graph.impl.WindyGraph;
+import oarlib.graph.impl.ZigZagGraph;
 import oarlib.improvements.ImprovementStrategy;
 import oarlib.improvements.IntraRouteImprovementProcedure;
-import oarlib.link.impl.WindyEdge;
+import oarlib.link.impl.ZigZagLink;
 import oarlib.problem.impl.ProblemAttributes;
-import oarlib.route.impl.Tour;
-import oarlib.route.util.RouteExpander;
-import oarlib.vertex.impl.WindyVertex;
+import oarlib.route.impl.ZigZagTour;
+import oarlib.route.util.ZigZagExpander;
+import oarlib.vertex.impl.ZigZagVertex;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,43 +48,52 @@ import java.util.Collection;
  * <p/>
  * Created by oliverlum on 11/16/14.
  */
-public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, WindyEdge, WindyGraph> {
+public class ZigZagTwoInterchange extends IntraRouteImprovementProcedure<ZigZagVertex, ZigZagLink, ZigZagGraph> {
 
-    public TwoInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem) {
+    private static final Logger LOGGER = Logger.getLogger(ZigZagTwoInterchange.class);
+
+    public ZigZagTwoInterchange(Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> problem) {
         super(problem);
     }
 
-    public TwoInterchange(Problem<WindyVertex, WindyEdge, WindyGraph> problem, ImprovementStrategy.Type strat, Collection<Route<WindyVertex, WindyEdge>> initialSol) {
+    public ZigZagTwoInterchange(Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> problem, ImprovementStrategy.Type strat, Collection<Route<ZigZagVertex, ZigZagLink>> initialSol) {
         super(problem, strat, initialSol);
     }
 
     @Override
     public ProblemAttributes getProblemAttributes() {
-        return new ProblemAttributes(Graph.Type.WINDY, null, null, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
+        return new ProblemAttributes(Graph.Type.WINDY, null, null, ProblemAttributes.NumDepots.SINGLE_DEPOT, ProblemAttributes.Properties.TIME_WINDOWS);
     }
 
     @Override
-    public Route<WindyVertex, WindyEdge> improveRoute(Route<WindyVertex, WindyEdge> r) {
+    public ZigZagTour improveRoute(Route<ZigZagVertex, ZigZagLink> r) {
 
-        Route record = r;
+        //check type
+        if (!(r instanceof ZigZagTour)) {
+            LOGGER.warn("This improvement procedure only works with ZigZagTours.");
+            return null;
+        }
+
+        ZigZagTour record = (ZigZagTour) r;
         int recordCost = r.getCost();
         int temp, temp2, candidateCost;
-        Boolean tempForward, tempForward2;
+        Boolean tempForward, tempForward2, tempZig, tempZig2;
 
-        RouteExpander wre = new RouteExpander(getGraph());
+        ZigZagExpander wre = new ZigZagExpander(getGraph(), record.getPenalty());
         boolean foundImprovement = true;
 
-        Route newRecord = null;
+        ZigZagTour newRecord = null;
         while (foundImprovement) {
 
             // defaults
             foundImprovement = false;
             TIntArrayList flattenedRoute = new TIntArrayList(record.getCompactRepresentation().toNativeArray());
             ArrayList<Boolean> traversalDirection = new ArrayList<Boolean>(record.getCompactTraversalDirection());
+            ArrayList<Boolean> zigzagList = new ArrayList<Boolean>(record.getCompactZZList());
 
             int n = flattenedRoute.size();
 
-            Tour candidate;
+            ZigZagTour candidate;
             //swap them and re expand, and re-assess cost
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < i; j++) {
@@ -91,14 +101,22 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
                     temp2 = flattenedRoute.get(j);
                     tempForward = traversalDirection.get(i);
                     tempForward2 = traversalDirection.get(j);
+                    tempZig = zigzagList.get(i);
+                    tempZig2 = zigzagList.get(j);
 
                     //swap
                     flattenedRoute.set(i, temp2);
                     flattenedRoute.set(j, temp);
                     traversalDirection.set(i, tempForward2);
                     traversalDirection.set(j, tempForward);
+                    zigzagList.set(i, tempZig2);
+                    zigzagList.set(j, tempZig);
 
-                    candidate = wre.unflattenRoute(flattenedRoute, traversalDirection);
+                    try {
+                        candidate = wre.unflattenRoute(flattenedRoute, traversalDirection, zigzagList);
+                    } catch (IllegalArgumentException e) {
+                        continue;
+                    }
                     candidateCost = candidate.getCost();
                     if (candidateCost < recordCost) {
                         recordCost = candidateCost;
@@ -114,11 +132,14 @@ public class TwoInterchange extends IntraRouteImprovementProcedure<WindyVertex, 
                     flattenedRoute.set(j, temp2);
                     traversalDirection.set(i, tempForward);
                     traversalDirection.set(j, tempForward2);
+                    zigzagList.set(i, tempZig);
+                    zigzagList.set(j, tempZig2);
 
                 }
             }
 
             if (foundImprovement) {
+                LOGGER.debug("Solution improved.");
                 record = newRecord;
             }
         }

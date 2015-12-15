@@ -81,7 +81,7 @@ public class RouteOverlapMetric extends Metric {
 
         for (Route<V, E> r : sol) {
             traversedIds.clear();
-            List<E> temp = r.getRoute();
+            List<E> temp = r.getPath();
             E tempLink;
             ArrayList<Boolean> tempService = r.getServicingList();
             for (int i = 0; i < temp.size(); i++) {

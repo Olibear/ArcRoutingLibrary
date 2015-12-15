@@ -35,7 +35,7 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
         mGraph = g;
         mPenalty = latePenalty;
         mCustomIDMap = t.getMapping();
-        mRoute = t.getRoute();
+        mRoute = t.getPath();
         traversalDirection = t.getTraversalDirection();
         compactRepresentation = t.getCompactRepresentation();
         compactTD = t.getCompactTraversalDirection();
@@ -50,10 +50,17 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
         return compactZZList;
     }
 
+    public TIntArrayList getIncrementalCost() {
+        return incrementalCost;
+    }
+
     public void setGraph(ZigZagGraph g) {
         mGraph = g;
     }
 
+    public double getPenalty() {
+        return mPenalty;
+    }
     public void setPenalty(double newPenalty) {
         mPenalty = newPenalty;
     }
@@ -138,16 +145,20 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
     public void appendEdge(ZigZagLink l, boolean service, boolean zigzag) throws IllegalArgumentException {
         if (zigzag) {
             if (l.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE) {
-                LOGGER.warn("You are attempting to zig zag a link that doesn't allow zig zag service. Exiting without appending.");
-                return;
+                LOGGER.debug("You are attempting to zig zag a link that doesn't allow zig zag service. Exiting without appending.");
+                throw new IllegalArgumentException("You are attempting to zig zag a link that doesn't allow zig zag service. Exiting without appending.");
             }
             if (getCost() + l.getZigzagCost() > l.getTimeWindow().getSecond()) {
-                LOGGER.warn("You are attempting to zig zag a link after its time window has closed.  Exiting without appending.");
-                return;
+                LOGGER.debug("You are attempting to zig zag a link after its time window has closed.  Exiting without appending.");
+                throw new IllegalArgumentException("You are attempting to zig zag a link after its time window has closed.  Exiting without appending.");
+            }
+            if (getCost() < l.getTimeWindow().getFirst()) {
+                LOGGER.debug("You are attempting to zig zag a link before its time window has opened.  Exiting without appending.");
+                throw new IllegalArgumentException("You are attempting to zig zag a link before its time window has opened.  Exiting without appending.");
             }
             if (!l.isRequired()) {
-                LOGGER.warn("You are attempting to zig zag a link that does not require service. Exiting without appending.");
-                return;
+                LOGGER.debug("You are attempting to zig zag a link that does not require service. Exiting without appending.");
+                throw new IllegalArgumentException("You are attempting to zig zag a link that does not require service. Exiting without appending.");
             }
         }
 
@@ -221,5 +232,78 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
     @Override
     public int getCost() {
         return (int) (mCost + serviceComponent);
+    }
+
+    @Override
+    public boolean changeService(int position) {
+
+        //arg check
+        if (position < 0 || position > mRoute.size()) {
+            LOGGER.warn("Position invalid; it is either < 0 or greater than the size of the current route.");
+            return false;
+        }
+
+        //figure out what position we're at in the compact representations
+        int compactPos = 0;
+        for (int i = 0; i < position; i++) {
+            if (servicing.get(i)) {
+                compactPos++;
+            }
+        }
+
+        //check the feasibility of the change
+        double diff;
+        ZigZagLink temp;
+        if (servicing.get(position)) {
+            if (compactZZList.get(compactPos)) {
+                diff = mRoute.get(position).getZigzagCost();
+                compactZZList.remove(compactPos);
+            } else if (traversalDirection.get(position))
+                diff = mRoute.get(position).getServiceCost();
+            else
+                diff = mRoute.get(position).getReverseServiceCost();
+
+            serviceComponent -= diff;
+        } else {
+            if (traversalDirection.get(position))
+                diff = mRoute.get(position).getServiceCost();
+            else
+                diff = mRoute.get(position).getReverseServiceCost();
+
+            for (int i = compactPos; i < compactRepresentation.size(); i++) {
+                if (compactZZList.get(i)) {
+                    temp = mGraph.getEdge(compactRepresentation.get(i));
+                    if (incrementalCost.get(i) + diff > temp.getTimeWindow().getSecond()) {
+                        LOGGER.warn("By switching this edge to be serviced, you would cause an " +
+                                "infeasibility later in the route.  Please modify that first.");
+                        return false;
+                    }
+                }
+
+            }
+
+            serviceComponent += diff;
+        }
+
+        //mods
+        if (servicing.get(position)) {
+            servicing.set(position, false);
+            compactRepresentation.remove(compactPos);
+            compactTD.remove(compactPos);
+            //update incremental cost
+            for (int i = position; i < mRoute.size(); i++) {
+                incrementalCost.set(i, incrementalCost.get(i) - (int) diff);
+            }
+        } else {
+            servicing.set(position, true);
+            compactRepresentation.insert(compactPos, mRoute.get(position).getId());
+            compactTD.add(compactPos, traversalDirection.get(position));
+            //update incremental cost
+            for (int i = position; i < mRoute.size(); i++) {
+                incrementalCost.set(i, incrementalCost.get(i) + (int) diff);
+            }
+        }
+
+        return true;
     }
 }

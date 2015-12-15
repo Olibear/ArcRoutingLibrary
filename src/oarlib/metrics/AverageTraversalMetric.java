@@ -64,7 +64,7 @@ public class AverageTraversalMetric extends Metric {
         List<E> temp;
         ArrayList<Boolean> tempService;
         for (Route r : routes) {
-            temp = r.getRoute();
+            temp = r.getPath();
             tempService = r.getServicingList();
             for (int i = 0; i < temp.size(); i++) {
                 if (!tempService.get(i))

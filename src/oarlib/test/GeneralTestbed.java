@@ -38,10 +38,7 @@ import oarlib.graph.graphgen.Util.OSM_BoundingBoxes;
 import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
 import oarlib.graph.impl.*;
-import oarlib.graph.util.CommonAlgorithms;
-import oarlib.graph.util.IndexedRecord;
-import oarlib.graph.util.MSArbor;
-import oarlib.graph.util.Pair;
+import oarlib.graph.util.*;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
@@ -54,11 +51,12 @@ import oarlib.problem.impl.cpp.UndirectedCPP;
 import oarlib.problem.impl.cpp.WindyCPP;
 import oarlib.problem.impl.io.ProblemFormat;
 import oarlib.problem.impl.io.ProblemReader;
+import oarlib.problem.impl.io.ProblemWriter;
 import oarlib.problem.impl.io.util.ExportHelper;
 import oarlib.problem.impl.multivehicle.MinMaxKWRPP;
 import oarlib.problem.impl.rpp.DirectedRPP;
 import oarlib.problem.impl.rpp.WindyRPP;
-import oarlib.problem.impl.rpp.WindyRPPZZ;
+import oarlib.problem.impl.rpp.WindyRPPZZTW;
 import oarlib.solver.impl.*;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
@@ -69,8 +67,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
-import java.io.File;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 
 public class
@@ -86,7 +83,7 @@ public class
      */
     public static void main(String[] args) {
         Logger rootLogger = Logger.getRootLogger();
-        rootLogger.setLevel(Level.ALL);
+        rootLogger.setLevel(Level.WARN);
         PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
         rootLogger.addAppender(new ConsoleAppender(layout));
 
@@ -103,7 +100,7 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        //testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/Benavent_ForViz2.csv");
+        //testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/SmallInstances.csv");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
@@ -116,9 +113,90 @@ public class
         //testFeasibilityChecker(args2);
         //testEquatorialInstanceGenerator();
         //testZigZagParser();
-        testZigZagSolver();
+        //testZigZagSolver();
         //testIracer(args);
         //testMemoryLeak();
+        //compareResults();
+        callPython();
+    }
+
+    private static void callPython() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT_PrefixZigzagOrder.py", "");
+            Process run = pb.start();
+            BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
+            String line = "";
+            System.out.println("Running Python starts: " + line);
+            int exitCode = run.waitFor();
+            System.out.println("Exit Code : " + exitCode);
+            line = bfr.readLine();
+            System.out.println("First Line: " + line);
+            while ((line = bfr.readLine()) != null) {
+                System.out.println("Python Output: " + line);
+            }
+            System.out.println("Complete");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private static void compareResults() {
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("/Users/oliverlum/Downloads/MTZ_PartialOrder_OutputSummary.txt"));
+            BufferedReader br2 = new BufferedReader(new FileReader("/Users/oliverlum/Downloads/MTZ_OutputSummary.txt"));
+            PrintWriter pw = new PrintWriter(new File("/Users/oliverlum/Downloads/Results2.txt"), "UTF-8");
+
+            String line;
+            Double temp;
+            Double tempTotal = 0.0;
+            //Double tempMin = Double.MAX_VALUE;
+            int counter = 0;
+            while ((line = br.readLine()) != null) {
+
+                if (!line.contains("RunningTime"))
+                    continue;
+
+                temp = Double.valueOf(line.split("RunningTime: ")[1]);
+                tempTotal += temp;
+                //if(temp < tempMin)
+                //tempMin = temp;
+
+                counter++;
+                //reset counter
+                if (counter == 10) {
+                    counter = 0;
+                    pw.println(tempTotal);
+                    tempTotal = 0.0;
+                    //pw.println(tempMin);
+                    //tempMin = Double.MAX_VALUE;
+                }
+            }
+            pw.println("BREAK:");
+            counter = 0;
+            while ((line = br2.readLine()) != null) {
+
+                if (!line.contains("Objective Value: "))
+                    continue;
+
+                temp = Double.valueOf(line.split("Objective Value: ")[1]);
+
+                counter++;
+                //reset counter
+                if (counter == 1) {
+                    pw.println(temp);
+                } else if (counter == 5) {
+                    counter = 0;
+                }
+
+            }
+            br.close();
+            br2.close();
+            pw.flush();
+            pw.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
     }
 
@@ -220,32 +298,20 @@ public class
             temp.setTimeWindow(new Pair<Integer>(0, 100));
             temp.setStatus(ZigZagLink.ZigZagStatus.OPTIONAL);
 
-            //read in zigzag instances, and make sure that the graph object is correct
-            ProblemReader pr = new ProblemReader(ProblemFormat.Name.MeanderingPostman);
-            ZigZagGraph graph = (ZigZagGraph) (pr.readGraph("/Users/oliverlum/Downloads/20node/WPPTZ20nodes_1_1_5.txt"));
+            for (int i = 1; i <= 10; i++) {
+                for (int j = 1; j <= 5; j++) {
 
-            WindyRPPZZ prob = new WindyRPPZZ(graph, "test");
-            WRPPZZ_PFIH solver = new WRPPZZ_PFIH(prob);
-            solver.setLatePenalty(1000);
+                    //read in zigzag instances, and make sure that the graph object is correct
+                    ProblemReader pr = new ProblemReader(ProblemFormat.Name.MeanderingPostman);
+                    ZigZagGraph graph = (ZigZagGraph) (pr.readGraph("/Users/oliverlum/Downloads/20node/WPPTZ20nodes_" + i + "_" + j + "_1.txt"));
 
-            Collection<? extends Route> ans = solver.trySolve();
+                    WindyRPPZZTW prob = new WindyRPPZZTW(graph, i + "_" + j + "_1");
+                    WRPPZZTW_PFIH solver = new WRPPZZTW_PFIH(prob);
+                    solver.setLatePenalty(1000);
 
-            //DEBUG
-            System.out.println(ans.toString());
-            for (ZigZagLink l : graph.getEdges()) {
-                if (l.isRequired()) {
-                    System.out.println("Req link: " + l.toString());
-                }
-                if (l.isReverseRequired()) {
-                    System.out.println("Req link: " + l.getSecondEndpointId() + "-" + l.getFirstEndpointId());
+                    Collection<? extends Route> ans = solver.trySolve();
                 }
             }
-
-            for (ZigZagLink l : graph.getEdges()) {
-                if (l.hasTimeWindow())
-                    System.out.println("Time window: " + l.toString() + " " + l.getTimeWindow().getSecond());
-            }
-            //END DEBUG
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -514,27 +580,34 @@ public class
                 WindyGraph g;
                 GraphDisplay displayer = new GraphDisplay(GraphDisplay.Layout.YifanHu, null, null);
 
-                ProblemReader pr = new ProblemReader(ProblemFormat.Name.OARLib);
+                ProblemReader pr = new ProblemReader(ProblemFormat.Name.Corberan);
                 /*for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
                     g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_Center.txt");
                     validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 5);
                     probs.add(validWInstance);
                 }*/
 
-                /*for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
-                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_Edge.txt");
+                OSM_Fetcher fetcher;
+                ProblemWriter pw;
+                for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES_SMALL) {
+                    fetcher = new OSM_Fetcher(bb);
+                    g = fetcher.queryForGraph();
+                    g.setDepotId(Utils.findCenterVertex(g));
+                    //g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_Edge.txt");
                     validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 5);
                     probs.add(validWInstance);
-                }*/
+                    pw = new ProblemWriter(ProblemFormat.Name.Corberan);
+                    pw.writeInstance(validWInstance, "/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_small.txt");
+                }
 
                 //now do the rectangular instances
-                for (int i = 1; i <= 3; i++) {
+                /*for (int i = 1; i <= 3; i++) {
                     g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/Random Instance " + i + "_Edge.txt");
                         //g.setDepotId(Utils.findCenterVertex(g));
                     validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 5);
                         probs.add(validWInstance);
 
-                }
+                }*/
                 /*
                 for (int i = 1; i <= 10; i++) {
                     g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/Random Instance " + i + "_Edge.txt");
@@ -543,6 +616,25 @@ public class
                     probs.add(validWInstance);
 
                 }*/
+
+                //now do Corberan's smaller instances
+                /*
+                g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est7_6_3_1.dat");
+                g.setDepotId(2);
+                validWInstance = new MinMaxKWRPP(g, "Corberan7_6_3_1_3veh", 3);
+                probs.add(validWInstance);
+
+                g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est6_5_3_2/Minmax_est6_5_3_2.dat");
+                g.setDepotId(9);
+                validWInstance = new MinMaxKWRPP(g, "Corberan6_5_3_2_3veh", 3);
+                probs.add(validWInstance);
+
+                g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est8_8_5_1/Minmax_est8_8_5_1.dat");
+                g.setDepotId(28);
+                validWInstance = new MinMaxKWRPP(g, "Corberan8_8_5_1_3veh", 3);
+                probs.add(validWInstance);
+                */
+
                 MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "", displayer);
                 //MultiWRPPSolver_Benavent validWSolver = new MultiWRPPSolver_Benavent(validWInstance);
                 //MultiWRPPSolverHybrid validWSolver = new MultiWRPPSolverHybrid(validWInstance,"",displayer,7);
