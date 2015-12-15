@@ -1,4 +1,4 @@
-package ImprovementProcedures;
+package improvements;
 
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Route;
