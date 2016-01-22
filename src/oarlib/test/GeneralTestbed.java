@@ -100,7 +100,7 @@ public class
         //testMSArbor();
         //testDRPPSolver("/Users/Username/FolderName", "/Users/Output/File.txt");
         //POMSexample();
-        //testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/SmallInstances.csv");
+        testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/SmallInstances.csv");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
@@ -117,24 +117,30 @@ public class
         //testIracer(args);
         //testMemoryLeak();
         //compareResults();
-        callPython();
+        //callPython();
     }
 
     private static void callPython() {
         try {
-            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT_PrefixZigzagOrder.py", "");
-            Process run = pb.start();
-            BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
-            String line = "";
-            System.out.println("Running Python starts: " + line);
-            int exitCode = run.waitFor();
-            System.out.println("Exit Code : " + exitCode);
-            line = bfr.readLine();
-            System.out.println("First Line: " + line);
-            while ((line = bfr.readLine()) != null) {
-                System.out.println("Python Output: " + line);
+            int k = 1;
+            for(int i = 1; i <= 5; i++) {
+                for(int j = 1; j <= 5; j++) {
+                    //k tacitly 1
+                    ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT.py", Integer.toString(i), Integer.toString(j), Integer.toString(k));
+                    Process run = pb.start();
+                    BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
+                    String line = "";
+                    System.out.println("Running Python starts: " + line);
+                    int exitCode = run.waitFor();
+                    System.out.println("Exit Code : " + exitCode);
+                    line = bfr.readLine();
+                    System.out.println("First Line: " + line);
+                    while ((line = bfr.readLine()) != null) {
+                        System.out.println("Python Output: " + line);
+                    }
+                    System.out.println("Complete");
+                }
             }
-            System.out.println("Complete");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -298,8 +304,12 @@ public class
             temp.setTimeWindow(new Pair<Integer>(0, 100));
             temp.setStatus(ZigZagLink.ZigZagStatus.OPTIONAL);
 
-            for (int i = 1; i <= 10; i++) {
-                for (int j = 1; j <= 5; j++) {
+
+            PrintWriter pw = new PrintWriter(new File("RevisedZZHeuristicResults.txt"), "UTF-8");
+            long start, end;
+
+            for (int i = 5; i <= 5; i++) {
+                for (int j = 5; j <= 5; j++) {
 
                     //read in zigzag instances, and make sure that the graph object is correct
                     ProblemReader pr = new ProblemReader(ProblemFormat.Name.MeanderingPostman);
@@ -309,9 +319,14 @@ public class
                     WRPPZZTW_PFIH solver = new WRPPZZTW_PFIH(prob);
                     solver.setLatePenalty(1000);
 
+                    start = System.currentTimeMillis();
                     Collection<? extends Route> ans = solver.trySolve();
+                    end = System.currentTimeMillis();
+                    pw.println(ans.iterator().next().getCost() + "," + (end-start) + ";");
                 }
             }
+
+            pw.close();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -590,14 +605,14 @@ public class
                 OSM_Fetcher fetcher;
                 ProblemWriter pw;
                 for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES_SMALL) {
-                    fetcher = new OSM_Fetcher(bb);
-                    g = fetcher.queryForGraph();
-                    g.setDepotId(Utils.findCenterVertex(g));
-                    //g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_Edge.txt");
-                    validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 5);
+                    //fetcher = new OSM_Fetcher(bb);
+                    //g = fetcher.queryForGraph();
+                    //g.setDepotId(Utils.findCenterVertex(g));
+                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_small.txt");
+                    validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 4);
                     probs.add(validWInstance);
-                    pw = new ProblemWriter(ProblemFormat.Name.Corberan);
-                    pw.writeInstance(validWInstance, "/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_small.txt");
+                    //pw = new ProblemWriter(ProblemFormat.Name.Corberan);
+                    //pw.writeInstance(validWInstance, "/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_small.txt");
                 }
 
                 //now do the rectangular instances

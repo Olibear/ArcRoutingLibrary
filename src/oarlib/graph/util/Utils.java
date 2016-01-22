@@ -40,6 +40,22 @@ public class Utils {
     private static final Logger LOGGER = Logger.getLogger(Utils.class);
 
     /**
+     * Computes the shortest distance from a vertex to an edge, given an array of distances
+     * from the desired vertex.
+     * @param dist - an array of distances from the desired vertex (computed earlier)
+     * @param toEdge - the edge to which the distance will be calculated
+     * @return
+     */
+    public static int distanceToEdge(int dist[], Link toEdge) {
+
+        if(dist[toEdge.getFirstEndpointId()] < dist[toEdge.getSecondEndpointId()])
+            return dist[toEdge.getFirstEndpointId()];
+        else
+            return dist[toEdge.getSecondEndpointId()];
+
+    }
+
+    /**
      * Takes a route over an augmentation of a graph g, and returns the route using ids from g.  Used primarily to allow
      * solvers to calculate thier routes however they wish (typically not by modifying the original graph), and then
      * get a solution that is in the original graph.

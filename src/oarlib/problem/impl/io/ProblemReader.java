@@ -874,7 +874,7 @@ public class ProblemReader {
                 while ((line = br.readLine()) != null) {
                     tempV = ansVertices.get(i);
                     temp = line.split("\\s+|:|\\)|,|\\(");
-                    tempV.setCoordinates(Integer.parseInt(temp[1]), Integer.parseInt(temp[2]));
+                    tempV.setCoordinates(Double.parseDouble(temp[1]), Double.parseDouble(temp[2]));
                     i++;
                 }
 

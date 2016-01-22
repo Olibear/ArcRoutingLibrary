@@ -6,10 +6,7 @@ import oarlib.graph.impl.UndirectedGraph;
 import oarlib.graph.impl.ZigZagGraph;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
-import oarlib.graph.util.UnmatchedPair;
 import oarlib.graph.util.Utils;
-import oarlib.improvements.ImprovementStrategy;
-import oarlib.improvements.impl.ZigZagTwoInterchange;
 import oarlib.link.impl.ZigZagLink;
 import oarlib.problem.impl.ProblemAttributes;
 import oarlib.route.impl.ZigZagTour;
@@ -83,6 +80,140 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
         return mInstance;
     }
 
+    protected Collection<? extends Route> solve2() {
+
+        //init
+        int bestCost = Integer.MAX_VALUE;
+        ZigZagGraph g = mInstance.getGraph();
+        int n = g.getVertices().size();
+        double alpha = .7; //1 - alpha is left over for insertion of other required edges
+        ZigZagTour ans = null;
+        int timeWindow = Integer.MAX_VALUE; //will hold the most restrictive time window
+        ZigZagExpander zze = new ZigZagExpander(g, latePenalty);
+        int depotId = g.getDepotId();
+        String fileName = "/Users/oliverlum/Downloads/Sols/" + mInstance.getName() + "_ans_101.txt";
+
+        //shortest paths
+        int[][] dist = new int[n+1][n+1];
+        int[][] path = new int[n+1][n+1];
+        CommonAlgorithms.fwLeastCostPaths(g, dist, path);
+
+        //zero out dist
+        for(int i = 1; i <= n; i++)
+            dist[i][i] = 0;
+
+        //order the zz optional edges by distance to depot
+        HashSet<Integer> optionalEdges = new HashSet<Integer>();
+        for(ZigZagLink zzl : g.getEdges()) {
+            if(zzl.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL && zzl.getTimeWindow().getSecond() < RouteExporter.ZZ_TIME_WINDOW_THRESHOLD) {
+                optionalEdges.add(zzl.getId());
+                if(timeWindow > zzl.getTimeWindow().getSecond())
+                    timeWindow = zzl.getTimeWindow().getSecond();
+            }
+        }
+
+        PriorityQueue<Pair<Integer>> optionalEdgeQueue = new PriorityQueue<Pair<Integer>>(optionalEdges.size(), new Utils.DijkstrasComparator());
+        for(Integer i : optionalEdges) {
+            optionalEdgeQueue.add(new Pair<Integer>(i, Utils.distanceToEdge(dist[depotId], g.getEdge(i))));
+        }
+
+        //insert them until they reach timeWindow * alpha
+        ZigZagLink toInsert;
+        int toInsertId;
+
+        TIntArrayList compactAns;
+        ArrayList<Boolean> compactDir;
+        ArrayList<Boolean> compactZZ;
+
+        while(!optionalEdgeQueue.isEmpty()) {
+
+            //PHASE I: Insert TW edges
+            toInsertId = optionalEdgeQueue.poll().getFirst();
+            toInsert = g.getEdge(toInsertId);
+
+            if(Utils.distanceToEdge(dist[depotId], toInsert) > alpha * timeWindow)
+                continue;
+
+            compactAns = new TIntArrayList();
+            compactDir = new ArrayList<Boolean>();
+            compactZZ = new ArrayList<Boolean>();
+
+            compactAns.add(toInsertId);
+            if(Utils.distanceToEdge(dist[depotId], toInsert) == dist[depotId][toInsert.getFirstEndpointId()])
+                compactDir.add(true);
+            else
+                compactDir.add(false);
+            compactZZ.add(true);
+
+            //insert it, and check the cost
+            double threshold = alpha * timeWindow;
+
+            //gonna be slow, but prototype
+            int maxIndex = 0;
+            for(Integer i : optionalEdges) {
+                //don't double insert
+                if(compactAns.contains(i))
+                    continue;
+
+                PriorityQueue<Pair<Integer>> nextMoves = cheapestInsertion2(zze.unflattenRoute(compactAns, compactDir, compactZZ), g.getEdge(i), true ,dist);
+                if (nextMoves.isEmpty()) {
+                    LOGGER.warn("No feasible moves exist.");
+                    break;
+                }
+                else if(nextMoves.peek().getFirst() <= maxIndex && nextMoves.peek().getSecond() + zze.unflattenRoute(compactAns, compactDir, compactZZ).getCost() < threshold) {
+                    makeMove(nextMoves, compactAns, compactDir, g.getEdge(i), dist);
+                    compactZZ.add(true);
+                }
+
+            }
+
+
+
+            //PHASE II: Insert the rest
+
+            /*for(ZigZagLink zzl : g.getEdges()) {
+                if(!zzl.isRequired())
+                    continue;
+                if(zzl.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL)
+                    continue;
+
+                //do a cheapest insertion of the remaining edges
+
+            }*/
+
+            //export the route
+
+            int i = Integer.parseInt(mInstance.getName().substring(0,1));
+            int j = Integer.parseInt(mInstance.getName().substring(2,3));
+            int k = Integer.parseInt(mInstance.getName().substring(4,5));
+
+            RouteExporter.exportRoute(zze.unflattenRoute(compactAns, compactDir, compactZZ), RouteExporter.RouteFormat.ZHANG, fileName);
+
+            //complete the route and compare
+            ZigZagTour candidate = runIP(g, i, j, k, 101, latePenalty);
+            if(candidate.getCost() < bestCost) {
+                bestCost = candidate.getCost();
+                ans = candidate;
+            }
+        }
+
+        RouteExporter.exportRoute(ans, RouteExporter.RouteFormat.ZHANG, fileName);
+
+        //complete the route and compare
+
+        int i = Integer.parseInt(mInstance.getName().substring(0,1));
+        int j = Integer.parseInt(mInstance.getName().substring(2,3));
+        int k = Integer.parseInt(mInstance.getName().substring(4,5));
+        ZigZagTour candidate = runIP(g, i, j, k, 101, latePenalty);
+
+        //try the empty one as well
+
+        ArrayList<ZigZagTour> ret = new ArrayList<ZigZagTour>();
+        ret.add(ans);
+
+        return ret;
+    }
+
     /**
      * Runs a push-first insertion heuristic for the WRPP with zig-zags and time windows.
      *
@@ -91,7 +222,9 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
     @Override
     protected Collection<? extends Route> solve() {
 
-        int numIterations = 10;
+        return solve2();
+
+        /*int numIterations = 10;
         int numCandidateSeeds = 10;
         String fileName;
 
@@ -175,26 +308,35 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
             ZigZagTwoInterchange ip = new ZigZagTwoInterchange(mInstance, ImprovementStrategy.Type.SteepestDescent, S);
             Collection<Route<ZigZagVertex, ZigZagLink>> candidate = ip.improveSolution();
 
-            //RUN RUI'S CODE
-            runIP(fileName);
+            //export route
+            RouteExporter.exportRoute(candidate.iterator().next(), RouteExporter.RouteFormat.ZHANG, fileName);
 
-            for (Route improved : candidate)
-                System.out.println("Improved cost: " + improved.getCost());
+
+            int i = Integer.parseInt(mInstance.getName().substring(0,1));
+            int j = Integer.parseInt(mInstance.getName().substring(2,3));
+            int k = Integer.parseInt(mInstance.getName().substring(4,5));
+            //RUN RUI'S CODE
+            ZigZagTour done = runIP(g,i,j,k,iter,latePenalty);
+
+            System.out.println("Improved cost: " + done.getCost());
+
+            S.remove(r);
+            S.add(done);
 
             if (currCost < bestCost) {
                 Sbest = S;
-                bestCost = currCost;
+                bestCost = done.getCost();
             }
-            RouteExporter.exportRoute(candidate.iterator().next(), RouteExporter.RouteFormat.ZHANG, fileName);
         }
 
         System.out.println("The best route costs: " + bestCost);
+        for(Route r : Sbest)
+            NeatoVisualizer.visualize(r,mInstance.getGraph(),"/Users/oliverlum/Downloads/testViz.txt");
         return Sbest;
+        */
     }
 
-    private ZigZagTour runIP(String inputFilePath) {
-
-        ZigZagGraph g = mInstance.getGraph();
+    public static ZigZagTour runIP(ZigZagGraph g, int i, int j, int k, int iter, double latePenalty) {
 
         TIntArrayList ansRoute = new TIntArrayList();
         ArrayList<Boolean> ansDir = new ArrayList<Boolean>();
@@ -202,7 +344,8 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
 
         //run the python script which calls CPLEX
         try {
-            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT_PrefixZigzagOrder.py", "");
+
+            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT_PrefixZigzagOrder.py", Integer.toString(i), Integer.toString(j), Integer.toString(k),Integer.toString(iter));
             Process run = pb.start();
             BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
             String line = "";
@@ -228,7 +371,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
             String[] temp2 = new String[1];
             String[] temp3 = new String[1];
 
-            File graphFile = new File(inputFilePath);
+            File graphFile = new File("MTZ_PartialOrder__DetailRoute.txt");
             BufferedReader br = new BufferedReader(new FileReader(graphFile));
             ZigZagLink tempL;
 
@@ -246,10 +389,12 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
             }
 
             int v1, v2;
-            for (int i = 0; i < temp.length; i = i++) {
-                temp3 = temp[i].split("_");
-                v1 = Integer.parseInt(temp3[0]);
-                v2 = Integer.parseInt(temp3[1]);
+            for (int l = 0; l < temp.length; l++) {
+                if(!temp[l].contains("_"))
+                    continue;
+                temp3 = temp[l].split("_");
+                v1 = Integer.parseInt(temp3[0])+1;
+                v2 = Integer.parseInt(temp3[1])+1;
 
                 List<ZigZagLink> candidates = g.findEdges(v1, v2);
                 if (candidates.size() > 1)
@@ -270,7 +415,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
                 }
 
                 //zig
-                if (temp2[i].contains("Z")) {
+                if (temp2[l].contains("Z")) {
                     ansZig.add(true);
                 } else {
                     ansZig.add(false);
@@ -560,6 +705,9 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
      *                     if ids = [1,2,3], then this function considers the insertion of element 2
      *                     in between elements 1 and 3.
      * @param dist         - the all pairs shortest path matrix for the graph (memory saver)
+     * @param zigzag       - true if you are inserting an edge, and you are attempting to zigzag it.
+     *                     false if you don't know, or are not attempting to zigzag it.
+     *                     This is ignored if you are inserting a vertex.
      * @return - A pair of integers: the first is the cost of insertion;
      * the second is either
      * <p/>
@@ -569,7 +717,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
      * @throws IllegalArgumentException - If ids.length or vertexOrLink.length != 3, or if vertexOrLink contains
      *                                  entries that are not 0 or 1.
      */
-    private Pair<Integer> insertCost(int[] vertexOrLink, int[] ids, int[][] dist) throws IllegalArgumentException {
+    private Pair<Integer> insertCost(int[] vertexOrLink, int[] ids, int[][] dist, boolean zigzag) throws IllegalArgumentException {
 
         //arg check
         if (vertexOrLink.length != 3 || ids.length != 3) {
@@ -621,6 +769,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
         //try out the various possibilities
 
         int candidate;
+        double traversalCost;
         //if we're inserting a vertex
         if (vertexOrLink[1] == 0) {
 
@@ -654,13 +803,21 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
 
             temp = g.getEdge(ids[1]);
 
+            int debug;
             //case 1
-            candidate = dist[e11][e21] + dist[e22][e31] - dist[e11][e31] + temp.getCost() + temp.getServiceCost();
+            traversalCost = temp.getCost() + temp.getServiceCost();
+            if(zigzag)
+                traversalCost = temp.getCost() + temp.getZigzagCost();
+            candidate = dist[e11][e21] + dist[e22][e31] - dist[e11][e31] + (int)traversalCost;
             if (candidate < min) {
                 min = candidate;
                 minDir = 0;
             }
-            candidate = dist[e11][e22] + dist[e21][e31] - dist[e11][e31] + temp.getReverseCost() + temp.getReverseServiceCost();
+
+            traversalCost = temp.getReverseCost() + temp.getReverseServiceCost();
+            if(zigzag)
+                traversalCost = temp.getReverseCost() + temp.getZigzagCost();
+            candidate = dist[e11][e22] + dist[e21][e31] - dist[e11][e31] + (int)traversalCost;
             if (candidate < min) {
                 min = candidate;
                 minDir = 1;
@@ -668,12 +825,18 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
 
             //case 2
             if (e12 > 0) {
-                candidate = dist[e12][e21] + dist[e22][e31] - dist[e12][e31] + temp.getCost() + temp.getServiceCost();
+                traversalCost = temp.getCost() + temp.getServiceCost();
+                if(zigzag)
+                    traversalCost = temp.getCost() + temp.getZigzagCost();
+                candidate = dist[e12][e21] + dist[e22][e31] - dist[e12][e31] + (int)traversalCost;
                 if (candidate < min) {
                     min = candidate;
                     minDir = 0;
                 }
-                candidate = dist[e12][e22] + dist[e21][e31] - dist[e12][e31] + temp.getReverseCost() + temp.getReverseServiceCost();
+                traversalCost = temp.getReverseCost() + temp.getReverseServiceCost();
+                if(zigzag)
+                    traversalCost = temp.getReverseCost() + temp.getZigzagCost();
+                candidate = dist[e12][e22] + dist[e21][e31] - dist[e12][e31] + (int)traversalCost;
                 if (candidate < min) {
                     min = candidate;
                     minDir = 1;
@@ -681,12 +844,18 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
             }
             //case 3
             if (e32 > 0) {
-                candidate = dist[e11][e21] + dist[e22][e32] - dist[e11][e32] + temp.getCost() + temp.getServiceCost();
+                traversalCost = temp.getCost() + temp.getServiceCost();
+                if(zigzag)
+                    traversalCost = temp.getCost() + temp.getZigzagCost();
+                candidate = dist[e11][e21] + dist[e22][e32] - dist[e11][e32] + (int)traversalCost;
                 if (candidate < min) {
                     min = candidate;
                     minDir = 0;
                 }
-                candidate = dist[e11][e22] + dist[e21][e32] - dist[e11][e32] + temp.getReverseCost() + temp.getReverseServiceCost();
+                traversalCost = temp.getReverseCost() + temp.getReverseServiceCost();
+                if(zigzag)
+                    traversalCost = temp.getReverseCost() + temp.getZigzagCost();
+                candidate = dist[e11][e22] + dist[e21][e32] - dist[e11][e32] + (int)traversalCost;
                 if (candidate < min) {
                     min = candidate;
                     minDir = 1;
@@ -694,12 +863,18 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
             }
             //case 4
             if (e32 > 0 && e12 > 0) {
-                candidate = dist[e12][e21] + dist[e22][e32] - dist[e12][e32] + temp.getCost() + temp.getServiceCost();
+                traversalCost = temp.getCost() + temp.getServiceCost();
+                if(zigzag)
+                    traversalCost = temp.getCost() + temp.getZigzagCost();
+                candidate = dist[e12][e21] + dist[e22][e32] - dist[e12][e32] + (int)traversalCost;
                 if (candidate < min) {
                     min = candidate;
                     minDir = 0;
                 }
-                candidate = dist[e12][e22] + dist[e21][e32] - dist[e12][e32] + temp.getReverseCost() + temp.getReverseServiceCost();
+                traversalCost = temp.getReverseCost() + temp.getReverseServiceCost();
+                if(zigzag)
+                    traversalCost = temp.getReverseCost() + temp.getZigzagCost();
+                candidate = dist[e12][e22] + dist[e21][e32] - dist[e12][e32] + (int)traversalCost;
                 if (candidate < min) {
                     min = candidate;
                     minDir = 1;
@@ -713,7 +888,86 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
 
     }
 
-    private PriorityQueue<Pair<Integer>> cheapestInsertion(TIntArrayList compactRoute, ArrayList<Boolean> compactDir, ZigZagLink toRoute, int[][] dist) {
+    private PriorityQueue<Pair<Integer>> cheapestInsertion2(ZigZagTour currTour, ZigZagLink toRoute, boolean zigzag, int[][] dist) {
+
+        //some initial checks
+        if(toRoute.getStatus() == ZigZagLink.ZigZagStatus.NOT_AVAILABLE && zigzag)
+            throw new IllegalArgumentException("You are attempting to zigzag a link which does not allow it");
+
+        //init
+        int tempIndex = 0;
+        int penalty = 0;
+        double serviceCost = 0;
+        double insertionCost;
+        ZigZagLink temp;
+        Pair<Integer> insertionMove;
+        TIntArrayList compactRoute = currTour.getCompactRepresentation();
+        ArrayList<Boolean> compactDir = currTour.getCompactTraversalDirection();
+        ArrayList<Boolean> serviceList = currTour.getServicingList();
+        TIntArrayList incCost = currTour.getIncrementalCost();
+        ArrayList<Integer> compactIndices = new ArrayList<Integer>();
+        PriorityQueue<Pair<Integer>> ans = new PriorityQueue<Pair<Integer>>(compactDir.size(), new Utils.DijkstrasComparator());
+        for(int i = 0; i < serviceList.size(); i++) {
+            if (serviceList.get(i)) {
+                compactIndices.add(i);
+            }
+        }
+
+        ZigZagGraph g = mInstance.getGraph();
+
+        ZigZagLink prev = g.getEdge(compactRoute.get(0));
+        Boolean prevDir = compactDir.get(0);
+
+        int[] vertexOrLink = new int[3];
+        vertexOrLink[0] = 0;
+        vertexOrLink[1] = 1;
+        vertexOrLink[2] = 0;
+        int[] ids = new int[3];
+        ids[0] = g.getDepotId();
+        ids[1] = toRoute.getId();
+        if(prevDir)
+            ids[2] = prev.getFirstEndpointId();
+        else
+            ids[2] = prev.getSecondEndpointId();
+
+        // go through and calculate the insertion cost for each position
+        for(int i = 0; i < compactRoute.size(); i++) {
+
+            penalty = 0;
+
+            if(i > 0) {
+                if(compactDir.get(i-1))
+                    ids[0] = g.getEdge(compactRoute.get(i-1)).getSecondEndpointId();
+                else
+                    ids[0] = g.getEdge(compactRoute.get(i-1)).getFirstEndpointId();
+
+                if(i == compactRoute.size() - 1)
+                    ids[2] = g.getDepotId();
+                else if(compactDir.get(i))
+                    ids[2] = g.getEdge(compactRoute.get(i)).getFirstEndpointId();
+                else
+                    ids[2] = g.getEdge(compactRoute.get(i)).getSecondEndpointId();
+            }
+            //compute insertion cost
+            insertionMove = insertCost(vertexOrLink,ids,dist, true);
+            insertionCost = insertionMove.getFirst();
+
+            //the push forward
+            for(int j = i; j < compactRoute.size(); j++) {
+                temp = g.getEdge(compactRoute.get(j));
+                if(incCost.get(compactIndices.get(j)) + insertionCost > temp.getTimeWindow().getSecond()) {
+                    penalty += latePenalty * ((incCost.get(compactIndices.get(j)) + insertionCost) - temp.getTimeWindow().getSecond());
+                }
+            }
+
+            //add the move
+            ans.add(new Pair<Integer> (i, (int)(insertionCost + penalty)));
+        }
+
+        return ans;
+    }
+
+    /*private PriorityQueue<Pair<Integer>> cheapestInsertion(TIntArrayList compactRoute, ArrayList<Boolean> compactDir, ZigZagLink toRoute, int[][] dist) {
 
         //the graph
         ZigZagGraph g = mInstance.getGraph();
@@ -727,8 +981,8 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
         ZigZagLink temp1, temp2;
         boolean dir1, dir2;
         int insertionCost;
-        int startTime = 0;
-        int addedTime = 0;
+        int startTime = 0; //the back-half cost
+        int addedTime = 0; //when we think we're going to reach toRoute
         double penalty = 0; //measures how much the proposed move violates time windows
 
         //calculate costs for inserting as the first element
@@ -894,7 +1148,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
         moves.add(new Pair<Integer>(maxi + 1, insertionCost + (int) penalty));
 
         return moves;
-    }
+    }*/
 
     /**
      * Seeds the route for the WRPPZZTW solution.

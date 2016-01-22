@@ -150,6 +150,7 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
             }
             if (getCost() + l.getZigzagCost() > l.getTimeWindow().getSecond()) {
                 LOGGER.debug("You are attempting to zig zag a link after its time window has closed.  Exiting without appending.");
+                System.out.println("DEBUG: " +(getCost() + l.getZigzagCost()));
                 throw new IllegalArgumentException("You are attempting to zig zag a link after its time window has closed.  Exiting without appending.");
             }
             if (getCost() < l.getTimeWindow().getFirst()) {
@@ -162,10 +163,63 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
             }
         }
 
-        boolean prevDetermined = directionDetermined;
+        //add to the zig zag list
+        if (service) {
+            if (zigzag)
+                compactZZList.add(true);
+            else
+                compactZZList.add(false);
+        }
 
         super.appendEdge(l, service);
 
+        //enough games; orient to depot
+        if(mRoute.size() == 1) {
+            int firstCost = 0;
+            int depotId = mGraph.getDepotId();
+            if(l.getFirstEndpointId() == depotId) {
+                traversalDirection.add(true);
+                if(l.isRequired() || l.isReverseRequired()) {
+                    mCost += l.getCost();
+                    firstCost += l.getCost();
+                    if (service) {
+                        compactTD.add(true);
+                        compactRepresentation.add(l.getId());
+                        mServCost += l.getCost();
+                        if(zigzag)
+                            firstCost += l.getZigzagCost();
+                        else
+                            firstCost += l.getServiceCost();
+                    }
+                }
+                directionDetermined = true;
+            }
+            else if (l.getSecondEndpointId() == depotId) {
+                traversalDirection.add(false);
+                if(l.isRequired() || l.isReverseRequired()) {
+                    mCost += l.getReverseCost();
+                    firstCost += l.getReverseCost();
+                    if (service) {
+                        compactTD.add(false);
+                        compactRepresentation.add(l.getId());
+                        mServCost += l.getReverseCost();
+                        if(zigzag)
+                            firstCost += l.getZigzagCost();
+                        else
+                            firstCost += l.getReverseServiceCost();
+                    }
+                }
+                directionDetermined = true;
+            }
+            else {
+                LOGGER.debug("The first link added to this tour isn't connected to the depot...behavior not guaranteed.");
+                throw new IllegalArgumentException("The first link added to this tour isn't connected to the depot.");
+            }
+            incrementalCost.add(firstCost);
+
+        }
+
+        boolean prevDetermined = directionDetermined;
         //augment the service costs
         if (directionDetermined) {
 
@@ -173,7 +227,10 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
             if (!prevDetermined) {
 
                 //catch up service component
-                for (int i = 0; i < td.size() - 1; i++) {
+                int limi = td.size() - 1;
+                if(!service)
+                    limi++;
+                for (int i = 0; i < limi; i++) {
                     if (compactZZList.get(i)) {
                         serviceComponent += mRoute.get(i).getZigzagCost();
                     } else if (td.get(i))
@@ -182,7 +239,6 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
                         serviceComponent += mRoute.get(i).getReverseServiceCost();
                 }
 
-                int tempId;
                 //update incremental costs
                 if (traversalDirection.get(0)) {
                     incrementalCost.set(0, mRoute.get(0).getCost() + mRoute.get(0).getServiceCost());
@@ -206,14 +262,6 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
                 else
                     serviceComponent += l.getReverseServiceCost();
             }
-        }
-
-        //add to the zig zag list
-        if (service) {
-            if (zigzag)
-                compactZZList.add(true);
-            else
-                compactZZList.add(false);
         }
 
 

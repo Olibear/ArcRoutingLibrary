@@ -262,20 +262,43 @@ public class SingleVehicleSolverTestSuite {
     @Test
     public void testFredericksonMCPPSolver() {
 
+        //read in the instances
+
+        //compare a few
+
+
     }
 
     @Test
     public void testYaoyuenyongMCPPSolver() {
+
+        //read in the instances
+
+        //compare a few
 
     }
 
     @Test
     public void testWinWRPPSolver() {
 
+
+        //read in the instances
+
+        //read in the exact solutions
+
+        //compare the average +- delta
+
+
     }
 
     @Test
     public void testBenaventWRPPSolver() {
+
+        //read in the instances
+
+        //read in the exact solutions
+
+        //compare the average +- delta
 
     }
 }
