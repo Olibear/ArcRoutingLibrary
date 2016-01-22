@@ -237,8 +237,10 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
     public void appendEdge(E l, boolean service) throws IllegalArgumentException {
 
         //error check
-        if (service && (!l.isRequired() && (l.isWindy() && !((AsymmetricLink) l).isReverseRequired())))
-            LOGGER.error("You cannot service a link that does not demand service.", new IllegalArgumentException());
+        if (service && (!l.isRequired() && (l.isWindy() && !((AsymmetricLink) l).isReverseRequired()))) {
+            LOGGER.error("You cannot service a link that does not demand service.");
+            throw new IllegalArgumentException();
+        }
 
         boolean isWindy, lreq;
 
@@ -264,7 +266,7 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         int tempSecond = temp.getEndpoints().getSecond().getId();
 
         int trueCost;
-        if (mRoute.size() == 1) {
+        if (mRoute.size() == 1 && !directionDetermined) {
             if ((lFirst == tempFirst || lSecond == tempFirst) && isWindy) {
                 trueCost = ((AsymmetricLink) temp).getReverseCost();
                 traversalDirection.add(false);
@@ -578,10 +580,21 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
             servicing.set(position, false);
             compactRepresentation.remove(compactPos);
             compactTD.remove(compactPos);
+            if(!mRoute.get(position).isWindy() || traversalDirection.get(position))
+                mServCost -= mRoute.get(position).getCost();
+            else {
+                mServCost -= ((AsymmetricLink)(mRoute.get(position))).getReverseCost();
+            }
+
         } else {
             servicing.set(position, true);
             compactRepresentation.insert(compactPos, mRoute.get(position).getId());
             compactTD.add(compactPos, traversalDirection.get(position));
+            if(!mRoute.get(position).isWindy() || traversalDirection.get(position))
+                mServCost += mRoute.get(position).getCost();
+            else {
+                mServCost += ((AsymmetricLink)(mRoute.get(position))).getReverseCost();
+            }
         }
 
         return true;
