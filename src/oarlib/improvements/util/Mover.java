@@ -161,6 +161,8 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
             //remove link
             currFrom = currMove.getFrom();
             flatFrom = currFrom.getCompactRepresentation();
+            if(flatFrom.size() == 0)
+                System.out.println("Debug");
             currLinkId = flatFrom.get(currMove.getFromPos());
             newFromDir = currFrom.getCompactTraversalDirection();
             newFromDir.remove(currMove.getFromPos());
@@ -177,12 +179,20 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
                 newToDir = currTo.getCompactTraversalDirection();
                 newToDir.add(currMove.getToPos(), currMove.isPrudentDirection());
                 ans.put(currTo.getGlobalId(), re.unflattenRoute(flatTo, newToDir));
+
+                //DEBUG
+                if(re.unflattenRoute(flatTo, newToDir).getCompactRepresentation().size() == 0)
+                    System.out.println("DEBUG");
             } else {
                 flatTo = flatFrom;
                 flatTo.insert(currMove.getToPos(), currLinkId);
                 newToDir = newFromDir;
                 newToDir.add(currMove.getToPos(), currMove.isPrudentDirection());
                 ans.put(currTo.getGlobalId(), re.unflattenRoute(flatTo, newToDir));
+
+                //DEBUG
+                if(re.unflattenRoute(flatTo, newToDir).getCompactRepresentation().size() == 0)
+                    System.out.println("DEBUG");
             }
 
             LOGGER.debug("The route with id: " + currTo.getGlobalId() + " was replaced with a route costing: " + re.unflattenRoute(flatTo, newToDir).getCost());

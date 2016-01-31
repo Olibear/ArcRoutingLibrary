@@ -23,6 +23,7 @@
  */
 package oarlib.solver.impl;
 
+import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.MultiVehicleSolver;
@@ -31,6 +32,7 @@ import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.factory.impl.WindyGraphFactory;
 import oarlib.graph.impl.WindyGraph;
+import oarlib.graph.impl.ZigZagGraph;
 import oarlib.graph.transform.impl.EdgeInducedRequirementTransform;
 import oarlib.graph.transform.partition.impl.PreciseWindyKWayPartitionTransform;
 import oarlib.graph.transform.rebalance.CostRebalancer;
@@ -42,6 +44,7 @@ import oarlib.graph.util.Pair;
 import oarlib.graph.util.Utils;
 import oarlib.improvements.metaheuristics.impl.OnePassBenaventIPFramework;
 import oarlib.link.impl.WindyEdge;
+import oarlib.link.impl.ZigZagLink;
 import oarlib.metrics.AverageTraversalMetric;
 import oarlib.metrics.RouteOverlapMetric;
 import oarlib.problem.impl.ProblemAttributes;
@@ -52,10 +55,14 @@ import oarlib.problem.impl.io.ProblemFormat;
 import oarlib.problem.impl.io.ProblemWriter;
 import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.impl.Tour;
+import oarlib.route.impl.ZigZagTour;
+import oarlib.route.util.RouteExpander;
+import oarlib.route.util.RouteExporter;
+import oarlib.route.util.ZigZagExpander;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -246,7 +253,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                     for (Integer part : partitions.keySet()) {
                         if (partitions.get(part).isEmpty())
                             continue;
-                        ans.add(route(partitions.get(part)));
+                        ans.add(route2(partitions.get(part)));
                     }
 
                     mGraph = mInstance.getGraph();
@@ -399,6 +406,139 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             return null;
         }
 
+    }
+
+    protected Route route2(HashSet<Integer> ids) {
+
+        //check out a clean instance
+        WindyGraph mGraph = mInstance.getGraph();
+
+        WindyGraphFactory wgf = new WindyGraphFactory();
+        EdgeInducedRequirementTransform<WindyGraph> subgraphTransform = new EdgeInducedRequirementTransform<WindyGraph>(mGraph, wgf, ids);
+
+        //check to make sure we have at least 1 required edge
+        TIntObjectHashMap<WindyEdge> mEdges = mGraph.getInternalEdgeMap();
+        boolean hasReq = false;
+        for (Integer i : ids) {
+            if (mEdges.get(i).isRequired())
+                hasReq = true;
+        }
+        if (!hasReq)
+            return new Tour();
+
+        WindyGraph subgraph = subgraphTransform.transformGraph();
+
+        //now solve the WPP on it
+
+        //to use Rui's exact solver, we have to write the instance, and then call the python
+        try {
+            String filename = "wrppMatrix.txt";
+            WindyRPP subProblem = new WindyRPP(subgraph);
+            ProblemWriter pw = new ProblemWriter(ProblemFormat.Name.Zhang_Matrix);
+            pw.writeInstance(subProblem, filename);
+
+            return runIP(filename);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    public Tour<WindyVertex, WindyEdge> runIP(String inputFileName) {
+
+        TIntArrayList ansRoute = new TIntArrayList();
+        ArrayList<Boolean> ansDir = new ArrayList<Boolean>();
+        ArrayList<Boolean> ansZig = new ArrayList<Boolean>();
+
+        //run the python script which calls CPLEX
+        try {
+
+            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT_PrefixZigzagOrder.py", inputFileName);
+            Process run = pb.start();
+            BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
+            String line = "";
+            System.out.println("Running Python starts: " + line);
+            int exitCode = run.waitFor();
+            System.out.println("Exit Code : " + exitCode);
+            line = bfr.readLine();
+            System.out.println("First Line: " + line);
+            while ((line = bfr.readLine()) != null) {
+                System.out.println("Python Output: " + line);
+            }
+            System.out.println("Complete");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+
+        //parse the output so we can get the final solution back
+        try {
+            String line;
+            String type = "";
+            String[] temp = new String[1];
+            String[] temp2 = new String[1];
+            String[] temp3 = new String[1];
+
+            File graphFile = new File("MTZ_PartialOrder__DetailRoute.txt");
+            BufferedReader br = new BufferedReader(new FileReader(graphFile));
+            WindyEdge tempL;
+
+            while ((line = br.readLine()) != null) {
+                if (line.contains("Simplified Route")) {
+                    line = br.readLine(); //the meat
+                    temp = line.split("'");
+                    continue;
+                }
+                if (line.contains("Action Route")) {
+                    line = br.readLine();
+                    temp2 = line.split("'");
+                    break;
+                }
+            }
+
+            int v1, v2;
+            for (int l = 0; l < temp.length; l++) {
+                if(!temp[l].contains("_"))
+                    continue;
+                temp3 = temp[l].split("_");
+                v1 = Integer.parseInt(temp3[0])+1;
+                v2 = Integer.parseInt(temp3[1])+1;
+
+                List<WindyEdge> candidates = mGraph.findEdges(v1, v2);
+                if (candidates.size() > 1)
+                    LOGGER.warn("There appear to be multiple edges connecting" +
+                            " these two vertices.  Behavior is not guaranteed" +
+                            " to be correct.");
+
+                tempL = candidates.get(0);
+
+                //id
+                ansRoute.add(tempL.getId());
+
+                //dir
+                if (v1 == tempL.getFirstEndpointId()) {
+                    ansDir.add(true);
+                } else {
+                    ansDir.add(false);
+                }
+
+                //zig
+                if (temp2[l].contains("Z")) {
+                    ansZig.add(true);
+                } else {
+                    ansZig.add(false);
+                }
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        RouteExpander<WindyGraph> we = new RouteExpander<WindyGraph>(mGraph);
+        return we.unflattenRoute(ansRoute, ansDir);
     }
 
     protected Route route(HashSet<Integer> ids) {
