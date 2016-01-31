@@ -63,11 +63,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         this.setDepotId(depotId);
     }
 
-    //=====================================
-    //
-    // Graph Overrides With Match Ids
-    //
-    //=====================================
+    //region Graph Overrides With Match Ids
     public void addEdge(E e, int matchId) throws InvalidEndpointsException {
         this.addEdge(e);
         e.setMatchId(matchId);
@@ -108,13 +104,9 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     public void addVertex(int matchId) {
         this.addVertex(this.constructVertex(""), matchId);
     }
+    //endregion
 
-
-    //==============================
-    //
-    // Graph overrides
-    //
-    //==============================
+    //region Graph overrides
 
     @Override
     public HashSet<V> getVertices() {
@@ -283,4 +275,5 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     public TIntObjectHashMap<E> getInternalEdgeMap() {
         return mInternalEdgeMap;
     }
+    //endregion
 }

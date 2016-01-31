@@ -49,6 +49,7 @@ public class ZigZagGraph extends MutableGraph<ZigZagVertex, ZigZagLink> {
 
     private static Logger LOGGER = Logger.getLogger(UndirectedGraph.class);
 
+    //region Constructors
     public ZigZagGraph() {
         super();
     }
@@ -56,16 +57,7 @@ public class ZigZagGraph extends MutableGraph<ZigZagVertex, ZigZagLink> {
     public ZigZagGraph(int n) {
         super(n);
     }
-
-    @Override
-    public ZigZagLink constructEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
-            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
-            throw new InvalidEndpointsException();
-        }
-        //with some defaults
-        return new ZigZagLink(desc, new Pair<ZigZagVertex>(getVertex(i), getVertex(j)), cost, cost, 3 * cost, 10, 10, ZigZagLink.ZigZagStatus.OPTIONAL);
-    }
+    //endregion
 
     //for more specificity
     public ZigZagLink constructEdge(int i, int j, String desc, int cost, int reverseCost, double zigzagcost, int serviceCost, int reverseServiceCost, ZigZagLink.ZigZagStatus status) throws InvalidEndpointsException {
@@ -77,17 +69,7 @@ public class ZigZagGraph extends MutableGraph<ZigZagVertex, ZigZagLink> {
         return new ZigZagLink(desc, new Pair<ZigZagVertex>(getVertex(i), getVertex(j)), cost, reverseCost, zigzagcost, serviceCost, reverseServiceCost, status);
     }
 
-    @Override
-    public ZigZagVertex constructVertex(String desc) {
-        return new ZigZagVertex(desc);
-    }
-
-
-    //====================================================
-    //
-    // Graph Override
-    //
-    //====================================================
+    //region Graph Overrides
 
     @Override
     public boolean isWindy() {
@@ -97,6 +79,11 @@ public class ZigZagGraph extends MutableGraph<ZigZagVertex, ZigZagLink> {
     @Override
     public void addVertex(ZigZagVertex v) {
         super.addVertex(v);
+    }
+
+    @Override
+    public ZigZagVertex constructVertex(String desc) {
+        return new ZigZagVertex(desc);
     }
 
     @Override
@@ -153,6 +140,16 @@ public class ZigZagGraph extends MutableGraph<ZigZagVertex, ZigZagLink> {
     }
 
     @Override
+    public ZigZagLink constructEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException {
+        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+            LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
+            throw new InvalidEndpointsException();
+        }
+        //with some defaults
+        return new ZigZagLink(desc, new Pair<ZigZagVertex>(getVertex(i), getVertex(j)), cost, cost, 3 * cost, 10, 10, ZigZagLink.ZigZagStatus.OPTIONAL);
+    }
+
+    @Override
     public ZigZagGraph getDeepCopy() {
         try {
             ZigZagGraph ans = new ZigZagGraph();
@@ -185,6 +182,7 @@ public class ZigZagGraph extends MutableGraph<ZigZagVertex, ZigZagLink> {
             return null;
         }
     }
+    //endregion
 
 
 }

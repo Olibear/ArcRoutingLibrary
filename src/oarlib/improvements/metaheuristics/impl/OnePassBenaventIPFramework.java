@@ -30,6 +30,7 @@ import oarlib.graph.impl.WindyGraph;
 import oarlib.improvements.ImprovementProcedure;
 import oarlib.improvements.impl.Benavent_VND1;
 import oarlib.improvements.impl.Benavent_VND2;
+import oarlib.improvements.impl.Benavent_VND2_Aesthetic;
 import oarlib.improvements.util.Utils;
 import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.MultiVehicleProblem;
@@ -65,7 +66,6 @@ public class OnePassBenaventIPFramework extends ImprovementProcedure<WindyVertex
         Collection<Route<WindyVertex, WindyEdge>> initialSol = getInitialSol();
         Collection<Route<WindyVertex, WindyEdge>> currSol, globalBest;
 
-        int nIter = 2; //num perturbations
         globalBest = initialSol;
         LOGGER.info("Starting obj value: " + mProblem.getObjectiveFunction().evaluate(initialSol));
 
@@ -77,7 +77,7 @@ public class OnePassBenaventIPFramework extends ImprovementProcedure<WindyVertex
 
         //apply the interroute IPs
         LOGGER.debug("InterRoute IPs");
-        Benavent_VND2 vnd2 = new Benavent_VND2(getProblem(), postVND1);
+        Benavent_VND2_Aesthetic vnd2 = new Benavent_VND2_Aesthetic(getProblem(), postVND1);
         Collection<Route<WindyVertex, WindyEdge>> postVND2 = vnd2.improveSolution();
         LOGGER.info("VND2 obj value: " + mProblem.getObjectiveFunction().evaluate(postVND2));
 

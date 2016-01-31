@@ -36,12 +36,13 @@ public abstract class Link<V extends Vertex> {
 
     private static Logger LOGGER = Logger.getLogger(Link.class);
     private static int maxTime = 1000000; //default end time for links that aren't assigned a time window
-    private String mLabel;
+    private String mLabel; //toString
     private int mId; //while this will help us identify the 'same' link in different graphs (graph copies for instance)
-    private int mGraphId;
-    private int matchId;
+    private int mGraphId; //id in which the link sits
+    private int matchId; //for associating this link with another
     private Pair<V> mEndpoints;
     private int mCost;
+    private int mServiceCost;
     private int mCapacity;
     private boolean isDirected;
     private boolean isRequired;
@@ -65,6 +66,7 @@ public abstract class Link<V extends Vertex> {
         setRequired(required);
         capacitySet = false;
         hasTimeWindow = false;
+        mServiceCost = 0;
     }
 
     /**
@@ -74,13 +76,10 @@ public abstract class Link<V extends Vertex> {
      */
     public abstract Link<V> getCopy();
 
+    //region Getters and Setters
     public String getLabel() {
         return mLabel;
     }
-
-    //==================================
-    // Getters and Setters
-    //==================================
 
     public void setLabel(String mLabel) {
         this.mLabel = mLabel;
@@ -100,6 +99,14 @@ public abstract class Link<V extends Vertex> {
 
     public void setCost(int mCost) {
         this.mCost = mCost;
+    }
+
+    public int getServiceCost() {
+        return mServiceCost;
+    }
+
+    public void setServiceCost(int mServiceCost) {
+        this.mServiceCost = mServiceCost;
     }
 
     public int getId() {
@@ -204,6 +211,7 @@ public abstract class Link<V extends Vertex> {
     protected void setGraphId(int mGraphId) {
         this.mGraphId = mGraphId;
     }
+    //endregion
 
     public String toString() {
         return this.getEndpoints().getFirst().getId() + "-" + this.getEndpoints().getSecond().getId();

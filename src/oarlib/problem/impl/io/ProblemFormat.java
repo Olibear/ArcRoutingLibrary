@@ -37,6 +37,7 @@ public class ProblemFormat {
         Campos, // format of the instances used in the paper "A Computational Study of Several Heuristics for the DRPP"
         METIS, // format of the input / output of the METIS graph partitioning library
         MeanderingPostman, // format used by researcher Rui Zhang to store the WRPP with ZigZag option, AKA the Meandering Postman Problem
-        OARLib
+        OARLib,
+        Zhang_Matrix
     }
 }

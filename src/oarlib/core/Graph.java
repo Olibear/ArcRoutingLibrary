@@ -38,40 +38,63 @@ import java.util.List;
  */
 public abstract class Graph<V extends Vertex, E extends Link<V>> {
 
-    private static int graphIdCounter = 1;
+    private static int graphIdCounter = 1;  //for assigning global ids to graphs
     private int vidCounter; //for assigning internal ids of vertices
-    private int eidCounter;
-    private int graphId;
-    private int depotId;
-    private int[][] mDist;
-    private int[][] mPath;
+    private int eidCounter; //for assigning internal ids of edges
+    private int graphId; //id of the graph
+    private int depotId; //internal vertex id of the depot
+    private int[][] mDist; //shortest paths dist matrix
+    private int[][] mPath; //shortest paths matrix
 
-    private boolean distGenerated;
+    private boolean distGenerated; //for lazy design pattern; whether or not dist matrix was calculated
 
+    /**
+     * Default constructor
+     */
     protected Graph() {
+
+        //init
         vidCounter = 1;
         eidCounter = 1;
         depotId = 1; //default
         distGenerated = false;
         assignGraphId();
+
     }
 
+    //region Constructors
+    /**
+     * For extending classes to grab a vertex id, presumably to assign to a new vertex
+     * @return - the next vertex id available for this graph
+     */
     protected int assignVertexId() //returns the current vidCounter, and increments
     {
         vidCounter++;
         return vidCounter - 1;
     }
 
+    /**
+     * For extending classes to grab a link id, presumably to assign to a new link
+     * @return - the next link id available for this graph
+     */
     protected int assignEdgeId() //returns the current eidCounter, and increments
     {
         eidCounter++;
         return eidCounter - 1;
     }
 
+    /**
+     * For extending classes to grab an id, presumably to assign to the graph
+     * @return - the next available graph id
+     */
     protected int assignGraphId() {
         graphIdCounter++;
         return graphIdCounter - 1;
     }
+    //endregion
+
+
+    //region Getters and Setters
 
     public int getEidCounter() {
         return eidCounter;
@@ -95,6 +118,9 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
         depotId = newDepotId;
     }
 
+    //endregion
+
+    //region shortest paths
     /**
      * Lazy getter for the dist matrix
      *
@@ -138,6 +164,8 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
         return mPath;
     }
 
+    //endregion
+
     /**
      * Callback for when the graph changes, (e.g. to set a flag that the distance matrix
      * isn't up to date).
@@ -156,31 +184,13 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
      */
     public abstract boolean isWindy();
 
+    //region Vertex
     /**
      * Getter for the vertices.
      *
      * @return a Collection of vertices belonging to this graph
      */
     public abstract Collection<V> getVertices();
-
-    /**
-     * Getter for the edges.
-     *
-     * @return a Collection of edges belonging to this graph
-     */
-    public abstract Collection<E> getEdges();
-
-    /**
-     * Erases all edges in the graph, leaving only the vertices behind
-     */
-    public abstract void clearEdges();
-
-    /**
-     * Resets the Edge counter / id assignment to start over.
-     */
-    protected void resetEdgeCounter() {
-        eidCounter = 1;
-    }
 
     /**
      * To add a vertex to the graph.
@@ -215,6 +225,49 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
      * @return - the appropriate vertex
      */
     public abstract V getVertex(int i) throws IllegalArgumentException;
+
+    /**
+     * To change the id of a vertex in the graph
+     *
+     * @param oldId - the old id of the vertex
+     * @param newId - the new id of the vertex
+     * @throws IllegalArgumentException - if no vertex with oldId exists in the graph, or if there is already a vertex with newId
+     */
+    public abstract void changeVertexId(int oldId, int newId) throws IllegalArgumentException;
+
+    /**
+     * @return - a hash map that has ids as keys to the vertices
+     */
+    public abstract TIntObjectHashMap<V> getInternalVertexMap();
+
+    /**
+     * Factory method for generating a vertex.
+     *
+     * @param desc - description for the vertex created
+     * @return - a vertex satisfying these properties
+     */
+    public abstract V constructVertex(String desc);
+    //endregion
+
+    //region Link
+    /**
+     * Getter for the edges.
+     *
+     * @return a Collection of edges belonging to this graph
+     */
+    public abstract Collection<E> getEdges();
+
+    /**
+     * Erases all edges in the graph, leaving only the vertices behind
+     */
+    public abstract void clearEdges();
+
+    /**
+     * Resets the Edge counter / id assignment to start over.
+     */
+    protected void resetEdgeCounter() {
+        eidCounter = 1;
+    }
 
     /**
      * To add an edge to the graph.  This updates the degrees of the vertices, and throws to the specific implementation of the graph.
@@ -308,13 +361,40 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     public abstract void changeLinkId(int oldId, int newId) throws IllegalArgumentException;
 
     /**
-     * To change the id of a vertex in the graph
+     * Looks for edges between the two provided endpoints, and returns them in a collection.
      *
-     * @param oldId - the old id of the vertex
-     * @param newId - the new id of the vertex
-     * @throws IllegalArgumentException - if no vertex with oldId exists in the graph, or if there is already a vertex with newId
+     * @return a collection of edges directly connecting the two vertices
      */
-    public abstract void changeVertexId(int oldId, int newId) throws IllegalArgumentException;
+    public abstract List<E> findEdges(Pair<V> endpoints);
+
+    /**
+     * Looks for edges between the two provided endpoints, and returns them in a collection.
+     *
+     * @param v1 - the id of the first endpoint
+     * @param v2 - the id of the second endpoint
+     * @return - a collection of edges directly connecting the two vertices
+     */
+    public List<E> findEdges(int v1, int v2) {
+        return findEdges(new Pair<V>(getVertex(v1), getVertex(v2)));
+    }
+
+    /**
+     * @return - a hash map that has ids as keys to the edges
+     */
+    public abstract TIntObjectHashMap<E> getInternalEdgeMap();
+
+    /**
+     * Factory method for generating an edge.
+     *
+     * @param i    - first endpoint index for the edge created
+     * @param j    - second endpoint index for the edge created
+     * @param desc - description of edge to be created
+     * @param cost - cost of edge to be created
+     * @return - an instance of an edge satisfying these properties
+     * @throws InvalidEndpointsException - if i or j > number of vertices
+     */
+    public abstract E constructEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException;
+    //endregion
 
     /**
      * Provides a means of getting a by value copy of this graph.  The conventions used to produce this
@@ -334,58 +414,9 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     public abstract Graph<V, E> getDeepCopy();
 
     /**
-     * Looks for edges between the two provided endpoints, and returns them in a collection.
-     *
-     * @return a collection of edges directly connecting the two vertices
-     */
-    public abstract List<E> findEdges(Pair<V> endpoints);
-
-    /**
-     * Looks for edges between the two provided endpoints, and returns them in a collection.
-     *
-     * @param v1 - the id of the first endpoint
-     * @param v2 - the id of the second endpoint
-     * @return - a collection of edges directly connecting the two vertices
-     */
-    public List<E> findEdges(int v1, int v2) {
-        return findEdges(new Pair<V>(getVertex(v1), getVertex(v2)));
-    }
-
-
-    /**
-     * @return - a hash map that has ids as keys to the vertices
-     */
-    public abstract TIntObjectHashMap<V> getInternalVertexMap();
-
-    /**
-     * @return - a hash map that has ids as keys to the edges
-     */
-    public abstract TIntObjectHashMap<E> getInternalEdgeMap();
-
-    /**
      * @return - the type that this graph structure represents
      */
     public abstract Graph.Type getType();
-
-    /**
-     * Factory method for generating an edge.
-     *
-     * @param i    - first endpoint index for the edge created
-     * @param j    - second endpoint index for the edge created
-     * @param desc - description of edge to be created
-     * @param cost - cost of edge to be created
-     * @return - an instance of an edge satisfying these properties
-     * @throws InvalidEndpointsException - if i or j > number of vertices
-     */
-    public abstract E constructEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException;
-
-    /**
-     * Factory method for generating a vertex.
-     *
-     * @param desc - description for the vertex created
-     * @return - a vertex satisfying these properties
-     */
-    public abstract V constructVertex(String desc);
 
     public enum Type {
         DIRECTED,
