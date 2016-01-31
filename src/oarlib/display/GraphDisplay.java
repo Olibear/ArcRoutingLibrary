@@ -66,7 +66,7 @@ import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 /**
- * NOT IMPLEMENTED YET
+ * Gephi interface
  * Display class meant to visualize the structure of the graph
  *
  * @author oliverlum

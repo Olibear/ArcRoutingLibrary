@@ -46,7 +46,7 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
 
     private static Logger LOGGER = Logger.getLogger(UndirectedGraph.class);
 
-    //constructors
+    //region Constructors
     public UndirectedGraph() {
         super();
     }
@@ -54,13 +54,9 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
     public UndirectedGraph(int n) {
         super(n);
     }
+    //endregion
 
-
-    //====================================================
-    //
-    // Graph Override
-    //
-    //====================================================
+    //region Graph Override
 
     @Override
     public boolean isWindy() {
@@ -175,5 +171,6 @@ public class UndirectedGraph extends MutableGraph<UndirectedVertex, Edge> {
     public UndirectedVertex constructVertex(String desc) {
         return new UndirectedVertex(desc);
     }
+    //endregion
 
 }

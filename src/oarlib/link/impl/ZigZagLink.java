@@ -33,7 +33,6 @@ import oarlib.vertex.impl.ZigZagVertex;
 public class ZigZagLink extends Link<ZigZagVertex> implements AsymmetricLink {
 
     private int mReverseCost;
-    private int mServiceCost;
     private int mReverseServiceCost;
     private double zigzagCost;
     private ZigZagStatus mStatus;
@@ -96,14 +95,6 @@ public class ZigZagLink extends Link<ZigZagVertex> implements AsymmetricLink {
         this.mReverseCost = mReverseCost;
     }
 
-    public int getServiceCost() {
-        return mServiceCost;
-    }
-
-    public void setServiceCost(int mServiceCost) {
-        this.mServiceCost = mServiceCost;
-    }
-
     public int getReverseServiceCost() {
         return mReverseServiceCost;
     }
@@ -129,7 +120,7 @@ public class ZigZagLink extends Link<ZigZagVertex> implements AsymmetricLink {
     }
 
     public boolean isRequired() {
-        return mServiceCost != 0;
+        return getServiceCost() != 0;
     }
 
     //=============================================

@@ -61,7 +61,7 @@ public class RouteOverlapMetric extends Metric {
         int no = calcNO(routes);
         int numRoutes = routes.size();
 
-        return (no - mN) / (Math.pow(Math.sqrt(numRoutes) + Math.sqrt(mN) - 1, 2) - mN);
+        return (no - mN);// / (Math.pow(Math.sqrt(numRoutes) + Math.sqrt(mN) - 1, 2) - mN);
     }
 
     @Override

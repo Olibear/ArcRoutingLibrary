@@ -41,7 +41,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
 
     private static final Logger LOGGER = Logger.getLogger(WindyGraph.class);
 
-    //constructors
+    //region Constructors
     public WindyGraph() {
         super();
     }
@@ -53,12 +53,9 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
     public WindyGraph(int n, int depotId) {
         super(n, depotId);
     }
+    //endregion
 
-    //====================================================
-    //
-    // Adders and Factory methods that take reverse cost
-    //
-    //====================================================
+    //region Adders and Factory methods that take reverse cost
 
     public void addEdge(int i, int j, int cost, int reverseCost)
             throws InvalidEndpointsException {
@@ -109,12 +106,9 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
         return new WindyEdge(desc, new Pair<WindyVertex>(this.getInternalVertexMap().get(i), this.getInternalVertexMap().get(j)), cost, reverseCost, isRequired);
 
     }
+    //endregion
 
-    //====================================================
-    //
-    // Graph Override
-    //
-    //====================================================
+    //region Graph Overrides
 
     @Override
     public boolean isWindy() {
@@ -228,6 +222,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
     public WindyVertex constructVertex(String desc) {
         return new WindyVertex(desc);
     }
+    //endregion
 
 
 }

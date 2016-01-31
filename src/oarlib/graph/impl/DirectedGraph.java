@@ -46,7 +46,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
 
     private static final Logger LOGGER = Logger.getLogger(DirectedGraph.class);
 
-    //constructors
+    //region Constructors
     public DirectedGraph() {
         super();
     }
@@ -58,12 +58,9 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
     public DirectedGraph(int n, int depotId) {
         super(n, depotId);
     }
+    //endregion
 
-    //====================================================
-    //
-    // Graph Overrides
-    //
-    //====================================================
+    //region Graph Overrides
 
     @Override
     public boolean isWindy() {
@@ -184,5 +181,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
     public DirectedVertex constructVertex(String desc) {
         return new DirectedVertex(desc);
     }
+
+    //endregion
 
 }

@@ -48,7 +48,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
 
     private static Logger LOGGER = Logger.getLogger(MixedGraph.class);
 
-    //constructors
+    //region Constructors
     public MixedGraph() {
         super();
     }
@@ -60,12 +60,9 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
     public MixedGraph(int n, int depotId) {
         super(n, depotId);
     }
+    //endregion
 
-    //===============================================
-    //
-    // Adders and Factory methods with isDirected
-    //
-    //===============================================
+    //region Adders and Factory methods with isDirected
 
     public void addEdge(int i, int j, String desc, int cost, boolean isDirected) throws InvalidEndpointsException {
         if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
@@ -103,12 +100,9 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
         MixedEdge temp = this.constructEdge(i, j, "", cost, isDirected, isRequired);
         this.addEdge(temp);
     }
+    //endregion
 
-    //===============================================
-    //
-    // Graph Overrides
-    //
-    //===============================================
+    //region Graph Overrides
 
     @Override
     public boolean isWindy() {
@@ -272,4 +266,5 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
     public MixedVertex constructVertex(String desc) {
         return new MixedVertex(desc);
     }
+    //endregion
 }

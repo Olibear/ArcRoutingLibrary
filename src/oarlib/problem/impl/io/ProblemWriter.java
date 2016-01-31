@@ -30,12 +30,14 @@ import oarlib.core.Problem;
 import oarlib.core.Vertex;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.link.impl.AsymmetricLink;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.ProblemAttributes;
 import oarlib.vertex.impl.UndirectedVertex;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +67,6 @@ public class ProblemWriter {
     }
 
     public boolean writeInstance(Problem p, String filename) throws UnsupportedFormatException {
-        //TODO
         switch (mFormat) {
             case OARLib:
                 return writeOarlibInstance(p, filename);
@@ -79,6 +80,8 @@ public class ProblemWriter {
                 break;
             case METIS:
                 return writeMETISInstance(p, filename);
+            case Zhang_Matrix:
+                return writeZhangMatrixInstance(p, filename);
             default:
                 break;
         }
@@ -86,6 +89,83 @@ public class ProblemWriter {
                 + " there doesn't seem to be an appropriate write method assigned to it.  Support is planned in the future," +
                 "but not currently available");
         throw new UnsupportedFormatException();
+    }
+
+    private <V extends Vertex, E extends Link<V>, G extends Graph<V,E>> boolean writeZhangMatrixInstance(Problem<V,E,G> p, String filename) {
+        try {
+
+            //init
+            PrintWriter pw = new PrintWriter(new File(filename));
+            G g = p.getGraph();
+            if(g.getType() != Graph.Type.WINDY)
+                throw new IllegalArgumentException("Currently, this type of not supported for this output format.");
+            int n = g.getVertices().size();
+            int[][] matrix = new int[n][n]; //indices will be off by 1
+
+            //write the deadhead matrix
+            for(E e : g.getEdges()) {
+                matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = e.getCost();
+                if(!e.isDirected()) {
+                    if(e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = ((AsymmetricLink)e).getReverseCost();
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getCost();
+                }
+            }
+
+            for(int i = 0; i < n; i++) {
+                for(int j = 0; j < n; j++) {
+                    pw.print(matrix[i][j] + " ");
+                }
+                pw.println();
+            }
+
+
+            //write the serviceCost matrix
+            for(E e : g.getEdges()) {
+                matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = e.getServiceCost();
+                if(!e.isDirected()) {
+                    if(e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = ((AsymmetricLink)e).getReverseServiceCost();
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getServiceCost();
+                }
+            }
+
+            for(int i = 0; i < n; i++) {
+                for(int j = 0; j < n; j++) {
+                    pw.print(matrix[i][j] + " ");
+                }
+                pw.println();
+            }
+
+            //write the type matrix
+            //TODO: Once Rui gets back to me
+            /*for(E e : g.getEdges()) {
+                matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = e.getServiceCost();
+                if(!e.isDirected()) {
+                    if(e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = ((AsymmetricLink)e).getReverseServiceCost();
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getServiceCost();
+                }
+            }*/
+
+            for(int i = 0; i < n; i++) {
+                for(int j = 0; j < n; j++) {
+                    pw.print(matrix[i][j] + " ");
+                }
+                pw.println();
+            }
+
+
+            pw.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
     }
 
     private <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> boolean writeCorberanInstance(Problem<V, E, G> p, String filename) {

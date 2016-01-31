@@ -45,6 +45,7 @@ import oarlib.link.impl.WindyEdge;
 import oarlib.link.impl.ZigZagLink;
 import oarlib.metrics.MaxMetric;
 import oarlib.metrics.Metric;
+import oarlib.metrics.RouteOverlapMetric;
 import oarlib.notifications.GmailNotification;
 import oarlib.problem.impl.cpp.MixedCPP;
 import oarlib.problem.impl.cpp.UndirectedCPP;
@@ -604,6 +605,7 @@ public class
 
                 OSM_Fetcher fetcher;
                 ProblemWriter pw;
+                /*
                 for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES_SMALL) {
                     //fetcher = new OSM_Fetcher(bb);
                     //g = fetcher.queryForGraph();
@@ -613,7 +615,7 @@ public class
                     probs.add(validWInstance);
                     //pw = new ProblemWriter(ProblemFormat.Name.Corberan);
                     //pw.writeInstance(validWInstance, "/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_small.txt");
-                }
+                }*/
 
                 //now do the rectangular instances
                 /*for (int i = 1; i <= 3; i++) {
@@ -643,12 +645,12 @@ public class
                 g.setDepotId(9);
                 validWInstance = new MinMaxKWRPP(g, "Corberan6_5_3_2_3veh", 3);
                 probs.add(validWInstance);
-
+                */
                 g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est8_8_5_1/Minmax_est8_8_5_1.dat");
                 g.setDepotId(28);
-                validWInstance = new MinMaxKWRPP(g, "Corberan8_8_5_1_3veh", 3);
+                validWInstance = new MinMaxKWRPP(g, "Corberan8_8_5_1_3veh", 2);
                 probs.add(validWInstance);
-                */
+
 
                 MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "", displayer);
                 //MultiWRPPSolver_Benavent validWSolver = new MultiWRPPSolver_Benavent(validWInstance);
@@ -656,7 +658,7 @@ public class
 
                 ExportHelper.exportToExcel(probs, metrics, validWSolver, outputFile);
                 for (Problem p : probs)
-                    System.out.println(new MaxMetric().evaluate(p.getSol()));
+                    System.out.println(new MaxMetric().evaluate(p.getSol()) + "," + new RouteOverlapMetric(p.getGraph()).evaluate(p.getSol()));
 
                 String from = "oliver@math.umd.edu";
                 String pass = "Ctznrsd#";

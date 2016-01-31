@@ -78,9 +78,8 @@ public abstract class Vertex {
 
     public abstract int getDegree();
 
-    //==================================
-    // Getters and Setters
-    //==================================
+
+    //region Getters and Setters
 
     public String getLabel() {
         return mLabel;
@@ -189,4 +188,6 @@ public abstract class Vertex {
     public boolean hasCoordinates() {
         return hasCoordinates;
     }
+
+    //endregion
 }

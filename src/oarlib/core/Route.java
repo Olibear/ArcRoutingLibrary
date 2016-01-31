@@ -76,6 +76,24 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
 
     }
 
+    public abstract Route<V,E> getDeepCopy();
+
+    protected void setVars(Route<V,E> origin){
+        mCost = origin.getCost();
+        mServCost = origin.getReqCost();
+        mCustomIDMap = new TIntIntHashMap(origin.getMapping());
+        mRoute = new ArrayList<E>(origin.getPath());
+        traversalDirection = new ArrayList<Boolean>(origin.getTraversalDirection());
+        compactRepresentation = new TIntArrayList();
+        for(int i = 0; i < origin.compactRepresentation.size(); i++) {
+            compactRepresentation.add(origin.getCompactRepresentation().get(i));
+        }
+        compactTD = new ArrayList<Boolean>(origin.getCompactTraversalDirection());
+        servicing = new ArrayList<Boolean>(origin.getServicingList());
+        mGlobalId = origin.getGlobalId();
+        directionDetermined = origin.directionDetermined;
+    }
+
     /**
      * A constructor that allows you to specify an ID remap, so that when the toString() is called, the mapped values are used instead of the original ones.
      * This is particularly helpful if you wish to use matchIds from another graph, since solvers will frequently solve the graph on a copy so that the original
