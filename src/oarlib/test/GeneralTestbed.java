@@ -661,7 +661,7 @@ public class
                     System.out.println(new MaxMetric().evaluate(p.getSol()) + "," + new RouteOverlapMetric(p.getGraph()).evaluate(p.getSol()));
 
                 String from = "oliver@math.umd.edu";
-                String pass = "***REMOVED***";
+                String pass = "**REMOVED**";
                 String[] to = {"oliver@math.umd.edu"}; // list of recipient email addresses
                 String subject = "OARLib Notification";
                 String body = "Your runs have completed.  Thank you for using OARLib.";
