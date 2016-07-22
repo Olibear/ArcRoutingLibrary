@@ -215,7 +215,7 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
                 LOGGER.debug("The first link added to this tour isn't connected to the depot...behavior not guaranteed.");
                 throw new IllegalArgumentException("The first link added to this tour isn't connected to the depot.");
             }
-            incrementalCost.add(firstCost);
+            //incrementalCost.add(firstCost);
 
         }
 
@@ -305,11 +305,12 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
         if (servicing.get(position)) {
             if (compactZZList.get(compactPos)) {
                 diff = mRoute.get(position).getZigzagCost();
-                compactZZList.remove(compactPos);
             } else if (traversalDirection.get(position))
                 diff = mRoute.get(position).getServiceCost();
             else
                 diff = mRoute.get(position).getReverseServiceCost();
+
+            compactZZList.remove(compactPos);
 
             serviceComponent -= diff;
         } else {
@@ -318,10 +319,13 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
             else
                 diff = mRoute.get(position).getReverseServiceCost();
 
+            int startingIndex = compactPos;
             for (int i = compactPos; i < compactRepresentation.size(); i++) {
                 if (compactZZList.get(i)) {
                     temp = mGraph.getEdge(compactRepresentation.get(i));
-                    if (incrementalCost.get(i) + diff > temp.getTimeWindow().getSecond()) {
+                    while (temp.getId() != getPath().get(startingIndex).getId())
+                        startingIndex++;
+                    if (incrementalCost.get(startingIndex) + diff > temp.getTimeWindow().getSecond()) {
                         LOGGER.warn("By switching this edge to be serviced, you would cause an " +
                                 "infeasibility later in the route.  Please modify that first.");
                         return false;
@@ -329,6 +333,8 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
                 }
 
             }
+
+            compactZZList.add(compactPos, false);
 
             serviceComponent += diff;
         }
@@ -353,5 +359,9 @@ public class ZigZagTour extends Tour<ZigZagVertex, ZigZagLink> {
         }
 
         return true;
+    }
+
+    public double getServiceComponent() {
+        return serviceComponent;
     }
 }

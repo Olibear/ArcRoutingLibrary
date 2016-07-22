@@ -32,7 +32,6 @@ import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
 import oarlib.graph.factory.impl.WindyGraphFactory;
 import oarlib.graph.impl.WindyGraph;
-import oarlib.graph.impl.ZigZagGraph;
 import oarlib.graph.transform.impl.EdgeInducedRequirementTransform;
 import oarlib.graph.transform.partition.impl.PreciseWindyKWayPartitionTransform;
 import oarlib.graph.transform.rebalance.CostRebalancer;
@@ -44,7 +43,6 @@ import oarlib.graph.util.Pair;
 import oarlib.graph.util.Utils;
 import oarlib.improvements.metaheuristics.impl.OnePassBenaventIPFramework;
 import oarlib.link.impl.WindyEdge;
-import oarlib.link.impl.ZigZagLink;
 import oarlib.metrics.AverageTraversalMetric;
 import oarlib.metrics.RouteOverlapMetric;
 import oarlib.problem.impl.ProblemAttributes;
@@ -55,10 +53,7 @@ import oarlib.problem.impl.io.ProblemFormat;
 import oarlib.problem.impl.io.ProblemWriter;
 import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.route.impl.Tour;
-import oarlib.route.impl.ZigZagTour;
 import oarlib.route.util.RouteExpander;
-import oarlib.route.util.RouteExporter;
-import oarlib.route.util.ZigZagExpander;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
@@ -111,7 +106,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
     public void setBeta(double newBeta) {
         if (newBeta < 0) {
-            LOGGER.warn("Invalid argument.  Alpha must be >= 0.");
+            LOGGER.warn("Invalid argument.  Beta must be >= 0.");
             return;
         }
         mBeta = newBeta;
@@ -119,7 +114,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
     public void setNumIterations(int newIter) {
         if (newIter < 0) {
-            LOGGER.warn("Invalid argument.  Alpha must be >= 0.");
+            LOGGER.warn("Invalid argument.  numIterations must be >= 0.");
             return;
         }
         mIter = newIter;
@@ -127,7 +122,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
     public void setNumPerturbations(int newPerturb) {
         if (newPerturb < 0) {
-            LOGGER.warn("Invalid argument.  Alpha must be >= 0.");
+            LOGGER.warn("Invalid argument.  numPerturbations must be >= 0.");
             return;
         }
         mPerturb = newPerturb;
@@ -199,6 +194,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         ArrayList<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
         double maxCost;
         double currWeightBest;
+        PartitionStore ps = new PartitionStore();
 
         try {
 
@@ -224,9 +220,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
             //For the closest edge rebalancer
             int n = mGraph.getVertices().size();
-            int[][] dist = new int[n+1][n+1];
-            int[][] path = new int[n+1][n+1];
-            CommonAlgorithms.fwLeastCostPaths(mGraph, dist,path);
+            int[][] dist = mGraph.getAllPairsDistMatrix();
 
             String outputFile = "/Users/oliverlum/Desktop/100runs_" + mInstanceName + ".txt";
             PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
@@ -243,18 +237,32 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                     HashMap<Integer, HashSet<Integer>> partitions = new HashMap<Integer, HashSet<Integer>>();
 
                     for (Integer i : sol.keySet()) {
+                        if (!mGraph.getEdge(i).isRequired())
+                            continue;
                         if (!partitions.containsKey(sol.get(i)))
                             partitions.put(sol.get(i), new HashSet<Integer>());
                         partitions.get(sol.get(i)).add(i);
                     }
 
-                    //now create the subgraphs
                     ans.clear();
-                    for (Integer part : partitions.keySet()) {
-                        if (partitions.get(part).isEmpty())
-                            continue;
-                        ans.add(route2(partitions.get(part)));
+                    boolean hasNewRoute = false;
+                    //check for redundancy
+                    for (Integer i : partitions.keySet()) {
+                        Route r = ps.containsPartition(partitions.get(i));
+                        if (r != null) {
+                            ans.add(r);
+                        } else {
+                            hasNewRoute = true;
+                            Route toAdd = route(partitions.get(i));
+                            ps.addPartitionToStore(partitions.get(i), toAdd);
+                            ans.add(toAdd);
+                        }
+
                     }
+
+                    //if they're all copies, don't run the improvement
+                    if (!hasNewRoute)
+                        continue;
 
                     mGraph = mInstance.getGraph();
 
@@ -277,18 +285,80 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                 pw.println((lowerBound + j * interval) + "," + currWeightBest + ";");
             }
 
+            //use the exact solver 1 more time to smooth out the kinks
+            Collection<Route<WindyVertex, WindyEdge>> trueAns = cleanup(record);
+
             if (mDisplay != null) {
-                display(record);
+                display(trueAns);
             }
 
-            mInstance.setSol(record);
+            mInstance.setSol(trueAns);
             pw.close();
-            return record;
+            return trueAns;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
+    private Collection<Route<WindyVertex, WindyEdge>> cleanup(Collection<Route<WindyVertex, WindyEdge>> toClean) {
+
+        //init
+        ArrayList<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
+        HashSet<Integer> tempIds;
+        //go through and add service
+        for (Route<WindyVertex, WindyEdge> r : toClean) {
+            tempIds = new HashSet<Integer>();
+            TIntArrayList edgeIds = r.getCompactRepresentation();
+            for (int eid : edgeIds.toNativeArray()) {
+                tempIds.add(eid);
+            }
+            ans.add(route2(tempIds));
+        }
+
+        return ans;
+    }
+
+    /**
+     * Carmine's idea.  Take the routes, form the Eulerian graph, and repartition it
+     * using match ids to determine the actual partition
+     *
+     * @return
+     *//*
+    private HashMap<Integer, Integer> repartition(Collection<Route<WindyVertex, WindyEdge>> sol) {
+
+        HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
+
+        WindyGraph newGraph = new WindyGraph(mGraph.getVertices().size());
+        try {
+            //add all the guys to the new graph
+            int index = 1;
+            for (Route<WindyVertex, WindyEdge> r : sol) {
+                for (WindyEdge we : r.getPath()) {
+                    newGraph.addEdge(we.getFirstEndpointId(), we.getSecondEndpointId(), we.getCost(), we.getReverseCost(), we.isRequired());
+                    newGraph.getEdge(index).setMatchId(we.getId());
+                    index++;
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        //repartition
+        double betaWeight = 1;
+        if (mBeta != -1)
+            betaWeight = mBeta;
+        ClosestRequiredEdgeRebalancer<WindyGraph> beta = new ClosestRequiredEdgeRebalancer<WindyGraph>(newGraph, new WindyGraphFactory(), betaWeight, new IndividualDistanceToDepotRebalancer(mGraph, lowerBound + j * interval));
+        beta.setDistMatrix(mGraph.getAllPairsDistMatrix()); //this should be the same since we're only adding copies
+        HashMap<Integer, Integer> newPartition = partition(new DuplicateEdgeCostRebalancer(newGraph, beta));
+
+        for(Integer key : newPartition.keySet()) {
+            ans.put(newGraph.getEdge(key).getMatchId(), newPartition.get(key));
+        }
+
+
+        return ans;
+    }*/
 
     private void display(Collection<Route<WindyVertex, WindyEdge>> record) {
 
@@ -309,14 +379,14 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
             WindyGraph toDisplay = mGraph.getDeepCopy();
             int limi = mGraph.getEdges().size();
-            /*for (int i = 1; i <= limi; i++) {
+            for (int i = 1; i <= limi; i++) {
                 WindyEdge we = toDisplay.getEdge(i);
                 if (!sol.containsKey(we.getId()))
                     toDisplay.removeEdge(we.getId());
-            }*/
+            }
 
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, toDisplay, mInstanceName);
-            gd.setInstanceName("Benavent_" + mInstanceName);
+            gd.setInstanceName("Partition_" + mInstanceName);
             gd.exportWithPartition(GraphDisplay.ExportType.PDF, sol);
 
             //individual routes
@@ -326,7 +396,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                 float[] scaling = getScaling();
                 gd.setScaling(scaling[0], scaling[1], scaling[2], scaling[3]);
 
-                gd.setInstanceName("Benavent_" + mInstance.getName() + "_" + r.getCost());
+                gd.setInstanceName("Partition_" + mInstance.getName() + "_" + r.getCost());
                 gd.exportRoute(GraphDisplay.ExportType.PDF, r);
             }
         } catch (Exception e) {
@@ -374,40 +444,6 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         return ret;
     }
 
-    protected HashMap<Integer, Integer> partition(CostRebalancer costRebalancer) {
-
-        try {
-
-            //initialize transformer for turning edge-weighted grpah into vertex-weighted graph
-            PreciseWindyKWayPartitionTransform transformer = new PreciseWindyKWayPartitionTransform(mGraph, true, costRebalancer);
-
-            //transform the graph
-            WindyGraph vWeightedTest = transformer.transformGraph();
-
-            String filename = "C:\\Users\\Oliver\\Desktop\\RandomGraph.graph";
-
-            //write it to a file
-            ProblemWriter gw = new ProblemWriter(ProblemFormat.Name.METIS);
-            gw.writeInstance(new PartitioningProblem(vWeightedTest, null, null), filename);
-
-            //num parts to partition into
-            int numParts = mInstance.getmNumVehicles();
-
-            //partition the graph
-            runMetis(numParts, filename);
-
-            //now read the partition and reconstruct the induced subrgraphs on which we solve the WPP to get our final solution
-            PartitionReader pr = new PartitionReader(PartitionFormat.Name.METIS);
-
-            return pr.readPartition(filename + ".part." + numParts);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-
     protected Route route2(HashSet<Integer> ids) {
 
         //check out a clean instance
@@ -432,9 +468,9 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
         //to use Rui's exact solver, we have to write the instance, and then call the python
         try {
-            String filename = "wrppMatrix.txt";
+            String filename = "/Users/oliverlum/Downloads/20node/WPPTZ20nodes_15_15_15.txt";
             WindyRPP subProblem = new WindyRPP(subgraph);
-            ProblemWriter pw = new ProblemWriter(ProblemFormat.Name.Zhang_Matrix);
+            ProblemWriter pw = new ProblemWriter(ProblemFormat.Name.Zhang_Matrix_Windy);
             pw.writeInstance(subProblem, filename);
 
             return runIP(filename);
@@ -445,16 +481,19 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
     }
 
-    public Tour<WindyVertex, WindyEdge> runIP(String inputFileName) {
+    private Tour<WindyVertex, WindyEdge> runIP(String inputFileName) {
 
         TIntArrayList ansRoute = new TIntArrayList();
         ArrayList<Boolean> ansDir = new ArrayList<Boolean>();
         ArrayList<Boolean> ansZig = new ArrayList<Boolean>();
+        File outputFile = new File("MTZ_NoTimeWindows__DetailRoute.txt");
+        if (outputFile.exists())
+            outputFile.delete();
 
         //run the python script which calls CPLEX
         try {
 
-            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT_PrefixZigzagOrder.py", inputFileName);
+            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/WRPP_BnC.py");
             Process run = pb.start();
             BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
             String line = "";
@@ -480,8 +519,8 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             String[] temp2 = new String[1];
             String[] temp3 = new String[1];
 
-            File graphFile = new File("MTZ_PartialOrder__DetailRoute.txt");
-            BufferedReader br = new BufferedReader(new FileReader(graphFile));
+
+            BufferedReader br = new BufferedReader(new FileReader(outputFile));
             WindyEdge tempL;
 
             while ((line = br.readLine()) != null) {
@@ -503,7 +542,17 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                     continue;
                 temp3 = temp[l].split("_");
                 v1 = Integer.parseInt(temp3[0])+1;
-                v2 = Integer.parseInt(temp3[1])+1;
+                v2 = Integer.parseInt(temp3[1]) + 1;
+
+                if (v1 == 1)
+                    v1 = mGraph.getDepotId();
+                else if (v1 == mGraph.getDepotId())
+                    v1 = 1;
+
+                if (v2 == 1)
+                    v2 = mGraph.getDepotId();
+                else if (v2 == mGraph.getDepotId())
+                    v2 = 1;
 
                 List<WindyEdge> candidates = mGraph.findEdges(v1, v2);
                 if (candidates.size() > 1)
@@ -541,6 +590,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         return we.unflattenRoute(ansRoute, ansDir);
     }
 
+    //region Deprecated route heuristic
     protected Route route(HashSet<Integer> ids) {
 
         //check out a clean instance
@@ -573,7 +623,9 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
         return Utils.reclaimTour(ret, mGraph);
     }
+    //endregion
 
+    //region Partition
     @Override
     public String printCurrentSol() throws IllegalStateException {
 
@@ -669,4 +721,105 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
         return ans;
     }
+
+    protected HashMap<Integer, Integer> partition(CostRebalancer costRebalancer) {
+
+        try {
+
+            //new idea to force inclusion of the depot everywhere
+            WindyGraph mGraphWithDepotConns = mGraph.getDeepCopy();
+            int m = mGraph.getEdges().size();
+            int n = mGraph.getVertices().size();
+            for (int i = 1; i <= mInstance.getmNumVehicles(); i++) {
+                mGraphWithDepotConns.addVertex();
+                mGraphWithDepotConns.addEdge(mGraph.getDepotId(), n + i, 999999, true);
+            }
+
+            //initialize transformer for turning edge-weighted grpah into vertex-weighted graph
+            PreciseWindyKWayPartitionTransform transformer = new PreciseWindyKWayPartitionTransform(mGraph, true, costRebalancer);
+
+            //transform the graph
+            WindyGraph vWeightedTest = transformer.transformGraph();
+
+            String filename = "C:\\Users\\Oliver\\Desktop\\RandomGraph.graph";
+
+            //write it to a file
+            ProblemWriter gw = new ProblemWriter(ProblemFormat.Name.METIS);
+            gw.writeInstance(new PartitioningProblem(vWeightedTest, null, null), filename);
+
+            //num parts to partition into
+            int numParts = mInstance.getmNumVehicles();
+
+            //partition the graph
+            runMetis(numParts, filename);
+
+            //now read the partition and reconstruct the induced subrgraphs on which we solve the WPP to get our final solution
+            PartitionReader pr = new PartitionReader(PartitionFormat.Name.METIS);
+
+            HashMap<Integer, Integer> ans = pr.readPartition(filename + ".part." + numParts);
+
+            for (int i = 1; i <= mInstance.getmNumVehicles(); i++) {
+                ans.remove(m + i);
+            }
+
+            return ans;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    private HashMap<Integer, Integer> collapsePartition() {
+
+        HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
+
+        return ans;
+    }
+
+    private HashMap<Integer, Integer> sweepPartition(int upperBound, double angle) {
+
+        //partition the edges using a sweep
+        HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
+
+
+        return ans;
+    }
+    //endregion
+
+    //region PartitionStore
+    private class PartitionStore {
+        private HashMap<Integer, HashSet<Route>> store;
+
+        public PartitionStore() {
+            store = new HashMap<Integer, HashSet<Route>>();
+        }
+
+        public void addPartitionToStore(HashSet<Integer> partition, Route r) {
+            if (!store.containsKey(partition.hashCode()))
+                store.put(partition.hashCode(), new HashSet<Route>());
+            store.get(partition.hashCode()).add(r);
+        }
+
+        public Route containsPartition(HashSet<Integer> partition) {
+            boolean notThisRoute = false;
+            if (store.keySet().contains(partition.hashCode())) {
+                for (Route r : store.get(partition.hashCode())) {
+                    TIntArrayList rc = r.getCompactRepresentation();
+                    for (Integer i : partition) {
+                        if (!rc.contains(i)) {
+                            notThisRoute = true;
+                            break;
+                        }
+                    }
+                    if (notThisRoute)
+                        continue;
+                    return r;
+                }
+            }
+            return null;
+        }
+    }
+    //endregion
 }

@@ -44,6 +44,8 @@ public class DevMetric extends Metric {
         int tempCost;
         for (Route r : routes) {
             tempCost = r.getCost();
+            if (tempCost == 0)
+                continue;
             if (tempCost > max)
                 max = tempCost;
             if (tempCost < min)

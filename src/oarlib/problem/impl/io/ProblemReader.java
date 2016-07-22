@@ -646,6 +646,7 @@ public class ProblemReader {
             //header info
             int n = 0;
             int m = 0;
+            int depotId = 1;
             while ((line = br.readLine()) != null) {
                 if (line.contains("NOMBRE")) {
                     temp = line.split("\\s+|:");
@@ -660,6 +661,9 @@ public class ProblemReader {
                         LOGGER.error("We could not figure out what type of graph this is.");
                         throw new FormatMismatchException();
                     }
+                } else if (line.contains("COMENTARIO")) {
+                    temp = line.split("\\s+|:");
+                    depotId = Integer.parseInt(temp[temp.length - 2]);
                 } else if (line.contains("VERTICES")) {
                     temp = line.split("\\s+|:");
                     n = Integer.parseInt(temp[temp.length - 1]);
@@ -879,6 +883,7 @@ public class ProblemReader {
                 }
 
                 br.close();
+                ans.setDepotId(depotId);
                 return ans;
             } else {
                 br.close();

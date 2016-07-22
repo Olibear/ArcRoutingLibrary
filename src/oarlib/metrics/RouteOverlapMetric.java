@@ -54,6 +54,7 @@ public class RouteOverlapMetric extends Metric {
             }
         }
         mN = ids.size();
+        mN = 0;
     }
 
     @Override
@@ -78,6 +79,7 @@ public class RouteOverlapMetric extends Metric {
 
         int NO = 0;
         HashSet<Integer> traversedIds = new HashSet<Integer>();
+        HashSet<Integer> totalIds = new HashSet<Integer>();
 
         for (Route<V, E> r : sol) {
             traversedIds.clear();
@@ -85,7 +87,7 @@ public class RouteOverlapMetric extends Metric {
             E tempLink;
             ArrayList<Boolean> tempService = r.getServicingList();
             for (int i = 0; i < temp.size(); i++) {
-                if (tempService.get(i)) {
+                //if (tempService.get(i)) {
                     tempLink = temp.get(i);
                     if (!traversedIds.contains(tempLink.getFirstEndpointId())) {
                         NO++;
@@ -95,10 +97,12 @@ public class RouteOverlapMetric extends Metric {
                         NO++;
                         traversedIds.add(tempLink.getSecondEndpointId());
                     }
-                }
+                //}
+                totalIds.add(tempLink.getFirstEndpointId());
+                totalIds.add(tempLink.getSecondEndpointId());
             }
         }
 
-        return NO;
+        return NO - totalIds.size();
     }
 }

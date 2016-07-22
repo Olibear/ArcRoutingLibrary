@@ -76,6 +76,19 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
 
     }
 
+    /**
+     * A constructor that allows you to specify an ID remap, so that when the toString() is called, the mapped values are used instead of the original ones.
+     * This is particularly helpful if you wish to use matchIds from another graph, since solvers will frequently solve the graph on a copy so that the original
+     * is left untouched, but this results in the vertices referenced in the links contained in the Route not having the same matchIds as they went into the solver
+     * with.
+     *
+     * @param customIDMap
+     */
+    protected Route(TIntIntHashMap customIDMap) {
+        mCost = 0;
+        mCustomIDMap = customIDMap;
+    }
+
     public abstract Route<V,E> getDeepCopy();
 
     protected void setVars(Route<V,E> origin){
@@ -92,19 +105,6 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         servicing = new ArrayList<Boolean>(origin.getServicingList());
         mGlobalId = origin.getGlobalId();
         directionDetermined = origin.directionDetermined;
-    }
-
-    /**
-     * A constructor that allows you to specify an ID remap, so that when the toString() is called, the mapped values are used instead of the original ones.
-     * This is particularly helpful if you wish to use matchIds from another graph, since solvers will frequently solve the graph on a copy so that the original
-     * is left untouched, but this results in the vertices referenced in the links contained in the Route not having the same matchIds as they went into the solver
-     * with.
-     *
-     * @param customIDMap
-     */
-    protected Route(TIntIntHashMap customIDMap) {
-        mCost = 0;
-        mCustomIDMap = customIDMap;
     }
 
     public void exportRouteToPDF(String instanceName, int depotId) {
@@ -616,6 +616,20 @@ public abstract class Route<V extends Vertex, E extends Link<V>> {
         }
 
         return true;
+    }
+
+    /**
+     * @return - a hash function
+     */
+    public long getHash() {
+
+        long hash = 5381;
+        String mString = toString();
+        for (int i = 0; i < mString.length(); i++) {
+            hash = hash * 33 + mString.charAt(i);
+        }
+
+        return hash;
     }
 
 

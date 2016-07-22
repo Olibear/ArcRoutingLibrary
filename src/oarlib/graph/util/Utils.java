@@ -229,6 +229,31 @@ public class Utils {
         return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
     }
 
+    public static class SweepComparator implements Comparator<Pair<Integer>> {
+        private int mDepotX;
+        private int mDepotY;
+
+        public SweepComparator(int depotX, int depotY) {
+            mDepotX = depotX;
+            mDepotY = depotY;
+        }
+
+        @Override
+        public int compare(Pair<Integer> arg0, Pair<Integer> arg1) {
+            double angle1;
+            double angle2;
+
+            angle1 = Math.atan((arg0.getFirst() - mDepotX) / (arg0.getSecond() - mDepotY));
+            angle2 = Math.atan((arg1.getFirst() - mDepotX) / (arg1.getSecond() - mDepotY));
+
+            if (angle1 > angle2)
+                return 1;
+            else if (angle1 < angle2)
+                return -1;
+            return 0;
+        }
+    }
+
     public static class DijkstrasComparator implements Comparator<Pair<Integer>> {
         @Override
         public int compare(Pair<Integer> arg0, Pair<Integer> arg1) {

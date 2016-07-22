@@ -15,10 +15,7 @@ import oarlib.route.util.ZigZagExpander;
 import oarlib.vertex.impl.ZigZagVertex;
 import org.apache.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -35,6 +32,26 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
     private double mLambda;
     private double latePenalty; //if you are late 1 unit of time, this costs you latePenalty extra cost units
     private Random rng;
+    private int bestPartialSize = 0;
+    private int bestPartialLength = 0;
+    private int bestPartialNumZigzags = 0;
+    private int bestSumLengthZigzags = 0;
+    private int avgPartialSize = 0;
+    private int avgPartialLength = 0;
+    private int avgPartialNumZigzags = 0;
+    private int avgSumLengthZigzags = 0;
+    private int greatestSumLengthZigzags = 0;
+    private double bestPercentZZ = 0;
+    private double avgPercentZZ = 0;
+    private double bestPercentService = 0;
+    private double avgPercentService = 0;
+    private double bestZZSavings = 0;
+    private double avgZZSavings = 0;
+    private double bestZZDeadhead;
+    private double avgZZDeadhead;
+    private double bestServiceLeft = 0;
+    private double avgServiceLeft = 0;
+
 
     /**
      * Default constructor; must set problem instance.
@@ -55,285 +72,32 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
         rng = new Random(1000);
     }
 
-    @Override
-    protected boolean checkGraphRequirements() {
-        // make sure the graph is connected
-        if (mInstance.getGraph() == null)
-            return false;
-        else {
-            UndirectedGraph connectedCheck = new UndirectedGraph(mInstance.getGraph().getVertices().size());
-            try {
-                for (ZigZagLink l : mInstance.getGraph().getEdges())
-                    connectedCheck.addEdge(l.getFirstEndpointId(), l.getSecondEndpointId(), 1);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
+    public static double runIPNoRoute(ZigZagGraph g, int i, int j, int k, int iter, double latePenalty) {
+        //run the python script which calls CPLEX
+        String objValue = "";
+        try {
+
+            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPP_PartialOrderNEW.py", Integer.toString(i), Integer.toString(j), Integer.toString(k), Integer.toString(iter));
+            //ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT_BnC_PrefixZigzagOrder.py", Integer.toString(i), Integer.toString(j), Integer.toString(k),Integer.toString(iter));
+            Process run = pb.start();
+            BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
+            String line = "";
+            System.out.println("Running Python starts: " + line);
+            int exitCode = run.waitFor();
+            System.out.println("Exit Code : " + exitCode);
+            line = bfr.readLine();
+            System.out.println("First Line : " + line);
+            while ((line = bfr.readLine()) != null) {
+                objValue = line;
+                System.out.println("Python Output: " + line);
             }
-            if (!CommonAlgorithms.isConnected(connectedCheck))
-                return false;
+            double realObjValue = Double.parseDouble(objValue);
+            System.out.println("Complete");
+            return realObjValue;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return -1;
         }
-        return true;
-    }
-
-    @Override
-    protected Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> getInstance() {
-        return mInstance;
-    }
-
-    protected Collection<? extends Route> solve2() {
-
-        //init
-        int bestCost = Integer.MAX_VALUE;
-        ZigZagGraph g = mInstance.getGraph();
-        int n = g.getVertices().size();
-        double alpha = .7; //1 - alpha is left over for insertion of other required edges
-        ZigZagTour ans = null;
-        int timeWindow = Integer.MAX_VALUE; //will hold the most restrictive time window
-        ZigZagExpander zze = new ZigZagExpander(g, latePenalty);
-        int depotId = g.getDepotId();
-        String fileName = "/Users/oliverlum/Downloads/Sols/" + mInstance.getName() + "_ans_101.txt";
-
-        //shortest paths
-        int[][] dist = new int[n+1][n+1];
-        int[][] path = new int[n+1][n+1];
-        CommonAlgorithms.fwLeastCostPaths(g, dist, path);
-
-        //zero out dist
-        for(int i = 1; i <= n; i++)
-            dist[i][i] = 0;
-
-        //order the zz optional edges by distance to depot
-        HashSet<Integer> optionalEdges = new HashSet<Integer>();
-        for(ZigZagLink zzl : g.getEdges()) {
-            if(zzl.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL && zzl.getTimeWindow().getSecond() < RouteExporter.ZZ_TIME_WINDOW_THRESHOLD) {
-                optionalEdges.add(zzl.getId());
-                if(timeWindow > zzl.getTimeWindow().getSecond())
-                    timeWindow = zzl.getTimeWindow().getSecond();
-            }
-        }
-
-        PriorityQueue<Pair<Integer>> optionalEdgeQueue = new PriorityQueue<Pair<Integer>>(optionalEdges.size(), new Utils.DijkstrasComparator());
-        for(Integer i : optionalEdges) {
-            optionalEdgeQueue.add(new Pair<Integer>(i, Utils.distanceToEdge(dist[depotId], g.getEdge(i))));
-        }
-
-        //insert them until they reach timeWindow * alpha
-        ZigZagLink toInsert;
-        int toInsertId;
-
-        TIntArrayList compactAns;
-        ArrayList<Boolean> compactDir;
-        ArrayList<Boolean> compactZZ;
-
-        while(!optionalEdgeQueue.isEmpty()) {
-
-            //PHASE I: Insert TW edges
-            toInsertId = optionalEdgeQueue.poll().getFirst();
-            toInsert = g.getEdge(toInsertId);
-
-            if(Utils.distanceToEdge(dist[depotId], toInsert) > alpha * timeWindow)
-                continue;
-
-            compactAns = new TIntArrayList();
-            compactDir = new ArrayList<Boolean>();
-            compactZZ = new ArrayList<Boolean>();
-
-            compactAns.add(toInsertId);
-            if(Utils.distanceToEdge(dist[depotId], toInsert) == dist[depotId][toInsert.getFirstEndpointId()])
-                compactDir.add(true);
-            else
-                compactDir.add(false);
-            compactZZ.add(true);
-
-            //insert it, and check the cost
-            double threshold = alpha * timeWindow;
-
-            //gonna be slow, but prototype
-            int maxIndex = 0;
-            for(Integer i : optionalEdges) {
-                //don't double insert
-                if(compactAns.contains(i))
-                    continue;
-
-                PriorityQueue<Pair<Integer>> nextMoves = cheapestInsertion2(zze.unflattenRoute(compactAns, compactDir, compactZZ), g.getEdge(i), true ,dist);
-                if (nextMoves.isEmpty()) {
-                    LOGGER.warn("No feasible moves exist.");
-                    break;
-                }
-                else if(nextMoves.peek().getFirst() <= maxIndex && nextMoves.peek().getSecond() + zze.unflattenRoute(compactAns, compactDir, compactZZ).getCost() < threshold) {
-                    makeMove(nextMoves, compactAns, compactDir, g.getEdge(i), dist);
-                    compactZZ.add(true);
-                }
-
-            }
-
-
-
-            //PHASE II: Insert the rest
-
-            /*for(ZigZagLink zzl : g.getEdges()) {
-                if(!zzl.isRequired())
-                    continue;
-                if(zzl.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL)
-                    continue;
-
-                //do a cheapest insertion of the remaining edges
-
-            }*/
-
-            //export the route
-
-            int i = Integer.parseInt(mInstance.getName().substring(0,1));
-            int j = Integer.parseInt(mInstance.getName().substring(2,3));
-            int k = Integer.parseInt(mInstance.getName().substring(4,5));
-
-            RouteExporter.exportRoute(zze.unflattenRoute(compactAns, compactDir, compactZZ), RouteExporter.RouteFormat.ZHANG, fileName);
-
-            //complete the route and compare
-            ZigZagTour candidate = runIP(g, i, j, k, 101, latePenalty);
-            if(candidate.getCost() < bestCost) {
-                bestCost = candidate.getCost();
-                ans = candidate;
-            }
-        }
-
-        RouteExporter.exportRoute(ans, RouteExporter.RouteFormat.ZHANG, fileName);
-
-        //complete the route and compare
-
-        int i = Integer.parseInt(mInstance.getName().substring(0,1));
-        int j = Integer.parseInt(mInstance.getName().substring(2,3));
-        int k = Integer.parseInt(mInstance.getName().substring(4,5));
-        ZigZagTour candidate = runIP(g, i, j, k, 101, latePenalty);
-
-        //try the empty one as well
-
-        ArrayList<ZigZagTour> ret = new ArrayList<ZigZagTour>();
-        ret.add(ans);
-
-        return ret;
-    }
-
-    /**
-     * Runs a push-first insertion heuristic for the WRPP with zig-zags and time windows.
-     *
-     * @return
-     */
-    @Override
-    protected Collection<? extends Route> solve() {
-
-        return solve2();
-
-        /*int numIterations = 10;
-        int numCandidateSeeds = 10;
-        String fileName;
-
-        //initialize ans.
-        int bestCost = Integer.MAX_VALUE;
-        Collection<Route<ZigZagVertex, ZigZagLink>> Sbest = new ArrayList<Route<ZigZagVertex, ZigZagLink>>();
-
-        for (int iter = 0; iter < numIterations; iter++) {
-
-            //init
-            Collection<Route<ZigZagVertex, ZigZagLink>> S = new ArrayList<Route<ZigZagVertex, ZigZagLink>>();
-            fileName = "/Users/oliverlum/Downloads/20node/" + mInstance.getName() + "_ans_" + iter + ".txt";
-
-            ZigZagGraph g = mInstance.getGraph();
-            int n = g.getVertices().size();
-
-            //calculate least cost paths
-            int[][] dist = new int[n + 1][n + 1];
-            int[][] path = new int[n + 1][n + 1];
-            CommonAlgorithms.fwLeastCostPaths(g, dist, path);
-
-            //zero out the diagonal
-            for (int i = 1; i <= n; i++) {
-                dist[i][i] = 0;
-            }
-
-            //find out how many we have to serve
-            int mReq = 0;
-            HashSet<Integer> req = new HashSet<Integer>();
-            PriorityQueue<UnmatchedPair<Integer, Double>> toServe = new PriorityQueue<UnmatchedPair<Integer, Double>>(1, new Utils.PFIHComparator());
-
-            for (ZigZagLink zzl : g.getEdges()) {
-                if (zzl.isRequired() || zzl.isReverseRequired()) {
-                    mReq++;
-                    req.add(zzl.getId());
-                }
-            }
-
-            //route construction
-            TIntArrayList compactAns = new TIntArrayList();
-            ArrayList<Boolean> compactDir = new ArrayList<Boolean>();
-
-            //pick a seed
-            int firstId = seedRoute(req, dist, numCandidateSeeds);
-
-            toServe.remove(firstId);
-            req.remove(firstId);
-            compactAns.add(firstId);
-            if (g.getEdge(firstId).isRequired())
-                compactDir.add(true);
-            else
-                compactDir.add(false);
-
-            ZigZagLink temp;
-            for (Integer i : req) {
-                temp = g.getEdge(i);
-                toServe.add(new UnmatchedPair<Integer, Double>(temp.getId(), assessPFIHCost(temp, dist)));
-            }
-
-            //while you still need to service edges...
-            while (!toServe.isEmpty()) {
-                ZigZagLink toRoute = g.getEdge(toServe.poll().getFirst());
-                PriorityQueue<Pair<Integer>> moves = cheapestInsertion(compactAns, compactDir, toRoute, dist);
-                if (moves.isEmpty()) {
-                    LOGGER.warn("No feasible moves exist.");
-                    break;
-                } else {
-                    makeMove(moves, compactAns, compactDir, toRoute, dist);
-                }
-            }
-
-            ZigZagTour r = determineZZ(compactAns, compactDir, dist);
-            S.add(r);
-
-            int currCost = r.getCost();
-            System.out.println(r.toString());
-            System.out.println("This candidate route costs: " + currCost);
-
-            //START IMPROVEMENT
-            System.out.println("Improvement phase commencing.");
-            ZigZagTwoInterchange ip = new ZigZagTwoInterchange(mInstance, ImprovementStrategy.Type.SteepestDescent, S);
-            Collection<Route<ZigZagVertex, ZigZagLink>> candidate = ip.improveSolution();
-
-            //export route
-            RouteExporter.exportRoute(candidate.iterator().next(), RouteExporter.RouteFormat.ZHANG, fileName);
-
-
-            int i = Integer.parseInt(mInstance.getName().substring(0,1));
-            int j = Integer.parseInt(mInstance.getName().substring(2,3));
-            int k = Integer.parseInt(mInstance.getName().substring(4,5));
-            //RUN RUI'S CODE
-            ZigZagTour done = runIP(g,i,j,k,iter,latePenalty);
-
-            System.out.println("Improved cost: " + done.getCost());
-
-            S.remove(r);
-            S.add(done);
-
-            if (currCost < bestCost) {
-                Sbest = S;
-                bestCost = done.getCost();
-            }
-        }
-
-        System.out.println("The best route costs: " + bestCost);
-        for(Route r : Sbest)
-            NeatoVisualizer.visualize(r,mInstance.getGraph(),"/Users/oliverlum/Downloads/testViz.txt");
-        return Sbest;
-        */
     }
 
     public static ZigZagTour runIP(ZigZagGraph g, int i, int j, int k, int iter, double latePenalty) {
@@ -345,7 +109,8 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
         //run the python script which calls CPLEX
         try {
 
-            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT_PrefixZigzagOrder.py", Integer.toString(i), Integer.toString(j), Integer.toString(k),Integer.toString(iter));
+            ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPP_PartialOrder.py", Integer.toString(i), Integer.toString(j), Integer.toString(k), Integer.toString(iter));
+            //ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT_BnC_PrefixZigzagOrder.py", Integer.toString(i), Integer.toString(j), Integer.toString(k),Integer.toString(iter));
             Process run = pb.start();
             BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
             String line = "";
@@ -353,7 +118,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
             int exitCode = run.waitFor();
             System.out.println("Exit Code : " + exitCode);
             line = bfr.readLine();
-            System.out.println("First Line: " + line);
+            System.out.println("First Line : " + line);
             while ((line = bfr.readLine()) != null) {
                 System.out.println("Python Output: " + line);
             }
@@ -371,7 +136,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
             String[] temp2 = new String[1];
             String[] temp3 = new String[1];
 
-            File graphFile = new File("MTZ_PartialOrder__DetailRoute.txt");
+            File graphFile = new File("BnC_PartialOrder_DetailRoute.txt");
             BufferedReader br = new BufferedReader(new FileReader(graphFile));
             ZigZagLink tempL;
 
@@ -390,11 +155,11 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
 
             int v1, v2;
             for (int l = 0; l < temp.length; l++) {
-                if(!temp[l].contains("_"))
+                if (!temp[l].contains("_"))
                     continue;
                 temp3 = temp[l].split("_");
-                v1 = Integer.parseInt(temp3[0])+1;
-                v2 = Integer.parseInt(temp3[1])+1;
+                v1 = Integer.parseInt(temp3[0]) + 1;
+                v2 = Integer.parseInt(temp3[1]) + 1;
 
                 List<ZigZagLink> candidates = g.findEdges(v1, v2);
                 if (candidates.size() > 1)
@@ -432,6 +197,346 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
         return zze.unflattenRoute(ansRoute, ansDir, ansZig);
     }
 
+    @Override
+    protected boolean checkGraphRequirements() {
+        // make sure the graph is connected
+        if (mInstance.getGraph() == null)
+            return false;
+        else {
+            UndirectedGraph connectedCheck = new UndirectedGraph(mInstance.getGraph().getVertices().size());
+            try {
+                for (ZigZagLink l : mInstance.getGraph().getEdges())
+                    connectedCheck.addEdge(l.getFirstEndpointId(), l.getSecondEndpointId(), 1);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+            if (!CommonAlgorithms.isConnected(connectedCheck))
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    protected Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> getInstance() {
+        return mInstance;
+    }
+
+    @Override
+    protected Collection<? extends Route> solve() {
+
+        long start = System.currentTimeMillis();
+        int numSeeds = 0;
+        long tempStart, tempEnd; //for timing just the solves
+        double avgIPSolve = 0;
+        //init
+        double bestCost;
+        ZigZagGraph g = mInstance.getGraph();
+        int n = g.getVertices().size();
+        double alpha = .7; //1 - alpha is left over for insertion of other required edges
+        ZigZagTour ans;
+        int timeWindow = Integer.MAX_VALUE; //will hold the most restrictive time window
+        ZigZagExpander zze = new ZigZagExpander(g, latePenalty);
+        int depotId = g.getDepotId();
+        String fileName = "/Users/oliverlum/Downloads/Sols/" + mInstance.getName() + "_ans_101.txt";
+
+        //new stuff
+        HashSet<Integer> solStore = new HashSet<Integer>();
+        HashMap<Double, ZigZagTour> partRoutes = new HashMap<Double, ZigZagTour>(); //key = zigzags / deadhead
+        //ArrayList<ZigZagTour> partRoutes = new ArrayList<ZigZagTour>();
+        double maxZZDeadhead = Double.MAX_VALUE;
+        int keepTop = 5;
+
+        ZigZagGraph gWithServce = g.getDeepCopy();
+        for (ZigZagLink zzl : gWithServce.getEdges()) {
+            zzl.setCost(zzl.getCost() + zzl.getServiceCost());
+            zzl.setmReverseCost(zzl.getReverseCost() + zzl.getReverseServiceCost());
+        }
+
+        //shortest paths
+
+        int[][] dist = new int[n+1][n+1];
+        int[][] path = new int[n+1][n+1];
+        CommonAlgorithms.fwLeastCostPaths(gWithServce, dist, path);
+
+        //zero out dist
+        for(int i = 1; i <= n; i++)
+            dist[i][i] = 0;
+
+        //try the empty one as well
+        int i;
+        int j;
+        int k;
+
+        if (mInstance.getName().substring(2, 3).equals("_")) {
+            i = Integer.parseInt(mInstance.getName().substring(0, 2));
+            j = Integer.parseInt(mInstance.getName().substring(3, 4));
+            k = Integer.parseInt(mInstance.getName().substring(5, 6));
+        } else {
+            i = Integer.parseInt(mInstance.getName().substring(0, 1));
+            j = Integer.parseInt(mInstance.getName().substring(2, 3));
+            k = Integer.parseInt(mInstance.getName().substring(4, 5));
+        }
+
+        ZigZagTour partialRoute;
+        //RouteExporter.exportRoute(partialRoute, RouteExporter.RouteFormat.ZHANG, fileName);
+        //ans = runIP(g, i, j, k, 101, latePenalty);
+        //bestCost = ans.getCost();
+        bestCost = Integer.MAX_VALUE; //runIPNoRoute(g, i, j, k, 101, latePenalty);
+
+        //order the zz optional edges by distance to depot
+        HashSet<Integer> optionalEdges = new HashSet<Integer>();
+        for(ZigZagLink zzl : g.getEdges()) {
+            if(zzl.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL && zzl.getTimeWindow().getSecond() < RouteExporter.ZZ_TIME_WINDOW_THRESHOLD) {
+                optionalEdges.add(zzl.getId());
+                if(timeWindow > zzl.getTimeWindow().getSecond())
+                    timeWindow = zzl.getTimeWindow().getSecond();
+            }
+        }
+
+        PriorityQueue<Pair<Integer>> optionalEdgeQueue = new PriorityQueue<Pair<Integer>>(optionalEdges.size(), new Utils.DijkstrasComparator());
+        for (Integer ii : optionalEdges) {
+            optionalEdgeQueue.add(new Pair<Integer>(ii, Utils.distanceToEdge(dist[depotId], g.getEdge(ii))));
+        }
+
+        //insert them until they reach timeWindow * alpha
+        ZigZagLink toInsert;
+        int toInsertId;
+
+        TIntArrayList compactAns;
+        ArrayList<Boolean> compactDir;
+        ArrayList<Boolean> compactZZ;
+        int numPartialRoutes = 0;
+
+        while(!optionalEdgeQueue.isEmpty()) {
+
+            //PHASE I: Insert TW edges
+            toInsertId = optionalEdgeQueue.poll().getFirst();
+            toInsert = g.getEdge(toInsertId);
+
+            if (Utils.distanceToEdge(dist[depotId], toInsert) + toInsert.getCost() + toInsert.getZigzagCost() > alpha * timeWindow)
+                continue;
+
+            compactAns = new TIntArrayList();
+            compactDir = new ArrayList<Boolean>();
+            compactZZ = new ArrayList<Boolean>();
+
+            compactAns.add(toInsertId);
+            if (Utils.distanceToEdge(dist[depotId], toInsert) == dist[depotId][toInsert.getFirstEndpointId()])
+                compactDir.add(true);
+            else
+                compactDir.add(false);
+            compactZZ.add(true);
+
+            //insert it, and check the cost
+            double threshold = alpha * timeWindow;
+
+            //gonna be slow, but prototype
+            int maxIndex = 0;
+            for (Integer ii : optionalEdges) {
+                //don't double insert
+                if (compactAns.contains(ii))
+                    continue;
+
+                PriorityQueue<Pair<Integer>> nextMoves = cheapestInsertion2(zze.unflattenRoute(compactAns, compactDir, compactZZ), g.getEdge(ii), true, dist);
+                if (nextMoves.isEmpty()) {
+                    LOGGER.warn("No feasible moves exist.");
+                    break;
+                }
+                //change this check to be cost of partial route, not unflattened route
+                else if (nextMoves.peek().getFirst() <= maxIndex && nextMoves.peek().getSecond() + zze.unflattenRoute(compactAns, compactDir, compactZZ).getCost() < threshold) {
+                    makeMove(nextMoves, compactAns, compactDir, g.getEdge(ii), dist);
+                    compactZZ.add(true);
+                }
+
+            }
+
+            partialRoute = zze.unflattenRoute(compactAns, compactDir, compactZZ);
+
+            //go through and mark guys that can be serviced along the way
+            ArrayList<Boolean> dir = partialRoute.getTraversalDirection();
+            ZigZagLink zzl;
+            int compactIndex = 0;
+            for (int l = 0; l < partialRoute.getPath().size(); l++) {
+                zzl = partialRoute.getPath().get(l);
+                if (zzl.getId() == compactAns.get(compactIndex)) {
+                    compactIndex++;
+                    if (compactIndex == compactAns.size())
+                        break;
+                    continue;
+                }
+                if (zzl.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL || zzl.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY)
+                    continue;
+                if ((zzl.isRequired() && dir.get(l)) || (zzl.isReverseRequired() && !dir.get(l))) {
+                    partialRoute.changeService(l);
+                }
+            }
+
+            partialRoute = zze.unflattenRoute(partialRoute.getCompactRepresentation(), partialRoute.getCompactTraversalDirection(), partialRoute.getCompactZZList());
+
+            if (solStore.contains(partialRoute.toString().hashCode()))
+                continue;
+
+            //RouteExporter.exportRoute(partialRoute, RouteExporter.RouteFormat.ZHANG, fileName);
+
+            numPartialRoutes++;
+            avgPartialSize += partialRoute.getPath().size();
+            avgPartialLength += partialRoute.getCost();
+            int numZigs = 0;
+            double sumZigs = 0;
+            double zzSavings = 0;
+            ZigZagLink temp;
+            double serviceLeft = 0;
+            int lastServiceIndex = 0;
+            for (int l = 0; l < partialRoute.getCompactRepresentation().size(); l++) {
+                if (partialRoute.getCompactZZList().get(l)) {
+                    temp = g.getEdge(partialRoute.getCompactRepresentation().get(l));
+                    numZigs++;
+                    sumZigs += temp.getZigzagCost();
+                    zzSavings += temp.getZigzagCost() - temp.getServiceCost() - temp.getReverseServiceCost();
+                }
+            }
+            for (int l = 0; l < partialRoute.getServicingList().size(); l++) {
+                if (partialRoute.getServicingList().get(l))
+                    lastServiceIndex = l;
+            }
+            for (int l = 0; l <= lastServiceIndex; l++) {
+                if (!partialRoute.getServicingList().get(l)) {
+                    temp = partialRoute.getPath().get(l);
+                    if (temp.isRequired() || temp.isReverseRequired())
+                        serviceLeft += temp.getServiceCost() + temp.getReverseServiceCost();
+                }
+            }
+            avgServiceLeft += serviceLeft;
+            avgPartialNumZigzags += numZigs;
+            avgSumLengthZigzags += (int) sumZigs;
+            avgPercentService += partialRoute.getServiceComponent() / partialRoute.getCost();
+            avgZZSavings += zzSavings;
+            if (sumZigs > greatestSumLengthZigzags) {
+                greatestSumLengthZigzags = (int) sumZigs;
+            }
+
+
+            //only add it if it's in the highest topNum in terms of zz/deadhead
+            double zzDeadhead = (double) sumZigs / (partialRoute.getCost() - sumZigs);
+            partRoutes.put(zzDeadhead, partialRoute);
+            /*
+            if(partRoutes.size() < keepTop) {
+                if(zzDeadhead < maxZZDeadhead)
+                    maxZZDeadhead = zzDeadhead;
+                solStore.add(partialRoute.toString().hashCode());
+                partRoutes.put(zzDeadhead, partialRoute);
+            } else if(zzDeadhead < maxZZDeadhead) {
+                partRoutes.remove(maxZZDeadhead);
+                maxZZDeadhead = Collections.max(partRoutes.keySet());
+                partRoutes.put(zzDeadhead,partialRoute);
+            }*/
+
+        }
+
+        int numRuns = partRoutes.size();
+        if (numRuns == 0) {
+            avgPartialLength = 0;
+            avgPartialNumZigzags = 0;
+            avgPartialSize = 0;
+            avgSumLengthZigzags = 0;
+            avgPercentZZ = 0;
+            avgZZSavings = 0;
+            avgServiceLeft = 0;
+            avgZZDeadhead = 0;
+        } else {
+            avgPartialLength = avgPartialLength / numPartialRoutes;
+            avgPartialNumZigzags = avgPartialNumZigzags / numPartialRoutes;
+            avgPartialSize = avgPartialSize / numPartialRoutes;
+            avgSumLengthZigzags = avgSumLengthZigzags / numPartialRoutes;
+            avgPercentZZ = (double) avgSumLengthZigzags / (double) avgPartialLength / numPartialRoutes;
+            avgPercentService = avgPercentService / numPartialRoutes;
+            avgZZSavings = avgZZSavings / numPartialRoutes;
+            avgServiceLeft = avgServiceLeft / numPartialRoutes;
+            avgZZDeadhead = (double) avgSumLengthZigzags / (avgPartialLength - avgSumLengthZigzags) / numPartialRoutes;
+        }
+
+        for (ZigZagTour partRoute : partRoutes.values()) {
+
+            //filter on length
+            //if(partRoute.getCost() > 1.05 * avgPartialLength)
+            //continue;
+
+            RouteExporter.exportRoute(partRoute, RouteExporter.RouteFormat.ZHANG, fileName);
+
+            //complete the route and compare
+            //ZigZagTour candidate = runIP(g, i, j, k, 101, latePenalty);
+            tempStart = System.currentTimeMillis();
+            double candidateCost = runIPNoRoute(g, i, j, k, 101, latePenalty);
+            tempEnd = System.currentTimeMillis();
+            avgIPSolve += (tempEnd - tempStart) / 1000.0;
+            numSeeds++;
+            if (candidateCost < bestCost) {
+                bestCost = candidateCost;
+                //ans = candidate;
+
+                //some record keeping to try and figure out a strategy to keep them
+                bestPartialSize = partRoute.getPath().size();
+                bestPartialLength = partRoute.getCost();
+                int numZigs = 0;
+                double sumZigs = 0;
+                double zzSavings = 0;
+                int lastServiceIndex = 0;
+                double serviceLeft = 0;
+                ZigZagLink temp;
+                for (int l = 0; l < partRoute.getCompactRepresentation().size(); l++) {
+                    if (partRoute.getCompactZZList().get(l)) {
+                        temp = g.getEdge(partRoute.getCompactRepresentation().get(l));
+                        numZigs++;
+                        sumZigs += temp.getZigzagCost();
+                        zzSavings += temp.getZigzagCost() - temp.getServiceCost() - temp.getReverseServiceCost();
+                    }
+                }
+                for (int l = 0; l < partRoute.getServicingList().size(); l++) {
+                    if (partRoute.getServicingList().get(l))
+                        lastServiceIndex = l;
+                }
+                for (int l = 0; l <= lastServiceIndex; l++) {
+                    if (!partRoute.getServicingList().get(l)) {
+                        temp = partRoute.getPath().get(l);
+                        if (temp.isRequired() || temp.isReverseRequired())
+                            serviceLeft += temp.getServiceCost() + temp.getReverseServiceCost();
+                    }
+                }
+                bestZZSavings = zzSavings;
+                bestPartialNumZigzags = numZigs;
+                bestSumLengthZigzags = (int) sumZigs;
+                bestPercentZZ = (double) bestSumLengthZigzags / (double) bestPartialLength;
+                bestPercentService = partRoute.getServiceComponent() / partRoute.getCost();
+                bestServiceLeft = serviceLeft;
+                bestZZDeadhead = (double) bestSumLengthZigzags / (bestPartialLength - bestSumLengthZigzags);
+            }
+        }
+
+        //RouteExporter.exportRoute(ans, RouteExporter.RouteFormat.ZHANG, fileName);
+        long end = System.currentTimeMillis();
+        try {
+            FileWriter fw = new FileWriter("RevisedZZHeuristicScalingResults_SquareNoRestr.txt", true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter out = new PrintWriter(bw);
+            double avgIPSolveTime = (avgIPSolve / (double) numSeeds);
+            out.println(bestCost + "," + (end - start) + "," + numSeeds + "," + avgIPSolveTime + "," +
+                    avgPartialSize + "," + bestPartialSize + "," + avgPartialLength + "," + bestPartialLength + ","
+                    + avgZZSavings + "," + bestZZSavings + "," + avgPartialNumZigzags + "," + bestPartialNumZigzags +
+                    "," + avgSumLengthZigzags + "," + bestSumLengthZigzags + "," + avgPercentZZ + "," + bestPercentZZ +
+                    "," + avgPercentService + "," + bestPercentService + "," + avgServiceLeft + "," + bestServiceLeft +
+                    "," + avgZZDeadhead + "," + bestZZDeadhead + ";");
+            out.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+
+        ArrayList<ZigZagTour> ret = new ArrayList<ZigZagTour>();
+        //ret.add(ans);
+
+        return ret;
+    }
 
     public ZigZagTour determineZZ(TIntArrayList compactRoute, ArrayList<Boolean> compactDir, int[][] dist) {
         /*
@@ -1314,5 +1419,41 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
 
     public void setLatePenalty(double latePenalty) {
         this.latePenalty = latePenalty;
+    }
+
+    public int getBestPartialSize() {
+        return bestPartialSize;
+    }
+
+    public int getBestPartialLength() {
+        return bestPartialLength;
+    }
+
+    public int getBestPartialNumZigzags() {
+        return bestPartialNumZigzags;
+    }
+
+    public int getBestSumLengthZigzags() {
+        return bestSumLengthZigzags;
+    }
+
+    public int getAvgPartialSize() {
+        return avgPartialSize;
+    }
+
+    public int getAvgPartialLength() {
+        return avgPartialLength;
+    }
+
+    public int getAvgPartialNumZigzags() {
+        return avgPartialNumZigzags;
+    }
+
+    public int getAvgSumLengthZigzags() {
+        return avgSumLengthZigzags;
+    }
+
+    public int getGreatestSumLengthZigzags() {
+        return greatestSumLengthZigzags;
     }
 }

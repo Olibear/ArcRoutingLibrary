@@ -1,7 +1,5 @@
 package oarlib.route.util;
 
-import gnu.trove.TIntHashSet;
-import oarlib.core.Link;
 import oarlib.core.Route;
 import oarlib.link.impl.ZigZagLink;
 import oarlib.route.impl.ZigZagTour;
@@ -16,12 +14,8 @@ import java.util.ArrayList;
  */
 public class RouteExporter {
 
-    private static Logger LOGGER = Logger.getLogger(RouteExporter.class);
     public static final double ZZ_TIME_WINDOW_THRESHOLD = 1e5; //if a zigzag time window is above this threshold, it will be treated as though it doesn't have a time window by the heuristic
-
-    public enum RouteFormat{
-        ZHANG, //Rui's requested output format
-    }
+    private static Logger LOGGER = Logger.getLogger(RouteExporter.class);
 
     /**
      * Catch all for exporting routes.  To add another format, just add it to the type
@@ -76,7 +70,7 @@ public class RouteExporter {
 
             //no time-restricted zigzags exercised
             if(noTWZ) {
-                pw.println("(No twz)");
+                new File(path).createNewFile();
                 pw.close();
                 return;
             }
@@ -102,5 +96,9 @@ public class RouteExporter {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public enum RouteFormat {
+        ZHANG, //Rui's requested output format
     }
 }

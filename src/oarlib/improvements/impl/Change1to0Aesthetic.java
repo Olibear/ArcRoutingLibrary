@@ -32,7 +32,6 @@ import oarlib.improvements.ImprovementStrategy;
 import oarlib.improvements.InterRouteImprovementProcedure;
 import oarlib.improvements.util.CompactMove;
 import oarlib.improvements.util.Mover;
-import oarlib.improvements.util.Utils;
 import oarlib.link.impl.WindyEdge;
 import oarlib.metrics.MaxMetric;
 import oarlib.metrics.RouteOverlapMetric;
@@ -41,6 +40,7 @@ import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Created by oliverlum on 11/20/14.
@@ -55,6 +55,27 @@ public class Change1to0Aesthetic extends InterRouteImprovementProcedure<WindyVer
         super(problem, strat, initialSol);
     }
 
+    private static boolean isBetter(Collection<Route<WindyVertex, WindyEdge>> col1, Collection<Route<WindyVertex, WindyEdge>> col2) {
+        ArrayList<Integer> costs1 = new ArrayList<Integer>();
+        ArrayList<Integer> costs2 = new ArrayList<Integer>();
+
+        for (Route r : col1)
+            costs1.add(r.getCost());
+        for (Route r : col2)
+            costs2.add(r.getCost());
+
+        Collections.sort(costs1);
+        Collections.sort(costs2);
+
+        int n = costs1.size();
+        for (int i = 1; i <= n; i++) {
+            if (costs1.get(n - i).equals(costs2.get(n - i)))
+                continue;
+            return costs1.get(n - i) < costs2.get(n - i);
+        }
+        return false;
+    }
+
     @Override
     public ProblemAttributes getProblemAttributes() {
         return new ProblemAttributes(Graph.Type.WINDY, null, ProblemAttributes.NumVehicles.MULTI_VEHICLE, ProblemAttributes.NumDepots.SINGLE_DEPOT, null);
@@ -63,21 +84,34 @@ public class Change1to0Aesthetic extends InterRouteImprovementProcedure<WindyVer
     @Override
     public Collection<Route<WindyVertex, WindyEdge>> improveSolution() {
 
-        //find the longest route
-        Route longestRoute = Utils.findLongestRoute(getInitialSol());
+        Collection<Route<WindyVertex, WindyEdge>> workingSol = getInitialSol();
+        Collection<Route<WindyVertex, WindyEdge>> bestSol = getInitialSol();
 
-        //try to offload each of the links to a cheaper route.
-        return offloadOneEdge(longestRoute);
+        boolean improved = true;
+
+        while (improved) {
+            bestSol = workingSol;
+            improved = false;
+            for (Route<WindyVertex, WindyEdge> r : bestSol) {
+                workingSol = offloadOneEdge(r, bestSol);
+                if (isBetter(workingSol, bestSol)) {
+                    improved = true;
+                    break;
+                }
+            }
+        }
+
+        return bestSol;
     }
 
-    private Collection<Route<WindyVertex, WindyEdge>> offloadOneEdge(Route<WindyVertex, WindyEdge> longestRoute) {
+    private Collection<Route<WindyVertex, WindyEdge>> offloadOneEdge(Route<WindyVertex, WindyEdge> longestRoute, Collection<Route<WindyVertex, WindyEdge>> init) {
 
         //aesthetic init
         MaxMetric mm = new MaxMetric();
         RouteOverlapMetric roi = new RouteOverlapMetric(getGraph());
         double aestheticFactor = mm.evaluate(getInitialSol()) / roi.evaluate(getInitialSol());
 
-        Collection<Route<WindyVertex, WindyEdge>> initialSol = getInitialSol();
+        Collection<Route<WindyVertex, WindyEdge>> initialSol = init;
         int skipId = longestRoute.getGlobalId();
         Mover<WindyVertex, WindyEdge, WindyGraph> mover = new Mover<WindyVertex, WindyEdge, WindyGraph>(getGraph());
 
@@ -93,6 +127,9 @@ public class Change1to0Aesthetic extends InterRouteImprovementProcedure<WindyVer
             //don't try and move to yourself.
             if (r.getGlobalId() == skipId)
                 continue;
+            //don't try to move to a more expensive route.
+            if (r.getCost() > longestRoute.getCost())
+                continue;
 
             //business logic
             int lim = longestRoute.getCompactRepresentation().size();
@@ -100,44 +137,54 @@ public class Change1to0Aesthetic extends InterRouteImprovementProcedure<WindyVer
             CompactMove<WindyVertex, WindyEdge> temp;
             ArrayList<CompactMove<WindyVertex, WindyEdge>> moveList = new ArrayList<CompactMove<WindyVertex, WindyEdge>>();
             double savings;
-
-
+            int moddedMax;
+            int newCost;
+            boolean pd;
 
             for (int i = 0; i < lim; i++) {
                 for (int j = 0; j < lim2; j++) {
+                    for (int k = 0; k < 2; k++) {
 
-                    tempLongest = longestRoute.getDeepCopy();
-                    tempR = r.getDeepCopy();
-                    temp = new CompactMove<WindyVertex, WindyEdge>(tempLongest, tempR, i, j);
-                    moveList.clear();
-                    moveList.add(temp);
+                        pd = k % 2 == 0;
 
-                    TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList);
-                    for (Route r2 : initialSol) {
-                        if (routesToChange.containsKey(r2.getGlobalId())) {
-                            ans.add(routesToChange.get(r2.getGlobalId()));
-                        } else {
-                            ans.add(r2);
+                        tempLongest = longestRoute.getDeepCopy();
+                        tempR = r.getDeepCopy();
+                        temp = new CompactMove<WindyVertex, WindyEdge>(tempLongest, tempR, i, j);
+                        temp.setPrudentDirection(pd);
+                        moveList.clear();
+                        moveList.add(temp);
+
+                        TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList);
+                        moddedMax = Integer.MIN_VALUE;
+                        for (Route r2 : initialSol) {
+                            if (routesToChange.containsKey(r2.getGlobalId())) {
+                                ans.add(routesToChange.get(r2.getGlobalId()));
+                                newCost = routesToChange.get(r2.getGlobalId()).getCost();
+                                if (newCost > moddedMax)
+                                    moddedMax = newCost;
+                            } else {
+                                ans.add(r2);
+                            }
+
                         }
 
-                    }
-
-                    savings = (mm.evaluate(initialSol) - mm.evaluate(ans)) + (aestheticFactor * (roi.evaluate(initialSol) - roi.evaluate(ans)));
-
-                    if (savings < maxSavings) {
-                        maxSavings = savings;
-                        foundImprovement = true;
-                        bestAns = ans;
-                        bestMoveList = moveList;
-                        if (mStrat == ImprovementStrategy.Type.FirstImprovement) {
-                            for(Route r3 : ans)
-                                if(r3.getCompactRepresentation().size() == 0)
-                                    System.out.println("DEBUG");
-                            return ans;
+                        //savings = (mm.evaluate(initialSol) - mm.evaluate(ans)) + (aestheticFactor * (roi.evaluate(initialSol) - roi.evaluate(ans)));
+                        savings = moddedMax - longestRoute.getCost();
+                        if (savings < maxSavings) {
+                            maxSavings = savings;
+                            foundImprovement = true;
+                            bestAns = ans;
+                            bestMoveList = moveList;
+                            if (mStrat == ImprovementStrategy.Type.FirstImprovement) {
+                                for (Route r3 : ans)
+                                    if (r3.getCompactRepresentation().size() == 0)
+                                        System.out.println("DEBUG");
+                                return ans;
+                            }
                         }
-                    }
 
-                    ans.clear();
+                        ans.clear();
+                    }
 
                 }
             }

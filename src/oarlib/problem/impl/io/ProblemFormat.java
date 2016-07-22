@@ -38,6 +38,7 @@ public class ProblemFormat {
         METIS, // format of the input / output of the METIS graph partitioning library
         MeanderingPostman, // format used by researcher Rui Zhang to store the WRPP with ZigZag option, AKA the Meandering Postman Problem
         OARLib,
-        Zhang_Matrix
+        Zhang_Matrix_Windy,
+        Zhang_Matrix_Zigzag
     }
 }

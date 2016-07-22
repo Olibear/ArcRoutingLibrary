@@ -30,10 +30,13 @@ import oarlib.core.Problem;
 import oarlib.core.Vertex;
 import oarlib.exceptions.UnsupportedFormatException;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.graph.impl.ZigZagGraph;
 import oarlib.link.impl.AsymmetricLink;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
+import oarlib.link.impl.ZigZagLink;
 import oarlib.problem.impl.ProblemAttributes;
+import oarlib.problem.impl.rpp.WindyRPPZZTW;
 import oarlib.vertex.impl.UndirectedVertex;
 import org.apache.log4j.Logger;
 
@@ -80,8 +83,12 @@ public class ProblemWriter {
                 break;
             case METIS:
                 return writeMETISInstance(p, filename);
-            case Zhang_Matrix:
-                return writeZhangMatrixInstance(p, filename);
+            case Zhang_Matrix_Windy:
+                return writeWindyZhangMatrixInstance(p, filename);
+            case Zhang_Matrix_Zigzag:
+                if (!(p instanceof WindyRPPZZTW))
+                    throw new IllegalArgumentException("Currently, this type of not supported for this output format.");
+                return writeZigzagZhangMatrixInstance((WindyRPPZZTW) p, filename);
             default:
                 break;
         }
@@ -91,7 +98,51 @@ public class ProblemWriter {
         throw new UnsupportedFormatException();
     }
 
-    private <V extends Vertex, E extends Link<V>, G extends Graph<V,E>> boolean writeZhangMatrixInstance(Problem<V,E,G> p, String filename) {
+    private int[][] swapDepot(int[][] realMatrix, int depotId) {
+
+        //init
+        int n = realMatrix.length;
+        int[][] ans = new int[n][];
+        int[] depotRow = new int[n];
+        int[] depotColumn = new int[n];
+        int[] firstRow = new int[n];
+        int[] firstColumn = new int[n];
+
+        //copy it fast
+        for (int i = 0; i < realMatrix.length; i++) {
+            int[] aMatrix = realMatrix[i];
+            int aLength = aMatrix.length;
+            ans[i] = new int[aLength];
+            System.arraycopy(aMatrix, 0, ans[i], 0, aLength);
+        }
+
+        //store 'em
+        for (int i = 1; i < n; i++) {
+            depotRow[i] = realMatrix[depotId][i];
+            depotColumn[i] = realMatrix[i][depotId];
+            firstRow[i] = realMatrix[1][i];
+            firstColumn[i] = realMatrix[i][1];
+        }
+
+        //swap 'em
+        for (int i = 1; i < n; i++) {
+            ans[1][i] = depotRow[i];
+            ans[i][1] = depotColumn[i];
+            ans[depotId][i] = firstRow[i];
+            ans[i][depotId] = firstColumn[i];
+        }
+
+        //clean up
+        ans[1][1] = 0;
+        ans[1][depotId] = depotRow[1];
+        ans[depotId][1] = firstRow[depotId];
+        ans[depotId][depotId] = 0;
+
+        return ans;
+
+    }
+
+    private <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> boolean writeWindyZhangMatrixInstance(Problem<V, E, G> p, String filename) {
         try {
 
             //init
@@ -100,7 +151,7 @@ public class ProblemWriter {
             if(g.getType() != Graph.Type.WINDY)
                 throw new IllegalArgumentException("Currently, this type of not supported for this output format.");
             int n = g.getVertices().size();
-            int[][] matrix = new int[n][n]; //indices will be off by 1
+            int[][] matrix = new int[n + 1][n + 1]; //indices will be off by 1
 
             //write the deadhead matrix
             for(E e : g.getEdges()) {
@@ -113,47 +164,248 @@ public class ProblemWriter {
                 }
             }
 
-            for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
-                    pw.print(matrix[i][j] + " ");
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
                 }
                 pw.println();
             }
 
-
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
             //write the serviceCost matrix
             for(E e : g.getEdges()) {
-                matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = e.getServiceCost();
+                if (e.isRequired()) {
+                    matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 1;//e.getServiceCost();
+                    matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1;
+                }
+                /*
                 if(!e.isDirected()) {
                     if(e.isWindy())
                         matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = ((AsymmetricLink)e).getReverseServiceCost();
                     else
                         matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getServiceCost();
-                }
+                }*/
             }
 
-            for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
-                    pw.print(matrix[i][j] + " ");
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
                 }
                 pw.println();
             }
 
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
+            //write the meander time matrix
+            for (E e : g.getEdges()) {
+                if (e.isRequired()) {
+                    matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 1; //should probably handle general case later
+                    matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1; //should probably handle general case later
+                }
+                /*
+                if(!e.isDirected()) {
+                    if(e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1;
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1;
+                }*/
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
+            //write the finish time matrix
+            for (E e : g.getEdges()) {
+                matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 1000000;
+                if (!e.isDirected()) {
+                    if (e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1000000;
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1000000;
+                }
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
             //write the type matrix
-            //TODO: Once Rui gets back to me
-            /*for(E e : g.getEdges()) {
-                matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = e.getServiceCost();
+            for (E e : g.getEdges()) {
+                if (e.isRequired()) {
+                    matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 3;
+                    matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 3;
+                }
+                /*
+                if(!e.isDirected()) {
+                    if(e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 3;
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 3;
+                }*/
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+
+            pw.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    private boolean writeZigzagZhangMatrixInstance(WindyRPPZZTW p, String filename) {
+        try {
+
+            //init
+            PrintWriter pw = new PrintWriter(new File(filename));
+            ZigZagGraph g = p.getGraph();
+
+            int n = g.getVertices().size();
+            int[][] matrix = new int[n + 1][n + 1]; //indices will be off by 1
+
+            //write the deadhead matrix
+            for (ZigZagLink e : g.getEdges()) {
+                matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = e.getCost();
+                if (!e.isDirected()) {
+                    if (e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getReverseCost();
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getCost();
+                }
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
+            //write the serviceCost matrix
+            for (ZigZagLink e : g.getEdges()) {
+                if (e.isRequired() || e.isReverseRequired()) {
+                    matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = e.getServiceCost();
+                    matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getReverseServiceCost();
+                }
+                /*
                 if(!e.isDirected()) {
                     if(e.isWindy())
                         matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = ((AsymmetricLink)e).getReverseServiceCost();
                     else
                         matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getServiceCost();
-                }
-            }*/
+                }*/
+            }
 
-            for(int i = 0; i < n; i++) {
-                for(int j = 0; j < n; j++) {
-                    pw.print(matrix[i][j] + " ");
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
+            //write the meander time matrix
+            for (ZigZagLink e : g.getEdges()) {
+                if (e.isRequired() || e.isReverseRequired()) {
+                    matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = (int) e.getZigzagCost();
+                    matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = (int) e.getZigzagCost();
+                }
+                /*
+                if(!e.isDirected()) {
+                    if(e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1;
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1;
+                }*/
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
+            //write the finish time matrix
+            for (ZigZagLink e : g.getEdges()) {
+                matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = e.getTimeWindow().getSecond();
+                if (!e.isDirected()) {
+                    if (e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getTimeWindow().getSecond();
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getTimeWindow().getSecond();
+                }
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
+            //write the type matrix
+            for (ZigZagLink e : g.getEdges()) {
+                if (e.isRequired() || e.isReverseRequired()) {
+                    if (e.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL) {
+                        matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 3;
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 3;
+                    } else {
+                        matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 2;
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 2;
+                    }
+                }
+                /*
+                if(!e.isDirected()) {
+                    if(e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 3;
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 3;
+                }*/
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
                 }
                 pw.println();
             }
@@ -231,7 +483,7 @@ public class ProblemWriter {
         try {
             G g = p.getGraph();
             Vertex first, second;
-            UndirectedGraph g2 = new UndirectedGraph(g.getVertices().size());
+            UndirectedGraph g2 = new UndirectedGraph(g.getVidCounter() - 1);
             Collection<V> gVertices = g.getVertices();
             TIntObjectHashMap<UndirectedVertex> g2Vertices = g2.getInternalVertexMap();
 
@@ -239,8 +491,10 @@ public class ProblemWriter {
                 for (E l : g.getEdges()) {
                     first = g2Vertices.get(l.getEndpoints().getFirst().getId());
                     second = g2Vertices.get(l.getEndpoints().getSecond().getId());
+                    if (first == null)
+                        System.out.println("DEBUG");
                     if (!first.getNeighbors().containsKey(second))
-                        g2.addEdge(first.getId(), second.getId(), 1);
+                        g2.addEdge(first.getId(), second.getId(), l.getCost());
                 }
                 for (V v : gVertices) {
                     g2Vertices.get(v.getId()).setCost(v.getCost());

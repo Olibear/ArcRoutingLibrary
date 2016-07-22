@@ -29,6 +29,19 @@ package oarlib.graph.graphgen.Util;
  */
 public class OSM_BoundingBoxes {
 
+    public static final BoundingBox[] STEFAN_INSTANCES = new BoundingBox[]{
+            //CP
+            new BoundingBox(-76.952876, 38.983533, -76.934680, 38.998043),
+            //JHU
+            new BoundingBox(-76.630753, 39.322049, -76.619724, 38.332473),
+            //Chi
+            new BoundingBox(-87.643286, 41.877017, -87.618975, 41.897473),
+            //Sea
+            new BoundingBox(-122.316545, 47.597885, -122.279837, 47.638979),
+            //Bei
+            new BoundingBox(116.356952, 39.924082, 116.365685, 39.931980),
+    };
+
     public static final BoundingBox[] CITY_INSTANCES = new BoundingBox[]{
             //NYC
             //new BoundingBox(-73.978468, 40.787057, -73.966280, 40.792076, "NYC"),
@@ -58,11 +71,11 @@ public class OSM_BoundingBoxes {
             //NYC
             //new BoundingBox(-73.967990, 40.792020, -73.966280, 40.792076, "NYC"),
             //SF
-            new BoundingBox(-122.404000, 37.787041, -122.402816, 37.791249, "San Francisco"),
+            //new BoundingBox(-122.404000, 37.787041, -122.402816, 37.791249, "San Francisco"),
             //DC
             //new BoundingBox(-77.025293, 38.933782, -77.024693, 38.936974, "Washington D.C."),
             //Paris
-            new BoundingBox(2.298695, 48.876812, 2.303707, 48.878453, "Paris, France"),
+            //new BoundingBox(2.298695, 48.876812, 2.303707, 48.878453, "Paris, France"),
             //London
             //new BoundingBox(-.127157, 51.510221, -.126986, 51.518527, "London, UK"),
             //Istanbul

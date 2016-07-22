@@ -100,7 +100,7 @@ public class EdgeInducedRequirementTransform<S extends Graph<?, ?>> implements G
 
             //to make sure the depot gets included
             int depotId = blankGraph.getDepotId();
-            blankGraph.addEdge(depotId, depotId, 2, true);
+            //blankGraph.addEdge(depotId, depotId, 2, true);
 
             return blankGraph;
 

@@ -169,7 +169,7 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
     @Override
     public Arc constructEdge(int i, int j, String desc, int cost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0) {
+        if (!getInternalVertexMap().containsKey(i) || !getInternalVertexMap().containsKey(j) || i < 0 || j < 0) {
             LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
         }

@@ -139,21 +139,21 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 
     @Override
     public void addEdge(int i, int j, int cost) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+        if (!getInternalVertexMap().containsKey(i) || !getInternalVertexMap().containsKey(j) || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         this.addEdge(this.constructEdge(i, j, "", cost));
     }
 
     @Override
     public void addEdge(int i, int j, int cost, boolean isReq) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+        if (!getInternalVertexMap().containsKey(i) || !getInternalVertexMap().containsKey(j) || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         this.addEdge(i, j, "", cost, isReq);
     }
 
     @Override
     public void addEdge(int i, int j, String desc, int cost) throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+        if (!getInternalVertexMap().containsKey(i) || !getInternalVertexMap().containsKey(j) || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         this.addEdge(this.constructEdge(i, j, desc, cost));
     }
@@ -161,7 +161,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     @Override
     public void addEdge(int i, int j, String desc, int cost, boolean isReq)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size() || i < 0 || j < 0)
+        if (!getInternalVertexMap().containsKey(i) || !getInternalVertexMap().containsKey(j) || i < 0 || j < 0)
             throw new InvalidEndpointsException();
         E temp = this.constructEdge(i, j, desc, cost);
         temp.setRequired(isReq);

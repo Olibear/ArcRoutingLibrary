@@ -89,7 +89,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
 
     public WindyEdge constructEdge(int i, int j, String desc, int cost, int reverseCost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size()) {
+        if (!getInternalVertexMap().containsKey(i) || !getInternalVertexMap().containsKey(j) || i < 0 || j < 0) {
             LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
         }
@@ -99,7 +99,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
 
     public WindyEdge constructEdge(int i, int j, String desc, int cost, int reverseCost, boolean isRequired)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size()) {
+        if (!getInternalVertexMap().containsKey(i) || !getInternalVertexMap().containsKey(j) || i < 0 || j < 0) {
             LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
         }
@@ -210,7 +210,7 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
     @Override
     public WindyEdge constructEdge(int i, int j, String desc, int cost)
             throws InvalidEndpointsException {
-        if (i > this.getVertices().size() || j > this.getVertices().size()) {
+        if (!getInternalVertexMap().containsKey(i) || !getInternalVertexMap().containsKey(j) || i < 0 || j < 0) {
             LOGGER.error("The endpoint indices passed in do not seem to fall within the valid range of this graph.");
             throw new InvalidEndpointsException();
         }

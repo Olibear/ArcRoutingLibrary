@@ -208,6 +208,9 @@ public class GraphDisplay {
         boolean useAutoLayout = true;
         int numPartitions = 0;
 
+        //ProjectController pc = Lookup.getDefault().lookup(ProjectController.class);
+        //pc.newProject();
+
         //if (withPartitions && edgePartition.keySet().size() != mGraph.getEdges().size())
         //throw new IllegalArgumentException("The specified partition does not seem to have the appropriate number of entries.");
 
@@ -395,6 +398,7 @@ public class GraphDisplay {
         mPreviewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
 
         try {
+            //ExportController mExportController = Lookup.getDefault().lookup(ExportController.class);
             mExportController.exportFile(new File("/Users/oliverlum/Downloads/Plots/" + mInstanceName + "autolayout.pdf"));
         } catch (IOException ex) {
             ex.printStackTrace();
