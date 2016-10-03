@@ -42,7 +42,7 @@ public class ZigzagRectangularGraphGenerator extends RectangularGraphGenerator<Z
         return generate(n, maxCost, maxCost * 10, reqDensity, positiveCosts);
     }
 
-    protected ZigZagGraph generate(int n, int maxCost, int timeWindow, double reqDensity, boolean positiveCosts) {
+    public ZigZagGraph generate(int n, int maxCost, int timeWindow, double reqDensity, boolean positiveCosts) {
 
         //trivial case
         if (n == 1)

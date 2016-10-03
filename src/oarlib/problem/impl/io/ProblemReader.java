@@ -290,19 +290,19 @@ public class ProblemReader {
                 line = br.readLine();
 
             //TODO: use this info to return a problem
-            br.readLine(); //should have problem type
-            br.readLine(); //should have fleet size
-            br.readLine(); //should have depot type
+            //br.readLine(); //should have problem type
+            //br.readLine(); //should have fleet size
+            //br.readLine(); //should have depot type
             line2 = br.readLine(); //should have depot ID
 
-            int depotId = Integer.parseInt(line2.split(":")[1]);
+            int depotId = Integer.parseInt(line2.split(":")[1].trim());
             line2 = br.readLine(); //should have n
 
-            int n = Integer.parseInt(line2.split(":")[1]);
+            int n = Integer.parseInt(line2.split(":")[1].trim());
 
             line2 = br.readLine(); //should have m
 
-            int m = Integer.parseInt(line2.split(":")[1]);
+            int m = Integer.parseInt(line2.split(":")[1].trim());
 
             //graph type
             if (line.contains("UNDIRECTED")) {
@@ -317,7 +317,7 @@ public class ProblemReader {
                 for (int i = 1; i <= m; i++) {
                     line = br.readLine();
                     temp = line.split(",");
-                    ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Boolean.parseBoolean(temp[3]));
+                    ans.addEdge(Integer.parseInt(temp[0].trim()), Integer.parseInt(temp[1].trim()), Integer.parseInt(temp[2].trim()), Boolean.parseBoolean(temp[3].trim()));
                 }
                 ans.setDepotId(depotId);
                 return ans;
@@ -333,7 +333,7 @@ public class ProblemReader {
                 for (int i = 1; i <= m; i++) {
                     line = br.readLine();
                     temp = line.split(",");
-                    ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Boolean.parseBoolean(temp[3]));
+                    ans.addEdge(Integer.parseInt(temp[0].trim()), Integer.parseInt(temp[1].trim()), Integer.parseInt(temp[2].trim()), Boolean.parseBoolean(temp[3].trim()));
                 }
                 ans.setDepotId(depotId);
                 return ans;
@@ -349,7 +349,7 @@ public class ProblemReader {
                 for (int i = 1; i <= m; i++) {
                     line = br.readLine();
                     temp = line.split(",");
-                    ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Boolean.parseBoolean(temp[3]), Boolean.parseBoolean(temp[4]));
+                    ans.addEdge(Integer.parseInt(temp[0].trim()), Integer.parseInt(temp[1].trim()), Integer.parseInt(temp[2].trim()), Boolean.parseBoolean(temp[3].trim()), Boolean.parseBoolean(temp[4].trim()));
                 }
                 ans.setDepotId(depotId);
                 return ans;
@@ -363,7 +363,7 @@ public class ProblemReader {
                 for (int i = 1; i <= m; i++) {
                     line = br.readLine();
                     temp = line.split(",");
-                    ans.addEdge(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]), Integer.parseInt(temp[2]), Integer.parseInt(temp[3]), Boolean.parseBoolean(temp[4]));
+                    ans.addEdge(Integer.parseInt(temp[0].trim()), Integer.parseInt(temp[1].trim()), Integer.parseInt(temp[2].trim()), Integer.parseInt(temp[3].trim()), Boolean.parseBoolean(temp[4].trim()));
                 }
                 ans.setDepotId(depotId);
 
@@ -374,7 +374,7 @@ public class ProblemReader {
                 for (int i = 1; i <= n; i++) {
                     line = br.readLine();
                     temp = line.split(",");
-                    ans.getVertex(i).setCoordinates(Double.parseDouble(temp[0]), Double.parseDouble(temp[1]));
+                    ans.getVertex(i).setCoordinates(Double.parseDouble(temp[0].trim()), Double.parseDouble(temp[1].trim()));
                 }
 
                 return ans;
@@ -662,8 +662,12 @@ public class ProblemReader {
                         throw new FormatMismatchException();
                     }
                 } else if (line.contains("COMENTARIO")) {
-                    temp = line.split("\\s+|:");
-                    depotId = Integer.parseInt(temp[temp.length - 2]);
+                    if(line.contains("depot")) {
+                        temp = line.split("\\s+|:");
+                        depotId = Integer.parseInt(temp[temp.length - 2]);
+                    } else {
+                        depotId = 1;
+                    }
                 } else if (line.contains("VERTICES")) {
                     temp = line.split("\\s+|:");
                     n = Integer.parseInt(temp[temp.length - 1]);
@@ -739,6 +743,8 @@ public class ProblemReader {
                 MixedVertex tempV;
                 TIntObjectHashMap<MixedVertex> ansVertices = ans.getInternalVertexMap();
                 while ((line = br.readLine()) != null) {
+                    if (line.contains("="))
+                        break;
                     tempV = ansVertices.get(i);
                     temp = line.split("\\s+|:|\\)|,|\\(");
                     tempV.setCoordinates(Integer.parseInt(temp[2]), Integer.parseInt(temp[3]));

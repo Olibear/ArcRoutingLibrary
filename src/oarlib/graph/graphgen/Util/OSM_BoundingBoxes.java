@@ -71,11 +71,11 @@ public class OSM_BoundingBoxes {
             //NYC
             //new BoundingBox(-73.967990, 40.792020, -73.966280, 40.792076, "NYC"),
             //SF
-            //new BoundingBox(-122.404000, 37.787041, -122.402816, 37.791249, "San Francisco"),
+            new BoundingBox(-122.404000, 37.787041, -122.402816, 37.791249, "San Francisco"),
             //DC
             //new BoundingBox(-77.025293, 38.933782, -77.024693, 38.936974, "Washington D.C."),
             //Paris
-            //new BoundingBox(2.298695, 48.876812, 2.303707, 48.878453, "Paris, France"),
+            new BoundingBox(2.298695, 48.876812, 2.303707, 48.878453, "Paris, France"),
             //London
             //new BoundingBox(-.127157, 51.510221, -.126986, 51.518527, "London, UK"),
             //Istanbul

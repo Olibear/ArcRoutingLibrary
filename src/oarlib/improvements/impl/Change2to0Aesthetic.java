@@ -108,9 +108,9 @@ public class Change2to0Aesthetic extends InterRouteImprovementProcedure<WindyVer
     private Collection<Route<WindyVertex, WindyEdge>> offloadTwoEdges(Route<WindyVertex, WindyEdge> longestRoute, Collection<Route<WindyVertex, WindyEdge>> init) {
 
         //aesthetic init
-        MaxMetric mm = new MaxMetric();
-        RouteOverlapMetric roi = new RouteOverlapMetric(getGraph());
-        double aestheticFactor = mm.evaluate(getInitialSol()) / roi.evaluate(getInitialSol());
+        //MaxMetric mm = new MaxMetric();
+        //RouteOverlapMetric roi = new RouteOverlapMetric(getGraph());
+        //double aestheticFactor = mm.evaluate(getInitialSol()) / roi.evaluate(getInitialSol());
 
 
         Collection<Route<WindyVertex, WindyEdge>> initialSol = init;

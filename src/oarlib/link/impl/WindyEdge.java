@@ -95,6 +95,7 @@ public class WindyEdge extends Link<WindyVertex> implements AsymmetricLink {
         return mReverseRequired;
     }
 
+    @Override
     public void setReverseRequired(boolean mReverseRequired) {
         this.mReverseRequired = mReverseRequired;
     }

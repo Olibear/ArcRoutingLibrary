@@ -1,3 +1,27 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2013-2016 Oliver Lum
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
 package oarlib.solver.impl;
 
 import gnu.trove.TIntArrayList;
@@ -9,6 +33,9 @@ import oarlib.graph.util.Pair;
 import oarlib.graph.util.Utils;
 import oarlib.link.impl.ZigZagLink;
 import oarlib.problem.impl.ProblemAttributes;
+import oarlib.problem.impl.io.ProblemFormat;
+import oarlib.problem.impl.io.ProblemWriter;
+import oarlib.problem.impl.rpp.WindyRPPZZTW;
 import oarlib.route.impl.ZigZagTour;
 import oarlib.route.util.RouteExporter;
 import oarlib.route.util.ZigZagExpander;
@@ -220,6 +247,34 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
     @Override
     protected Problem<ZigZagVertex, ZigZagLink, ZigZagGraph> getInstance() {
         return mInstance;
+    }
+
+    public double getLowerBound(ZigZagGraph g){
+
+        //setup the lb graph
+        ZigZagGraph lb = new ZigZagGraph(g.getVertices().size());
+
+        try {
+            for (ZigZagLink zzl : g.getEdges()) {
+                ZigZagLink toAdd = lb.constructEdge(zzl.getFirstEndpointId(), zzl.getSecondEndpointId(), "", zzl.getCost(), zzl.getReverseCost(), zzl.getZigzagCost(), zzl.getServiceCost(), zzl.getReverseServiceCost(), zzl.getStatus());
+                toAdd.setRequired(zzl.isRequired());
+                toAdd.setReverseRequired(zzl.isReverseRequired());
+                lb.addEdge(toAdd);
+            }
+
+            WindyRPPZZTW lbProb = new WindyRPPZZTW(lb, "12_" + 12 + "_" + 12);
+            ProblemWriter probw = new ProblemWriter(ProblemFormat.Name.Zhang_Matrix_Zigzag);
+            probw.writeInstance(lbProb, "/Users/oliverlum/Downloads/20node/WPPTZ20nodes_12_12_12.txt");
+            String fileName = "/Users/oliverlum/Downloads/Sols/" + lbProb.getName() + "_ans_101.txt";
+            ZigZagTour partRoute = new ZigZagTour(lb, getLatePenalty());
+            RouteExporter.exportRoute(partRoute, RouteExporter.RouteFormat.ZHANG, fileName);
+            double ans = runIPNoRoute(lb,12,12,12,101,1e6);
+            return ans;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     @Override
@@ -525,7 +580,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
                     + avgZZSavings + "," + bestZZSavings + "," + avgPartialNumZigzags + "," + bestPartialNumZigzags +
                     "," + avgSumLengthZigzags + "," + bestSumLengthZigzags + "," + avgPercentZZ + "," + bestPercentZZ +
                     "," + avgPercentService + "," + bestPercentService + "," + avgServiceLeft + "," + bestServiceLeft +
-                    "," + avgZZDeadhead + "," + bestZZDeadhead + ";");
+                    "," + avgZZDeadhead + "," + bestZZDeadhead + "," + getLowerBound(g) + ";");
             out.close();
         } catch (Exception ex) {
             ex.printStackTrace();

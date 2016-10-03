@@ -6,7 +6,9 @@ import oarlib.core.Link;
 import oarlib.core.Route;
 import oarlib.core.Vertex;
 import oarlib.graph.impl.DirectedGraph;
+import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
+import oarlib.link.impl.AsymmetricLink;
 import oarlib.link.impl.WindyEdge;
 import oarlib.route.impl.Tour;
 import oarlib.route.util.RouteExpander;
@@ -14,10 +16,7 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by oliverlum on 11/29/14.
@@ -43,6 +42,88 @@ public class Utils {
             LOGGER.debug("We were unable to find a longest route.  This is most likely because the collection apssed in was empty. ");
         }
         return ret;
+    }
+
+    /**
+     * Takes each of the required (or reverse required) edges in the graph, and assigns a coordinate to it based on the endpoints
+     * of the street segment.
+     * @param g - street network, (with vertex coordinates assigned)
+     * @return - a hashmap with key = link id, value = customer coordinates
+     */
+    public static <V extends Vertex, E extends Link<V>> HashMap<Integer, Pair<Double>> assignCustomersToCoordinates(Graph<V,E> g) {
+
+        HashMap<Integer, Pair<Double>> ans = new HashMap<Integer, Pair<Double>>();
+        for(E e : g.getEdges()) {
+            if(e.isRequired() || ((AsymmetricLink)e).isReverseRequired()) {
+                ans.put(e.getId(), new Pair<Double>((e.getEndpoints().getFirst().getX() + e.getEndpoints().getSecond().getX())*.5, (e.getEndpoints().getFirst().getY() + e.getEndpoints().getSecond().getY())*.5));
+            }
+        }
+        return ans;
+    }
+
+    public static double geoDistance(Pair<Double> p1, Pair<Double> p2){
+        return Math.sqrt(Math.pow(p2.getFirst() - p1.getFirst(),2) + Math.pow(p2.getSecond() - p1.getSecond(),2));
+    }
+
+    /**
+     * Centered at p1.
+     * @param p1 - first point
+     * @param p2 - second point
+     * @return - the angle in radians (using Math.atan) that p2 is if p1 is the reference origin.
+     */
+    public static double findAngle(Pair<Double> p1, Pair<Double> p2) {
+        return Math.atan((p2.getSecond() - p1.getSecond()) / (p2.getFirst() - p1.getFirst()));
+    }
+
+    public static Pair<Double> findCenter(ArrayList<Pair<Double>> points) {
+
+        double x,y;
+        x = 0.0;
+        y = 0.0;
+        for(Pair<Double> p : points) {
+            x += p.getFirst();
+            y += p.getSecond();
+        }
+
+        return new Pair<Double>(x/points.size(), y / points.size());
+    }
+
+    /**
+     * Takes each of the required (or reverse required) edges in the graph, and assigns them to the closest partition's center, for
+     * use in the aesthetic solvers.
+     * @param partitionCenters - a list of the geographic centers of the partitions
+     * @param customers - the list of coordinates of the customers
+     * @return - a HashMap, with key = customer id (as given by the key in customers), value = partition id (as index in partitionCenters)
+     */
+    public static HashMap<Integer, Integer> assignCustomersToPartitions(ArrayList<Pair<Double>> partitionCenters, HashMap<Integer, Pair<Double>> customers){
+
+        HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
+
+        int minIndex;
+        double minDist;
+        double dist;
+        double custX, custY, partX, partY;
+        for(Integer i : customers.keySet()){
+            minDist = Double.MAX_VALUE;
+            minIndex = -1;
+            custX = customers.get(i).getFirst();
+            custY = customers.get(i).getSecond();
+            for(int j = 0 ; j < partitionCenters.size() ; j++) {
+                partX = partitionCenters.get(j).getFirst();
+                partY = partitionCenters.get(j).getSecond();
+
+                dist = Math.sqrt(Math.pow(custX - partX,2) + Math.pow(custY - partY,2));
+                if(dist < minDist) {
+                    minDist = dist;
+                    minIndex = j;
+                }
+            }
+
+            ans.put(i, minIndex);
+
+        }
+
+        return ans;
     }
 
     /**

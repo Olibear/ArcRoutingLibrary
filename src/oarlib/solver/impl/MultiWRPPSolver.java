@@ -41,6 +41,7 @@ import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.graph.util.Utils;
+import oarlib.improvements.metaheuristics.impl.BenaventIPFrameworkWithRotation;
 import oarlib.improvements.metaheuristics.impl.OnePassBenaventIPFramework;
 import oarlib.link.impl.WindyEdge;
 import oarlib.metrics.AverageTraversalMetric;
@@ -267,7 +268,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                     mGraph = mInstance.getGraph();
 
                     //improvement
-                    OnePassBenaventIPFramework improver = new OnePassBenaventIPFramework(mInstance, ans);
+                    BenaventIPFrameworkWithRotation improver = new BenaventIPFrameworkWithRotation(mInstance, ans);
                     Collection<Route<WindyVertex, WindyEdge>> improved = improver.improveSolution();
 
                     maxCost = mInstance.getObjectiveFunction().evaluate(improved);

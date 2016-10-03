@@ -123,6 +123,14 @@ public class ZigZagLink extends Link<ZigZagVertex> implements AsymmetricLink {
         return getServiceCost() != 0;
     }
 
+    @Override
+    public void setReverseRequired(boolean newRequired) {
+        if(!newRequired)
+            mReverseServiceCost = 0;
+        else
+            mReverseServiceCost = 1;
+    }
+
     //=============================================
     //
     //     Constructors

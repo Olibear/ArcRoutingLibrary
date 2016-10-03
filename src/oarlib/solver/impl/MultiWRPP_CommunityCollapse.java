@@ -1,3 +1,27 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2013-2016 Oliver Lum
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ */
 package oarlib.solver.impl;
 
 import gnu.trove.TIntArrayList;
@@ -8,6 +32,8 @@ import oarlib.graph.factory.impl.WindyGraphFactory;
 import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.transform.impl.EdgeInducedRequirementTransform;
 import oarlib.graph.util.CommonAlgorithms;
+import oarlib.graph.util.Pair;
+import oarlib.improvements.metaheuristics.impl.OnePassBenaventIPFramework;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.WindyEdge;
 import oarlib.problem.impl.ProblemAttributes;
@@ -27,6 +53,7 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by oliverlum on 3/17/16.
@@ -37,6 +64,7 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
     private HashMap<Integer, HashSet<Integer>> packMap;
     private double alpha;
     private int mNumPartitions;
+    private int mRealNumPartitions;
 
     /**
      * Default constructor; must set problem instance.
@@ -48,6 +76,7 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
         packMap = new HashMap<Integer, HashSet<Integer>>();
         alpha = .5;
         mNumPartitions = 20;
+        mRealNumPartitions = 0;
     }
 
     public MultiWRPP_CommunityCollapse(Problem<WindyVertex, WindyEdge, WindyGraph> instance, double alphaWeight, int numParts) throws IllegalArgumentException {
@@ -55,6 +84,7 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
         packMap = new HashMap<Integer, HashSet<Integer>>();
         alpha = alphaWeight;
         mNumPartitions = numParts;
+        mRealNumPartitions = 0;
     }
 
     @Override
@@ -90,10 +120,10 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
         //solve exactly
         //key = edgeId
         //value = partition #
-        HashSet<HashSet<Integer>> subans = callCorberan(collapsedGraph);
+        LinkedHashSet<HashSet<Integer>> subans = callCorberan(collapsedGraph);
 
         HashMap<Integer, Integer> vPart = processVertices(subans, collapsedGraph);
-        HashMap<Integer, Integer> ePart = processEdges(subans);
+        HashMap<Integer, Integer> ePart = processEdges(subans, collapsedGraph);
 
         /*try {
             GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, collapsedGraph, "CollapsedCorberanSolve");
@@ -104,7 +134,7 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
         }*/
 
         //expand into partition
-        HashMap<Integer, HashSet<Integer>> finalPartitions = expand(vPart, ePart, collapsedGraph.getVertices().size());
+        HashMap<Integer, HashSet<Integer>> finalPartitions = expand(vPart, ePart, mRealNumPartitions);
 
         //route
         ArrayList<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
@@ -112,14 +142,37 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
             ans.add(route(partition));
         }
 
-        getInstance().setSol(ans);
+        HashSet<Integer> reqIds = new HashSet<Integer>();
+        for(WindyEdge we : mGraph.getEdges()){
+            if(we.isReverseRequired() || we.isRequired()){
+                reqIds.add(we.getId());
+            }
+        }
 
-        display(ans);
+        for(HashSet<Integer> set : finalPartitions.values())
+            reqIds.removeAll(set);
 
-        return ans;
+        if(!reqIds.isEmpty()) {
+            for(Integer i : reqIds) {
+                WindyEdge temp = mGraph.getEdge(i);
+                int collapsedId1 = communities.get(temp.getFirstEndpointId()) + 1;
+                int collapsedId2 = communities.get(temp.getSecondEndpointId()) + 1;
+                List<WindyEdge> checkIfReq = collapsedGraph.findEdges(new Pair<WindyVertex>(collapsedGraph.getVertex(collapsedId1), collapsedGraph.getVertex(collapsedId2)));
+                System.out.println();
+            }
+        }
+
+        OnePassBenaventIPFramework improver = new OnePassBenaventIPFramework(mInstance, ans);
+        Collection<Route<WindyVertex, WindyEdge>> improved = improver.improveSolution();
+
+        getInstance().setSol(improved);
+
+        display(improved);
+
+        return improved;
     }
 
-    private HashMap<Integer, Integer> processVertices(HashSet<HashSet<Integer>> routes, WindyGraph collpaseGraph) {
+    private HashMap<Integer, Integer> processVertices(LinkedHashSet<HashSet<Integer>> routes, WindyGraph collpaseGraph) {
 
         HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
 
@@ -132,13 +185,17 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
                 id1 = we.getFirstEndpointId();
                 id2 = we.getSecondEndpointId();
 
-                if (!vParts.containsKey(id1))
-                    vParts.put(id1, new HashSet<Integer>());
-                if (!vParts.containsKey(id2))
-                    vParts.put(id2, new HashSet<Integer>());
+                if(id1 <= mNumPartitions) {
+                    if (!vParts.containsKey(id1))
+                        vParts.put(id1, new HashSet<Integer>());
+                    vParts.get(id1).add(part);
+                }
 
-                vParts.get(id1).add(part);
-                vParts.get(id2).add(part);
+                if(id2 <= mNumPartitions) {
+                    if (!vParts.containsKey(id2))
+                        vParts.put(id2, new HashSet<Integer>());
+                    vParts.get(id2).add(part);
+                }
             }
             part++;
         }
@@ -161,18 +218,25 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
         return ans;
     }
 
-    private HashMap<Integer, Integer> processEdges(HashSet<HashSet<Integer>> routes) {
+    private HashMap<Integer, Integer> processEdges(LinkedHashSet<HashSet<Integer>> routes, WindyGraph collapseGraph) {
 
-        HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
-        int j = 1;
-        for (HashSet<Integer> r : routes) {
-            for (Integer i : r) {
-                ans.put(i, j);
+        try {
+            HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
+            int j = 1;
+            for (HashSet<Integer> r : routes) {
+                for (Integer i : r) {
+                    if (collapseGraph.getEdge(i).getFirstEndpointId() > mRealNumPartitions || collapseGraph.getEdge(i).getSecondEndpointId() > mRealNumPartitions)
+                        continue;
+                    ans.put(i, j);
+                }
+                j++;
             }
-            j++;
-        }
 
-        return ans;
+            return ans;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     private HashMap<Integer, Integer> identifyCommunitiesMETIS(WindyGraph g, int n) {
@@ -221,6 +285,13 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
         }
     }
 
+    /**
+     * After partitioning, if there are fewer partitions than requested, the labeling may not be sequential.
+     * That is, we may have 4 partitions (if we asked for 5), and they may be numbered 1, 2, 3, and 5.  This
+     * method will remap them to be 1, 2, 3, and 4.
+     * @param input - the METIS output
+     * @return - a map with the values crunched
+     */
     private HashMap<Integer, Integer> removeHolesInHashMap(HashMap<Integer, Integer> input) {
 
         HashMap<Integer, Integer> ans = new HashMap<Integer, Integer>();
@@ -356,6 +427,8 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
             }
         }
 
+        mRealNumPartitions = partitions.size();
+
         try {
 
             //set up the depot
@@ -368,9 +441,14 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
 
                 i = refinedCommunities.get(we.getFirstEndpointId()) + 1;
                 j = refinedCommunities.get(we.getSecondEndpointId()) + 1;
+                //if both vertices got assigned to the same partition, then put the edge into that partition
                 if (i == j) {
                     packMap.get(i).add(we.getId());
-                } else {
+                }
+                //otherwise...
+                else {
+                    //if there's no edge between the two partition nodes in the collapsed graph, add it
+                    //then put it in its own partition
                     if (ans.findEdges(i, j) == null || ans.findEdges(i, j).size() == 0) {
                         packMap.put(n + ans.getEidCounter(), new HashSet<Integer>());
                         packMap.get(n + ans.getEidCounter()).add(we.getId());
@@ -390,6 +468,7 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
 
 
                     } else {
+                        //if there's already an edge, then update the cost, and then add it to the appropriate partition
                         toUpdate = ans.findEdges(i, j).iterator().next();
                         toUpdate.setCost(toUpdate.getCost() + we.getCost());
                         toUpdate.setReverseCost(toUpdate.getReverseCost() + we.getReverseCost());
@@ -419,6 +498,33 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
             return null;
         }
 
+        //make sure there are no unrequired vertices
+        try {
+            int n = ans.getVertices().size();
+            for (int j = 1; j <= n; j++) {
+                WindyVertex wv = ans.getVertex(j);
+                boolean isReq = false;
+                for (WindyEdge we : wv.getIncidentLinks()) {
+                    if (we.isRequired() || we.isReverseRequired())
+                        isReq = true;
+                }
+                if (!isReq) {
+                    for (Integer i : packMap.get(wv.getId())) {
+                        if (mGraph.getEdge(i).isRequired() || mGraph.getEdge(i).isReverseRequired()) {
+                            ans.addVertex();
+                            ans.addEdge(wv.getId(), ans.getVidCounter() - 1, 1, 1, true);
+                            ans.addVertex();
+                            ans.addEdge(ans.getVidCounter() - 2, ans.getVidCounter() - 1, 1, 1, false);
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+
         return ans;
     }
 
@@ -434,7 +540,7 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
         return sum;
     }
 
-    private HashSet<HashSet<Integer>> callCorberan(WindyGraph g) {
+    private LinkedHashSet<HashSet<Integer>> callCorberan(WindyGraph g) {
 
         if (CommonAlgorithms.isConnected(g))
             System.out.println();
@@ -445,7 +551,7 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
             ex.printStackTrace();
         }
 
-        HashSet<HashSet<Integer>> ans = new HashSet<HashSet<Integer>>();
+        LinkedHashSet<HashSet<Integer>> ans = new LinkedHashSet<HashSet<Integer>>();
 
         //write the graph to a .txt in Corberan format
         try {
@@ -473,6 +579,26 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
             System.out.println("Running Corberan Solver");
             BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
 
+            /*boolean exited = false;
+            long timeBeforeExecute = System.currentTimeMillis();
+            long timeout = 60000;
+            while(!exited) {
+                try {
+                    Thread.sleep(1000);
+                    run.exitValue();
+                    exited = true;
+                } catch (IllegalThreadStateException ex) {
+                    if(System.currentTimeMillis() > timeBeforeExecute + timeout)
+                        break;
+                }
+            }
+
+
+            if(exited)
+                System.out.println("Exit Code : " + run.exitValue());
+            else
+                return null;*/
+
             int exitCode = run.waitFor();
             System.out.println("Exit Code : " + exitCode);
 
@@ -489,14 +615,31 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
         }
 
         //parse the output
-        Collection<Tour<DirectedVertex, Arc>> collapsedRoutes = SolutionImporter.importRoutes("/Users/oliverlum/Downloads/bnc2/collapsed_" + mInstance.getmNumVehicles() + "_3_" + Integer.toString((int) (alpha * 100)) + "_op.txt", g.getDepotId(), SolutionImporter.RouteFormat.CORBERAN);
+        Collection<Tour<DirectedVertex, Arc>> collapsedRoutes = SolutionImporter.importRoutes("/Users/oliverlum/Downloads/bnc2/collapsed_" + mInstance.getmNumVehicles() + "_3_" + Integer.toString((int) Math.round(alpha * 100)) + "_op.txt", g.getDepotId(), SolutionImporter.RouteFormat.CORBERAN);
         HashSet<Tour> finalCollapsedRoutes = SolutionImporter.mapToGraph(g, collapsedRoutes);
+
+        //DEBUG
+        int collapseReq = 0;
+        int finalServed = 0;
+        for(WindyEdge we : g.getEdges()){
+            if(we.isRequired() || we.isReverseRequired())
+                collapseReq++;
+        }
+        for(Tour t : finalCollapsedRoutes){
+            finalServed += t.getCompactRepresentation().size();
+        }
+        if(finalServed != collapseReq)
+            System.out.println();
+        //END DEBUG
 
         HashSet<Integer> toAdd;
         for (Tour t : finalCollapsedRoutes) {
             toAdd = new HashSet<Integer>();
-            for (int i : t.getCompactRepresentation().toNativeArray())
+            for (int i : t.getCompactRepresentation().toNativeArray()) {
+                /*if(g.getEdge(i).getFirstEndpointId() > mNumPartitions || g.getEdge(i).getSecondEndpointId() > mNumPartitions)
+                    continue;*/
                 toAdd.add(i);
+            }
             ans.add(toAdd);
         }
 
@@ -518,6 +661,8 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
         }
 
         for (Integer i : eParts.keySet()) {
+            if(!packMap.containsKey(n+i))
+                System.out.println("");
             ans.get(eParts.get(i)).addAll(packMap.get(n + i));
         }
 
@@ -556,6 +701,8 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
             e.printStackTrace();
             return null;
         }
+
+
     }
 
     private Tour<WindyVertex, WindyEdge> runIP(String inputFileName) {

@@ -2228,6 +2228,8 @@ public class CommonAlgorithms {
             Link<? extends Vertex> temp;
             for (int i = 1; i <= m; i++) {
                 temp = indexedWindyEdges.get(i);
+                if(temp == null)
+                    continue;
                 if (temp.isDirected())
                     g2.addEdge(temp.getEndpoints().getFirst().getId(), temp.getEndpoints().getSecond().getId(), "forward", temp.getCost(), i);
                 else if (temp instanceof AsymmetricLink) {
