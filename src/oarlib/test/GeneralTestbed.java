@@ -32,6 +32,7 @@ import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
 import oarlib.display.GraphDisplay;
+import oarlib.exceptions.FormatMismatchException;
 import oarlib.graph.graphgen.OSM_Fetcher;
 import oarlib.graph.graphgen.Util.BoundingBox;
 import oarlib.graph.graphgen.Util.OSM_BoundingBoxes;
@@ -76,6 +77,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 import java.io.*;
+import java.security.spec.MGF1ParameterSpec;
+import java.text.Normalizer;
 import java.util.*;
 
 public class GeneralTestbed {
@@ -93,21 +96,10 @@ public class GeneralTestbed {
         PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
         rootLogger.addAppender(new ConsoleAppender(layout));
 
-        /*ProblemReader tester = new ProblemReader(ProblemFormat.Name.Corberan);
-        try {
-            WindyGraph testGraph = (WindyGraph) tester.readGraph("/Users/oliverlum/Downloads/A3101.DAT");
+        /*args = new String[2];
+        args[0] = "4";
+        args[1] = "/Users/oliverlum/Downloads/testOARLib3.txt";*/
 
-            //solve
-            WindyCPP wpp = new WindyCPP(testGraph, "Instance");
-            WRPPSolver_Win wppSolver = new WRPPSolver_Win(wpp);
-            //WRPPSolver_Benavent_H1 wppSolver = new WRPPSolver_Benavent_H1(wpp);
-
-            wppSolver.trySolve();
-            System.out.println(wppSolver.printCurrentSol());
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }*/
 
         //empty call gets help
         if(args.length != 2) {
@@ -157,7 +149,14 @@ public class GeneralTestbed {
                         //parse
                         try {
                             ProblemReader pr3 = new ProblemReader(ProblemFormat.Name.Corberan);
-                            MixedGraph mg = (MixedGraph)pr3.readGraph(args[1]);
+                            MixedGraph mg;
+                            try {
+                                mg = (MixedGraph) pr3.readGraph(args[1]);
+                            } catch (FormatMismatchException fme) {
+                                System.out.println("Could not read file in Corberan format; attempting to read in OARLib format.");
+                                pr3 = new ProblemReader(ProblemFormat.Name.OARLib);
+                                mg = (MixedGraph)pr3.readGraph(args[1]);
+                            }
 
                             //solve
                             MixedCPP mcpp = new MixedCPP(mg, "instance");
@@ -165,7 +164,8 @@ public class GeneralTestbed {
 
                             mcppSolver.trySolve();
                             System.out.println(mcppSolver.printCurrentSol());
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             ex.printStackTrace();
                         }
 
@@ -174,7 +174,14 @@ public class GeneralTestbed {
                         //parse
                         try {
                             ProblemReader pr4 = new ProblemReader(ProblemFormat.Name.Corberan);
-                            MixedGraph mg2 = (MixedGraph)pr4.readGraph(args[1]);
+                            MixedGraph mg2;
+                            try {
+                                mg2 = (MixedGraph) pr4.readGraph(args[1]);
+                            } catch (FormatMismatchException fme) {
+                                System.out.println("Could not read file in Corberan format; attempting to read in OARLib format.");
+                                pr4 = new ProblemReader(ProblemFormat.Name.OARLib);
+                                mg2 = (MixedGraph) pr4.readGraph(args[1]);
+                            }
 
                             //solve
                             MixedCPP mcpp2 = new MixedCPP(mg2, "Instance");
@@ -191,7 +198,14 @@ public class GeneralTestbed {
                         //parse
                         try {
                             ProblemReader pr5 = new ProblemReader(ProblemFormat.Name.Corberan);
-                            WindyGraph wg = (WindyGraph)pr5.readGraph(args[1]);
+                            WindyGraph wg;
+                            try {
+                                wg = (WindyGraph) pr5.readGraph(args[1]);
+                            } catch (FormatMismatchException fme) {
+                                System.out.println("Could not read file in Corberan format; attempting to read in OARLib format.");
+                                pr5 = new ProblemReader(ProblemFormat.Name.OARLib);
+                                wg = (WindyGraph) pr5.readGraph(args[1]);
+                            }
 
                             //solve
                             WindyCPP wpp = new WindyCPP(wg, "Instance");
@@ -208,7 +222,14 @@ public class GeneralTestbed {
                         //parse
                         try {
                             ProblemReader pr6 = new ProblemReader(ProblemFormat.Name.Campos);
-                            DirectedGraph dg2 = (DirectedGraph)pr6.readGraph(args[1]);
+                            DirectedGraph dg2;
+                            try {
+                                dg2 = (DirectedGraph) pr6.readGraph(args[1]);
+                            } catch (FormatMismatchException fme) {
+                                System.out.println("Could not read file in Campos format; attempting to read in OARLib format.");
+                                pr6 = new ProblemReader(ProblemFormat.Name.OARLib);
+                                dg2 = (DirectedGraph) pr6.readGraph(args[1]);
+                            }
 
                             //solve
                             DirectedRPP drpp = new DirectedRPP(dg2, "Instance");
@@ -225,7 +246,14 @@ public class GeneralTestbed {
                         //parse
                         try {
                             ProblemReader pr7 = new ProblemReader(ProblemFormat.Name.Corberan);
-                            WindyGraph wg2 = (WindyGraph)pr7.readGraph(args[1]);
+                            WindyGraph wg2;
+                            try {
+                                wg2 = (WindyGraph) pr7.readGraph(args[1]);
+                            } catch (FormatMismatchException fme) {
+                                System.out.println("Could not read file in Corberan format; attempting to read in OARLib format.");
+                                pr7 = new ProblemReader(ProblemFormat.Name.OARLib);
+                                wg2 = (WindyGraph) pr7.readGraph(args[1]);
+                            }
 
                             //solve
                             WindyRPP wrpp = new WindyRPP(wg2, "Instance");

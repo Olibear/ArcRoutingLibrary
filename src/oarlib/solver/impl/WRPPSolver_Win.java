@@ -83,6 +83,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
                 windyReq.addVertex(tempVertex);
             }
 
+            windyReq.setDepotId(g.getDepotId());
+
             //edges from the original graph
             TIntObjectHashMap<WindyEdge> indexedWindyEdges = g.getInternalEdgeMap();
 
@@ -627,6 +629,7 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
 
             if (CommonAlgorithms.isEulerian(flowGraph)) {
                 DirectedGraph ans = new DirectedGraph(n);
+                ans.setDepotId(g.getDepotId());
 
                 for (int i = 1; i <= m; i++) {
                     e = windyEdges.get(i);
@@ -656,6 +659,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
                 tempVertex.setCoordinates(gVertices.get(i).getX(), gVertices.get(i).getY());
                 ans.addVertex(tempVertex);
             }
+
+            ans.setDepotId(g.getDepotId());
 
             for (int i = 1; i < flowanswer.length; i++) {
                 temp = flowEdges.get(i);

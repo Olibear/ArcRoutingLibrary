@@ -268,9 +268,9 @@ public class ProblemReader {
             }
 
             return ans;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        }
+        catch (Exception e) {
+            throw new FormatMismatchException(e.getMessage(), e.getCause());
         }
     }
 
@@ -359,6 +359,8 @@ public class ProblemReader {
                 while (!line.startsWith("Line Format"))
                     line = br.readLine();
 
+                br.readLine();
+
                 WindyGraph ans = new WindyGraph(n);
                 for (int i = 1; i <= m; i++) {
                     line = br.readLine();
@@ -370,6 +372,8 @@ public class ProblemReader {
                 //advance to the correct spot
                 while (!line.startsWith("Line Format"))
                     line = br.readLine();
+
+                br.readLine();
 
                 for (int i = 1; i <= n; i++) {
                     line = br.readLine();
@@ -383,9 +387,9 @@ public class ProblemReader {
 
 
             return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        }
+        catch (Exception e) {
+            throw new FormatMismatchException(e.getMessage(), e.getCause());
         }
 
     }
@@ -486,9 +490,9 @@ public class ProblemReader {
             br.close();
             return ans;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        }
+        catch (Exception e) {
+            throw new FormatMismatchException(e.getMessage(), e.getCause());
         }
     }
 
@@ -547,11 +551,9 @@ public class ProblemReader {
             }
             br.close();
             return ans;
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        }
+        catch (Exception e) {
+            throw new FormatMismatchException(e.getMessage(), e.getCause());
         }
     }
 
@@ -630,9 +632,9 @@ public class ProblemReader {
                 throw new FormatMismatchException();
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        }
+        catch (Exception e) {
+            throw new FormatMismatchException(e.getMessage(), e.getCause());
         }
     }
 
@@ -896,9 +898,9 @@ public class ProblemReader {
                 LOGGER.error("We don't currently support the type of graph right now.");
                 throw new FormatMismatchException();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        }
+        catch (Exception e) {
+            throw new FormatMismatchException(e.getMessage(), e.getCause());
         }
     }
 
@@ -1000,9 +1002,9 @@ public class ProblemReader {
             }
             br.close();
             return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        }
+        catch (Exception e) {
+            throw new FormatMismatchException(e.getMessage(), e.getCause());
         }
     }
 

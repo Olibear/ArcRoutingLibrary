@@ -1,0 +1,51 @@
+==========================================================
+Thank you for your interest in using the Open Arc Routing Library
+(OARLib).  There are two ways to use the library:
+
+- The first is to simply use the included solvers to solve an 
+instance of a Chinese Postman or Rural Postman problem.  To do this
+just run the following command in the terminal:
+
+java -Djava.library.path=<PATH_TO_SHARED_LIBRARIES> -jar 
+<PATH_TO_ArcRoutingLibrary.jar> <SOLVER_OPTION> <PATH_TO_
+INSTANCE>
+
+The PATH_TO_SHARED_LIBRARIES is whichever folder BlossomV.dll and
+MSArbor.dll (or libBlossomV.jnilib and libMSArbor.jnilib for MAC
+or libBlossomV.so and libMSArvor.so for Linux).  These are open
+source implementations of common graph algorithms.  If the
+included files don't work for you, and you see an 
+UnsatisfiedLinkError, then please read the HOW_TO_INSTALL.txt for
+how to compile your own shared library files.
+
+The PATH_TO_ArcRoutingLibrary.jar should be self-explanatory.  If
+you have already changed to that directory in the terminal, then
+this is just ArcRoutingLibrary.jar .
+
+The SOLVER_OPTION is a numeric code that tells the library which
+solver you are attempting to invoke.
+
+1 - is the exact Directed Chinese Postman solver
+2 - is the exact Undirected Chinese Postman solver
+3 - is Frederickson's Mixed Chinese Postman heuristic
+4 - is Yaoyuenyong's Mixed Chinese Postman heuristic
+5 - is Win's Windy Chinese Postman heuristic
+6 - is Christofides's Directed Rural Postman heuristic
+7 - is Benavent's Windy Rural Postman heuristic
+
+The PATH_TO_INSTANCE is the location of the file containing the
+problem instance.  See testOARLib.txt, testOARLib2.txt,
+testOARLib3.txt, and testOARLib4.txt for examples of formatting
+instances.  If you wish to create your own instances, we recommend
+using this format.  For testing purposes, the instances included in the test_instances folder are also acceptable formats.
+
+For example:
+
+java -Djava.library.path=/home/046 -jar ArcRoutingLibrary.jar 3 test_instances/MCPP_Instances_Corberan/MA0532
+
+-The second way to use the library is by importing the .jar file
+into your own java project, and using the documentation (currently 
+a work in progress) provided to leverage the graph architecture.  
+To do this, just include  ArcRoutingLibrary.jar as a library using 
+your IDE of choice.
+==========================================================

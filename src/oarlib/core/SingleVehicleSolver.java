@@ -60,7 +60,7 @@ public abstract class SingleVehicleSolver<V extends Vertex, E extends Link<V>, G
         if (currSol == null)
             LOGGER.error("It does not appear as though this solver has been run yet!", new IllegalStateException());
 
-        String ans = "=======================================================";
+        String ans = "=======================================================\n";
         for (Route<V, E> r : currSol) {
             ans += this.getSolverName() + ": Printing current solution...";
             ans += "\n";

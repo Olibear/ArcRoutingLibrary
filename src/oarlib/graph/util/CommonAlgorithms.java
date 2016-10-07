@@ -105,6 +105,7 @@ public class CommonAlgorithms {
             return new ArrayList<Integer>();
         }
         DirectedGraph ans = CommonAlgorithms.directUndirectedCycles(eulerianGraph);
+        ans.setDepotId(eulerianGraph.getDepotId());
         if (!isStronglyConnected(ans)) {
             LOGGER.debug("You are attempting to run hierholzer's algorithm on a non-strongly connected graph.");
             throw new IllegalArgumentException();
@@ -2898,6 +2899,10 @@ public class CommonAlgorithms {
             int n = g.getVertices().size();
             int m = g.getEdges().size();
             HashSet<Integer> ans = new HashSet<Integer>();
+
+            //graph is already connected!
+            if(n==1)
+                return new HashSet<Integer>();
 
             //error checking
             if (!g.getInternalEdgeMap().containsKey(root)) {

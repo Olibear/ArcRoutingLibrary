@@ -1,0 +1,46 @@
+==========================================================
+Thank you for your interest in using the Open Arc Routing Library
+(OARLib).  The library makes use of a couple other open source codes
+that are written in C/C++.  In order to interface with these, we use
+the Java Native Interface (JNI).  This requires the use of shared 
+library files, (.dll for Windows, .jnilib for MAC, and .so for Linux).
+We have compiled these for what we anticipate to be the most common
+user configurations.  However, we understand that some users may
+be using architectures that we did not anticipate.  If so, please 
+follow the instructions to compile your own shared library files:
+
+BLOSSOM V:
+
+-Download the Blossom V code at: http://pub.ist.ac.at/~vnk/software.html
+-Copy the files oarlib_graph_util_BlossomV.cpp, and
+oarlib_graph_util_BlossomV.h into the folder
+-Run the command: g++ -shared -fPIC -I/opt/jdk1.8.0_25/include -I/opt/jdk1.8.0_25/include/linux oarlib_graph_util_BlossomV.cpp PMinterface.cpp PMmain.cpp misc.cpp PMduals.cpp PMexpand.cpp PMinit.cpp PMrepair.cpp PMshrink.cpp MinCost/MinCost.cpp -o libBlossomV.<EXTENSION>
+
+where the first two file paths should be where your jdk is located
+and EXTENSION is:
+
+.dll - Windows
+.jnilib - MAC
+.so - Linux
+
+-Download the MSArbor code at: http://www.di.unipi.it/optimize/Software/MSA.html
+-Copy the files oarlib_graph_util_MSArbor.cpp, and
+oarlib_graph_util_MSArbor.h into the folder
+-Run the command: g++ -shared -I/opt/jdk1.8.0_25/include -I/opt/jdk1.8.0_25/include/linux oarlib_graph_util_MSArbor.cpp MSArbor.C -o libMSArbor.so
+
+where the first two file paths should be where your jdk is located
+and EXTENSION is:
+
+.dll - Windows
+.jnilib - MAC
+.so - Linux
+
+With your shared library files, move them into the running directory,
+or provide the -D<PATH_TO_SHARED_LIBRARIES> flag when running your code.
+
+If this is done incorrectly, you will most likely see an 
+UnsatisfiedLinkError when you attempt to run a solver that tries to
+use either a Min-Cost Matching or Minimum Spanning Arborescence
+procedure.
+
+==========================================================
