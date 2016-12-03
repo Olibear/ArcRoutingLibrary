@@ -56,13 +56,24 @@ public class Benavent_VND2_Aesthetic extends InterRouteImprovementProcedure<Wind
     @Override
     public Collection<Route<WindyVertex, WindyEdge>> improveSolution() {
 
+        long start, end;
+
         Collection<Route<WindyVertex, WindyEdge>> initialSol = getInitialSol();
+        start = System.currentTimeMillis();
         Change1to0Aesthetic ip1 = new Change1to0Aesthetic(getProblem(), ImprovementStrategy.Type.FirstImprovement, initialSol);
         Collection<Route<WindyVertex, WindyEdge>> postIP1 = ip1.improveSolution();
+        end = System.currentTimeMillis();
+        System.out.println("1 to 0 took " + (end - start) / 1000 + " seconds to run.");
+        start = System.currentTimeMillis();
         Change2to0Aesthetic ip2 = new Change2to0Aesthetic(getProblem(), ImprovementStrategy.Type.FirstImprovement, postIP1);
         Collection<Route<WindyVertex, WindyEdge>> postIP2 = ip2.improveSolution();
+        end = System.currentTimeMillis();
+        System.out.println("1 to 0 took " + (end - start) / 1000 + " seconds to run.");
+        start = System.currentTimeMillis();
         Change1to1Aesthetic ip3 = new Change1to1Aesthetic(getProblem(), ImprovementStrategy.Type.FirstImprovement, postIP2);
         Collection<Route<WindyVertex, WindyEdge>> postIP3 = ip3.improveSolution();
+        end = System.currentTimeMillis();
+        System.out.println("1 to 0 took " + (end - start) / 1000 + " seconds to run.");
 
         return postIP3;
     }

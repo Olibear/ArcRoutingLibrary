@@ -571,7 +571,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
         //RouteExporter.exportRoute(ans, RouteExporter.RouteFormat.ZHANG, fileName);
         long end = System.currentTimeMillis();
         try {
-            FileWriter fw = new FileWriter("RevisedZZHeuristicScalingResults_SquareNoRestr.txt", true);
+            FileWriter fw = new FileWriter("RevisedZZHeuristicScalingResults_6to10Comparison.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw);
             double avgIPSolveTime = (avgIPSolve / (double) numSeeds);

@@ -41,8 +41,8 @@ import oarlib.graph.transform.rebalance.impl.IndividualDistanceToDepotRebalancer
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 import oarlib.graph.util.Utils;
+import oarlib.improvements.metaheuristics.impl.BenaventIPFramework;
 import oarlib.improvements.metaheuristics.impl.BenaventIPFrameworkWithRotation;
-import oarlib.improvements.metaheuristics.impl.OnePassBenaventIPFramework;
 import oarlib.link.impl.WindyEdge;
 import oarlib.metrics.AverageTraversalMetric;
 import oarlib.metrics.RouteOverlapMetric;
@@ -196,6 +196,8 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
         double maxCost;
         double currWeightBest;
         PartitionStore ps = new PartitionStore();
+        long start, end;
+        RouteOverlapMetric roi = new RouteOverlapMetric(mInstance.getGraph());
 
         try {
 
@@ -204,11 +206,11 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             Pair<Double> bounds = calculateSimpleBounds();
             double upperBound = bounds.getSecond();
             double lowerBound = bounds.getFirst();
-            double numRuns = 10;
+            double numRuns = 5;
             if (mIter != -1)
                 numRuns = mIter;
             double interval = (upperBound - lowerBound) / numRuns;
-            double numSolPerWeight = 5;
+            double numSolPerWeight = 2;
             if (mPerturb != -1)
                 numSolPerWeight = mPerturb;
             double betaWeight = 1;
@@ -245,6 +247,7 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                         partitions.get(sol.get(i)).add(i);
                     }
 
+                    start = System.currentTimeMillis();
                     ans.clear();
                     boolean hasNewRoute = false;
                     //check for redundancy
@@ -260,6 +263,9 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                         }
 
                     }
+                    end = System.currentTimeMillis();
+                    System.out.println("Initial routing took: " + (end - start) / 1000 + " seconds.");
+                    double aestheticFactor = mInstance.getObjectiveFunction().evaluate(ans) / roi.evaluate(ans);
 
                     //if they're all copies, don't run the improvement
                     if (!hasNewRoute)
@@ -267,9 +273,13 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
 
                     mGraph = mInstance.getGraph();
 
+                    start = System.currentTimeMillis();
                     //improvement
-                    BenaventIPFrameworkWithRotation improver = new BenaventIPFrameworkWithRotation(mInstance, ans);
+                    mInstance.setSol(ans);
+                    BenaventIPFramework improver = new BenaventIPFramework(mInstance, null, ans);
                     Collection<Route<WindyVertex, WindyEdge>> improved = improver.improveSolution();
+                    end = System.currentTimeMillis();
+                    System.out.println("Improvement took: " + (end - start) / 1000 + " seconds.");
 
                     maxCost = mInstance.getObjectiveFunction().evaluate(improved);
                     if (maxCost < currWeightBest) {
@@ -287,7 +297,9 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
             }
 
             //use the exact solver 1 more time to smooth out the kinks
-            Collection<Route<WindyVertex, WindyEdge>> trueAns = cleanup(record);
+            //Collection<Route<WindyVertex, WindyEdge>> trueAns = cleanup(record);
+            BenaventIPFrameworkWithRotation improver2 = new BenaventIPFrameworkWithRotation(mInstance, record);
+            Collection<Route<WindyVertex, WindyEdge>> trueAns = improver2.improveSolution();
 
             if (mDisplay != null) {
                 display(trueAns);
@@ -735,6 +747,15 @@ public class MultiWRPPSolver extends MultiVehicleSolver<WindyVertex, WindyEdge, 
                 mGraphWithDepotConns.addVertex();
                 mGraphWithDepotConns.addEdge(mGraph.getDepotId(), n + i, 999999, true);
             }
+
+            int numRequired = 0;
+            for (WindyEdge we : mGraph.getEdges()) {
+                if (we.isRequired()) {
+                    numRequired++;
+                    System.out.println(we.toString());
+                }
+            }
+
 
             //initialize transformer for turning edge-weighted grpah into vertex-weighted graph
             PreciseWindyKWayPartitionTransform transformer = new PreciseWindyKWayPartitionTransform(mGraph, true, costRebalancer);

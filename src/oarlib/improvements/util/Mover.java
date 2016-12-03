@@ -143,14 +143,17 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
         return max - ans;
     }
 
-    public TIntObjectHashMap<Route<V, E>> makeComplexMove(ArrayList<CompactMove<V, E>> moveList) throws IllegalArgumentException {
-
+    public TIntObjectHashMap<Route<V, E>> makeComplexMove(ArrayList<CompactMove<V, E>> moveList, RouteExpander routeExpander) throws IllegalArgumentException {
         TIntObjectHashMap<Route<V, E>> ans = new TIntObjectHashMap<Route<V, E>>();
         int n = moveList.size();
         CompactMove<V, E> currMove;
         Route<V, E> currFrom, currTo;
         TIntArrayList flatFrom, flatTo;
-        RouteExpander<G> re = new RouteExpander<G>(mGraph);
+        RouteExpander<G> re;
+        if (routeExpander == null)
+            re = new RouteExpander<G>(mGraph);
+        else
+            re = routeExpander;
         int currLinkId;
         ArrayList<Boolean> newFromDir, newToDir;
 
@@ -190,6 +193,10 @@ public class Mover<V extends Vertex, E extends Link<V>, G extends Graph<V, E>> {
         }
 
         return ans;
+    }
+
+    public TIntObjectHashMap<Route<V, E>> makeComplexMove(ArrayList<CompactMove<V, E>> moveList) throws IllegalArgumentException {
+        return makeComplexMove(moveList, null);
     }
 
     private boolean assessMoveCost(TIntArrayList fromList, ArrayList<Boolean> fromDir, TIntArrayList toList, ArrayList<Boolean> toDir, int fromPos, int toPos, Pair<Integer> ans) {

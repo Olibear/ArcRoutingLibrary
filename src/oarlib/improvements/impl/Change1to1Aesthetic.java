@@ -36,6 +36,7 @@ import oarlib.link.impl.WindyEdge;
 import oarlib.metrics.MaxMetric;
 import oarlib.metrics.RouteOverlapMetric;
 import oarlib.problem.impl.ProblemAttributes;
+import oarlib.route.util.RouteExpander;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -122,6 +123,7 @@ public class Change1to1Aesthetic extends InterRouteImprovementProcedure<WindyVer
         Collection<Route<WindyVertex, WindyEdge>> bestAns = null;
 
         Route tempLongest, tempR;
+        RouteExpander<WindyGraph> re = new RouteExpander<WindyGraph>(mProblem.getGraph());
 
         for (Route<WindyVertex, WindyEdge> r : initialSol) {
             //don't try and move to yourself.
@@ -157,7 +159,7 @@ public class Change1to1Aesthetic extends InterRouteImprovementProcedure<WindyVer
                             moveList.add(temp);
                             moveList.add(temp2);
 
-                            TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList);
+                            TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList, re);
                             moddedMax = Integer.MIN_VALUE;
                             for (Route r2 : initialSol) {
                                 if (routesToChange.containsKey(r2.getGlobalId())) {

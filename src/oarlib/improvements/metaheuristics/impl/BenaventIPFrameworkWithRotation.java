@@ -34,10 +34,10 @@ import oarlib.improvements.impl.Benavent_VND2_Aesthetic;
 import oarlib.improvements.perturbation.RouteRotator;
 import oarlib.improvements.util.Utils;
 import oarlib.link.impl.WindyEdge;
+import oarlib.metrics.MaxMetric;
+import oarlib.metrics.RouteOverlapMetric;
 import oarlib.problem.impl.MultiVehicleProblem;
 import oarlib.problem.impl.ProblemAttributes;
-import oarlib.problem.impl.rpp.WindyRPP;
-import oarlib.solver.impl.WRPPSolver_Benavent_H1;
 import oarlib.vertex.impl.WindyVertex;
 import org.apache.log4j.Logger;
 
@@ -69,6 +69,10 @@ public class BenaventIPFrameworkWithRotation extends ImprovementProcedure<WindyV
         Collection<Route<WindyVertex, WindyEdge>> initialSol = getInitialSol();
         Collection<Route<WindyVertex, WindyEdge>> currSol, globalBest;
         int numIters = 5;
+        long start, end;
+        RouteOverlapMetric roi = new RouteOverlapMetric(getProblem().getGraph());
+        MaxMetric mm = new MaxMetric();
+        double aestheticFactor = mm.evaluate(getInitialSol()) / roi.evaluate(getInitialSol());
 
         globalBest = initialSol;
         LOGGER.info("Starting obj value: " + mProblem.getObjectiveFunction().evaluate(initialSol));
@@ -76,22 +80,32 @@ public class BenaventIPFrameworkWithRotation extends ImprovementProcedure<WindyV
 
         for(int i = 0; i < numIters; i++) {
             //apply the intraroute IPs on each of the routes
+            start = System.currentTimeMillis();
             LOGGER.debug("IntraRoute IPs");
             Benavent_VND1 vnd1 = new Benavent_VND1(getProblem(), initialSol);
             Collection<Route<WindyVertex, WindyEdge>> postVND1 = vnd1.improveSolution();
             LOGGER.info("VND1 obj value: " + mProblem.getObjectiveFunction().evaluate(postVND1));
+            end = System.currentTimeMillis();
+            System.out.println("Intraroute improvement took: " + (end - start) / 1000 + " seconds.");
 
             //apply the interroute IPs
+            start = System.currentTimeMillis();
             LOGGER.debug("InterRoute IPs");
             Benavent_VND2_Aesthetic vnd2 = new Benavent_VND2_Aesthetic(getProblem(), postVND1);
             Collection<Route<WindyVertex, WindyEdge>> postVND2 = vnd2.improveSolution();
             LOGGER.info("VND2 obj value: " + mProblem.getObjectiveFunction().evaluate(postVND2));
+            end = System.currentTimeMillis();
+            System.out.println("Interroute improvement took: " + (end - start) / 1000 + " seconds.");
 
             //set curr to bestSol
             currSol = postVND2;
 
             //update global best
             LOGGER.debug("Compare");
+            /*double currVal = mm.evaluate(currSol) + aestheticFactor * roi.evaluate(currSol);
+            double bestVal = mm.evaluate(globalBest) + aestheticFactor * roi.evaluate(globalBest);
+            if(currVal < bestVal)
+                globalBest = currSol;*/
             globalBest = Utils.compareSolutions(currSol, globalBest);
             LOGGER.info("Best obj value set to : " + mProblem.getObjectiveFunction().evaluate(globalBest));
 

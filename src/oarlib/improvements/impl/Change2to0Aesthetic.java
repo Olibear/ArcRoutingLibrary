@@ -36,6 +36,7 @@ import oarlib.link.impl.WindyEdge;
 import oarlib.metrics.MaxMetric;
 import oarlib.metrics.RouteOverlapMetric;
 import oarlib.problem.impl.ProblemAttributes;
+import oarlib.route.util.RouteExpander;
 import oarlib.vertex.impl.WindyVertex;
 
 import java.util.ArrayList;
@@ -108,9 +109,9 @@ public class Change2to0Aesthetic extends InterRouteImprovementProcedure<WindyVer
     private Collection<Route<WindyVertex, WindyEdge>> offloadTwoEdges(Route<WindyVertex, WindyEdge> longestRoute, Collection<Route<WindyVertex, WindyEdge>> init) {
 
         //aesthetic init
-        //MaxMetric mm = new MaxMetric();
-        //RouteOverlapMetric roi = new RouteOverlapMetric(getGraph());
-        //double aestheticFactor = mm.evaluate(getInitialSol()) / roi.evaluate(getInitialSol());
+        MaxMetric mm = new MaxMetric();
+        RouteOverlapMetric roi = new RouteOverlapMetric(getGraph());
+        double aestheticFactor = mm.evaluate(getInitialSol()) / roi.evaluate(getInitialSol());
 
 
         Collection<Route<WindyVertex, WindyEdge>> initialSol = init;
@@ -122,6 +123,7 @@ public class Change2to0Aesthetic extends InterRouteImprovementProcedure<WindyVer
         ArrayList<CompactMove<WindyVertex, WindyEdge>> bestMoveList = new ArrayList<CompactMove<WindyVertex, WindyEdge>>();
         Collection<Route<WindyVertex, WindyEdge>> ans = new ArrayList<Route<WindyVertex, WindyEdge>>();
         Collection<Route<WindyVertex, WindyEdge>> bestAns = null;
+        RouteExpander<WindyGraph> re = new RouteExpander<WindyGraph>(mProblem.getGraph());
 
         for (Route<WindyVertex, WindyEdge> r : initialSol) {
             //don't try and move to yourself.
@@ -159,7 +161,7 @@ public class Change2to0Aesthetic extends InterRouteImprovementProcedure<WindyVer
                             moveList.add(temp);
                             moveList.add(temp2);
 
-                            TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList);
+                            TIntObjectHashMap<Route<WindyVertex, WindyEdge>> routesToChange = mover.makeComplexMove(moveList, re);
                             moddedMax = Integer.MIN_VALUE;
                             for (Route r2 : initialSol) {
                                 if (routesToChange.containsKey(r2.getGlobalId())) {
