@@ -58,11 +58,11 @@ public class OSM_BoundingBoxes {
             //Perth
             //new BoundingBox(115.858599, -31.944743, 115.869693, -31.939681, "Perth, Australia"),
             //Auckland
-            new BoundingBox(174.728553, -36.860062, 174.743359, -36.843990, "Auckland, Australia"),
+            //new BoundingBox(174.728553, -36.860062, 174.743359, -36.843990, "Auckland, Australia"),
             //Helsinki
             //new BoundingBox(24.935060, 60.164540, 24.943771, 60.169360, "Helsinki, Finland"),
             //Calgary
-            //new BoundingBox(-114.090764, 51.037411, -114.061281, 51.049795, "Calgary, Canada"),
+            new BoundingBox(-114.090764, 51.037411, -114.061281, 51.049795, "Calgary, Canada"),
             //Vienna
             //new BoundingBox(16.367078, 48.205786, 16.375082, 48.211377, "Vienna, Austria")
     };

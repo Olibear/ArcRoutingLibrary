@@ -24,6 +24,7 @@
 package oarlib.graph.impl;
 
 import gnu.trove.TIntArrayList;
+import gnu.trove.TIntIntHashMap;
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.core.MutableGraph;
@@ -181,21 +182,27 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
             TIntObjectHashMap<WindyVertex> indexedVertices = this.getInternalVertexMap();
             WindyVertex temp, temp2;
             int n = this.getVertices().size();
+
             for (int i = 1; i <= n; i++) {
-                temp = new WindyVertex("deep copy original"); //the new guy
                 temp2 = indexedVertices.get(i);
+                temp = new WindyVertex(temp2.getLabel()); //the new guy
                 temp.setCoordinates(temp2.getX(), temp2.getY());
-                ans.addVertex(temp, i);
+                if (temp2.isDemandSet())
+                    temp.setDemand(temp2.getDemand());
+                ans.addVertex(temp, temp2.getId());
             }
             WindyEdge e, e2;
-            TIntArrayList forSorting = new TIntArrayList(indexedEdges.keys());
-            forSorting.sort();
-            int m = forSorting.size();
+            TIntArrayList forSortingE = new TIntArrayList(indexedEdges.keys());
+            forSortingE.sort();
+            int m = forSortingE.size();
             for (int i = 0; i < m; i++) {
-                e = indexedEdges.get(forSorting.get(i));
-                e2 = new WindyEdge("deep copy original", new Pair<WindyVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.getReverseCost());
+                e = indexedEdges.get(forSortingE.get(i));
+                e2 = new WindyEdge(e.getLabel(), new Pair<WindyVertex>(ans.getVertex(e.getFirstEndpointId()), ans.getVertex(e.getSecondEndpointId())), e.getCost(), e.getReverseCost());
                 e2.setMatchId(e.getId());
                 e2.setRequired(e.isRequired());
+                e2.setZone(e.getZone());
+                e2.setType(e.getType());
+                e2.setMaxSpeed(e.getMaxSpeed());
                 ans.addEdge(e2, e.getId());
             }
 

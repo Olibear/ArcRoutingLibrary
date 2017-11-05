@@ -44,6 +44,7 @@ import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
 
+import javax.swing.*;
 import java.util.*;
 
 public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, WindyEdge, WindyGraph> {
@@ -309,6 +310,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
     protected Collection<Tour> solve() {
         try {
             WindyGraph copy = mInstance.getGraph().getDeepCopy();
+
             /*
              * Connect up the required components of the graph, just as in WRPP1.
 			 * Match ids in windyReq correspond to edge ids in copy after this.
@@ -371,6 +373,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
 
             ans.setDepotId(copy.getDepotId());
             WRPPSolver_Win.eliminateRedundantCycles(ans, windyReq, copy);
+            WRPPSolver_Win.repairSolution(ans, copy);
 
             ArrayList<Integer> tour;
             tour = CommonAlgorithms.tryHierholzer(ans);
@@ -383,7 +386,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
 
             mInstance.setSol(Utils.reclaimTour(eulerTour, mInstance.getGraph()));
 
-            //visualize it
+            /*visualize it
             if (exportSolToPDF) {
                 try {
                     GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, ans, mInstance.getName() + "_" + eulerTour.getCost());
@@ -393,7 +396,7 @@ public class WRPPSolver_Benavent_H1 extends SingleVehicleSolver<WindyVertex, Win
                     e.printStackTrace();
                     return null;
                 }
-            }
+            }*/
 
             HashSet<Tour> ret = new HashSet<Tour>();
             ret.add(eulerTour);

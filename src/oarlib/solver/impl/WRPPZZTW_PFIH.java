@@ -264,7 +264,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
 
             WindyRPPZZTW lbProb = new WindyRPPZZTW(lb, "12_" + 12 + "_" + 12);
             ProblemWriter probw = new ProblemWriter(ProblemFormat.Name.Zhang_Matrix_Zigzag);
-            probw.writeInstance(lbProb, "/Users/oliverlum/Downloads/20node/WPPTZ20nodes_12_12_12.txt");
+            probw.writeInstance(lbProb, "/Users/oliverlum/Downloads/171Nodes/WPPTZ171nodes_12_12_12.txt");
             String fileName = "/Users/oliverlum/Downloads/Sols/" + lbProb.getName() + "_ans_101.txt";
             ZigZagTour partRoute = new ZigZagTour(lb, getLatePenalty());
             RouteExporter.exportRoute(partRoute, RouteExporter.RouteFormat.ZHANG, fileName);
@@ -475,7 +475,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
             //only add it if it's in the highest topNum in terms of zz/deadhead
             double zzDeadhead = (double) sumZigs / (partialRoute.getCost() - sumZigs);
             partRoutes.put(zzDeadhead, partialRoute);
-            /*
+
             if(partRoutes.size() < keepTop) {
                 if(zzDeadhead < maxZZDeadhead)
                     maxZZDeadhead = zzDeadhead;
@@ -485,7 +485,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
                 partRoutes.remove(maxZZDeadhead);
                 maxZZDeadhead = Collections.max(partRoutes.keySet());
                 partRoutes.put(zzDeadhead,partialRoute);
-            }*/
+            }
 
         }
 
@@ -571,7 +571,7 @@ public class WRPPZZTW_PFIH extends SingleVehicleSolver<ZigZagVertex, ZigZagLink,
         //RouteExporter.exportRoute(ans, RouteExporter.RouteFormat.ZHANG, fileName);
         long end = System.currentTimeMillis();
         try {
-            FileWriter fw = new FileWriter("RevisedZZHeuristicScalingResults_6to10Comparison.txt", true);
+            FileWriter fw = new FileWriter("RevisedZZHeuristicScalingResults_Top5Comparison_Top5_single.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw);
             double avgIPSolveTime = (avgIPSolve / (double) numSeeds);

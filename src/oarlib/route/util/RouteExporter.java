@@ -32,6 +32,8 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Created by oliverlum on 11/21/15.
@@ -51,13 +53,80 @@ public class RouteExporter {
     public static void exportRoute(Route r, RouteFormat rf, String path) {
 
         switch (rf) {
-            case ZHANG: exportZhang(r, path, true);
+            case ZHANG:
+                exportZhang(r, path, true);
+                return;
+            case JSON:
+                ArrayList<Route> temp = new ArrayList<Route>();
+                temp.add(r);
+                exportJSON(temp, path);
                 return;
         }
 
 
         LOGGER.error("The format you have passed in appears to be not supported.");
         return;
+
+    }
+
+    public static void exportRoutes(Collection<? extends Route> routes, RouteFormat rf, String path) {
+        switch (rf) {
+            case ZHANG:
+                LOGGER.error("The ZHANG format does not support multiple simultaneous exports.  Please export them separately.");
+                return;
+            case JSON:
+                exportJSON(routes, path);
+                return;
+        }
+    }
+
+    private static void exportJSON(Collection<? extends Route> routes, String path) {
+
+        try {
+
+            PrintWriter pw = new PrintWriter(new File(path));
+
+            //front matter
+            pw.println("{");
+            pw.println("\t\"routes\":");
+            pw.println("\t[");
+
+            //routes
+            int id = 1;
+            String toPrint;
+            String[] nodeIds;
+            Iterator<? extends Route> iter = routes.iterator();
+            while(iter.hasNext()) {
+                Route r = iter.next();
+                pw.println("\t\t{");
+                pw.println("\t\t\t\"id\":" + id);
+                pw.println("\t\t\t\"nodes\": [");
+
+                //nodes
+                nodeIds = r.toString().split("-");
+                for(int i = 0; i < nodeIds.length - 1; i++) {
+                    pw.println("\t\t\t\t{\"id\":" + nodeIds[i] + "},");
+                }
+                pw.println("\t\t\t\t{\"id\":" + nodeIds[nodeIds.length - 1] + "}");
+
+                pw.println("\t\t\t]");
+                toPrint = "\t\t}";
+                if(iter.hasNext())
+                    toPrint += ",";
+                pw.println(toPrint);
+
+                id++;
+            }
+
+            pw.println("\t]");
+            pw.println("}");
+            pw.close();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return;
+        }
+
 
     }
 
@@ -124,5 +193,6 @@ public class RouteExporter {
 
     public enum RouteFormat {
         ZHANG, //Rui's requested output format
+        JSON // for visualization
     }
 }

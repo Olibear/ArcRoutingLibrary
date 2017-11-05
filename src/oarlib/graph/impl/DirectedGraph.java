@@ -154,6 +154,9 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
                 if (a.isCapacitySet())
                     a2.setCapacity(a.getCapacity());
                 a2.setRequired(a.isRequired());
+                a2.setZone(a.getZone());
+                a2.setType(a.getType());
+                a2.setMaxSpeed(a.getMaxSpeed());
                 a2.setMatchId(a.getId());
                 ans.addEdge(a2);
             }

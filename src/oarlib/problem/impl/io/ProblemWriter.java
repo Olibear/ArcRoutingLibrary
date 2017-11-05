@@ -29,13 +29,18 @@ import oarlib.core.Link;
 import oarlib.core.Problem;
 import oarlib.core.Vertex;
 import oarlib.exceptions.UnsupportedFormatException;
+import oarlib.graph.impl.DirectedGraph;
 import oarlib.graph.impl.UndirectedGraph;
+import oarlib.graph.impl.WindyGraph;
 import oarlib.graph.impl.ZigZagGraph;
+import oarlib.graph.util.CommonAlgorithms;
+import oarlib.graph.util.Pair;
 import oarlib.link.impl.AsymmetricLink;
 import oarlib.link.impl.Edge;
 import oarlib.link.impl.WindyEdge;
 import oarlib.link.impl.ZigZagLink;
 import oarlib.problem.impl.ProblemAttributes;
+import oarlib.problem.impl.rpp.WindyRPP;
 import oarlib.problem.impl.rpp.WindyRPPZZTW;
 import oarlib.vertex.impl.UndirectedVertex;
 import org.apache.log4j.Logger;
@@ -45,6 +50,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Writer to output various file formats.  Plans to use Gephi for visualization.
@@ -81,14 +87,23 @@ public class ProblemWriter {
                 break;
             case Yaoyuenyong:
                 break;
+            case JSON:
+                return writeJSON(p, filename);
             case METIS:
                 return writeMETISInstance(p, filename);
             case Zhang_Matrix_Windy:
                 return writeWindyZhangMatrixInstance(p, filename);
-            case Zhang_Matrix_Zigzag:
-                if (!(p instanceof WindyRPPZZTW))
+            case Zhang_Matrix_WRPP:
+                if(p instanceof WindyRPP)
+                    return writeWRPPZhangMatrixInstance((WindyRPP)p, filename);
+                else
                     throw new IllegalArgumentException("Currently, this type of not supported for this output format.");
-                return writeZigzagZhangMatrixInstance((WindyRPPZZTW) p, filename);
+            case Zhang_Matrix_Zigzag:
+                if (p instanceof WindyRPPZZTW)
+                    return writeZigzagZhangMatrixInstance((WindyRPPZZTW) p, filename);
+                else
+                    throw new IllegalArgumentException("Currently, this type of not supported for this output format.");
+
             default:
                 break;
         }
@@ -384,7 +399,11 @@ public class ProblemWriter {
             //write the type matrix
             for (ZigZagLink e : g.getEdges()) {
                 if (e.isRequired() || e.isReverseRequired()) {
-                    if (e.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL) {
+                    if(e.getStatus() == ZigZagLink.ZigZagStatus.MANDATORY) {
+                        matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 3;
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 3;
+                    }
+                    else if (e.getStatus() == ZigZagLink.ZigZagStatus.OPTIONAL) {
                         matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 3;
                         matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 3;
                     } else {
@@ -417,6 +436,206 @@ public class ProblemWriter {
             e.printStackTrace();
             return false;
         }
+
+    }
+
+    private boolean writeWRPPZhangMatrixInstance(WindyRPP p, String filename) {
+        try {
+
+            //init
+            PrintWriter pw = new PrintWriter(new File(filename));
+            WindyGraph g = p.getGraph();
+
+            int n = g.getVertices().size();
+            int[][] matrix = new int[n + 1][n + 1]; //indices will be off by 1
+
+            //write the deadhead matrix
+            for (WindyEdge e : g.getEdges()) {
+                matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = e.getCost()+1;
+                if (!e.isDirected()) {
+                    if (e.isWindy())
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getReverseCost()+1;
+                    else
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = e.getCost()+1;
+                }
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
+            //write the serviceCost matrix
+            for (WindyEdge e : g.getEdges()) {
+                if (e.isRequired() || e.isReverseRequired()) {
+                    System.out.println(e.toString());
+                    matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 1;
+                    matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1;
+                }
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+            matrix = new int[n + 1][n + 1]; //indices will be off by 1
+            //write the type matrix
+            for (WindyEdge e : g.getEdges()) {
+                    if(e.isRequired() || e.isReverseRequired()) {
+                        matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 1;
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 1;
+                    } else {
+                        matrix[e.getFirstEndpointId()][e.getSecondEndpointId()] = 0;
+                        matrix[e.getSecondEndpointId()][e.getFirstEndpointId()] = 0;
+                    }
+            }
+
+            matrix = swapDepot(matrix, g.getDepotId());
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    pw.print(matrix[i][j] + "\t");
+                }
+                pw.println();
+            }
+
+
+            pw.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+
+    private <V extends Vertex, E extends Link<V>, G extends Graph<V, E>> boolean writeJSON(Problem<V, E, G> p, String filename) {
+
+        try {
+            G g = p.getGraph();
+            PrintWriter pw = new PrintWriter(filename, "UTF-8");
+
+            pw.println("{");
+
+            //nodes
+            pw.println("\t\"nodes\":");
+            pw.println("\t[");
+
+            String toAdd;
+            Iterator<? extends Vertex> iter = g.getVertices().iterator();
+            HashMap<Integer, Pair<Integer>> newCoords = transformCoordinates(g.getVertices());
+
+            while(iter.hasNext()){
+
+                Vertex v = iter.next();
+                Pair<Integer> vizCoords = newCoords.get(v.getId());
+                toAdd = "\t\t{";
+                toAdd += "\"id\":"+v.getId();
+                toAdd += ", \"name\":\""+ v.getLabel() + "\"";
+                toAdd += ", \"x\":"+ vizCoords.getFirst();
+                toAdd += ", \"y\":"+ vizCoords.getSecond();
+
+                if(v.getId() == g.getDepotId())
+                    toAdd += ", \"depot\":true";
+
+                toAdd += "}";
+
+
+
+                if(iter.hasNext())
+                    toAdd +=",";
+
+                pw.println(toAdd);
+
+            }
+
+            pw.println("\t],");
+
+            //links
+            pw.println("\t\"links\":");
+            pw.println("\t[");
+
+            Iterator<? extends Link> iter2 = g.getEdges().iterator();
+            while(iter2.hasNext()) {
+
+                Link l = iter2.next();
+
+                toAdd = "\t\t{";
+                toAdd += "\"id\":"+l.getId();
+                toAdd += ", \"label\":\""+ l.getLabel() + "\"";
+                toAdd += ", \"source\":"+ l.getFirstEndpointId();
+                toAdd += ", \"sink\":"+ l.getSecondEndpointId();
+                toAdd += ", \"directed\":"+ l.isDirected();
+                toAdd += ", \"required\":"+l.isRequired();
+                toAdd += ", \"type\":\""+ l.getType() + "\"";
+                toAdd += ", \"speed\":"+ l.getMaxSpeed();
+                toAdd += ", \"zone\":\""+ l.getZone() + "\"}";
+
+                if(iter2.hasNext())
+                    toAdd +=",";
+
+                pw.println(toAdd);
+
+            }
+
+            pw.println("\t]");
+
+            pw.println("}");
+
+            pw.close();
+
+
+
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+
+    }
+
+    /**
+     * @return key = v.getId(), val = newX, newY
+     */
+    private static HashMap<Integer, Pair<Integer>> transformCoordinates(Collection<? extends Vertex> verts) {
+        double maxX = Double.MIN_VALUE;
+        double minX = Double.MAX_VALUE;
+        double maxY = Double.MIN_VALUE;
+        double minY = Double.MAX_VALUE;
+
+        for(Vertex v : verts) {
+            if(v.getX() > maxX)
+                maxX = v.getX();
+            if(v.getX() < minX)
+                minX = v.getX();
+            if(v.getY() > maxY)
+                maxY = v.getY();
+            if(v.getY() < minY)
+                minY = v.getY();
+        }
+
+        HashMap<Integer, Pair<Integer>> ans = new HashMap<Integer, Pair<Integer>>();
+
+        //scale
+        int newX, newY;
+        for(Vertex v : verts) {
+            newX = (int)((v.getX() - minX) * 1000000);
+            newY = (int)((v.getY() - minY) * -1000000);
+            ans.put(v.getId(), new Pair<Integer>(newX, newY));
+        }
+
+        return ans;
 
     }
 
@@ -588,7 +807,7 @@ public class ProblemWriter {
             pw.println();
             pw.println("LINKS");
 
-            String lineFormat = "Line Format:V1,V2,COST";
+            String lineFormat = "Line Format:V1,V2,COST,HIGHWAY_TYPE,NAME,MAX_SPEED,ZONE";
             if (isWindy)
                 lineFormat += ",REVERSE COST";
             lineFormat += ",REQUIRED";
@@ -603,7 +822,11 @@ public class ProblemWriter {
                 line = "";
                 line += e.getEndpoints().getFirst().getId() + ","
                         + e.getEndpoints().getSecond().getId() + ","
-                        + e.getCost();
+                        + e.getCost() + ","
+                        + e.getType() + ","
+                        + e.getLabel() + ","
+                        + e.getMaxSpeed() + ","
+                        + e.getZone();
                 if (isWindy)
                     line += "," + ((WindyEdge) e).getReverseCost();
                 line += "," + e.isRequired();

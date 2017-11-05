@@ -216,6 +216,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
 
         boolean ret = mVertices.remove(v);
         if (ret) {
+            mInternalVertexMap.remove(v.getId());
             onStateChange();
             v.setFinalized(false);
         }

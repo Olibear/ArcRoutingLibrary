@@ -947,6 +947,68 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
         return reqIndices.size() <= 0;
     }
 
+    /**
+     *
+     * Method to naively repair a solution if you are trying to model arcs as edges with very high costs in one direction.
+     * It goes through the solution in the directed graph and looks for arcs that are more than the cost of the 'real' costs
+     * in the graph, then replace it with a shortest path
+     *
+     * @param dg - An Eulerian directed graph
+     * @param wg - The windy graph for which the Euler tour on dg is the proposed solution to the WRPP
+     */
+    public static void repairSolution(DirectedGraph dg, WindyGraph wg) {
+
+        //look for arcs that have cost greater than shortest paths in wg
+        int n = wg.getVertices().size();
+        int[][] dist = wg.getAllPairsDistMatrix();
+        int[][] path = wg.getAllPairsPathMatrix();
+        int[][] edgePath = wg.getAllPairsEdgePathMatrix();
+        int i,j, curr, end, next;
+
+        HashSet<Arc> toRemove = new HashSet<Arc>();
+        HashSet<Arc> toAdd = new HashSet<Arc>();
+
+        try {
+
+            for (Arc a : dg.getEdges()) {
+                i = a.getFirstEndpointId();
+                j = a.getSecondEndpointId();
+
+                if (a.getCost() > dist[i][j]) {
+
+                    //mark for removal
+                    toRemove.add(a);
+
+                    //replace it with the shortest path
+                    curr = i;
+                    end = j;
+
+                    if (curr != end) {
+                        do {
+                            next = path[curr][end];
+                            Arc newArc = dg.constructEdge(curr, next, "", dist[curr][next]);
+                            newArc.setRequired(wg.getEdge(edgePath[curr][end]).isRequired());
+                            toAdd.add(newArc);
+                        } while ((curr = next) != end);
+                    }
+
+                }
+            }
+
+            for(Arc a: toAdd) {
+                dg.addEdge(a);
+            }
+
+            for(Arc a: toRemove)
+                dg.removeEdge(a);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+    }
+
     private static double calculateAveragePathCost(WindyGraph g, int i, int j, int[] path, int[] edgePath) {
         int start, end, next, ans;
         start = i;
@@ -988,6 +1050,8 @@ public class WRPPSolver_Win extends SingleVehicleSolver<WindyVertex, WindyEdge, 
 
             //go through the improvement procedures described in Benavent that eliminate added cycles
             eliminateRedundantCycles(ans, windyReq, copy);
+
+            repairSolution(ans, copy);
 
 
             //return the answer

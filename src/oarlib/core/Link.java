@@ -50,7 +50,9 @@ public abstract class Link<V extends Vertex> {
     private boolean hasTimeWindow;
     private int timeWindowStart;
     private int timeWindowEnd;
-
+    private int maxSpeed;
+    private Zone zone;
+    private HighwayType type;
 
     protected Link(String label, Pair<V> endpoints, int cost) {
         this(label, endpoints, cost, true);
@@ -67,6 +69,9 @@ public abstract class Link<V extends Vertex> {
         capacitySet = false;
         hasTimeWindow = false;
         mServiceCost = 0;
+        maxSpeed = 0;
+        zone = Zone.NOT_SET;
+        type = HighwayType.NOT_SET;
     }
 
     /**
@@ -219,11 +224,54 @@ public abstract class Link<V extends Vertex> {
 
     public abstract Type getLinkType();
 
+    public int getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public void setMaxSpeed(int maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    public Zone getZone() {
+        return zone;
+    }
+
+    public void setZone(Zone zone) {
+        this.zone = zone;
+    }
+
+    public HighwayType getType() {
+        return type;
+    }
+
+    public void setType(HighwayType type) {
+        this.type = type;
+    }
+
     public enum Type {
         UNDIRECTED,
         DIRECTED,
         MIXED,
         WINDY
+    }
+
+    public enum Zone {
+        RESIDENTIAL,
+        COMMERCIAL,
+        MIXED,
+        CIVIC,
+        OTHER,
+        NOT_SET //default
+    }
+
+    public enum HighwayType {
+        TRUNK, //highest priority
+        PRIMARY, //second priority
+        SECONDARY, //third priority
+        TERTIARY, //fourth priority
+        RESIDENTIAL_ACCESS, //a type according to
+        OTHER, //lowest
+        NOT_SET //default
     }
 
 }

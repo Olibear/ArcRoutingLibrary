@@ -23,6 +23,7 @@
  */
 package oarlib.problem.impl.io;
 
+import com.sun.jdi.event.WatchpointEvent;
 import gnu.trove.TIntObjectHashMap;
 import oarlib.core.Graph;
 import oarlib.exceptions.FormatMismatchException;
@@ -31,6 +32,7 @@ import oarlib.graph.impl.*;
 import oarlib.graph.util.Pair;
 import oarlib.link.impl.Arc;
 import oarlib.link.impl.Edge;
+import oarlib.link.impl.WindyEdge;
 import oarlib.link.impl.ZigZagLink;
 import oarlib.vertex.impl.DirectedVertex;
 import oarlib.vertex.impl.MixedVertex;
@@ -84,6 +86,8 @@ public class ProblemReader {
                 return readMETISGraph(fileName);
             case OARLib:
                 return readOARLibGraph(fileName);
+            case Zhang_Matrix_WRPP:
+                return readRuiWRPPGraph(fileName);
             case MeanderingPostman:
                 return readMeanderingPostmanGraph(fileName);
             default:
@@ -93,6 +97,130 @@ public class ProblemReader {
                 + " there doesn't seem to be an appropriate read method assigned to it.  Support is planned in the future," +
                 "but not currently available");
         throw new UnsupportedFormatException();
+    }
+
+    private Graph<?, ?> readRuiWRPPGraph(String fileName) throws FormatMismatchException {
+        try {
+
+            List<String> allLines = Files.readAllLines(Paths.get(fileName), Charset.defaultCharset());
+            int count = allLines.size();
+            int n = count / 3;
+
+            String line, line2;
+            String[] temp;
+            File graphFile = new File(fileName);
+            BufferedReader br = new BufferedReader(new FileReader(graphFile));
+
+            WindyGraph ans = new WindyGraph(n);
+
+            //keys are endpoint ids, with the first value always < second
+            HashMap<Pair<Integer>, WindyEdge> links = new HashMap<Pair<Integer>, WindyEdge>();
+
+            //parse travel times
+            Pair<Integer> key;
+            boolean reverse;
+            int value;
+            for (int i = 1; i <= n; i++) {
+                line = br.readLine();
+                temp = line.split(",\\s+|:|\t");
+                for (int j = 1; j <= n; j++) {
+
+                    value = Integer.parseInt(temp[j - 1]);
+                    if (value == 0)
+                        continue;
+
+                    if (i <= j) {
+                        key = new Pair<Integer>(i, j);
+                        reverse = false;
+                    } else {
+                        key = new Pair<Integer>(j, i);
+                        reverse = true;
+                    }
+
+                    if (!links.containsKey(key)) {
+                        //default
+                        links.put(key, ans.constructEdge(key.getFirst(), key.getSecond(), "", Integer.MAX_VALUE, Integer.MAX_VALUE, false));
+                    }
+
+                    WindyEdge tempLink = links.get(key);
+                    if (reverse)
+                        tempLink.setReverseCost(value);
+                    else
+                        tempLink.setCost(value);
+                }
+
+            }
+
+            //parse service times
+            for (int i = 1; i <= n; i++) {
+                line = br.readLine();
+                temp = line.split(",\\s+|:|\t");
+                for (int j = 1; j <= n; j++) {
+
+                    value = Integer.parseInt(temp[j - 1]);
+
+                    if (value == 0)
+                        continue;
+
+                    if (i <= j) {
+                        key = new Pair<Integer>(i, j);
+                        reverse = false;
+                    } else {
+                        key = new Pair<Integer>(j, i);
+                        reverse = true;
+                    }
+
+                    if (!links.containsKey(key)) {
+                        //default
+                        LOGGER.warn("THIS SHOULD NOT HAPPEN: All links should have been created already.");
+                        links.put(key, ans.constructEdge(key.getFirst(), key.getSecond(), "", Integer.MAX_VALUE, Integer.MAX_VALUE, false));
+                    }
+
+                    WindyEdge tempLink = links.get(key);
+                    if (reverse)
+                        tempLink.setReverseServiceCost(1);
+                    else
+                        tempLink.setServiceCost(1);
+                }
+
+            }
+            //parse type
+            for (int i = 1; i <= n; i++) {
+                line = br.readLine();
+                temp = line.split(",\\s+|:|\t");
+                for (int j = 1; j <= i; j++) {
+
+                    value = Integer.parseInt(temp[j - 1]);
+                    if (value == 0)
+                        continue;
+
+                    key = new Pair<Integer>(j, i);
+
+                    if (!links.containsKey(key)) {
+                        //default
+                        LOGGER.warn("THIS SHOULD NOT HAPPEN: All links should have been created already.");
+                        links.put(key, ans.constructEdge(key.getFirst(), key.getSecond(), "", Integer.MAX_VALUE, Integer.MAX_VALUE, false));
+                    }
+
+                    WindyEdge tempLink = links.get(key);
+
+                    if (value == 0)
+                        tempLink.setRequired(false);
+                    else
+                        tempLink.setRequired(true);
+                }
+
+            }
+
+            for (WindyEdge zzl : links.values()) {
+                ans.addEdge(zzl);
+            }
+
+            return ans;
+        }
+        catch (Exception e) {
+            throw new FormatMismatchException(e.getMessage(), e.getCause());
+        }
     }
 
     private Graph<?, ?> readMeanderingPostmanGraph(String fileName) throws FormatMismatchException {

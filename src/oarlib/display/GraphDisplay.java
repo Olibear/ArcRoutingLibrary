@@ -57,12 +57,15 @@ import org.gephi.ranking.api.RankingController;
 import org.gephi.ranking.api.Transformer;
 import org.gephi.ranking.plugin.transformer.AbstractColorTransformer;
 import org.openide.util.Lookup;
+import org.openide.util.Mutex;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -166,6 +169,9 @@ public class GraphDisplay {
                 case CSV:
                     exportToCSV(edgePartition, null);
                     break;
+                case JSON:
+                    exportToJSON(edgePartition, null);
+                    break;
             }
             return true;
         } catch (Exception e) {
@@ -186,6 +192,8 @@ public class GraphDisplay {
                 case CSV:
                     exportToCSV(null, r);
                     break;
+                case JSON:
+                    exportToJSON(null, r);
             }
             return true;
         } catch (Exception e) {
@@ -196,6 +204,65 @@ public class GraphDisplay {
 
     private void exportToGEXF(HashMap<Integer, Integer> edgePartition, Route r) throws UnsupportedFormatException {
         //TODO
+    }
+
+    private void exportToJSON(HashMap<Integer, Integer> edgePartition, Route r) throws UnsupportedFormatException {
+        //TODO
+
+        //if you don't have coordinates, it wouldn't really work well
+        if(mGraph.getVertices().size() == 0) {
+            throw new UnsupportedFormatException("The graph you are attempting to export appears to be empty.");
+        }
+
+        if(!mGraph.getVertices().iterator().next().hasCoordinates()) {
+            throw new UnsupportedFormatException("The graph you are attempting to export appears not to have any cordinates.");
+        }
+
+
+        //null null case is just show the graph
+        try {
+
+            //for consumption by OARLibViz
+            PrintWriter pw = new PrintWriter(new File(mInstanceName + ".json"), "UTF-8");
+            pw.println("{");
+
+            //nodes
+            pw.println("\t\"nodes\"");
+            pw.println("\t[");
+            Iterator<? extends Vertex> vIter = mGraph.getVertices().iterator();
+            while(vIter.hasNext()) {
+                Vertex v = vIter.next();
+                String toPrint = "\t\t{\"id\":" + v.getId() + ", \"name\":" + v.getId() + ", \"x\":" + v.getX() + ", \"y\":" + v.getY() + "}";
+                if(vIter.hasNext()) {
+                    toPrint += ",";
+                }
+                pw.println(toPrint);
+            }
+            pw.println("\t]");
+
+            pw.println("\t\"links\"");
+            pw.println("\t[");
+            Iterator<? extends Link> lIter = mGraph.getEdges().iterator();
+            while(lIter.hasNext()) {
+                Link l = lIter.next();
+                String toPrint = "\t\t{\"id\":" + l.getId() + ", \"label\":" + l.getId() + ", \"source\":" + l.getFirstEndpointId() + ", \"sink\":" + l.getSecondEndpointId() + ", \"directed\":" + l.isDirected() + "}";
+                if(vIter.hasNext()) {
+                    toPrint += ",";
+                }
+                pw.println(toPrint);
+            }
+            pw.println("\t]");
+
+            pw.println("}");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return;
+        }
+
+        //with partitions
+
+        //with route
     }
 
     private void exportToCSV(HashMap<Integer, Integer> edgePartition, Route r) throws UnsupportedFormatException {
@@ -450,6 +517,7 @@ public class GraphDisplay {
     public enum ExportType {
         PDF,
         GEXF,
+        JSON,
         CSV;
     }
 }

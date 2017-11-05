@@ -240,6 +240,9 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
                 e2 = new MixedEdge("deep copy original", new Pair<MixedVertex>(ans.getInternalVertexMap().get(e.getEndpoints().getFirst().getId()), ans.getInternalVertexMap().get(e.getEndpoints().getSecond().getId())), e.getCost(), e.isDirected());
                 e2.setMatchId(e.getId());
                 e2.setRequired(e.isRequired());
+                e2.setZone(e.getZone());
+                e2.setType(e.getType());
+                e2.setMaxSpeed(e.getMaxSpeed());
                 ans.addEdge(e2, e.getId());
             }
 
