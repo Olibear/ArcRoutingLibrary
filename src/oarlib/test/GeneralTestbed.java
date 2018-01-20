@@ -94,14 +94,6 @@ public class GeneralTestbed {
         PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
         rootLogger.addAppender(new ConsoleAppender(layout));
 
-        //testMethods();
-
-        //args = new String[3];
-        //args[0] = "7";
-        //args[1] = "/Users/oliverlum/Downloads/20node/WRPP20nodes_1_1_1.txt";
-        //args[1] = "/Users/oliverlum/Downloads/g300-450_0.DAT";
-        //args[2] = "/Users/oliverlum/Downloads/";
-
 
         //empty call gets help
         if((args.length != 2 && !args[0].equals("7")) && !(args.length == 3 && args[0].equals("7"))) {
@@ -310,18 +302,18 @@ public class GeneralTestbed {
         //validateEulerTour();
         //snippetUCPPSolver();
         //testFredericksons("/Users/Username/FolderName");
-        //validateUCPPSolver("/Users/oliverlum/Downloads/validateDCPP.txt");
-        //validateMCPPSolver("/Users/oliverlum/Downloads/test_instances/MCPP_Instances_YaoyuenyongInstances", "/Users/oliverlum/Downloads/validateFrederickson.txt");
-        //validateImprovedMCPPSolver("/Users/oliverlum/Downloads/test_instances/MCPP_Instances_Corberan", "/Users/oliverlum/Downloads/scaleYaoyuenyong_1.txt");
-        //validateWRPPSolver("/Users/oliverlum/Downloads/test_instances/WRPP_Instances_Corberan", "/Users/oliverlum/Downloads/win_scaling2.txt");
-        validateImprovedWRPPSolver("/Users/oliverlum/Downloads/test_instances/WRPP_Instances_Corberan", "/Users/oliverlum/Downloads/benavent_scaling2.txt");
+        //validateUCPPSolver("/Users/Username/FolderName/FileName.txt");
+        //validateMCPPSolver("/Users/FolderName/", "/Users/Username/FolderName/FileName.txt");
+        //validateImprovedMCPPSolver("/Users/Username/FolderName", "/Users/Username/FolderName/FileName.txt");
+        //validateWRPPSolver("/Users/Username/FolderName", "/Users/Username/FolderName/FileName.txt");
+        validateImprovedWRPPSolver("/Users/Username/FolderName/", "/Users/Username/FolderName/FileName.txt");
         //testCamposGraphReader();
         //validateSimplifyGraph();
         //testMSArbor();
-        //testDRPPSolver("/Users/oliverlum/Downloads/test_instances/DRPP_Instances_Campos", "/Users/oliverlum/Downloads/camposNames.txt");
+        //testDRPPSolver("/Users/Username/FolderName/", "/Users/Username/FolderName/FileName.txt");
         //POMSexample();
         //testSolutionImporter();
-        //testCollapseSolvers("/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/CollapseTesting.csv");
+        //testCollapseSolvers("/Users/Username/FolderName/FileName.csv");
         //testGraphDisplay();
         //testOSMQuery();
         //testMMkWRPPSolver();
@@ -329,12 +321,12 @@ public class GeneralTestbed {
         //testTruckAndDroneProblemGenerator();
         //createLegend();
         //String[] args2 = new String[2];
-        //args2[1] = "/Users/oliverlum/Downloads/droneRoutes.txt";
-        //args2[0] = "/Users/oliverlum/Downloads/instance2_tmp.txt";
+        //args2[1] = "/Users/Username/FolderName/FileName.txt";
+        //args2[0] = "/Users/Username/FolderName/FileName.txt";
         //testFeasibilityChecker(args2);
         //testEquatorialInstanceGenerator();
         //testZigZagParser();
-        //testMultiVehicleSolvers("/Users/Username/Foldername", "/Users/oliverlum/Documents/Research/Computational Results/MMkWRPP/Timing2.csv");
+        //testMultiVehicleSolvers("/Users/Username/FolderName", "/Users/Username/FolderName/FileName.csv");
         //testZigZagSolver();
         //testIracer(args);
         //testMemoryLeak();
@@ -342,7 +334,7 @@ public class GeneralTestbed {
         //callPython();
         //stefanInstances();
 
-        //testVizExport("/Users/oliverlum/Downloads/test.json");
+        //testVizExport("/Users/Username/FolderName/FileName.json");
     }
 
     private static void testVizExport(String outputFile) {
@@ -360,16 +352,10 @@ public class GeneralTestbed {
                 slimG = OSM_Fetcher.removeDegreeTwoNodes(g);
                 trueG = OSM_Fetcher.removeDegreeOneNodes(slimG);
 
-                //g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_small.txt");
                 validWInstance = new MinMaxKWRPP(trueG, bb.getTitle(), 5);
                 ProblemWriter pw = new ProblemWriter(ProblemFormat.Name.JSON);
                 pw.writeInstance(validWInstance, outputFile);
 
-                /*MultiWRPPSolver_Benavent solver = new MultiWRPPSolver_Benavent(validWInstance,"testroutes");
-                Collection<? extends Route> solution = solver.trySolve();
-
-                RouteExporter re = new RouteExporter();
-                re.exportRoutes(solution, RouteExporter.RouteFormat.JSON,"/Users/oliverlum/Downloads/testRoutes.json");*/
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -411,29 +397,13 @@ public class GeneralTestbed {
 
             ProblemReader pr = new ProblemReader(ProblemFormat.Name.Corberan);
 
-            /*for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES_SMALL) {
-                g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_small.txt");
-                validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 3);
-                probs.add(validWInstance);
-            }*/
 
-            g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est7_6_3_1.dat");
+            g = (WindyGraph)pr.readGraph("/Users/Username/FolderName/FileName.dat");
             g.setDepotId(2);
             validWInstance = new MinMaxKWRPP(g, "Corberan7_6_3_1_3veh", 3);
             probs.add(validWInstance);
 
-
-            /*g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est6_5_3_2/Minmax_est6_5_3_2.dat");
-            g.setDepotId(9);
-            validWInstance = new MinMaxKWRPP(g, "Corberan6_5_3_2_3veh", 3);
-            probs.add(validWInstance);
-
-            g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est8_8_5_1/Minmax_est8_8_5_1.dat");
-            g.setDepotId(28);
-            validWInstance = new MinMaxKWRPP(g, "Corberan8_8_5_1_3veh", 2);
-            probs.add(validWInstance);*/
-
-            PrintWriter pw = new PrintWriter(new File("/Users/oliverlum/Downloads/CollapseParameterResults_Grid.txt"), "UTF-8");
+            PrintWriter pw = new PrintWriter(new File("/Users/Username/FolderName/FileName.txt"), "UTF-8");
 
             //vary numPartitions
             for (int partitions = 10; partitions <= 30; partitions += 5) {
@@ -464,7 +434,7 @@ public class GeneralTestbed {
     }
 
     private static void testSolutionImporter() {
-        Collection<Tour<DirectedVertex, Arc>> test = SolutionImporter.importRoutes("/Users/oliverlum/Downloads/bnc2/Paris_2_3_50_op.txt", 67, SolutionImporter.RouteFormat.CORBERAN);
+        Collection<Tour<DirectedVertex, Arc>> test = SolutionImporter.importRoutes("/Users/Username/FolderName/FileName.txt", 67, SolutionImporter.RouteFormat.CORBERAN);
 
         for (Route r : test) {
             System.out.println(r.toString());
@@ -472,7 +442,7 @@ public class GeneralTestbed {
 
         try {
             ProblemReader pr = new ProblemReader(ProblemFormat.Name.Corberan);
-            WindyGraph g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/bnc2/Paris.txt");
+            WindyGraph g = (WindyGraph) pr.readGraph("/Users/Username/FolderName/FileName.txt");
             HashSet<Tour> finalAns = SolutionImporter.mapToGraph(g, test);
 
             for (Tour t : finalAns) {
@@ -496,7 +466,7 @@ public class GeneralTestbed {
                 System.out.println("M: " + g.getEdges().size());
                 WindyRPP wrpp = new WindyRPP(g, bb.getTitle());
                 ProblemWriter pw = new ProblemWriter(ProblemFormat.Name.Corberan);
-                pw.writeInstance(wrpp, "/Users/oliverlum/Documents/" + bb.getTitle() + ".txt");
+                pw.writeInstance(wrpp, "/Users/Username/FolderName/" + bb.getTitle() + ".txt");
             }
 
             System.out.println("====================================");
@@ -508,7 +478,7 @@ public class GeneralTestbed {
                 System.out.println("M: " + g.getEdges().size());
                 WindyRPP wrpp = new WindyRPP(g, bb.getTitle());
                 ProblemWriter pw = new ProblemWriter(ProblemFormat.Name.Corberan);
-                pw.writeInstance(wrpp, "/Users/oliverlum/Documents/" + bb.getTitle() + ".txt");
+                pw.writeInstance(wrpp, "/Users/Username/FolderName/" + bb.getTitle() + ".txt");
                 GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, g, bb.getTitle());
                 gd.export(GraphDisplay.ExportType.PDF);
             }
@@ -522,7 +492,7 @@ public class GeneralTestbed {
                 System.out.println("M: " + g.getEdges().size());
                 WindyRPP wrpp = new WindyRPP(g, bb.getTitle());
                 ProblemWriter pw = new ProblemWriter(ProblemFormat.Name.Corberan);
-                pw.writeInstance(wrpp, "/Users/oliverlum/Documents/" + bb.getTitle() + ".txt");
+                pw.writeInstance(wrpp, "/Users/Username/FolderName/" + bb.getTitle() + ".txt");
                 GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, g, bb.getTitle());
                 gd.export(GraphDisplay.ExportType.PDF);
             }
@@ -536,7 +506,7 @@ public class GeneralTestbed {
                 System.out.println("M: " + g.getEdges().size());
                 WindyRPP wrpp = new WindyRPP(g, bb.getTitle());
                 ProblemWriter pw = new ProblemWriter(ProblemFormat.Name.Corberan);
-                pw.writeInstance(wrpp, "/Users/oliverlum/Documents/" + bb.getTitle() + ".txt");
+                pw.writeInstance(wrpp, "/Users/Username/FolderName/" + bb.getTitle() + ".txt");
                 GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, g, bb.getTitle());
                 gd.export(GraphDisplay.ExportType.PDF);
             }
@@ -550,7 +520,7 @@ public class GeneralTestbed {
                 System.out.println("M: " + g.getEdges().size());
                 WindyRPP wrpp = new WindyRPP(g, bb.getTitle());
                 ProblemWriter pw = new ProblemWriter(ProblemFormat.Name.Corberan);
-                pw.writeInstance(wrpp, "/Users/oliverlum/Documents/" + bb.getTitle() + ".txt");
+                pw.writeInstance(wrpp, "/Users/Username/FolderName/" + bb.getTitle() + ".txt");
                 GraphDisplay gd = new GraphDisplay(GraphDisplay.Layout.YifanHu, g, bb.getTitle());
                 gd.export(GraphDisplay.ExportType.PDF);
             }
@@ -565,7 +535,7 @@ public class GeneralTestbed {
             for(int i = 1; i <= 5; i++) {
                 for(int j = 1; j <= 5; j++) {
                     //k tacitly 1
-                    ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/oliverlum/Downloads/ZigzagCPPT.py", Integer.toString(i), Integer.toString(j), Integer.toString(k));
+                    ProcessBuilder pb = new ProcessBuilder("/opt/local/bin/python", "/Users/Username/FolderName/FileName.py", Integer.toString(i), Integer.toString(j), Integer.toString(k));
                     Process run = pb.start();
                     BufferedReader bfr = new BufferedReader(new InputStreamReader(run.getInputStream()));
                     String line = "";
@@ -588,9 +558,9 @@ public class GeneralTestbed {
     private static void compareResults() {
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("/Users/oliverlum/Downloads/MTZ_PartialOrder_OutputSummary.txt"));
-            BufferedReader br2 = new BufferedReader(new FileReader("/Users/oliverlum/Downloads/MTZ_OutputSummary.txt"));
-            PrintWriter pw = new PrintWriter(new File("/Users/oliverlum/Downloads/Results2.txt"), "UTF-8");
+            BufferedReader br = new BufferedReader(new FileReader("/Users/Username/FolderName/FileName.txt"));
+            BufferedReader br2 = new BufferedReader(new FileReader("/Users/Username/FolderName/FileName.txt"));
+            PrintWriter pw = new PrintWriter(new File("/Users/Username/FolderName/FileName.txt"), "UTF-8");
 
             String line;
             Double temp;
@@ -705,46 +675,6 @@ public class GeneralTestbed {
     private static void testZigZagSolver() {
         try {
 
-            /*
-            //set up a graph for which we know the optimal solution
-            ZigZagGraph circle = new ZigZagGraph(8);
-            Random rng = new Random(1000);
-            int var, var2;
-            ZigZagLink temp;
-            for (int i = 1; i <= 8; i++) {
-                var = rng.nextInt(6);
-                var -= 3;
-                var2 = rng.nextInt(6);
-                var2 -= 3;
-                temp = new ZigZagLink("e" + i, new Pair<ZigZagVertex>(circle.getVertex(i), circle.getVertex(i % 8 + 1)), 10 + var, 10 + var2, 0, 0, 0, ZigZagLink.ZigZagStatus.NOT_AVAILABLE, false);
-                circle.addEdge(temp);
-            }
-
-            temp = circle.getEdge(3);
-            temp.setServiceCost(4);
-            temp.setReverseServiceCost(5);
-            temp.setZigzagCost(11);
-            temp.setRequired(true);
-            temp.setTimeWindow(new Pair<Integer>(0, 50));
-            temp.setStatus(ZigZagLink.ZigZagStatus.OPTIONAL);
-
-            temp = circle.getEdge(5);
-            temp.setServiceCost(4);
-            temp.setReverseServiceCost(5);
-            temp.setZigzagCost(11);
-            temp.setRequired(true);
-            temp.setTimeWindow(new Pair<Integer>(0, 70));
-            temp.setStatus(ZigZagLink.ZigZagStatus.OPTIONAL);
-
-            temp = circle.getEdge(6);
-            temp.setServiceCost(5);
-            temp.setReverseServiceCost(4);
-            temp.setZigzagCost(11);
-            temp.setRequired(true);
-            temp.setTimeWindow(new Pair<Integer>(0, 100));
-            temp.setStatus(ZigZagLink.ZigZagStatus.OPTIONAL);
-            */
-
 
             PrintWriter pw = new PrintWriter(new File("RevisedZZHeuristicScalingResults_Top5Comparison_Full.txt"), "UTF-8");
             File f = new File("RevisedZZHeuristicScalingresults_NewIP.txt");
@@ -758,83 +688,13 @@ public class GeneralTestbed {
 
                     //read in zigzag instances, and make sure that the graph object is correct
                     ProblemReader pr = new ProblemReader(ProblemFormat.Name.MeanderingPostman);
-                    ZigZagGraph graph = (ZigZagGraph) (pr.readGraph("/Users/oliverlum/Downloads/20node/WPPTZ20nodes_" + i + "_" + j + "_1.txt"));
+                    ZigZagGraph graph = (ZigZagGraph) (pr.readGraph("/Users/Username/FolderName/WPPTZ20nodes_" + i + "_" + j + "_1.txt"));
 
                     int numEdges = graph.getEdges().size();
                     System.out.println(numEdges);
 
-                    /*WindyRPPZZTW prob = new WindyRPPZZTW(graph, i + "_" + j + "_1");
-                    WRPPZZTW_PFIH solver = new WRPPZZTW_PFIH(prob);
-                    solver.setLatePenalty(1000);
-
-                    //start = System.currentTimeMillis();
-                    Collection<? extends Route> ans = solver.trySolve();
-                    //end = System.currentTimeMillis();
-                    //pw.println(ans.iterator().next().getCost() + "," + (end-start) + "," + solver.getBestPartialLength() + "," + solver.getBestPartialNumZigzags() + "," + solver.getBestSumLengthZigzags() + "," + solver.getBestPartialSize() + "," + solver.getAvgPartialLength() + "," + solver.getAvgPartialNumZigzags() + "," + solver.getAvgSumLengthZigzags() + "," + solver.getAvgPartialSize() + "," + solver.getGreatestSumLengthZigzags() + ";");
-                    */
                 }
             }
-
-
-            /*ZigzagRectangularGraphGenerator zzrgg = new ZigzagRectangularGraphGenerator(1);
-            ProblemWriter probw = new ProblemWriter(ProblemFormat.Name.Zhang_Matrix_Zigzag);
-
-            //read in zigzag instances, and make sure that the graph object is correct
-            ProblemReader pr = new ProblemReader(ProblemFormat.Name.MeanderingPostman);
-            ZigZagGraph graph = (ZigZagGraph) (pr.readGraph("/Users/oliverlum/Downloads/171Nodes/WPPTZ171nodes_" + 1 + "_" + 1 + "_1.txt"));
-
-            int numEdges = graph.getEdges().size();
-
-            WindyRPPZZTW prob = new WindyRPPZZTW(graph, 1 + "_" + 1 + "_1");
-            WRPPZZTW_PFIH solver = new WRPPZZTW_PFIH(prob);
-            solver.setLatePenalty(1000);
-
-            //start = System.currentTimeMillis();
-            Collection<? extends Route> ans = solver.trySolve();
-            //end = System.currentTimeMillis();
-            //pw.println(ans.iterator().next().getCost() + "," + (end-start) + "," + solver.getBestPartialLength() + "," + solver.getBestPartialNumZigzags() + "," + solver.getBestSumLengthZigzags() + "," + solver.getBestPartialSize() + "," + solver.getAvgPartialLength() + "," + solver.getAvgPartialNumZigzags() + "," + solver.getAvgSumLengthZigzags() + "," + solver.getAvgPartialSize() + "," + solver.getGreatestSumLengthZigzags() + ";");
-
-
-
-            /*
-            for (int i = 0; i <= 4; i++) {
-                for (int j = 0; j < 10; j++) {
-
-                    ZigZagGraph graph = zzrgg.generate(i+5, 35, (i+5)*35, .5, true);
-
-                    WindyRPPZZTW prob = new WindyRPPZZTW(graph, "11_" + i + "_" + j);
-                    probw.writeInstance(prob, "/Users/oliverlum/Downloads/20node/WPPTZ20nodes_11_" + i + "_" + j + ".txt");
-                    WRPPZZTW_PFIH solver = new WRPPZZTW_PFIH(prob);
-                    solver.setLatePenalty(10000);
-
-                    //start = System.currentTimeMillis();
-                    Collection<? extends Route> ans = solver.trySolve();
-                    //end = System.currentTimeMillis();
-                    //pw.println(ans.iterator().next().getCost() + "," + (end-start) + "," + solver.getBestPartialLength() + "," + solver.getBestPartialNumZigzags() + "," + solver.getBestSumLengthZigzags() + "," + solver.getBestPartialSize() + "," + solver.getAvgPartialLength() + "," + solver.getAvgPartialNumZigzags() + "," + solver.getAvgSumLengthZigzags() + "," + solver.getAvgPartialSize() + "," + solver.getGreatestSumLengthZigzags() + ";");
-
-                }
-            }*/
-
-
-            /*
-            for (int i = 0; i < 6; i++) {
-                for (int j = 0; j < 10; j++) {
-
-                    ZigZagGraph graph = zzrgg.generate(i+20, 35, (i+20)*35, .5, true);
-
-                    WindyRPPZZTW prob = new WindyRPPZZTW(graph, "11_" + i + "_" + j);
-                    probw.writeInstance(prob, "/Users/oliverlum/Downloads/20node/WPPTZ20nodes_11_" + i + "_" + j + ".txt");
-                    WRPPZZTW_PFIH solver = new WRPPZZTW_PFIH(prob);
-                    solver.setLatePenalty(10000);
-
-                    //start = System.currentTimeMillis();
-                    Collection<? extends Route> ans = solver.trySolve();
-                    //end = System.currentTimeMillis();
-                    //pw.println(ans.iterator().next().getCost() + "," + (end-start) + "," + solver.getBestPartialLength() + "," + solver.getBestPartialNumZigzags() + "," + solver.getBestSumLengthZigzags() + "," + solver.getBestPartialSize() + "," + solver.getAvgPartialLength() + "," + solver.getAvgPartialNumZigzags() + "," + solver.getAvgSumLengthZigzags() + "," + solver.getAvgPartialSize() + "," + solver.getGreatestSumLengthZigzags() + ";");
-
-                }
-            }
-            */
 
             pw.close();
 
@@ -848,14 +708,10 @@ public class GeneralTestbed {
         try {
             //read in zigzag instances, and make sure that the graph object is correct
             ProblemReader pr = new ProblemReader(ProblemFormat.Name.MeanderingPostman);
-            ZigZagGraph ans = (ZigZagGraph) (pr.readGraph("/Users/oliverlum/Downloads/Instancs_Solutions/WPPZ10nodes_1.txt"));
+            ZigZagGraph ans = (ZigZagGraph) (pr.readGraph("/Users/Username/FolderName/Instancs_Solutions/WPPZ10nodes_1.txt"));
 
             System.out.println("VERTICES: " + ans.getVertices().size());
             System.out.println("EDGES: " + ans.getEdges().size());
-
-            /*for (ZigZagLink l : ans.getEdges()) {
-                System.out.println("I:" + l.getFirstEndpointId() + ",J:" + l.getSecondEndpointId() + ",COST:" + l.getCost() + ",STATUS:" + l.getStatus() + ",REVERSECOST:" + l.getReverseCost() + ",SERVICECOST:" + l.getServiceCost() + ",REQUIRED:" + l.isRequired());
-            }*/
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -944,7 +800,7 @@ public class GeneralTestbed {
     }
 
     private static void testTruckAndDroneProblemGenerator() {
-        TruckAndDroneProblemWriter.writeTruckAndDroneProblem("/Users/oliverlum/Documents/Research/TruckAndDroneInstances/instance_Calgary.txt");
+        TruckAndDroneProblemWriter.writeTruckAndDroneProblem("/Users/Username/FolderName/FileName.txt");
     }
 
     @SuppressWarnings("unused")
@@ -985,7 +841,7 @@ public class GeneralTestbed {
 
             ProblemReader gr = new ProblemReader(ProblemFormat.Name.Corberan);
 
-            WindyGraph test = (WindyGraph) gr.readGraph("/Users/oliverlum/Downloads/WPP/WA0531");
+            WindyGraph test = (WindyGraph) gr.readGraph("/Users/Username/FolderName/FileName");
 
             wrpp = new MinMaxKWRPP(test, 5);
             wrppSolver = new MultiWRPPSolver_Benavent(wrpp, "WA0531");
@@ -1106,86 +962,37 @@ public class GeneralTestbed {
                 GraphDisplay displayer = new GraphDisplay(GraphDisplay.Layout.YifanHu, null, null);
 
                 ProblemReader pr = new ProblemReader(ProblemFormat.Name.Corberan);
-                /*for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES) {
-                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_Center.txt");
-                    validWInstance = new MinMaxKWRPP(g, bb.getTitle(), 5);
-                    probs.add(validWInstance);
-                }*/
 
                 OSM_Fetcher fetcher;
                 ProblemWriter pw;
 
-                //Now do MMKWRPP instances
-                /*File instanceDir = new File("/Users/oliverlum/Downloads/MK_Corberan_Instances");
-                File[] instances = instanceDir.listFiles();
-                if (instances != null) {
-                    for (File f : instances) {
-                        if (f.getName().contains(".DS_Store") || f.isDirectory())
-                            continue;
-                        g = (WindyGraph) pr.readGraph(f.getAbsolutePath());
-                        for (int veh = 2; veh <= 5; veh++) {
-                            validWInstance = new MinMaxKWRPP(g, f.getName(), veh);
-                            probs.add(validWInstance);
-                        }
-                    }
-                }*/
-
                 for(int veh = 2; veh <= 4; veh++) {
                     for (BoundingBox bb : OSM_BoundingBoxes.CITY_INSTANCES_SMALL) {
-                        //fetcher = new OSM_Fetcher(bb);
-                        //g = fetcher.queryForGraph();
-                        //g.setDepotId(Utils.findCenterVertex(g));
-                        g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_small.txt");
+                        g = (WindyGraph) pr.readGraph("/Users/Username/FolderName/" + bb.getTitle() + "_small.txt");
                         validWInstance = new MinMaxKWRPP(g, bb.getTitle(), veh);
                         probs.add(validWInstance);
-                        //pw = new ProblemWriter(ProblemFormat.Name.Corberan);
-                        //pw.writeInstance(validWInstance, "/Users/oliverlum/Downloads/Plots/" + bb.getTitle() + "_small.txt");
                     }
                 }
 
-                //now do the rectangular instances
-                /*for (int i = 1; i <= 3; i++) {
-                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/Random Instance " + i + "_Edge.txt");
-                        //g.setDepotId(Utils.findCenterVertex(g));
-                    validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 5);
-                        probs.add(validWInstance);
-
-                }*/
-                /*
-                for (int i = 1; i <= 10; i++) {
-                    g = (WindyGraph) pr.readGraph("/Users/oliverlum/Downloads/Plots/Random Instance " + i + "_Edge.txt");
-                    //g.setDepotId(Utils.findCenterVertex(g));
-                    validWInstance = new MinMaxKWRPP(g, "Random Instance " + i, 5);
-                    probs.add(validWInstance);
-
-                }*/
-
                 //now do Corberan's smaller instances
 
-                g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est7_6_3_1.dat");
+                g = (WindyGraph)pr.readGraph("/Users/Username/FolderName/FileName.dat");
                 g.setDepotId(2);
                 validWInstance = new MinMaxKWRPP(g, "Corberan7_6_3_1_3veh", 3);
                 probs.add(validWInstance);
 
 
-                g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est6_5_3_2/Minmax_est6_5_3_2.dat");
+                g = (WindyGraph)pr.readGraph("/Users/Username/FolderName/FileName.dat");
                 g.setDepotId(9);
                 validWInstance = new MinMaxKWRPP(g, "Corberan6_5_3_2_3veh", 3);
                 probs.add(validWInstance);
 
-                g = (WindyGraph)pr.readGraph("/Users/oliverlum/Downloads/angel/Minmax_est8_8_5_1/Minmax_est8_8_5_1.dat");
+                g = (WindyGraph)pr.readGraph("/Users/Username/FolderName/FileName.dat");
                 g.setDepotId(28);
                 validWInstance = new MinMaxKWRPP(g, "Corberan8_8_5_1_3veh", 2);
                 probs.add(validWInstance);
 
-                /*g = makeTestGraph();
-                g.setDepotId(3);
-                validWInstance = new MinMaxKWRPP(g, "test", 2);
-                probs.add(validWInstance);*/
-
                 MultiWRPPSolver validWSolver = new MultiWRPPSolver(validWInstance, "", displayer);
-                //MultiWRPPSolver_Benavent validWSolver = new MultiWRPPSolver_Benavent(validWInstance);
-                //MultiWRPPSolverHybrid validWSolver = new MultiWRPPSolverHybrid(validWInstance,"",displayer,7);
 
                 ExportHelper.exportToExcel(probs, metrics, validWSolver, outputFile);
                 for (Problem p : probs)
@@ -1535,9 +1342,6 @@ public class GeneralTestbed {
                     } catch (Exception ex) {
                         pw.println(temp+",,,;");
                     }
-                    //System.out.println(validAns.getCost());
-                    //System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Yaoyuenyong's implementation on a graph with " + g2.getEdges().size() + " edges.");
-                    //System.out.println(validAns.toString());
                 }
             }
             pw.close();
@@ -1554,7 +1358,6 @@ public class GeneralTestbed {
     @SuppressWarnings("unused")
     private static void validateMCPPSolver(String instanceFolder, String outputFile) {
         ProblemReader gr = new ProblemReader(ProblemFormat.Name.Yaoyuenyong);
-        //GraphReader gr = new GraphReader(Format.Name.Yaoyuenyong);
 
         try {
             MixedCPP validInstance;
@@ -1590,9 +1393,6 @@ public class GeneralTestbed {
                     } catch (Exception ex) {
                         pw.println(temp+",,,;");
                     }
-                    //System.out.println(validAns.getCost());
-                    //System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our Frederickson's implementation on a graph with " + g2.getEdges().size() + " edges.");
-                    //System.out.println(validAns.toString());
                 }
             }
             pw.close();
