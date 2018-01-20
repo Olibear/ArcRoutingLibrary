@@ -784,7 +784,7 @@ public class ProblemReader {
                         type = "Mixed";
                     else if (temp[3].startsWith("WA") || temp[3].startsWith("WB"))
                         type = "Windy";
-                    else if (temp[3].startsWith("A") || temp[3].startsWith("M") || temp[3].startsWith("m") || temp[3].startsWith("P") || temp[3].startsWith("p") || temp[3].startsWith("Minmax"))
+                    else if (temp[3].startsWith("A") || temp[3].startsWith("M") || temp[3].startsWith("m") || temp[3].startsWith("P") || temp[3].startsWith("p") || temp[3].startsWith("Minmax")|| temp[3].startsWith("C"))
                         type = "WindyRural";
                     else {
                         br.close();

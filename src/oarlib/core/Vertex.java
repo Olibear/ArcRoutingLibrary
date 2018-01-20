@@ -74,8 +74,6 @@ public abstract class Vertex {
 
     public abstract void clearNeighbors();
 
-    public abstract Collection<? extends Link<? extends Vertex>> getIncidentLinks();
-
     public abstract int getDegree();
 
 

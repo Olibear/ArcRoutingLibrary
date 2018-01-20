@@ -40,12 +40,10 @@ public class ZigZagVertex extends Vertex {
 
     private int degree;
     private HashMap<ZigZagVertex, ArrayList<ZigZagLink>> neighbors;
-    private HashSet<ZigZagLink> incidentLinks;
 
     public ZigZagVertex(String label) {
         super(label);
         neighbors = new HashMap<ZigZagVertex, ArrayList<ZigZagLink>>();
-        incidentLinks = new HashSet<ZigZagLink>();
         setDegree(0);
     }
 
@@ -80,25 +78,6 @@ public class ZigZagVertex extends Vertex {
         return true;
     }
 
-
-    /**
-     * Adds a link to the incident links set
-     *
-     * @param a - the arc to add
-     */
-    public void addToIncidentLinks(ZigZagLink a) {
-        incidentLinks.add(a);
-    }
-
-    /**
-     * Removes a link from the incident links set of this vertex
-     *
-     * @param a - the arc to remove
-     */
-    public boolean removeFromIncidentLinks(ZigZagLink a) {
-        return incidentLinks.remove(a);
-    }
-
     //=================================
     //
     // Getters and Setters
@@ -128,11 +107,6 @@ public class ZigZagVertex extends Vertex {
     @Override
     public void clearNeighbors() {
         neighbors = new HashMap<ZigZagVertex, ArrayList<ZigZagLink>>();
-    }
-
-    @Override
-    public Collection<ZigZagLink> getIncidentLinks() {
-        return incidentLinks;
     }
 
 

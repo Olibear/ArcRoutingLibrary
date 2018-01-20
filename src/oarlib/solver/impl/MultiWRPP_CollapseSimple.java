@@ -457,7 +457,8 @@ public class MultiWRPP_CollapseSimple extends MultiVehicleSolver<WindyVertex, Wi
                     removed.add(i);
 
                     //add to 'affected' the edges that are adjacent to it
-                    for (WindyEdge we : edgeDual.getVertex(i).getIncidentLinks()) {
+                    for (Integer weId : edgeDual.getIncidentLinks(i)) {
+                        WindyEdge we = edgeDual.getEdge(weId);
                         affected.add(we.getFirstEndpointId());
                         affected.add(we.getSecondEndpointId());
 

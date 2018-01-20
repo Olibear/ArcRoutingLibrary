@@ -96,22 +96,26 @@ public class ClosestRequiredEdgeRebalancer<S extends Graph<?,?>> extends CostReb
                 reqVertexIds.add(v2.getId());
                 tempId = tempEdge.getId();
 
-                for (Link<? extends Vertex> candidate : v1.getIncidentLinks())
+                for (Integer eid: mGraph.getIncidentLinks(v1.getId())) {
+                    Link<? extends Vertex> candidate = mGraph.getEdge(eid);
                     if (candidate.isRequired() && candidate.getId() != tempId) {
                         foundAdjacentReq = true;
                         break;
                     }
+                }
 
                 if (foundAdjacentReq) {
                     ans.put(tempEdge.getId(), input.get(tempEdge.getId()));
                     continue;
                 }
 
-                for (Link<? extends Vertex> candidate : v2.getIncidentLinks())
+                for (Integer eid: mGraph.getIncidentLinks(v2.getId())) {
+                    Link<? extends Vertex> candidate = mGraph.getEdge(eid);
                     if (candidate.isRequired() && candidate.getId() != tempId) {
                         foundAdjacentReq = true;
                         break;
                     }
+                }
 
                 if (foundAdjacentReq) {
                     ans.put(tempEdge.getId(), input.get(tempEdge.getId()));

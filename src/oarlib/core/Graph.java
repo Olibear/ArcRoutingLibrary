@@ -29,6 +29,7 @@ import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.Pair;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -45,7 +46,8 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
     private int depotId; //internal vertex id of the depot
     private int[][] mDist; //shortest paths dist matrix
     private int[][] mPath; //shortest paths matrix
-    private int[][] mEdgePath;
+    private int[][] mEdgePath; //shortest paths matrix, with internal edge ids
+    protected TIntObjectHashMap<HashSet<Integer>> incidenceMap; // key is vertex id, value is a set of edge ids incident on the vertex
 
     private boolean distGenerated; //for lazy design pattern; whether or not dist matrix was calculated
 
@@ -59,6 +61,7 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
         eidCounter = 1;
         depotId = 1; //default
         distGenerated = false;
+        incidenceMap = new TIntObjectHashMap<HashSet<Integer>>();
         assignGraphId();
 
     }
@@ -410,6 +413,17 @@ public abstract class Graph<V extends Vertex, E extends Link<V>> {
      * @return - a hash map that has ids as keys to the edges
      */
     public abstract TIntObjectHashMap<E> getInternalEdgeMap();
+
+    /**
+     * @return - a hash map that has ids as vertex ids, and values as edge ids incident on the vertex
+     */
+    public TIntObjectHashMap<HashSet<Integer>> getIncidenceMap(){return incidenceMap;}
+
+    /**
+     * @param vertexId - internal id of the vertex whose incident link ids will be returned
+     * @return - internal ids of the edges incident on the specified vertex
+     */
+    public HashSet<Integer> getIncidentLinks(int vertexId){return incidenceMap.get(vertexId);}
 
     /**
      * Factory method for generating an edge.

@@ -54,6 +54,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
      * of added edges, as specified by M and inMdubPrime)
      */
     private static void eliminateAddedDirectedCycles(int n, ArrayList<MultiEdge<MixedEdge>> edgeContainers) throws IllegalArgumentException {
+        //System.out.println("Start eliminateAddedDirectedCycles");
         try {
             int mSize = edgeContainers.size() - 1;
             DirectedGraph add = new DirectedGraph();
@@ -542,6 +543,8 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
             while (improvements) //while we're making progress
             {
                 improvements = false;
+                boolean resetStart = true;
+
                 //SAPH Concept 1
                 while (true) // links of type acdf in Gstar, so we carry out the first part of SAPH
                 {
@@ -555,11 +558,21 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
                             break;
                         }
                     }
-                    if (idToImprove == 0) //no acdf edges left
-                        break;
+                    if (idToImprove == 0) {
+                        if(resetStart)//no acdf edges left
+                            break;
+                        else {
+                            start = 1;
+                            resetStart = true;
+                            continue;
+                        }
+                    }
+
+                    //System.out.println("ACDF link picked.");
                     toImprove = gEdgeContainers.get(idToImprove); //the edge container that we want to operate on
                     i = toImprove.getFirst().getEndpoints().getFirst().getId(); //vertex i
                     j = toImprove.getFirst().getEndpoints().getSecond().getId(); //vertex j
+                    //System.out.println("This is link: " + idToImprove + ", connecting vertices " + i +" and " + j +"." + "  It's type " + iStat + ".");
                     //initialize
                     Gij1 = G.getDeepCopy();
                     Gij2 = G.getDeepCopy();
@@ -567,6 +580,8 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
                     CostMod1(Gij1, gEdgeContainers, Em, Am); //cost mod 1 on Gij1
                     CostMod2(Gij1, G, gEdgeContainers, i, j); //cost mod 2 on Gij1
                     CostMod2(Gij2, G, gEdgeContainers, i, j); //cost mod 2 on Gij2
+
+
 
                     TIntObjectHashMap<MixedVertex> gij2Vertices = Gij2.getInternalVertexMap(); //indexed edges of Gij2 for calculating costs
 
@@ -621,16 +636,22 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
 
                         //now do the cost comparisons to decide whether it's fruitful to replace
                         if (cost1 < toImprove.getFirst().getCost() && cost1 < cost2) {
-                            start = 1;
+                            System.out.println("New cost: " + cost1 + ".  Old cost: " + toImprove.getFirst().getCost() + ".");
+                            //start = 1;
+                            resetStart = false;
                             //add SPij, and if type a, orient from j to i, if type d, get rid of the ij direction
                             toImprove.directBackward();
                             //add SPij
+                            System.out.println("Adding path from: " + i + ", to " + j + ".");
                             addShortestPathAndUpdate(i, j, path, edgePath, gij1Edges, gEdgeContainers);
                         } else if (cost2 < toImprove.getFirst().getCost() && cost2 < cost1) {
-                            start = 1;
+                            System.out.println("New cost: " + cost2 + ".  Old cost: " + toImprove.getFirst().getCost());
+                            //start = 1;
+                            resetStart = false;
                             //add SPji, and if type a, orient from i to j, if type d, get rid of the ji direction
                             toImprove.directForward();
                             //add SPji
+                            System.out.println("Adding path from: " + j + ", to " + i + ".");
                             addShortestPathAndUpdate(j, i, path2, edgePath2, gij1Edges, gEdgeContainers);
                         }
                     } else //it's c, or f
@@ -658,9 +679,12 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
 
                         //now do the cost comparisons to decide whether it's fruitful to replace
                         if (cost1 < toImprove.getFirst().getCost()) {
-                            start = 1;
+                            System.out.println("New cost: " + cost1 + ".  Old cost: " + toImprove.getFirst().getCost());
+                            //start = 1;
+                            resetStart = false;
                             //add SPij or SPji, and delete a copy of ij or ji
                             end = (toImprove.isDirectedBackward()) ? i : j;
+                            System.out.println("Adding path from: " + curr + ", to " + end + ".");
                             addShortestPathAndUpdate(curr, end, path, edgePath, gij1Edges, gEdgeContainers);
                             toImprove.tryRemoveCopy();
                         }
@@ -672,6 +696,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
                 }
 
                 start = 1;
+                resetStart = true;
                 while (true) // links of type b in Gstar, so we carry out the second part of SAPH
                 {
                     //pick a random one
@@ -684,11 +709,21 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
                             break;
                         }
                     }
-                    if (idToImprove == 0) //no b edges left
-                        break;
+                    if (idToImprove == 0) {
+                        if(resetStart)//no b edges left
+                            break;
+                        else {
+                            start = 1;
+                            resetStart = true;
+                            continue;
+                        }
+                    }
+
+                    //System.out.println("B Link picked.");
                     toImprove = gEdgeContainers.get(idToImprove); //the edge container that we want to operate on
                     i = toImprove.getFirst().getEndpoints().getFirst().getId(); //vertex i
                     j = toImprove.getFirst().getEndpoints().getSecond().getId(); //vertex j
+                    //System.out.println("This is link: " + idToImprove + ", connecting vertices " + i +" and " + j +"." + "  It's type " + iStat + ".");
                     //initialize
                     Gij3 = G.getDeepCopy();
                     Gij4 = G.getDeepCopy();
@@ -736,7 +771,9 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
 
                     //check if costs line up, and then add accordingly
                     if (cost1 + cost2 < 0) {
-                        start = 1;
+                        System.out.println("Improvement detected: " + (cost1 + cost2));
+                        //start = 1;
+                        resetStart = false;
                         improvements = true;
                         if (toImprove.isDirectedForward()) {
                             toImprove.addReverseCopy();
@@ -745,6 +782,7 @@ public class MCPPSolver_Yaoyuenyong extends SingleVehicleSolver<MixedVertex, Mix
                             toImprove.addReverseCopy();
                             toImprove.directForward();
                         }
+                        System.out.println("Adding path from: " + curr + ", to " + end + ".");
                         addShortestPathAndUpdate(curr, end, path, edgePath, gij3Edges, gEdgeContainers);
                         addShortestPathAndUpdate(curr, end, path2, edgePath2, gij4Edges, gEdgeContainers);
                         eliminateAddedDirectedCycles(n, gEdgeContainers);

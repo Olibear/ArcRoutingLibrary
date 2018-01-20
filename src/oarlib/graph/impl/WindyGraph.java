@@ -138,11 +138,13 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
         Pair<WindyVertex> endpoints = e.getEndpoints();
         endpoints.getFirst().addToNeighbors(endpoints.getSecond(), e);
         endpoints.getSecond().addToNeighbors(endpoints.getFirst(), e);
+
+        incidenceMap.get(e.getFirstEndpointId()).add(e.getId());
+        incidenceMap.get(e.getSecondEndpointId()).add(e.getId());
+
         WindyVertex toUpdate = endpoints.getFirst();
-        toUpdate.addToIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() + 1);
         toUpdate = e.getEndpoints().getSecond();
-        toUpdate.addToIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() + 1);
         super.addEdge(e);
     }
@@ -165,11 +167,13 @@ public class WindyGraph extends MutableGraph<WindyVertex, WindyEdge> {
         Pair<WindyVertex> endpoints = e.getEndpoints();
         endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
         endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
+
+        incidenceMap.get(e.getFirstEndpointId()).remove(e.getId());
+        incidenceMap.get(e.getSecondEndpointId()).remove(e.getId());
+
         WindyVertex toUpdate = endpoints.getFirst();
-        toUpdate.removeFromIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() - 1);
         toUpdate = e.getEndpoints().getSecond();
-        toUpdate.removeFromIncidentLinks(e);
         toUpdate.setDegree(toUpdate.getDegree() - 1);
         super.removeEdge(e);
     }

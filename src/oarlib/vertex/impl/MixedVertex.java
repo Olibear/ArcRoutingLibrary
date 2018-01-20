@@ -44,7 +44,6 @@ public class MixedVertex extends Vertex {
     private int outDegree;
     private int degree;
     private HashMap<MixedVertex, ArrayList<MixedEdge>> neighbors;
-    private HashSet<MixedEdge> incidentLinks;
 
     public MixedVertex(String label) {
         super(label);
@@ -52,7 +51,6 @@ public class MixedVertex extends Vertex {
         setOutDegree(0);
         setDegree(0);
         neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
-        incidentLinks = new HashSet<MixedEdge>();
     }
 
     /**
@@ -93,23 +91,6 @@ public class MixedVertex extends Vertex {
         if (neighbors.get(v).size() == 0)
             neighbors.remove(v);
         return true;
-    }
-
-
-    /**
-     * Adds a link to the incident links set
-     * @param a - the arc to add
-     */
-    public void addToIncidentLinks(MixedEdge a) {
-        incidentLinks.add(a);
-    }
-
-    /**
-     * Removes a link from the incident links set of this vertex
-     * @param a - the arc to remove
-     */
-    public boolean removeFromIncidentLinks(MixedEdge a) {
-        return incidentLinks.remove(a);
     }
 
     //=================================
@@ -161,11 +142,6 @@ public class MixedVertex extends Vertex {
     @Override
     public void clearNeighbors() {
         neighbors = new HashMap<MixedVertex, ArrayList<MixedEdge>>();
-    }
-
-    @Override
-    public Collection<? extends Link<? extends Vertex>> getIncidentLinks() {
-        return incidentLinks;
     }
 
 }

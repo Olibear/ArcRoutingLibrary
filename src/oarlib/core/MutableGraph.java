@@ -43,6 +43,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
     private TIntObjectHashMap<V> mInternalVertexMap; //indexed by ids
     private TIntObjectHashMap<E> mInternalEdgeMap;
 
+
     protected MutableGraph() {
         super();
         mVertices = new HashSet<V>();
@@ -195,6 +196,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         v.setGraphId(this.getGraphId());
         mVertices.add(v);
         mInternalVertexMap.put(v.getId(), v);
+        incidenceMap.put(v.getId(), new HashSet<Integer>());
         onStateChange();
         if (v.isFinalized())
             LOGGER.warn("You are trying to add a vertex to a second graph.  Behavior beyond this point is not guaranteed.");
@@ -217,6 +219,7 @@ public abstract class MutableGraph<V extends Vertex, E extends Link<V>> extends 
         boolean ret = mVertices.remove(v);
         if (ret) {
             mInternalVertexMap.remove(v.getId());
+            incidenceMap.remove(v.getId());
             onStateChange();
             v.setFinalized(false);
         }

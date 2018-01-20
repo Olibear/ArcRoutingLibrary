@@ -310,11 +310,11 @@ public class GeneralTestbed {
         //validateEulerTour();
         //snippetUCPPSolver();
         //testFredericksons("/Users/Username/FolderName");
-        validateUCPPSolver("/Users/oliverlum/Downloads/validateDCPP.txt");
+        //validateUCPPSolver("/Users/oliverlum/Downloads/validateDCPP.txt");
         //validateMCPPSolver("/Users/oliverlum/Downloads/test_instances/MCPP_Instances_YaoyuenyongInstances", "/Users/oliverlum/Downloads/validateFrederickson.txt");
-        //validateImprovedMCPPSolver("/Users/oliverlum/Downloads/test_instances/MCPP_Instances_Corberan", "/Users/oliverlum/Downloads/scaleYayuenyong_5.txt");
-        //validateWRPPSolver("/Users/oliverlum/Downloads/test_instances/WRPP_Instances_Corberan", "/Users/oliverlum/Downloads/names.txt");
-        //validateImprovedWRPPSolver("/Users/oliverlum/Downloads/test_instances/WRPP_Instances_Corberan", "/Users/oliverlum/Downloads/validationBenavent.txt");
+        //validateImprovedMCPPSolver("/Users/oliverlum/Downloads/test_instances/MCPP_Instances_Corberan", "/Users/oliverlum/Downloads/scaleYaoyuenyong_1.txt");
+        //validateWRPPSolver("/Users/oliverlum/Downloads/test_instances/WRPP_Instances_Corberan", "/Users/oliverlum/Downloads/win_scaling2.txt");
+        validateImprovedWRPPSolver("/Users/oliverlum/Downloads/test_instances/WRPP_Instances_Corberan", "/Users/oliverlum/Downloads/benavent_scaling2.txt");
         //testCamposGraphReader();
         //validateSimplifyGraph();
         //testMSArbor();
@@ -1661,7 +1661,8 @@ public class GeneralTestbed {
                 int bestCost = Integer.MAX_VALUE;
                 for (int i = 0; i < 1; i++) {
                     String temp = testInstance.getName();
-                    if (!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
+                    //if (!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
+                    if (!temp.startsWith("C") )
                         continue;
                     System.out.println(temp);
                     Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + temp);
@@ -1713,7 +1714,8 @@ public class GeneralTestbed {
                 for (int i = 0; i < 1; i++) {
                     String temp = testInstance.getName();
                     System.out.println(temp);
-                    if (!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
+                    //if (!temp.startsWith("A") && !temp.startsWith("M") && !temp.startsWith("m"))
+                    if (!temp.startsWith("C") )
                         continue;
                     Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + temp);
 

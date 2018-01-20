@@ -85,11 +85,13 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
     @Override
     public void addEdge(Arc e) throws InvalidEndpointsException {
         e.getTail().addToNeighbors(e.getHead(), e);
+
+        incidenceMap.get(e.getFirstEndpointId()).add(e.getId());
+        incidenceMap.get(e.getSecondEndpointId()).add(e.getId());
+
         DirectedVertex toUpdate = e.getTail();
-        toUpdate.addToIncidentLinks(e);
         toUpdate.setOutDegree(toUpdate.getOutDegree() + 1);
         toUpdate = e.getHead();
-        toUpdate.addToIncidentLinks(e);
         toUpdate.setInDegree(toUpdate.getInDegree() + 1);
         super.addEdge(e);
     }
@@ -101,11 +103,13 @@ public class DirectedGraph extends MutableGraph<DirectedVertex, Arc> {
             throw new IllegalArgumentException();
         }
         e.getTail().removeFromNeighbors(e.getHead(), e);
+
+        incidenceMap.get(e.getFirstEndpointId()).remove(e.getId());
+        incidenceMap.get(e.getSecondEndpointId()).remove(e.getId());
+
         DirectedVertex toUpdate = e.getTail();
-        toUpdate.removeFromIncidentLinks(e);
         toUpdate.setOutDegree(toUpdate.getOutDegree() - 1);
         toUpdate = e.getHead();
-        toUpdate.removeFromIncidentLinks(e);
         toUpdate.setInDegree(toUpdate.getInDegree() - 1);
         super.removeEdge(e);
     }

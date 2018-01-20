@@ -42,14 +42,12 @@ public class DirectedVertex extends Vertex {
     private int inDegree;
     private int outDegree;
     private HashMap<DirectedVertex, ArrayList<Arc>> neighbors;
-    private HashSet<Arc> incidentLinks;
 
     public DirectedVertex(String label) {
         super(label);
         setInDegree(0);
         setOutDegree(0);
         neighbors = new HashMap<DirectedVertex, ArrayList<Arc>>();
-        incidentLinks = new HashSet<Arc>();
     }
 
     /**
@@ -81,22 +79,6 @@ public class DirectedVertex extends Vertex {
         if (neighbors.get(v).size() == 0)
             neighbors.remove(v);
         return true;
-    }
-
-    /**
-     * Adds a link to the incident links set
-     * @param a - the arc to add
-     */
-    public void addToIncidentLinks(Arc a) {
-        incidentLinks.add(a);
-    }
-
-    /**
-     * Removes a link from the incident links set of this vertex
-     * @param a - the arc to remove
-     */
-    public boolean removeFromIncidentLinks(Arc a) {
-        return incidentLinks.remove(a);
     }
 
     //=================================
@@ -141,11 +123,6 @@ public class DirectedVertex extends Vertex {
     @Override
     public void clearNeighbors() {
         neighbors = new HashMap<DirectedVertex, ArrayList<Arc>>();
-    }
-
-    @Override
-    public Collection<? extends Link<? extends Vertex>> getIncidentLinks() {
-        return incidentLinks;
     }
 
 }

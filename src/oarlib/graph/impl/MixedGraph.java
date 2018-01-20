@@ -121,26 +121,31 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
             LOGGER.error("The specified endpoints do not appear to exist in this graph.");
             throw new InvalidEndpointsException();
         }
+
         if (e.isDirected()) {
             e.getEndpoints().getFirst().addToNeighbors(e.getEndpoints().getSecond(), e);
+
+            incidenceMap.get(e.getFirstEndpointId()).add(e.getId());
+            incidenceMap.get(e.getSecondEndpointId()).add(e.getId());
+
             MixedVertex toUpdate = e.getEndpoints().getFirst();
-            toUpdate.addToIncidentLinks(e);
             toUpdate.setOutDegree(toUpdate.getOutDegree() + 1);
             toUpdate.setDegree(toUpdate.getDegree() + 1);
             toUpdate = e.getEndpoints().getSecond();
-            toUpdate.addToIncidentLinks(e);
             toUpdate.setInDegree(toUpdate.getInDegree() + 1);
             toUpdate.setDegree(toUpdate.getDegree() + 1);
             super.addEdge(e);
         } else {
             Pair<MixedVertex> endpoints = e.getEndpoints();
+
+            incidenceMap.get(e.getFirstEndpointId()).add(e.getId());
+            incidenceMap.get(e.getSecondEndpointId()).add(e.getId());
+
             endpoints.getFirst().addToNeighbors(endpoints.getSecond(), e);
             endpoints.getSecond().addToNeighbors(endpoints.getFirst(), e);
             MixedVertex toUpdate = endpoints.getFirst();
-            toUpdate.addToIncidentLinks(e);
             toUpdate.setDegree(toUpdate.getDegree() + 1);
             toUpdate = e.getEndpoints().getSecond();
-            toUpdate.addToIncidentLinks(e);
             toUpdate.setDegree(toUpdate.getDegree() + 1);
             super.addEdge(e);
         }
@@ -166,22 +171,27 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
         try {
             if (e.isDirected()) {
                 e.getEndpoints().getFirst().removeFromNeighbors(e.getEndpoints().getSecond(), e);
+
+
+                incidenceMap.get(e.getFirstEndpointId()).remove(e.getId());
+                incidenceMap.get(e.getSecondEndpointId()).remove(e.getId());
+
                 MixedVertex toUpdate = e.getEndpoints().getFirst();
-                toUpdate.removeFromIncidentLinks(e);
                 toUpdate.setOutDegree(toUpdate.getOutDegree() - 1);
                 toUpdate = e.getEndpoints().getSecond();
-                toUpdate.removeFromIncidentLinks(e);
                 toUpdate.setInDegree(toUpdate.getInDegree() - 1);
                 super.removeEdge(e);
             } else {
                 Pair<MixedVertex> endpoints = e.getEndpoints();
+
+                incidenceMap.get(e.getFirstEndpointId()).remove(e.getId());
+                incidenceMap.get(e.getSecondEndpointId()).remove(e.getId());
+
                 endpoints.getFirst().removeFromNeighbors(endpoints.getSecond(), e);
                 endpoints.getSecond().removeFromNeighbors(endpoints.getFirst(), e);
                 MixedVertex toUpdate = endpoints.getFirst();
-                toUpdate.removeFromIncidentLinks(e);
                 toUpdate.setDegree(toUpdate.getDegree() - 1);
                 toUpdate = e.getEndpoints().getSecond();
-                toUpdate.removeFromIncidentLinks(e);
                 toUpdate.setDegree(toUpdate.getDegree() - 1);
                 super.removeEdge(e);
             }
@@ -222,7 +232,7 @@ public class MixedGraph extends MutableGraph<MixedVertex, MixedEdge> {
             TIntObjectHashMap<MixedVertex> indexedVertices = this.getInternalVertexMap();
             MixedVertex temp, temp2;
             int n = this.getVertices().size();
-            int m = this.getEdges().size();
+            int m;
             for (int i = 1; i <= n; i++) {
                 temp = new MixedVertex("deep copy original"); //the new guy
                 temp2 = indexedVertices.get(i); //the old guy

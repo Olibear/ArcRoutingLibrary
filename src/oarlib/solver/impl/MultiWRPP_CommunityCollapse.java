@@ -504,7 +504,8 @@ public class MultiWRPP_CommunityCollapse extends MultiVehicleSolver<WindyVertex,
             for (int j = 1; j <= n; j++) {
                 WindyVertex wv = ans.getVertex(j);
                 boolean isReq = false;
-                for (WindyEdge we : wv.getIncidentLinks()) {
+                for (Integer weId : mGraph.getIncidentLinks(wv.getId())) {
+                    WindyEdge we = mGraph.getEdge(weId);
                     if (we.isRequired() || we.isReverseRequired())
                         isReq = true;
                 }
