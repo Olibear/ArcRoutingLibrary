@@ -25,9 +25,6 @@
 package oarlib.test;
 
 import gnu.trove.TIntObjectHashMap;
-import oarlib.bmgt831.EquatorialInstanceGenerator;
-import oarlib.bmgt831.TruckAndDroneFeasibilityChecker;
-import oarlib.bmgt831.TruckAndDroneProblemWriter;
 import oarlib.core.Graph;
 import oarlib.core.Problem;
 import oarlib.core.Route;
@@ -39,13 +36,10 @@ import oarlib.graph.graphgen.Util.OSM_BoundingBoxes;
 import oarlib.graph.graphgen.erdosrenyi.DirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.erdosrenyi.UndirectedErdosRenyiGraphGenerator;
 import oarlib.graph.graphgen.rectangular.DirectedRectangularGraphGenerator;
-import oarlib.graph.graphgen.rectangular.UndirectedRectangularGraphGenerator;
-import oarlib.graph.graphgen.rectangular.ZigzagRectangularGraphGenerator;
 import oarlib.graph.impl.*;
 import oarlib.graph.util.CommonAlgorithms;
 import oarlib.graph.util.IndexedRecord;
 import oarlib.graph.util.MSArbor;
-import oarlib.graph.util.Pair;
 import oarlib.link.impl.*;
 import oarlib.metrics.MaxMetric;
 import oarlib.metrics.Metric;
@@ -62,15 +56,11 @@ import oarlib.problem.impl.io.util.ExportHelper;
 import oarlib.problem.impl.multivehicle.MinMaxKWRPP;
 import oarlib.problem.impl.rpp.DirectedRPP;
 import oarlib.problem.impl.rpp.WindyRPP;
-import oarlib.problem.impl.rpp.WindyRPPZZTW;
 import oarlib.route.impl.Tour;
-import oarlib.route.util.RouteExporter;
 import oarlib.route.util.SolutionImporter;
 import oarlib.solver.impl.*;
 import oarlib.vertex.impl.DirectedVertex;
-import oarlib.vertex.impl.UndirectedVertex;
 import oarlib.vertex.impl.WindyVertex;
-import oarlib.vertex.impl.ZigZagVertex;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -719,27 +709,6 @@ public class GeneralTestbed {
 
     }
 
-    private static void testEquatorialInstanceGenerator() {
-        EquatorialInstanceGenerator gen = new EquatorialInstanceGenerator(3, 3);
-        UndirectedGraph ans = gen.generateInstance();
-    }
-
-    private static void testFeasibilityChecker(String[] args) {
-
-        if (args.length != 2) {
-            System.out.println("To run the feasibility checker, please provide the following two arguments in order:");
-            System.out.println("Path of instance file for which you are solving the problem, (e.g. /Users/username/Documents/instance.txt)");
-            System.out.println("Path of solution file, (e.g. /Users/username/Documents/output.txt)");
-            return;
-        }
-
-        TruckAndDroneFeasibilityChecker fc = new TruckAndDroneFeasibilityChecker(args[0], args[1]);
-        if (fc.checkFeasible())
-            System.out.println("Routes are feasible.");
-        else
-            System.out.println("Routes infeasible.  Please make sure the format is correct.");
-    }
-
     private static void createLegend() {
         try {
             UndirectedGraph toVisualize = new UndirectedGraph(21);
@@ -797,10 +766,6 @@ public class GeneralTestbed {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private static void testTruckAndDroneProblemGenerator() {
-        TruckAndDroneProblemWriter.writeTruckAndDroneProblem("/Users/Username/FolderName/FileName.txt");
     }
 
     @SuppressWarnings("unused")
@@ -1537,66 +1502,6 @@ public class GeneralTestbed {
                 if (bestCost == Integer.MAX_VALUE)
                     continue;
                 //pw.println(bestCost + ";");
-            }
-            pw.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private static void validateWPPIPSolvers(String instanceFolder, String outputFile) {
-        ProblemReader gr = new ProblemReader(ProblemFormat.Name.Corberan);
-        try {
-            WindyCPP validInstance;
-            WPPSolver_Gurobi validSolver;
-            WPPSolver_Gurobi_CuttingPlane validSolver2;
-            Route validAns;
-
-            File testInstanceFolder = new File(instanceFolder);
-            PrintWriter pw = new PrintWriter(outputFile, "UTF-8");
-            long start;
-            long end;
-
-            int cost = 0;
-            int cost2 = 0;
-
-            // run the solver on the instances in the provided folder
-            int j = 0;
-            for (final File testInstance : testInstanceFolder.listFiles()) {
-                for (int i = 0; i < 1; i++) {
-                    String temp = testInstance.getName();
-                    System.out.println(temp);
-                    if (!temp.startsWith("WA") && !temp.startsWith("WB"))
-                        continue;
-                    Graph<?, ?> g = gr.readGraph(instanceFolder + "/" + temp);
-
-                    if (g.getClass() == WindyGraph.class) {
-                        WindyGraph g2 = (WindyGraph) g;
-                        validInstance = new WindyCPP(g2);
-                        //validSolver = new WPPSolver_Gurobi(validInstance);
-                        validSolver2 = new WPPSolver_Gurobi_CuttingPlane(validInstance);
-
-                        //exact
-                        //start = System.nanoTime();
-                        //validAns = validSolver.trySolve();
-                        //end = System.nanoTime();
-
-                        //pw.print((end-start)/(1e6) + ",");
-                        //System.out.println("It took " + (end - start)/(1e6) + " milliseconds to run our WPP_Gurobi implementation on a graph with " + g2.getEdges().size() + " edges.");
-
-
-                        //heuristic
-                        start = System.nanoTime();
-                        validAns = validSolver2.trySolve().iterator().next();
-                        end = System.nanoTime();
-
-                        pw.print((end - start) / (1e6));
-                        pw.println();
-                        System.out.println("It took " + (end - start) / (1e6) + " milliseconds to run our WPP_Gurobi_CuttingPlane implementation on a graph with " + g2.getEdges().size() + " edges.");
-                    }
-                }
-
             }
             pw.close();
         } catch (Exception e) {
